@@ -33,6 +33,7 @@ export default function RegisterForm() {
     register,
     handleSubmit,
     setError,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(registerSchema),
@@ -42,8 +43,11 @@ export default function RegisterForm() {
       phone: "",
       password: "",
       confirmPassword: "",
+      acceptTerms: false,
     },
   });
+
+  const acceptTerms = watch("acceptTerms");
 
   const onSubmit = async ({ fullName, email, phone, password }) => {
     try {
@@ -62,17 +66,13 @@ export default function RegisterForm() {
         </span>
         <h2 className="flex items-center justify-center gap-1.5 text-center text-[24px] font-semibold tracking-[-0.015em] text-ink">
           Tạo tài khoản VeggiePal
-          <Leaf className="size-[18px] shrink-0 text-brand" />
         </h2>
-        <p className="text-center text-[13px] text-body">
-          Bắt đầu hành trình ăn chay lành mạnh cùng chúng mình!
-        </p>
       </div>
 
       <form
         onSubmit={handleSubmit(onSubmit)}
         noValidate
-        className="mt-4 flex flex-col gap-3"
+        className="mt-4 flex flex-col gap-4"
       >
         {errors.root && (
           <p
@@ -83,7 +83,7 @@ export default function RegisterForm() {
           </p>
         )}
 
-        <div className="flex flex-col gap-1">
+        <div className="relative flex flex-col gap-1">
           <label htmlFor={fullNameId} className="text-[14px] font-semibold text-ink">
             Họ và tên
           </label>
@@ -104,11 +104,13 @@ export default function RegisterForm() {
             />
           </div>
           {errors.fullName && (
-            <span className="text-xs text-destructive">{errors.fullName.message}</span>
+            <span className="absolute left-0 top-full mt-1 text-xs leading-tight text-destructive">
+              {errors.fullName.message}
+            </span>
           )}
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="relative flex flex-col gap-1">
           <label htmlFor={emailId} className="text-[14px] font-semibold text-ink">
             Email
           </label>
@@ -129,13 +131,15 @@ export default function RegisterForm() {
             />
           </div>
           {errors.email && (
-            <span className="text-xs text-destructive">{errors.email.message}</span>
+            <span className="absolute left-0 top-full mt-1 text-xs leading-tight text-destructive">
+              {errors.email.message}
+            </span>
           )}
         </div>
 
-        <div className="flex flex-col gap-1">
+        <div className="relative flex flex-col gap-1">
           <label htmlFor={phoneId} className="text-[14px] font-semibold text-ink">
-            Số điện thoại
+            Số điện thoại (không bắt buộc)
           </label>
           <div className="relative">
             <img
@@ -154,12 +158,14 @@ export default function RegisterForm() {
             />
           </div>
           {errors.phone && (
-            <span className="text-xs text-destructive">{errors.phone.message}</span>
+            <span className="absolute left-0 top-full mt-1 text-xs leading-tight text-destructive">
+              {errors.phone.message}
+            </span>
           )}
         </div>
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div className="flex flex-col gap-1">
+          <div className="relative flex flex-col gap-1">
             <label htmlFor={passwordId} className="text-[14px] font-semibold text-ink">
               Mật khẩu
             </label>
@@ -188,11 +194,13 @@ export default function RegisterForm() {
               </button>
             </div>
             {errors.password && (
-              <span className="text-xs text-destructive">{errors.password.message}</span>
+              <span className="absolute left-0 top-full mt-1 text-xs leading-tight text-destructive">
+                {errors.password.message}
+              </span>
             )}
           </div>
 
-          <div className="flex flex-col gap-1">
+          <div className="relative flex flex-col gap-1">
             <label htmlFor={confirmPasswordId} className="text-[14px] font-semibold text-ink">
               Xác nhận mật khẩu
             </label>
@@ -221,7 +229,7 @@ export default function RegisterForm() {
               </button>
             </div>
             {errors.confirmPassword && (
-              <span className="text-xs text-destructive">
+              <span className="absolute left-0 top-full mt-1 text-xs leading-tight text-destructive">
                 {errors.confirmPassword.message}
               </span>
             )}
@@ -237,15 +245,14 @@ export default function RegisterForm() {
           <span>
             Tôi đồng ý với{" "}
             <span className="font-semibold text-brand">Điều khoản sử dụng</span> và{" "}
-            <span className="font-semibold text-brand">Chính sách bảo mật</span> của
-            VeggiePal
+            <span className="font-semibold text-brand">Chính sách bảo mật</span>
           </span>
         </label>
 
         <button
           type="submit"
-          disabled={isSubmitting}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-[14px] font-bold text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] transition hover:bg-brand/90 disabled:opacity-60"
+          disabled={isSubmitting || !acceptTerms}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-[14px] font-bold text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] transition hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none disabled:hover:bg-brand"
         >
           <UserPlus className="size-[17px]" />
           {isSubmitting ? "Đang tạo tài khoản..." : "Tạo tài khoản"}

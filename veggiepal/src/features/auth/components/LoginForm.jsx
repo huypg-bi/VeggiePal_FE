@@ -2,7 +2,7 @@ import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Eye, EyeOff, Leaf } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 import { loginSchema } from "@/features/auth/schema";
 import { login } from "@/features/auth/api/authApi";
@@ -13,7 +13,6 @@ import keyIcon from "@/assets/svg/key.svg";
 import lockIcon from "@/assets/svg/unlock.svg";
 import loginIcon from "@/assets/svg/login.svg";
 import googleIcon from "@/assets/svg/gg.svg";
-import tickIcon from "@/assets/svg/tick.svg";
 
 const fieldClass =
   "h-12 w-full rounded-xl bg-brand-soft pl-10 pr-4 text-[15px] text-ink placeholder:text-subtle outline-none transition focus-visible:ring-2 focus-visible:ring-brand/40 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/40";
@@ -63,9 +62,6 @@ export default function LoginForm() {
         <h2 className="text-center text-[32px] font-semibold tracking-[-0.015em] text-ink lg:text-[28px]">
           Đăng nhập vào VeggiePal
         </h2>
-        <p className="text-center text-[14px] text-body">
-          Chào mừng bạn quay lại! Cùng tiếp tục hành trình ăn chay lành mạnh nhé!
-        </p>
       </div>
 
       <form
@@ -84,7 +80,7 @@ export default function LoginForm() {
 
         <div className="flex flex-col gap-1">
           <label htmlFor={emailId} className="text-[14px] font-semibold text-ink">
-            Email hoặc số điện thoại
+            Email
           </label>
           <div className="relative">
             <img
@@ -206,20 +202,6 @@ export default function LoginForm() {
           Đăng ký ngay
         </button>
       </p>
-
-      <div className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-gradient-to-r from-[rgb(110_186_131_/_0.2)] to-[rgb(160_213_253_/_0.2)] p-3">
-        <div className="flex items-center gap-2">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white">
-            <Leaf className="size-4 text-brand" />
-          </span>
-          <p className="text-[12px] font-semibold leading-[1.3] text-ink">
-            Dành cho những ai
-            <br />
-            muốn sống xanh, ăn sạch và khỏe mạnh!
-          </p>
-        </div>
-        <img src={tickIcon} alt="" className="size-[18px] shrink-0" />
-      </div>
     </div>
   );
 }
