@@ -1,26 +1,25 @@
-import BrandPanel from "@/features/auth/components/BrandPanel";
 import LoginForm from "@/features/auth/components/LoginForm";
+import bgLogin from "@/assets/img/bg_login.png";
 
-// Bố cục 2 cột theo file Figma: giới thiệu thương hiệu (trái) + form đăng nhập (phải).
-// Dưới màn hình lớn thì ẩn cột trái, chỉ hiển thị form.
 export default function LoginScreen() {
   return (
     <div className="relative min-h-dvh overflow-hidden bg-canvas">
-      {/* Vệt sáng xanh mờ ở góc dưới phải (theo Figma) */}
+      <style>{`
+        @media (min-width: 1024px) {
+          .login-card-slot { padding-right: 6%; }
+        }
+        @media (min-width: 1024px) and (min-aspect-ratio: 7/4) {
+          .login-card-slot { padding-right: 13%; }
+        }
+      `}</style>
       <div
         aria-hidden
-        className="pointer-events-none absolute bottom-10 right-8 size-80 rounded-full bg-[rgb(160_213_253_/_0.3)] blur-3xl"
+        className="fixed inset-0 hidden bg-cover bg-no-repeat lg:block"
+        style={{ backgroundImage: `url(${bgLogin})`, backgroundPosition: "left top" }}
       />
 
-      <div className="relative mx-auto flex min-h-dvh max-w-[1280px] items-center px-6 py-10 lg:px-10 lg:py-16">
-        <div className="grid w-full items-center gap-10 lg:grid-cols-2 lg:gap-12">
-          <div className="hidden lg:block">
-            <BrandPanel />
-          </div>
-          <div className="flex justify-center">
-            <LoginForm />
-          </div>
-        </div>
+      <div className="login-card-slot relative flex min-h-dvh items-center justify-center overflow-y-auto px-6 py-10 lg:justify-end lg:py-10 lg:pl-10">
+        <LoginForm />
       </div>
     </div>
   );
