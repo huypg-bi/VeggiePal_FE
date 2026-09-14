@@ -115,7 +115,7 @@ export default function LoginForm() {
             </label>
             <button
               type="button"
-              onClick={comingSoon}
+              onClick={() => navigate("/forgot-password")}
               className="text-[14px] font-semibold text-brand hover:underline"
             >
               Quên mật khẩu?
