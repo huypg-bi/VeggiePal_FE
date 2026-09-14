@@ -1,24 +1,15 @@
 import RegisterForm from "@/features/auth/components/RegisterForm";
-import bgRegister from "@/assets/img/bg_register.jpg";
+import bgRegister from "@/assets/img/bg_register.png";
 
 export default function RegisterScreen() {
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-canvas">
-      <style>{`
-        @media (min-width: 1024px) {
-          .register-card-slot { padding-right: 6%; }
-        }
-        @media (min-width: 1024px) and (min-aspect-ratio: 7/4) {
-          .register-card-slot { padding-right: 8%; }
-        }
-      `}</style>
-      <div
-        aria-hidden
-        className="fixed inset-0 hidden bg-cover bg-no-repeat lg:block"
-        style={{ backgroundImage: `url(${bgRegister})`, backgroundPosition: "left top" }}
-      />
-
-      <div className="register-card-slot relative flex min-h-dvh items-center justify-center overflow-y-auto px-6 py-6 lg:justify-end lg:py-2 lg:pl-10">
+    <div className="flex min-h-dvh items-center justify-center bg-gradient-to-br from-[#BFFFC7] via-[white] to-[#BFFFC7] px-6 py-4">
+      <div className="flex w-full max-w-[1040px] flex-col items-center lg:flex-row lg:items-stretch lg:justify-center lg:gap-8 lg:rounded-[32px] lg:bg-[#E4FCE4] lg:p-6 lg:shadow-[0_20px_25px_-5px_rgba(0,0,0,0.08),0_8px_10px_-6px_rgba(0,0,0,0.05)]">
+        <img
+          src={bgRegister}
+          alt="VeggiePal — Gia nhập VeggiePal"
+          className="hidden h-full w-auto max-w-[420px] object-contain lg:block"
+        />
         <RegisterForm />
       </div>
     </div>
