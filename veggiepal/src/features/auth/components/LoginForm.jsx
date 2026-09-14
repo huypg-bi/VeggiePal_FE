@@ -2,17 +2,18 @@ import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Eye, EyeOff, Users } from "lucide-react";
+import { Eye, EyeOff, Leaf } from "lucide-react";
 
 import { loginSchema } from "@/features/auth/schema";
 import { login } from "@/features/auth/api/authApi";
 import { useAuthStore } from "@/features/auth/store/authStore";
 
-import atIcon from "@/assets/svg/@.svg";
+import mailIcon from "@/assets/svg/mail.svg";
 import keyIcon from "@/assets/svg/key.svg";
 import lockIcon from "@/assets/svg/unlock.svg";
 import loginIcon from "@/assets/svg/login.svg";
 import googleIcon from "@/assets/svg/gg.svg";
+import tickIcon from "@/assets/svg/tick.svg";
 
 const fieldClass =
   "h-12 w-full rounded-xl bg-brand-soft pl-10 pr-4 text-[15px] text-ink placeholder:text-subtle outline-none transition focus-visible:ring-2 focus-visible:ring-brand/40 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/40";
@@ -36,7 +37,7 @@ export default function LoginForm() {
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "", remember: true },
+    defaultValues: { email: "", password: "", remember: false },
   });
 
   const onSubmit = async (values) => {
@@ -54,16 +55,16 @@ export default function LoginForm() {
     window.alert("Tính năng này sẽ sẵn sàng khi tích hợp backend.");
 
   return (
-    <div className="w-full max-w-[448px] rounded-2xl bg-white p-8 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)]">
+    <div className="w-full max-w-[448px] rounded-2xl bg-white p-8 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] lg:max-w-[416px]">
       <div className="flex flex-col items-center gap-1">
         <span className="mb-2 flex size-12 items-center justify-center rounded-full bg-brand/10">
           <img src={lockIcon} alt="" className="h-6 w-auto" />
         </span>
-        <h2 className="text-center text-[32px] font-semibold tracking-[-0.015em] text-ink">
+        <h2 className="text-center text-[32px] font-semibold tracking-[-0.015em] text-ink lg:text-[28px]">
           Đăng nhập vào VeggiePal
         </h2>
         <p className="text-center text-[14px] text-body">
-          Chào mừng bạn quay lại với căn bếp thuần chay xanh mát
+          Chào mừng bạn quay lại! Cùng tiếp tục hành trình ăn chay lành mạnh nhé!
         </p>
       </div>
 
@@ -82,25 +83,20 @@ export default function LoginForm() {
         )}
 
         <div className="flex flex-col gap-1">
-          <div className="flex items-center justify-between">
-            <label htmlFor={emailId} className="text-[14px] font-semibold text-ink">
-              Email
-            </label>
-            <span className="text-[11px] font-medium tracking-[0.03em] text-brand">
-              Cần thiết
-            </span>
-          </div>
+          <label htmlFor={emailId} className="text-[14px] font-semibold text-ink">
+            Email hoặc số điện thoại
+          </label>
           <div className="relative">
             <img
-              src={atIcon}
+              src={mailIcon}
               alt=""
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2"
+              className="pointer-events-none absolute left-3 top-1/2 w-[17px] -translate-y-1/2"
             />
             <input
               id={emailId}
-              type="email"
+              type="text"
               autoComplete="email"
-              placeholder="name@example.com"
+              placeholder="Nhập email hoặc số điện thoại..."
               aria-invalid={Boolean(errors.email)}
               className={fieldClass}
               {...register("email")}
@@ -121,9 +117,13 @@ export default function LoginForm() {
             >
               Mật khẩu
             </label>
-            <span className="text-[11px] font-medium tracking-[0.03em] text-subtle">
-              Tối thiểu 8 ký tự
-            </span>
+            <button
+              type="button"
+              onClick={comingSoon}
+              className="text-[14px] font-semibold text-brand hover:underline"
+            >
+              Quên mật khẩu?
+            </button>
           </div>
           <div className="relative">
             <img
@@ -135,7 +135,7 @@ export default function LoginForm() {
               id={passwordId}
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
-              placeholder="Nhập mật khẩu của bạn"
+              placeholder="Nhập mật khẩu của bạn..."
               aria-invalid={Boolean(errors.password)}
               className={`${fieldClass} pr-11`}
               {...register("password")}
@@ -160,23 +160,14 @@ export default function LoginForm() {
           )}
         </div>
 
-        <div className="flex items-center justify-between">
-          <label className="flex items-center gap-2 text-[14px] font-semibold text-body">
-            <input
-              type="checkbox"
-              className="size-4 rounded border-subtle/60 accent-brand"
-              {...register("remember")}
-            />
-            Ghi nhớ đăng nhập
-          </label>
-          <button
-            type="button"
-            onClick={comingSoon}
-            className="text-[14px] font-semibold text-brand-blue hover:underline"
-          >
-            Quên mật khẩu?
-          </button>
-        </div>
+        <label className="flex items-center gap-2 text-[14px] font-semibold text-body">
+          <input
+            type="checkbox"
+            className="size-4 rounded border-subtle/60 accent-brand"
+            {...register("remember")}
+          />
+          Ghi nhớ đăng nhập
+        </label>
 
         <button
           type="submit"
@@ -190,7 +181,7 @@ export default function LoginForm() {
 
       <div className="my-4 flex items-center gap-3">
         <span className="h-px flex-1 bg-[rgb(191_201_190_/_0.4)]" />
-        <span className="text-[11px] font-medium uppercase tracking-[0.05em] text-subtle">
+        <span className="text-[13px] font-medium text-subtle">
           Hoặc tiếp tục với
         </span>
         <span className="h-px flex-1 bg-[rgb(191_201_190_/_0.4)]" />
@@ -218,23 +209,16 @@ export default function LoginForm() {
 
       <div className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-gradient-to-r from-[rgb(110_186_131_/_0.2)] to-[rgb(160_213_253_/_0.2)] p-3">
         <div className="flex items-center gap-2">
-          <Users className="size-[18px] shrink-0 text-brand" />
-          <div className="flex flex-col">
-            <span className="text-[11px] font-bold tracking-[0.03em] text-ink">
-              Dành cho khách
-            </span>
-            <span className="text-[11px] font-medium tracking-[0.03em] text-body">
-              Trải nghiệm AI Chatbot ngay không cần tài khoản
-            </span>
-          </div>
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-white">
+            <Leaf className="size-4 text-brand" />
+          </span>
+          <p className="text-[12px] font-semibold leading-[1.3] text-ink">
+            Dành cho những ai
+            <br />
+            muốn sống xanh, ăn sạch và khỏe mạnh!
+          </p>
         </div>
-        <button
-          type="button"
-          onClick={comingSoon}
-          className="shrink-0 rounded-full bg-white px-3 py-1 text-[11px] font-bold text-brand shadow-[0_1px_1px_rgba(0,0,0,0.05)]"
-        >
-          Thử ngay →
-        </button>
+        <img src={tickIcon} alt="" className="size-[18px] shrink-0" />
       </div>
     </div>
   );
