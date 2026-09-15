@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import LoginScreen from "@/features/auth/pages/LoginScreen";
 import RegisterScreen from "@/features/auth/pages/RegisterScreen";
 import ForgotPasswordScreen from "@/features/auth/pages/ForgotPasswordScreen";
+import VerifyOtpScreen from "@/features/auth/pages/VerifyOtpScreen";
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import { useAuthStore } from "@/features/auth/store/authStore";
 
@@ -12,6 +13,7 @@ export default function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
+      <Route path="/verify-otp" element={<VerifyOtpScreen />} />
       <Route
         path="/"
         element={

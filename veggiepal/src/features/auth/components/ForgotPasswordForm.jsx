@@ -17,7 +17,7 @@ export default function ForgotPasswordForm() {
     e.preventDefault();
     setIsSubmitting(true);
     // Chưa gắn backend, chỉ mô phỏng UI.
-    window.alert("Tính năng này sẽ sẵn sàng khi tích hợp backend.");
+    navigate("/verify-otp");
     setIsSubmitting(false);
   };
 
