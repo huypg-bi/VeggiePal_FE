@@ -6,6 +6,7 @@ import ForgotPasswordScreen from "@/features/auth/pages/ForgotPasswordScreen";
 import VerifyOtpScreen from "@/features/auth/pages/VerifyOtpScreen";
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import HomeScreen from "@/features/home/pages/HomeScreen";
 
 export default function AppRoutes() {
   return (
@@ -41,22 +42,6 @@ function RegisterPage() {
   return <RegisterScreen />;
 }
 
-// Trang tạm để thấy luồng login chạy end-to-end.
 function HomePage() {
-  const user = useAuthStore((s) => s.user);
-  const logout = useAuthStore((s) => s.logout);
-
-  return (
-    <div className="min-h-dvh bg-background p-8 text-foreground">
-      <p>
-        Xin chào, <strong>{user?.fullName}</strong> ({user?.email})
-      </p>
-      <button
-        onClick={logout}
-        className="mt-4 rounded-lg border border-border px-3 py-1.5 text-sm hover:bg-muted"
-      >
-        Đăng xuất
-      </button>
-    </div>
-  );
+  return <HomeScreen />;
 }
