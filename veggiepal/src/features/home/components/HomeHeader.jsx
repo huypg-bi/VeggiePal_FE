@@ -1,18 +1,20 @@
 import { useState } from "react";
 import {
   Bell,
-  BookOpen,
+  Bot,
   CalendarDays,
   ChevronDown,
   ChevronRight,
   CircleHelp,
   CircleUserRound,
-  House,
   LogOut,
   MessageSquareWarning,
+  Map,
   Moon,
   Search,
+  SquarePlay,
   UserRound,
+  UtensilsCrossed,
   Users,
 } from "lucide-react";
 
@@ -21,10 +23,10 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { id: "home", label: "Trang chủ", icon: House },
-  { id: "recipes", label: "Công thức", icon: BookOpen },
-  { id: "plan", label: "Kế hoạch", icon: CalendarDays },
-  { id: "community", label: "Cộng đồng", icon: Users },
+  { id: "utensils-crossed", label: "Thực Đơn", icon: UtensilsCrossed },
+  { id: "square-play", label: "Video AI", icon: SquarePlay },
+  { id: "map", label: "Bản đồ", icon: Map },
+  { id: "bot", label: "Trợ lí AI", icon: Bot },
 ];
 
 const PROFILE_MENU_ITEMS = [
