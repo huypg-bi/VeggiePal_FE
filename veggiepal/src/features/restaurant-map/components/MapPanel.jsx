@@ -4,7 +4,7 @@ import { LocateFixed, MapPin, Minus, Plus, RotateCcw } from "lucide-react";
 // Khi BE sẵn sàng, thay phần placeholder bên trong bằng component bản đồ thật.
 export default function MapPanel() {
   return (
-    <section className="relative h-[420px] overflow-hidden rounded-3xl bg-[#EAF3EA] ring-1 ring-black/5 sm:h-[520px] lg:sticky lg:top-28 lg:h-[calc(100vh-160px)]">
+    <section className="relative h-[420px] overflow-hidden rounded-3xl border border-black/15 bg-[#EAF3EA] sm:h-[520px] lg:sticky lg:top-28 lg:h-[calc(100vh-160px)]">
       <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center">
         <span className="grid size-14 place-items-center rounded-full bg-white/80 text-[#1D6C3D] shadow-sm">
           <MapPin className="h-6 w-6" />

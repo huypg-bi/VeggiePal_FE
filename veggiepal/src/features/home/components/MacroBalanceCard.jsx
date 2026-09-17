@@ -18,7 +18,7 @@ export default function MacroBalanceCard() {
   });
 
   return (
-    <article className="rounded-[28px] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-black/5 sm:p-7">
+    <article className="rounded-[28px] border border-black/15 bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] sm:p-7">
       <div className="flex items-center gap-2">
         <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#E8F5E9] text-[#1D6C3D]">
           <Sprout className="h-3.5 w-3.5" />

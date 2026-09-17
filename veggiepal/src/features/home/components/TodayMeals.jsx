@@ -66,7 +66,7 @@ export default function TodayMeals() {
         {todayMeals.map((meal) => (
           <article
             key={meal.id}
-            className="flex flex-col overflow-hidden rounded-2xl bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-black/5 transition hover:shadow-md"
+            className="flex flex-col overflow-hidden rounded-2xl border border-black/15 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md"
           >
             <div className="relative h-40 w-full">
               <img

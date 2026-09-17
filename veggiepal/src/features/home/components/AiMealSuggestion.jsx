@@ -15,7 +15,7 @@ export default function AiMealSuggestion() {
   };
 
   return (
-    <section className="relative overflow-hidden rounded-[28px] bg-[#FBFBF3] p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-black/5 sm:p-8">
+    <section className="relative overflow-hidden rounded-[28px] border border-black/15 bg-[#FBFBF3] p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] sm:p-8">
 
       <div className="relative flex flex-col items-center text-center">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E8F5E9] px-3 py-1 text-base font-semibold text-[#1D6C3D]">
@@ -41,7 +41,7 @@ export default function AiMealSuggestion() {
           />
         </div>
 
-        <div className="w-full flex-1 rounded-2xl border border-black/5 bg-white p-6 sm:p-8 min-h-[300px] flex flex-col justify-center">
+        <div className="w-full flex-1 rounded-2xl border border-black/15 bg-white p-6 sm:p-8 min-h-[300px] flex flex-col justify-center">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-semibold text-ink">
               Nguyên liệu có sẵn trong bếp:

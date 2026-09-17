@@ -5,7 +5,7 @@ export default function RestaurantCard({ restaurant }) {
     restaurant;
 
   return (
-    <article className="flex gap-4 rounded-2xl bg-white p-3 shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-black/5 transition hover:shadow-md sm:p-4">
+    <article className="flex gap-4 rounded-2xl border border-black/15 bg-white p-3 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md sm:p-4">
       <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl sm:h-32 sm:w-32">
         <img src={image} alt={name} className="h-full w-full object-cover" />
         <span className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-xs font-bold text-ink shadow">

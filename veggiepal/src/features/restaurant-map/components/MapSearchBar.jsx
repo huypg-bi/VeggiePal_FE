@@ -23,7 +23,7 @@ const CHIP_ICONS = {
 
 export default function MapSearchBar() {
   return (
-    <section className="rounded-3xl bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-black/5 sm:p-5">
+    <section className="rounded-3xl border border-black/15 bg-white p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04)] sm:p-5">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
         <label className="relative flex flex-1 items-center">
           <Search className="pointer-events-none absolute left-4 h-4 w-4 text-subtle" />

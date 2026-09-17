@@ -13,7 +13,7 @@ const STAT_ICONS = {
 
 export default function AdviceCard() {
   return (
-    <article className="flex flex-col rounded-[28px] bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-black/5 sm:p-7">
+    <article className="flex flex-col rounded-[28px] border border-black/15 bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] sm:p-7">
       <div className="flex items-center gap-3">
         <span className="grid size-11 shrink-0 place-items-center rounded-full bg-[#EAF7E6] text-[#1D6C3D]">
           <Lightbulb className="h-5 w-5" />
