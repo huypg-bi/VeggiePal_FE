@@ -7,6 +7,7 @@ import VerifyOtpScreen from "@/features/auth/pages/VerifyOtpScreen";
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import HomeScreen from "@/features/home/pages/HomeScreen";
+import RestaurantMapScreen from "@/features/restaurant-map/pages/RestaurantMapScreen";
 
 export default function AppRoutes() {
   return (
@@ -20,6 +21,14 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <HomePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/map"
+        element={
+          <ProtectedRoute>
+            <MapPage />
           </ProtectedRoute>
         }
       />
@@ -44,4 +53,8 @@ function RegisterPage() {
 
 function HomePage() {
   return <HomeScreen />;
+}
+
+function MapPage() {
+  return <RestaurantMapScreen />;
 }
