@@ -12,14 +12,15 @@ import TodayMeals from "@/features/home/components/TodayMeals";
 // features/home/data/mockHome.js — thay bằng dữ liệu thật khi BE sẵn sàng.
 export default function HomeScreen() {
   const user = useAuthStore((s) => s.user);
-  const firstName = user?.fullName?.trim().split(" ").at(-1) || "Thuận";
+  const firstName = user?.fullName?.trim().split(" ").at(-2);
+  const secondName = user?.fullName?.trim().split(" ").at(-1);
 
   return (
     <div className="min-h-dvh">
       <HomeHeader />
 
       <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-6 py-6">
-        <HeroBanner userName={firstName} />
+        <HeroBanner userName={firstName + " " + secondName} />
         <StatsGrid />
         <AiMealSuggestion />
         <TodayMeals />

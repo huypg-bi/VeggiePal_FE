@@ -16,7 +16,8 @@ export default function HeroBanner({ userName }) {
           />
 
           <h1 className="mt-4 text-3xl font-bold leading-tight text-ink sm:text-4xl">
-            Chào {userName}, hôm nay{" "} <br />
+            Chào {userName}! <br />
+            Hôm nay, {" "}
             <span className="text-[#1D6C3D]">Bé Bông Cải</span> đã sẵn sàng
             lên thực đơn cho bạn nè!
           </h1>
