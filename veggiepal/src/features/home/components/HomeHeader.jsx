@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import {
   Bell,
   Bot,
@@ -23,9 +24,9 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { id: "utensils-crossed", label: "Thực Đơn", icon: UtensilsCrossed },
+  { id: "utensils-crossed", label: "Thực Đơn", icon: UtensilsCrossed, to: "/" },
   { id: "square-play", label: "Video AI", icon: SquarePlay },
-  { id: "map", label: "Bản đồ", icon: Map },
+  { id: "map", label: "Bản đồ", icon: Map, to: "/map" },
   { id: "bot", label: "Trợ lí AI", icon: Bot },
 ];
 
@@ -40,6 +41,7 @@ export default function HomeHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const location = useLocation();
 
   const displayName = user?.fullName?.trim();
   const displayEmail = user?.email;
@@ -61,19 +63,30 @@ export default function HomeHeader() {
         </label>
 
         <nav className="ml-auto hidden items-center gap-1 lg:flex">
-          {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
-            const isActive = active === id;
+          {NAV_ITEMS.map(({ id, label, icon: Icon, to }) => {
+            const isActive = to ? location.pathname === to : active === id;
+            const itemClassName = cn(
+              "flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition",
+              isActive
+                ? "bg-[#E8F5E9] text-[#1D6C3D]"
+                : "text-subtle hover:bg-[#F5F8F3] hover:text-ink"
+            );
+
+            if (to) {
+              return (
+                <Link key={id} to={to} className={itemClassName}>
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </Link>
+              );
+            }
+
             return (
               <button
                 key={id}
                 type="button"
                 onClick={() => setActive(id)}
-                className={cn(
-                  "flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition",
-                  isActive
-                    ? "bg-[#E8F5E9] text-[#1D6C3D]"
-                    : "text-subtle hover:bg-[#F5F8F3] hover:text-ink"
-                )}
+                className={itemClassName}
               >
                 <Icon className="h-4 w-4" />
                 {label}
