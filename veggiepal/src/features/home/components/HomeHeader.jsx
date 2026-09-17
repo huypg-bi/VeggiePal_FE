@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { id: "utensils-crossed", label: "Thực Đơn", icon: UtensilsCrossed, to: "/" },
-  { id: "square-play", label: "Video AI", icon: SquarePlay },
+  { id: "square-play", label: "Video", icon: SquarePlay },
   { id: "map", label: "Bản đồ", icon: Map, to: "/map" },
   { id: "bot", label: "Trợ lí AI", icon: Bot },
 ];
@@ -48,7 +48,7 @@ export default function HomeHeader() {
 
   return (
     <header className="sticky top-4 z-30 mb-4 px-6 sm:px-8">
-      <div className="mx-auto flex w-full max-w-[1230px] items-center gap-4 rounded-3xl border border-black/5 bg-white/90 px-6 py-1 shadow-sm backdrop-blur">
+      <div className="mx-auto flex w-full max-w-[1230px] items-center gap-4 rounded-3xl border border-black/15 bg-white/90 px-6 py-1 shadow-sm backdrop-blur">
         <a href="/" className="flex shrink-0 items-center gap-2">
           <img src={logo} alt="VeggiePal" className="h-20 w-auto" />
         </a>
@@ -134,7 +134,7 @@ export default function HomeHeader() {
                 />
                 <div
                   role="menu"
-                  className="absolute right-0 top-12 z-40 w-80 rounded-2xl border border-black/5 bg-white p-3 shadow-xl"
+                  className="absolute right-0 top-12 z-40 w-80 rounded-2xl border border-black/15 bg-white p-3 shadow-xl"
                 >
                   <div className="flex items-center gap-3 px-1 py-1.5">
                     <span className="grid size-12 shrink-0 place-items-center rounded-full bg-[#1D6C3D] text-white">

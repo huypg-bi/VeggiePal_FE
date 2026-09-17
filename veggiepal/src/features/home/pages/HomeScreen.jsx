@@ -15,7 +15,7 @@ export default function HomeScreen() {
   const firstName = user?.fullName?.trim().split(" ").at(-1) || "Thuận";
 
   return (
-    <div className="min-h-dvh bg-[#FAFBF8]">
+    <div className="min-h-dvh">
       <HomeHeader />
 
       <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-6 py-6">

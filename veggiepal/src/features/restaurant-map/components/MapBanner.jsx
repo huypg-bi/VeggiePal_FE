@@ -6,7 +6,7 @@ import tag from "@/assets/img/tag.png";
 
 export default function MapBanner() {
   return (
-    <section className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#EAF7E6] to-[#F3FBEF] px-6 py-4 sm:px-8 sm:py-6">
+    <section className="relative overflow-hidden rounded-[28px] border border-black/15 bg-gradient-to-br from-[#EAF7E6] to-[#F3FBEF] px-6 py-4 sm:px-8 sm:py-6">
       {/* Hàng trên đặt absolute để không tốn chiều cao container */}
       <div className="absolute top-4 left-6 right-6 z-10 flex items-center justify-between gap-3 sm:top-5 sm:left-8 sm:right-8">
         <img
