@@ -8,6 +8,8 @@ import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import HomeScreen from "@/features/home/pages/HomeScreen";
 import RestaurantMapScreen from "@/features/restaurant-map/pages/RestaurantMapScreen";
+import VideoHomeScreen from "@/features/video/pages/VideoHomeScreen";
+import VideoWatchScreen from "@/features/video/pages/VideoWatchScreen";
 
 export default function AppRoutes() {
   return (
@@ -29,6 +31,22 @@ export default function AppRoutes() {
         element={
           <ProtectedRoute>
             <MapPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/videos"
+        element={
+          <ProtectedRoute>
+            <VideoHomePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/videos/:videoId"
+        element={
+          <ProtectedRoute>
+            <VideoWatchPage />
           </ProtectedRoute>
         }
       />
@@ -57,4 +75,12 @@ function HomePage() {
 
 function MapPage() {
   return <RestaurantMapScreen />;
+}
+
+function VideoHomePage() {
+  return <VideoHomeScreen />;
+}
+
+function VideoWatchPage() {
+  return <VideoWatchScreen />;
 }
