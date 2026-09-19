@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
   { id: "utensils-crossed", label: "Thực Đơn", icon: UtensilsCrossed, to: "/" },
-  { id: "square-play", label: "Video", icon: SquarePlay },
+  { id: "square-play", label: "Video", icon: SquarePlay, to: "/videos" },
   { id: "map", label: "Bản đồ", icon: Map, to: "/map" },
   { id: "bot", label: "Trợ lí AI", icon: Bot },
 ];
