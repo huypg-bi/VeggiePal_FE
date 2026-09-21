@@ -155,7 +155,7 @@ export default function HomeHeader() {
                     className="mt-3 flex w-full items-center justify-center gap-2 rounded-full bg-[#E8ECFB] px-4 py-2.5 text-sm font-medium text-ink transition hover:bg-[#DEE3FA]"
                   >
                     <CircleUserRound className="h-4 w-4 text-[#1D6C3D]" />
-                    Xem tất cả trang cá nhân
+                    <a href="/profile">Xem tất cả trang cá nhân</a>
                   </button>
 
                   <div className="my-3 h-px bg-black/5" />

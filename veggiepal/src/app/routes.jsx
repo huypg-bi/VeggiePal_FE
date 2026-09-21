@@ -10,7 +10,7 @@ import HomeScreen from "@/features/home/pages/HomeScreen";
 import RestaurantMapScreen from "@/features/restaurant-map/pages/RestaurantMapScreen";
 import VideoHomeScreen from "@/features/video/pages/VideoHomeScreen";
 import VideoWatchScreen from "@/features/video/pages/VideoWatchScreen";
-import ProfilePage from '@/pages/Profile/ProfilePage';
+import ProfilePage from '@/features/profile/UserProfile';
 
 export default function AppRoutes() {
   return (
