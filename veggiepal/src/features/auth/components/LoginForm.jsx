@@ -54,7 +54,7 @@ export default function LoginForm() {
     window.alert("Tính năng này sẽ sẵn sàng khi tích hợp backend.");
 
   return (
-    <div className="w-full max-w-[448px] rounded-2xl bg-white p-8 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] lg:max-w-[416px]">
+    <div className="w-full max-w-[448px] rounded-2xl bg-card p-8 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)] lg:max-w-[416px]">
       <div className="flex flex-col items-center gap-1">
         <span className="mb-2 flex size-12 items-center justify-center rounded-full bg-brand/10">
           <img src={lockIcon} alt="" className="h-6 w-auto" />
@@ -168,7 +168,7 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-1 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-[14px] font-bold text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] transition hover:bg-brand/90 disabled:opacity-60"
+          className="mt-1 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-[14px] font-bold text-brand-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] transition hover:bg-brand/90 disabled:opacity-60"
         >
           <img src={loginIcon} alt="" className="size-[15px]" />
           {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
@@ -176,11 +176,11 @@ export default function LoginForm() {
       </form>
 
       <div className="my-4 flex items-center gap-3">
-        <span className="h-px flex-1 bg-[rgb(191_201_190_/_0.4)]" />
+        <span className="h-px flex-1 bg-[rgb(191_201_190_/_0.4)] dark:bg-white/10" />
         <span className="text-[13px] font-medium text-subtle">
           Hoặc tiếp tục với
         </span>
-        <span className="h-px flex-1 bg-[rgb(191_201_190_/_0.4)]" />
+        <span className="h-px flex-1 bg-[rgb(191_201_190_/_0.4)] dark:bg-white/10" />
       </div>
 
       <button

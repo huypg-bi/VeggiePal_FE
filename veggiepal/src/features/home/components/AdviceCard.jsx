@@ -13,15 +13,15 @@ const STAT_ICONS = {
 
 export default function AdviceCard() {
   return (
-    <article className="flex flex-col rounded-[28px] border border-black/15 bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] sm:p-7">
+    <article className="flex flex-col rounded-[28px] border border-border bg-card p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] sm:p-7">
       <div className="flex items-center gap-3">
-        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-[#EAF7E6] text-[#1D6C3D]">
+        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-[#EAF7E6] text-brand dark:bg-[#16301f]">
           <Lightbulb className="h-5 w-5" />
         </span>
         <h3 className="text-lg font-bold text-ink">Lời Khuyên Của Bé Bông Cải</h3>
       </div>
 
-      <blockquote className="mt-4 rounded-3xl bg-gradient-to-br from-[#EFFBEA] to-[#F7FBF3] p-5 text-sm italic leading-relaxed text-body">
+      <blockquote className="mt-4 rounded-3xl bg-gradient-to-br from-[#EFFBEA] to-[#F7FBF3] p-5 text-sm italic leading-relaxed text-body dark:from-[#12261a] dark:to-[#0d1c13]">
         "Hãy bắt đầu từ những thay đổi nhỏ như thêm rau xanh vào bữa ăn, uống
         đủ nước và ngủ đủ giấc. Cơ thể khoẻ mạnh không chỉ đến từ thực phẩm, mà
         còn từ thói quen tốt mỗi ngày!" 💚
@@ -33,7 +33,7 @@ export default function AdviceCard() {
           return (
             <div
               key={stat.id}
-              className="flex items-center gap-2.5 rounded-2xl bg-white px-3 py-2.5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-black/5"
+              className="flex items-center gap-2.5 rounded-2xl bg-card px-3 py-2.5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-border"
             >
               <img src={icon} alt="" className="h-8 w-8 shrink-0" />
               <span className="flex flex-col leading-tight">
@@ -50,14 +50,14 @@ export default function AdviceCard() {
       <div className="mt-5 flex items-center gap-3">
         <button
           type="button"
-          className="flex flex-[1.6] items-center justify-center gap-2 rounded-full bg-[#1D6C3D] py-3 text-sm font-semibold text-white transition hover:bg-[#17542F]"
+          className="flex flex-[1.6] items-center justify-center gap-2 rounded-full bg-brand py-3 text-sm font-semibold text-brand-foreground transition hover:bg-brand/90"
         >
           <CalendarDays className="h-4 w-4" />
           Xem Kế Hoạch Chi Tiết
         </button>
         <button
           type="button"
-          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#F5F8F3] py-3 text-sm font-semibold text-ink transition hover:bg-black/5"
+          className="flex flex-1 items-center justify-center gap-2 rounded-full bg-surface py-3 text-sm font-semibold text-ink transition hover:bg-black/5 dark:hover:bg-white/10"
         >
           <Settings2 className="h-4 w-4" />
           Chỉnh Sửa Nhu Cầu

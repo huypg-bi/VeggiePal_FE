@@ -4,7 +4,7 @@ import tag from "@/assets/img/tag.png"
 
 export default function HeroBanner({ userName }) {
   return (
-    <section className="relative overflow-hidden rounded-[28px] border border-black/15 bg-gradient-to-br from-[#EAF7E6] to-[#F3FBEF] px-6 py-8 sm:px-5 sm:py-5">
+    <section className="relative overflow-hidden rounded-[28px] border border-border bg-gradient-to-br from-[#EAF7E6] to-[#F3FBEF] px-6 py-8 dark:from-[#12261a] dark:to-[#0d1c13] sm:px-5 sm:py-5">
 
       <div className="relative flex flex-col items-center gap-8 lg:flex-row lg:items-center lg:justify-between">
         <div className="max-w-md text-center lg:text-left">
@@ -18,7 +18,7 @@ export default function HeroBanner({ userName }) {
           <h1 className="mt-4 text-3xl font-bold leading-tight text-ink sm:text-4xl">
             Chào {userName}! <br />
             Hôm nay, {" "}
-            <span className="text-[#1D6C3D]">Bé Bông Cải</span> đã sẵn sàng
+            <span className="text-brand">Bé Bông Cải</span> đã sẵn sàng
             lên thực đơn cho bạn nè!
           </h1>
 

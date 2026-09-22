@@ -18,12 +18,12 @@ export default function MacroBalanceCard() {
   });
 
   return (
-    <article className="rounded-[28px] border border-black/15 bg-white p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] sm:p-7">
+    <article className="rounded-[28px] border border-border bg-card p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] sm:p-7">
       <div className="flex items-center gap-2">
-        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#E8F5E9] text-[#1D6C3D]">
+        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#E8F5E9] text-brand dark:bg-[#16301f]">
           <Sprout className="h-3.5 w-3.5" />
         </span>
-        <span className="text-sm font-semibold text-[#1D6C3D]">
+        <span className="text-sm font-semibold text-brand">
           Cân Bằng Dinh Dưỡng
         </span>
       </div>
@@ -39,11 +39,11 @@ export default function MacroBalanceCard() {
             className="relative grid size-32 shrink-0 place-items-center rounded-full"
             style={{ background: `conic-gradient(${stops.join(", ")})` }}
           >
-            <div className="flex flex-col items-center justify-center size-[80px] rounded-full bg-white text-center">
+            <div className="flex flex-col items-center justify-center size-[80px] rounded-full bg-card text-center">
               <span className="text-lg font-bold leading-tight text-ink">
                 100%
               </span>
-              <span className="text-[10px] font-medium text-[#1D6C3D]">
+              <span className="text-[10px] font-medium text-brand">
                 Plant-Power
               </span>
             </div>
@@ -71,11 +71,11 @@ export default function MacroBalanceCard() {
         />
       </div>
 
-      <div className="mt-6 flex items-center justify-between rounded-2xl bg-[#F5F8F3] px-4 py-3">
+      <div className="mt-6 flex items-center justify-between rounded-2xl bg-surface px-4 py-3">
         <span className="text-xs text-subtle">
           Chất xơ tự nhiên:{" "}
           <span className="font-semibold text-ink">38g / ngày</span>{" "}
-          <span className="text-[#1D6C3D]">(Rất tốt)</span>
+          <span className="text-brand">(Rất tốt)</span>
         </span>
       </div>
     </article>

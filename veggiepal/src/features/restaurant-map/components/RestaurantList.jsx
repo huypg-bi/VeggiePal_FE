@@ -9,7 +9,7 @@ export default function RestaurantList() {
     <section className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="grid size-15 shrink-0 place-items-center overflow-hidden rounded-full bg-[#E8F5E9]">
+          <span className="grid size-15 shrink-0 place-items-center overflow-hidden rounded-full bg-[#E8F5E9] dark:bg-[#16301f]">
             <img
               src={mascotWave}
               alt=""
@@ -29,7 +29,7 @@ export default function RestaurantList() {
 
         <button
           type="button"
-          className="flex shrink-0 items-center gap-1.5 rounded-full border border-black/5 bg-white px-3.5 py-2 text-sm font-medium text-ink shadow-sm transition hover:bg-[#F5F8F3]"
+          className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 text-sm font-medium text-ink shadow-sm transition hover:bg-surface"
         >
           Gần nhất
           <ChevronDown className="h-4 w-4 text-subtle" />

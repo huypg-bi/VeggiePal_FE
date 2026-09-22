@@ -16,7 +16,7 @@ export default function VideoChannelBar() {
   };
 
   return (
-    <div className="rounded-3xl border border-black/15 bg-white px-3 py-3 shadow-sm">
+    <div className="rounded-3xl border border-border bg-card px-3 py-3 shadow-sm">
       <div
         ref={scrollerRef}
         onWheel={handleWheel}
@@ -33,7 +33,7 @@ export default function VideoChannelBar() {
           <button
             key={channel.id}
             type="button"
-            className="flex shrink-0 items-center gap-2 rounded-full border border-black/10 bg-white py-1.5 pl-1.5 pr-3.5 text-sm font-medium text-ink transition hover:bg-[#F5F8F3]"
+            className="flex shrink-0 items-center gap-2 rounded-full border border-border bg-card py-1.5 pl-1.5 pr-3.5 text-sm font-medium text-ink transition hover:bg-surface"
           >
             <span
               className={`grid size-7 shrink-0 place-items-center rounded-full text-[11px] font-bold text-white ${channel.avatarClass}`}
