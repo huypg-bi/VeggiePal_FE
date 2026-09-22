@@ -22,7 +22,7 @@ export default function ForgotPasswordForm() {
   };
 
   return (
-    <div className="w-full max-w-[420px] rounded-2xl bg-white p-5">
+    <div className="w-full max-w-[420px] rounded-2xl bg-card p-5">
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-2">
         <label htmlFor={contactId} className="text-[14px] font-semibold text-ink">
           Email hoặc số điện thoại đăng ký
@@ -47,7 +47,7 @@ export default function ForgotPasswordForm() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-[15px] font-bold text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] transition hover:bg-brand/90 disabled:opacity-60"
+          className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-[15px] font-bold text-brand-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] transition hover:bg-brand/90 disabled:opacity-60"
         >
           {isSubmitting ? "Đang gửi..." : "Gửi mã xác nhận"}
           <ArrowRight className="size-4" />

@@ -59,7 +59,7 @@ export default function RegisterForm() {
   };
 
   return (
-    <div className="w-full max-w-[480px] rounded-2xl bg-white p-5 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)]">
+    <div className="w-full max-w-[480px] rounded-2xl bg-card p-5 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)]">
       <div className="flex flex-col items-center gap-1">
         <span className="mb-1 flex size-10 items-center justify-center rounded-full bg-brand/10">
           <img src={lockIcon} alt="" className="h-5 w-auto" />
@@ -252,7 +252,7 @@ export default function RegisterForm() {
         <button
           type="submit"
           disabled={isSubmitting || !acceptTerms}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-[14px] font-bold text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] transition hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none disabled:hover:bg-brand"
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-[14px] font-bold text-brand-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] transition hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none disabled:hover:bg-brand"
         >
           <UserPlus className="size-[17px]" />
           {isSubmitting ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
@@ -260,11 +260,11 @@ export default function RegisterForm() {
       </form>
 
       <div className="my-3 flex items-center gap-3">
-        <span className="h-px flex-1 bg-[rgb(191_201_190_/_0.4)]" />
+        <span className="h-px flex-1 bg-[rgb(191_201_190_/_0.4)] dark:bg-white/10" />
         <span className="text-[11px] font-medium uppercase tracking-[0.05em] text-subtle">
           Hoặc đăng ký với
         </span>
-        <span className="h-px flex-1 bg-[rgb(191_201_190_/_0.4)]" />
+        <span className="h-px flex-1 bg-[rgb(191_201_190_/_0.4)] dark:bg-white/10" />
       </div>
 
       <button

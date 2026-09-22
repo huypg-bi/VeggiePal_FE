@@ -11,7 +11,7 @@ const SOCIALS = [
 export default function HomeFooter() {
   return (
     <footer className="mt-12 px-6 sm:px-8">
-      <div className="mx-auto flex w-full max-w-[1230px] flex-col items-center justify-between gap-4 rounded-3xl border border-black/15 bg-[#F5F8F3] px-6 py-6 shadow-sm md:flex-row md:items-end">
+      <div className="mx-auto flex w-full max-w-[1230px] flex-col items-center justify-between gap-4 rounded-3xl border border-border bg-surface px-6 py-6 shadow-sm md:flex-row md:items-end">
 
         <p className="order-3 text-xs text-subtle md:order-1 md:w-1/3 md:text-left">
           © 2026 VeggiePal đồng hành cùng bạn trên hành trình sống xanh.
@@ -30,7 +30,7 @@ export default function HomeFooter() {
               key={id}
               href="#"
               aria-label={label}
-              className="text-[#133E27] transition hover:opacity-75"
+              className="text-[#133E27] transition hover:opacity-75 dark:text-[#8fe0b3]"
             >
               <Icon className="h-7 w-7" />
             </a>

@@ -28,7 +28,7 @@ export default function VideoMetaHeader() {
 
           <button
             type="button"
-            className="ml-2 flex items-center gap-1 rounded-full border border-black/10 py-1.5 pl-3 pr-2 text-xs font-semibold text-ink transition hover:bg-[#F5F8F3]"
+            className="ml-2 flex items-center gap-1 rounded-full border border-border py-1.5 pl-3 pr-2 text-xs font-semibold text-ink transition hover:bg-surface"
           >
             Đã đăng ký
             <ChevronDown className="h-3.5 w-3.5" />
@@ -36,26 +36,26 @@ export default function VideoMetaHeader() {
 
           <button
             type="button"
-            className="flex items-center gap-1.5 rounded-full bg-[#1D6C3D] px-4 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-[#17542F]"
+            className="flex items-center gap-1.5 rounded-full bg-brand px-4 py-1.5 text-xs font-semibold text-brand-foreground shadow-sm transition hover:bg-brand/90"
           >
             <Sparkles className="h-3.5 w-3.5" />
             Bóc tách công thức AI
           </button>
         </div>
 
-        <div className="flex items-center gap-1 rounded-full border border-black/10">
+        <div className="flex items-center gap-1 rounded-full border border-border">
           <button
             type="button"
-            className="flex items-center gap-1.5 rounded-l-full px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-[#F5F8F3]"
+            className="flex items-center gap-1.5 rounded-l-full px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface"
           >
             <ThumbsUp className="h-3.5 w-3.5" />
             {likes}
           </button>
-          <div className="h-4 w-px bg-black/10" />
+          <div className="h-4 w-px bg-border" />
           <button
             type="button"
             aria-label="Không thích"
-            className="rounded-r-full px-3 py-1.5 text-ink transition hover:bg-[#F5F8F3]"
+            className="rounded-r-full px-3 py-1.5 text-ink transition hover:bg-surface"
           >
             <ThumbsDown className="h-3.5 w-3.5" />
           </button>
@@ -67,7 +67,7 @@ export default function VideoMetaHeader() {
         <span>•</span>
         <span>{uploadedAgo}</span>
         <span>•</span>
-        <span className="flex items-center gap-1 font-medium text-[#1D6C3D]">
+        <span className="flex items-center gap-1 font-medium text-brand">
           <CheckCircle2 className="h-3.5 w-3.5" />
           {approvedBadge}
         </span>

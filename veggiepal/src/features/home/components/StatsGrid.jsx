@@ -19,10 +19,10 @@ export default function StatsGrid() {
       {mockStats.map((stat) => (
         <article
           key={stat.id}
-          className="relative flex flex-col gap-3 rounded-2xl border border-black/15 bg-white p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md"
+          className="relative flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md"
         >
           {stat.badge && (
-            <span className="absolute right-4 top-4 rounded-full bg-[#E8F5E9] px-2 py-0.5 text-[11px] font-semibold text-[#1D6C3D]">
+            <span className="absolute right-4 top-4 rounded-full bg-[#E8F5E9] px-2 py-0.5 text-[11px] font-semibold text-brand dark:bg-[#16301f]">
               {stat.badge}
             </span>
           )}
@@ -45,7 +45,7 @@ export default function StatsGrid() {
 
           <p className="text-xs leading-snug text-subtle">{stat.caption}</p>
 
-          <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/5">
+          <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
             <div
               className={`h-full rounded-full ${stat.barClass}`}
               style={{ width: `${stat.progress}%` }}

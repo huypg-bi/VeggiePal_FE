@@ -5,7 +5,7 @@ export default function RestaurantCard({ restaurant }) {
     restaurant;
 
   return (
-    <article className="flex gap-4 rounded-2xl border border-black/15 bg-white p-3 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md sm:p-4">
+    <article className="flex gap-4 rounded-2xl border border-border bg-card p-3 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md sm:p-4">
       <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl sm:h-32 sm:w-32">
         <img src={image} alt={name} className="h-full w-full object-cover" />
         <span className="absolute left-2 top-2 flex items-center gap-1 rounded-full bg-white/95 px-2 py-0.5 text-xs font-bold text-ink shadow">
@@ -22,7 +22,7 @@ export default function RestaurantCard({ restaurant }) {
           <button
             type="button"
             aria-label="Lưu quán"
-            className="grid size-8 shrink-0 place-items-center rounded-full text-subtle transition hover:bg-[#F5F8F3] hover:text-ink"
+            className="grid size-8 shrink-0 place-items-center rounded-full text-subtle transition hover:bg-surface hover:text-ink"
           >
             <Bookmark className="h-4 w-4" />
           </button>
@@ -37,7 +37,7 @@ export default function RestaurantCard({ restaurant }) {
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <span className="text-subtle">{kcal}</span>
           {veganTag && (
-            <span className="rounded-full bg-[#E8F5E9] px-2 py-0.5 font-medium text-[#1D6C3D]">
+            <span className="rounded-full bg-[#E8F5E9] px-2 py-0.5 font-medium text-brand dark:bg-[#16301f]">
               {veganTag}
             </span>
           )}
@@ -48,13 +48,13 @@ export default function RestaurantCard({ restaurant }) {
         <div className="mt-auto flex items-center gap-2 pt-1">
           <button
             type="button"
-            className="flex-1 rounded-full border border-black/10 px-3 py-2 text-xs font-semibold text-ink transition hover:bg-[#F5F8F3]"
+            className="flex-1 rounded-full border border-border px-3 py-2 text-xs font-semibold text-ink transition hover:bg-surface"
           >
             Xem thực đơn
           </button>
           <button
             type="button"
-            className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-[#1D6C3D] px-3 py-2 text-xs font-semibold text-white transition hover:opacity-90"
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-full bg-brand px-3 py-2 text-xs font-semibold text-brand-foreground transition hover:opacity-90"
           >
             <Navigation className="h-3.5 w-3.5" />
             Chỉ đường đi

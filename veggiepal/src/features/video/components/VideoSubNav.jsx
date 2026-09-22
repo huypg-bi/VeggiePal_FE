@@ -24,8 +24,8 @@ export default function VideoSubNav() {
           className={cn(
             "flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition",
             active === id
-              ? "bg-[#E8F5E9] text-[#1D6C3D]"
-              : "text-subtle hover:bg-[#F5F8F3] hover:text-ink"
+              ? "bg-[#E8F5E9] text-brand dark:bg-[#16301f]"
+              : "text-subtle hover:bg-surface hover:text-ink"
           )}
         >
           <Icon className="h-4 w-4" />

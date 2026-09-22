@@ -9,7 +9,7 @@ export default function AiSummaryCard() {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <section className="rounded-3xl border border-black/15 bg-white p-5 shadow-sm sm:p-6">
+    <section className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
       <div className="flex items-center gap-2.5">
         <img src={iconAiSummary} alt="" className="h-9 w-9 shrink-0" />
         <h2 className="text-sm font-bold text-ink sm:text-base">
@@ -26,7 +26,7 @@ export default function AiSummaryCard() {
         ))}
       </ol>
 
-      <div className="mt-4 flex gap-2.5 rounded-2xl bg-[#FFF7E6] px-4 py-3 text-sm text-[#8A5A00]">
+      <div className="mt-4 flex gap-2.5 rounded-2xl bg-[#FFF7E6] px-4 py-3 text-sm text-[#8A5A00] dark:bg-[#3a2c0d] dark:text-[#f0c674]">
         <Lightbulb className="h-4 w-4 shrink-0 translate-y-0.5" />
         <p>
           <span className="font-bold">Mẹo nhỏ:</span> {aiSummary.tip}

@@ -4,7 +4,7 @@ import { currentVideo } from "@/features/video/data/mockVideo";
 
 export default function CommentsHeader() {
   return (
-    <div className="flex items-center justify-between border-t border-black/10 pt-5">
+    <div className="flex items-center justify-between border-t border-border pt-5">
       <h2 className="text-sm font-bold text-ink">
         {currentVideo.commentsCount} bình luận
       </h2>

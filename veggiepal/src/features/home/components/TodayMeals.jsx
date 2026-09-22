@@ -33,7 +33,7 @@ export default function TodayMeals() {
           <button
             type="button"
             aria-label="Tuần trước"
-            className="grid size-7 place-items-center rounded-full text-subtle transition hover:bg-[#F5F8F3] hover:text-ink"
+            className="grid size-7 place-items-center rounded-full text-subtle transition hover:bg-surface hover:text-ink"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -45,8 +45,8 @@ export default function TodayMeals() {
               className={cn(
                 "grid size-9 place-items-center rounded-full text-sm font-semibold transition",
                 activeDay === day.id
-                  ? "bg-[#1D6C3D] text-white"
-                  : "text-subtle hover:bg-[#F5F8F3] hover:text-ink"
+                  ? "bg-brand text-brand-foreground"
+                  : "text-subtle hover:bg-surface hover:text-ink"
               )}
             >
               {day.label}
@@ -55,7 +55,7 @@ export default function TodayMeals() {
           <button
             type="button"
             aria-label="Tuần sau"
-            className="grid size-7 place-items-center rounded-full text-subtle transition hover:bg-[#F5F8F3] hover:text-ink"
+            className="grid size-7 place-items-center rounded-full text-subtle transition hover:bg-surface hover:text-ink"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -66,7 +66,7 @@ export default function TodayMeals() {
         {todayMeals.map((meal) => (
           <article
             key={meal.id}
-            className="flex flex-col overflow-hidden rounded-2xl border border-black/15 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md"
+            className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md"
           >
             <div className="relative h-40 w-full">
               <img
@@ -113,7 +113,7 @@ export default function TodayMeals() {
 
               <button
                 type="button"
-                className="mt-3 flex items-center justify-center gap-1.5 rounded-full border border-black/10 py-2 text-xs font-semibold text-ink transition hover:bg-[#F5F8F3]"
+                className="mt-3 flex items-center justify-center gap-1.5 rounded-full border border-border py-2 text-xs font-semibold text-ink transition hover:bg-surface"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
                 Đổi món (AI gợi ý)

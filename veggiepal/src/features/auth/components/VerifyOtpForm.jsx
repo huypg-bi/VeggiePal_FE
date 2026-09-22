@@ -78,7 +78,7 @@ export default function VerifyOtpForm({ phone = "0912 *** 678" }) {
   };
 
   return (
-    <div className="w-full max-w-[420px] rounded-2xl bg-white p-4">
+    <div className="w-full max-w-[420px] rounded-2xl bg-card p-4">
       <div className="flex items-center justify-between gap-3 rounded-xl bg-brand-soft px-4 py-2.5">
         <div className="flex items-center gap-2.5">
           <img src={phoneIcon} alt="" className="w-[15px]" />
@@ -136,7 +136,7 @@ export default function VerifyOtpForm({ phone = "0912 *** 678" }) {
         <button
           type="submit"
           disabled={!isComplete || isSubmitting}
-          className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-[15px] font-bold text-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] transition hover:bg-brand/90 disabled:opacity-60"
+          className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-[15px] font-bold text-brand-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] transition hover:bg-brand/90 disabled:opacity-60"
         >
           {isSubmitting ? "Đang xác nhận..." : "Xác nhận & Tiếp tục"}
           <ArrowRight className="size-4" />

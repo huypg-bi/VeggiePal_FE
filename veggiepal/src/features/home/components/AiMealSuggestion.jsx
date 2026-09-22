@@ -15,10 +15,10 @@ export default function AiMealSuggestion() {
   };
 
   return (
-    <section className="relative overflow-hidden rounded-[28px] border border-black/15 bg-[#FBFBF3] p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] sm:p-8">
+    <section className="relative overflow-hidden rounded-[28px] border border-border bg-[#FBFBF3] p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] dark:bg-[#0f1e16] sm:p-8">
 
       <div className="relative flex flex-col items-center text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E8F5E9] px-3 py-1 text-base font-semibold text-[#1D6C3D]">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E8F5E9] px-3 py-1 text-base font-semibold text-brand dark:bg-[#16301f]">
           <Sparkles className="h-3.5 w-3.5" />
           AI Gợi Ý Thực Đơn
         </span>
@@ -41,14 +41,14 @@ export default function AiMealSuggestion() {
           />
         </div>
 
-        <div className="w-full flex-1 rounded-2xl border border-black/15 bg-white p-6 sm:p-8 min-h-[300px] flex flex-col justify-center">
+        <div className="w-full flex-1 rounded-2xl border border-border bg-card p-6 sm:p-8 min-h-[300px] flex flex-col justify-center">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-semibold text-ink">
               Nguyên liệu có sẵn trong bếp:
             </h3>
             <button
               type="button"
-              className="flex items-center gap-1 text-xs font-semibold text-[#1D6C3D] hover:underline"
+              className="flex items-center gap-1 text-xs font-semibold text-brand hover:underline"
             >
               <Plus className="h-3.5 w-3.5" />
               Thêm món mới
@@ -59,7 +59,7 @@ export default function AiMealSuggestion() {
             {availableIngredients.map((item) => (
               <span
                 key={item.id}
-                className="flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-xs font-medium text-ink ring-1 ring-black/10"
+                className="flex items-center gap-2 rounded-full bg-card px-3 py-1.5 text-xs font-medium text-ink ring-1 ring-border"
               >
                 <span
                   className="grid size-5 shrink-0 place-items-center rounded-full text-[11px] leading-none"
@@ -86,8 +86,8 @@ export default function AiMealSuggestion() {
                 className={cn(
                   "flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition",
                   pref.active
-                    ? "bg-[#1D6C3D] text-white"
-                    : "bg-white text-ink ring-1 ring-black/10 hover:bg-[#F5F8F3]"
+                    ? "bg-brand text-brand-foreground"
+                    : "bg-card text-ink ring-1 ring-border hover:bg-surface"
                 )}
               >
                 <span
@@ -109,7 +109,7 @@ export default function AiMealSuggestion() {
       <div className="relative mt-7 flex flex-col items-center">
         <button
           type="button"
-          className="flex w-full max-w-md items-center justify-center gap-2 rounded-full bg-[#1D6C3D] px-6 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#17542F]"
+          className="flex w-full max-w-md items-center justify-center gap-2 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-brand-foreground shadow-sm transition hover:bg-brand/90"
         >
           <Sparkles className="h-4 w-4" />
           Nhờ Bé Bông Cải Lên Thực Đơn Tuần

@@ -14,7 +14,7 @@ export default function TrendingVideoGrid() {
           <Link
             key={video.id}
             to={`/videos/${video.id}`}
-            className="flex flex-col overflow-hidden rounded-2xl border border-black/15 bg-white shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md"
+            className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md"
           >
             <div className={`relative h-44 w-full ${video.thumbClass}`}>
               <span className="absolute left-3 top-3 rounded-full bg-black/40 px-2.5 py-1 text-[11px] font-semibold text-white">
