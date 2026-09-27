@@ -10,7 +10,7 @@ import HomeScreen from "@/features/home/pages/HomeScreen";
 import RestaurantMapScreen from "@/features/restaurant-map/pages/RestaurantMapScreen";
 import VideoHomeScreen from "@/features/video/pages/VideoHomeScreen";
 import VideoWatchScreen from "@/features/video/pages/VideoWatchScreen";
-import ProfilePage from '@/features/profile/UserProfile';
+import ProfileScreen from "@/features/profile/pages/ProfileScreen";
 
 export default function AppRoutes() {
   return (
@@ -52,16 +52,16 @@ export default function AppRoutes() {
         }
       />
       <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
-   ) ;
+  );
 }
 
 function LoginPage() {
@@ -92,4 +92,8 @@ function VideoHomePage() {
 
 function VideoWatchPage() {
   return <VideoWatchScreen />;
+}
+
+function ProfilePage() {
+  return <ProfileScreen />;
 }
