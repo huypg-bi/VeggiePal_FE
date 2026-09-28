@@ -4,7 +4,8 @@ import iconBmi from "@/assets/img/icon_bmi.png";
 import iconFire from "@/assets/img/icon_fire.png";
 import iconRun from "@/assets/img/icon_run.png";
 import iconWater from "@/assets/img/icon_water.png";
-import { mockStats } from "@/features/home/data/mockHome";
+import { mockStats } from "@/features/meal-planner/data/mockHome";
+import Reveal from "@/shared/components/Reveal";
 
 const ICONS = {
   bmi: iconBmi,
@@ -16,13 +17,13 @@ const ICONS = {
 export default function StatsGrid() {
   return (
     <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {mockStats.map((stat) => (
+      {mockStats.map((stat, index) => (
+        <Reveal key={stat.id} delay={index * 80}>
         <article
-          key={stat.id}
-          className="relative flex flex-col gap-3 rounded-2xl border border-border bg-card p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md"
+          className="relative flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-md transition hover:shadow-lg"
         >
           {stat.badge && (
-            <span className="absolute right-4 top-4 rounded-full bg-[#E8F5E9] px-2 py-0.5 text-[11px] font-semibold text-brand dark:bg-[#16301f]">
+            <span className="absolute right-4 top-4 rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand">
               {stat.badge}
             </span>
           )}
@@ -31,7 +32,9 @@ export default function StatsGrid() {
             type="button"
             className="flex items-center gap-2 text-left text-sm font-medium text-subtle transition hover:text-ink"
           >
-            <img src={ICONS[stat.icon]} alt="" className="h-15 w-15 shrink-0" />
+            <span className={`grid size-12 shrink-0 place-items-center overflow-hidden rounded-full ${stat.ringClass}`}>
+              <img src={ICONS[stat.icon]} alt="" className="h-full w-full object-cover" />
+            </span>
             <span className="flex-1">{stat.label}</span>
             {!stat.badge && <ChevronRight className="h-4 w-4" />}
           </button>
@@ -52,6 +55,7 @@ export default function StatsGrid() {
             />
           </div>
         </article>
+        </Reveal>
       ))}
     </section>
   );

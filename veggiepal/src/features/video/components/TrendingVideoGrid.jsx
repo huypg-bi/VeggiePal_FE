@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 
 import { trendingVideos } from "@/features/video/data/mockVideo";
+import Reveal from "@/shared/components/Reveal";
 
 export default function TrendingVideoGrid() {
   return (
@@ -10,9 +11,9 @@ export default function TrendingVideoGrid() {
       </h2>
 
       <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {trendingVideos.map((video) => (
+        {trendingVideos.map((video, index) => (
+          <Reveal key={video.id} delay={index * 80}>
           <Link
-            key={video.id}
             to={`/videos/${video.id}`}
             className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md"
           >
@@ -54,6 +55,7 @@ export default function TrendingVideoGrid() {
               </div>
             </div>
           </Link>
+          </Reveal>
         ))}
       </div>
     </section>

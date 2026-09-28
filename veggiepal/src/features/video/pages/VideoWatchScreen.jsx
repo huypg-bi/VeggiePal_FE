@@ -1,11 +1,12 @@
-import HomeFooter from "@/features/home/components/HomeFooter";
-import HomeHeader from "@/features/home/components/HomeHeader";
+import HomeFooter from "@/features/meal-planner/components/HomeFooter";
+import HomeHeader from "@/features/meal-planner/components/HomeHeader";
 import AiSummaryCard from "@/features/video/components/AiSummaryCard";
 import CommentsHeader from "@/features/video/components/CommentsHeader";
 import NutritionFactsCard from "@/features/video/components/NutritionFactsCard";
 import SuggestedVideoList from "@/features/video/components/SuggestedVideoList";
 import VideoMetaHeader from "@/features/video/components/VideoMetaHeader";
 import VideoPlayerFrame from "@/features/video/components/VideoPlayerFrame";
+import Reveal from "@/shared/components/Reveal";
 
 // Trang xem video. UI demo với dữ liệu tĩnh trong
 // features/video/data/mockVideo.js — khung phát video đang để trống,
@@ -19,14 +20,24 @@ export default function VideoWatchScreen() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="flex flex-col gap-6 lg:col-span-2">
             <VideoPlayerFrame />
-            <VideoMetaHeader />
-            <AiSummaryCard />
-            <CommentsHeader />
+            <Reveal>
+              <VideoMetaHeader />
+            </Reveal>
+            <Reveal>
+              <AiSummaryCard />
+            </Reveal>
+            <Reveal>
+              <CommentsHeader />
+            </Reveal>
           </div>
 
           <div className="flex flex-col gap-6">
-            <NutritionFactsCard />
-            <SuggestedVideoList />
+            <Reveal>
+              <NutritionFactsCard />
+            </Reveal>
+            <Reveal>
+              <SuggestedVideoList />
+            </Reveal>
           </div>
         </div>
       </main>

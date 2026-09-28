@@ -12,11 +12,16 @@
 }
 
 @theme inline {
-    --font-heading: var(--font-sans);
+    --font-heading: var(--font-display-serif);
     --font-sans: 'Geist Variable', sans-serif;
+    --font-display-serif: 'Playfair Display', serif;
+    --font-landing-sans: 'Inter', system-ui, sans-serif;
     --color-brand: var(--brand);
     --color-brand-foreground: var(--brand-foreground);
     --color-brand-soft: var(--brand-soft);
+    --color-brand-2: var(--brand-2);
+    --color-warning: var(--warning);
+    --color-danger: var(--danger);
     --color-ink: var(--ink);
     --color-body: var(--body);
     --color-subtle: var(--subtle);
@@ -65,9 +70,12 @@
 
 :root {
     /* Bảng màu thương hiệu VeggiePal (light). */
-    --brand: #1d6c3d;
+    --brand: #1d9d5a;
     --brand-foreground: #ffffff;
-    --brand-soft: #f0f3ff;
+    --brand-soft: #e7f7ec;
+    --brand-2: #0ea47a;
+    --warning: #f0883e;
+    --danger: #ef6461;
     --ink: #111c2d;
     --body: #404940;
     --subtle: #707a70;
@@ -93,11 +101,13 @@
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
     --ring: oklch(0.708 0 0);
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
+    /* Chart 1–5 mang màu thật của các số liệu dinh dưỡng/hoạt động thay vì
+       xám trung tính: carb-xanh lá, nước-xanh dương, vận động-tím, béo-cam, đạm-xanh nhạt. */
+    --chart-1: #1d9d5a;
+    --chart-2: #2a9dd6;
+    --chart-3: #8b5cf6;
+    --chart-4: #f0883e;
+    --chart-5: #5cb85c;
     --radius: 0.625rem;
     --sidebar: oklch(0.985 0 0);
     --sidebar-foreground: oklch(0.145 0 0);
@@ -115,6 +125,9 @@
     --brand: #34c37c;
     --brand-foreground: #06170e;
     --brand-soft: #16301f;
+    --brand-2: #22e0a5;
+    --warning: #ffa361;
+    --danger: #ff8c89;
     --ink: #eaf3ec;
     --body: #c3d6c9;
     --subtle: #93ac9e;
@@ -140,11 +153,11 @@
     --border: oklch(1 0 0 / 10%);
     --input: oklch(1 0 0 / 15%);
     --ring: #34c37c;
-    --chart-1: oklch(0.87 0 0);
-    --chart-2: oklch(0.556 0 0);
-    --chart-3: oklch(0.439 0 0);
-    --chart-4: oklch(0.371 0 0);
-    --chart-5: oklch(0.269 0 0);
+    --chart-1: #34c37c;
+    --chart-2: #4db8f0;
+    --chart-3: #a78bfa;
+    --chart-4: #ffa361;
+    --chart-5: #7ed957;
     --sidebar: #10231a;
     --sidebar-foreground: #eaf3ec;
     --sidebar-primary: #34c37c;
@@ -164,6 +177,9 @@
     }
   html {
     @apply font-sans;
+    }
+  h1, h2, h3 {
+    @apply font-heading;
     }
 }
 
@@ -191,4 +207,41 @@
 
 ::view-transition-new(root) {
     z-index: 2;
+}
+
+/* Chuyển form Login/Register gộp: chỉ 1 form được render tại 1 thời điểm,
+   mỗi lần đổi mode form mới xuất hiện dần từ trên xuống (fade + slide-down). */
+@keyframes auth-form-enter {
+    from {
+        opacity: 0;
+        transform: translateY(-16px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.auth-form-enter {
+    animation: auth-form-enter 0.9s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .auth-form-enter {
+        animation: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .auth-flip-rotator {
+        transition: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    [data-reveal] {
+        transition: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+    }
 }

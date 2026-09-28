@@ -1,9 +1,9 @@
-import { CalendarDays, Lightbulb, Settings2 } from "lucide-react";
+import { CalendarDays, Circle, CircleCheck, Lightbulb, Settings2 } from "lucide-react";
 
 import iconLeaf from "@/assets/img/icon_leaf.png";
 import iconSleep from "@/assets/img/icon_sleep.png";
 import iconWater from "@/assets/img/icon_water.png";
-import { dailyAdviceStats } from "@/features/home/data/mockHome";
+import { dailyAdviceStats } from "@/features/meal-planner/data/mockHome";
 
 const STAT_ICONS = {
   veggie: iconLeaf,
@@ -13,15 +13,15 @@ const STAT_ICONS = {
 
 export default function AdviceCard() {
   return (
-    <article className="flex flex-col rounded-[28px] border border-border bg-card p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] sm:p-7">
+    <article className="flex flex-col rounded-[28px] bg-card p-6 shadow-lg sm:p-7">
       <div className="flex items-center gap-3">
-        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-[#EAF7E6] text-brand dark:bg-[#16301f]">
+        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-brand-soft text-brand">
           <Lightbulb className="h-5 w-5" />
         </span>
         <h3 className="text-lg font-bold text-ink">Lời Khuyên Của Bé Bông Cải</h3>
       </div>
 
-      <blockquote className="mt-4 rounded-3xl bg-gradient-to-br from-[#EFFBEA] to-[#F7FBF3] p-5 text-sm italic leading-relaxed text-body dark:from-[#12261a] dark:to-[#0d1c13]">
+      <blockquote className="mt-4 rounded-3xl bg-gradient-to-br from-brand-soft to-surface p-5 text-sm italic leading-relaxed text-body">
         "Hãy bắt đầu từ những thay đổi nhỏ như thêm rau xanh vào bữa ăn, uống
         đủ nước và ngủ đủ giấc. Cơ thể khoẻ mạnh không chỉ đến từ thực phẩm, mà
         còn từ thói quen tốt mỗi ngày!" 💚
@@ -33,10 +33,10 @@ export default function AdviceCard() {
           return (
             <div
               key={stat.id}
-              className="flex items-center gap-2.5 rounded-2xl bg-card px-3 py-2.5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] ring-1 ring-border"
+              className="flex items-center gap-2.5 rounded-2xl bg-surface px-3 py-2.5"
             >
               <img src={icon} alt="" className="h-8 w-8 shrink-0" />
-              <span className="flex flex-col leading-tight">
+              <span className="flex flex-1 flex-col leading-tight">
                 <span className="text-[11px] font-medium text-subtle">
                   {stat.label}
                 </span>
