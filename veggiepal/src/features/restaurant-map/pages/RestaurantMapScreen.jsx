@@ -1,9 +1,10 @@
-import HomeFooter from "@/features/home/components/HomeFooter";
-import HomeHeader from "@/features/home/components/HomeHeader";
+import HomeFooter from "@/features/meal-planner/components/HomeFooter";
+import HomeHeader from "@/features/meal-planner/components/HomeHeader";
 import MapBanner from "@/features/restaurant-map/components/MapBanner";
 import MapPanel from "@/features/restaurant-map/components/MapPanel";
 import MapSearchBar from "@/features/restaurant-map/components/MapSearchBar";
 import RestaurantList from "@/features/restaurant-map/components/RestaurantList";
+import Reveal from "@/shared/components/Reveal";
 
 // Trang Bản đồ quán chay. UI demo với dữ liệu tĩnh trong
 // features/restaurant-map/data/mockRestaurantMap.js — khung bản đồ bên phải
@@ -15,12 +16,16 @@ export default function RestaurantMapScreen() {
 
       <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-6 py-6">
         <MapBanner />
-        <MapSearchBar />
+        <Reveal>
+          <MapSearchBar />
+        </Reveal>
 
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <RestaurantList />
-          <MapPanel />
-        </section>
+        <Reveal>
+          <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <RestaurantList />
+            <MapPanel />
+          </section>
+        </Reveal>
       </main>
 
       <HomeFooter />

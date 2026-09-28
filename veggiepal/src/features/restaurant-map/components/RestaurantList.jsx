@@ -3,6 +3,7 @@ import { ChevronDown } from "lucide-react";
 import mascotWave from "@/assets/img/icon_map_page_1.png";
 import { mockRestaurants } from "@/features/restaurant-map/data/mockRestaurantMap";
 import RestaurantCard from "@/features/restaurant-map/components/RestaurantCard";
+import Reveal from "@/shared/components/Reveal";
 
 export default function RestaurantList() {
   return (
@@ -37,8 +38,10 @@ export default function RestaurantList() {
       </div>
 
       <div className="flex flex-col gap-4">
-        {mockRestaurants.map((restaurant) => (
-          <RestaurantCard key={restaurant.id} restaurant={restaurant} />
+        {mockRestaurants.map((restaurant, index) => (
+          <Reveal key={restaurant.id} delay={index * 80}>
+            <RestaurantCard restaurant={restaurant} />
+          </Reveal>
         ))}
       </div>
     </section>

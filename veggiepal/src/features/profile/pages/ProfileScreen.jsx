@@ -1,7 +1,7 @@
 import { Loader2 } from "lucide-react";
 
-import HomeHeader from "@/features/home/components/HomeHeader";
-import HomeFooter from "@/features/home/components/HomeFooter";
+import HomeHeader from "@/features/meal-planner/components/HomeHeader";
+import HomeFooter from "@/features/meal-planner/components/HomeFooter";
 import { useProfile } from "@/features/profile/hooks/useProfile";
 
 import ProfileHeader from "@/features/profile/components/ProfileHeader";
@@ -9,6 +9,7 @@ import ProfileInfoForm from "@/features/profile/components/ProfileInfoForm";
 import ChangePasswordForm from "@/features/profile/components/ChangePasswordForm";
 import HealthRecordSection from "@/features/profile/components/HealthRecordSection";
 import AllergySection from "@/features/profile/components/AllergySection";
+import Reveal from "@/shared/components/Reveal";
 
 /**
  * Trang hồ sơ cá nhân (/profile).
@@ -44,16 +45,22 @@ export default function ProfileScreen() {
                   onAvatarUpdated={updateProfile}
                 />
 
-                <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                  <ProfileInfoForm
-                    profile={profile}
-                    onUpdated={updateProfile}
-                  />
-                  <ChangePasswordForm />
-                </div>
+                <Reveal>
+                  <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+                    <ProfileInfoForm
+                      profile={profile}
+                      onUpdated={updateProfile}
+                    />
+                    <ChangePasswordForm />
+                  </div>
+                </Reveal>
 
-                <HealthRecordSection />
-                <AllergySection />
+                <Reveal>
+                  <HealthRecordSection />
+                </Reveal>
+                <Reveal>
+                  <AllergySection />
+                </Reveal>
               </>
             )}
           </>

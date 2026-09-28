@@ -1,37 +1,38 @@
-import { useAuthStore } from "@/features/auth/store/authStore";
-import AdviceCard from "@/features/home/components/AdviceCard";
-import AiMealSuggestion from "@/features/home/components/AiMealSuggestion";
-import HeroBanner from "@/features/home/components/HeroBanner";
-import HomeFooter from "@/features/home/components/HomeFooter";
-import HomeHeader from "@/features/home/components/HomeHeader";
-import MacroBalanceCard from "@/features/home/components/MacroBalanceCard";
-import StatsGrid from "@/features/home/components/StatsGrid";
-import TodayMeals from "@/features/home/components/TodayMeals";
+import heroVideo from "@/assets/video/video_homepage.mp4";
+import HomeHeader from "@/features/meal-planner/components/HomeHeader";
+import LandingHero from "@/features/home/components/LandingHero";
+import TrendingRecipesSection from "@/features/home/components/TrendingRecipesSection";
+import NutritionLookupSection from "@/features/home/components/NutritionLookupSection";
 
-// Trang chủ / thực đơn hôm nay. Hiện là UI demo với dữ liệu tĩnh trong
-// features/home/data/mockHome.js — thay bằng dữ liệu thật khi BE sẵn sàng.
 export default function HomeScreen() {
-  const user = useAuthStore((s) => s.user);
-  const firstName = user?.fullName?.trim().split(" ").at(-2);
-  const secondName = user?.fullName?.trim().split(" ").at(-1);
-
   return (
-    <div className="min-h-dvh">
-      <HomeHeader />
+    <div className="relative bg-background">
+      <div className="fixed inset-x-0 top-3 z-50">
+        <HomeHeader />
+      </div>
 
-      <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-6 py-6">
-        <HeroBanner userName={firstName + " " + secondName} />
-        <StatsGrid />
-        <AiMealSuggestion />
-        <TodayMeals />
+      <section className="relative h-screen w-full overflow-hidden">
+        <video
+          className="absolute inset-0 h-full w-full object-cover"
+          src={heroVideo}
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+        <div aria-hidden className="absolute inset-0 bg-black/40" />
+        <div
+          aria-hidden
+          className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-black/70 sm:h-28"
+        />
 
-        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <MacroBalanceCard />
-          <AdviceCard />
-        </section>
-      </main>
+        <div className="relative z-10 h-full font-landing-sans">
+          <LandingHero />
+        </div>
+      </section>
 
-      <HomeFooter />
+      <TrendingRecipesSection />
+      <NutritionLookupSection />
     </div>
   );
 }
