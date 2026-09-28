@@ -27,7 +27,7 @@ const NAV_ITEMS = [
   { id: "utensils-crossed", label: "Thực Đơn", icon: UtensilsCrossed, to: "/meal-planner" },
   { id: "square-play", label: "Khám Phá Video", icon: SquarePlay, to: "/videos" },
   { id: "map", label: "Bản Đồ Xanh", icon: Map, to: "/map" },
-  { id: "broccoli", label: "Trợ Lý Bông Cải", icon: Broccoli },
+  { id: "broccoli", label: "Trợ Lý Bông Cải", icon: Broccoli, to: "/chatbot" },
 ];
 
 const PROFILE_MENU_ITEMS = [
