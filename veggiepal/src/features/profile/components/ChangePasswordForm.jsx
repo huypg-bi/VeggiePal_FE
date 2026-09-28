@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, KeyRound, Loader2 } from "lucide-react";
 
-import { changePasswordSchema } from "@/features/profile/schema";
+import { changePasswordSchema } from "@/lib/schema";
 import { changePassword } from "@/features/profile/api/profileApi";
 
 const fieldClass =

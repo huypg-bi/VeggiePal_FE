@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Save, UserRound } from "lucide-react";
 
-import { updateProfileSchema } from "@/features/profile/schema";
+import { updateProfileSchema } from "@/lib/schema";
 import { updateProfile } from "@/features/profile/api/profileApi";
 
 const fieldClass =
