@@ -1,12 +1,12 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
-import LoginScreen from "@/features/auth/pages/LoginScreen";
-import RegisterScreen from "@/features/auth/pages/RegisterScreen";
+import AuthScreen from "@/features/auth/pages/AuthScreen";
 import ForgotPasswordScreen from "@/features/auth/pages/ForgotPasswordScreen";
 import VerifyOtpScreen from "@/features/auth/pages/VerifyOtpScreen";
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import { useAuthStore } from "@/features/auth/store/authStore";
-import HomeScreen from "@/features/home/pages/HomeScreen";
+import LandingScreen from "@/features/home/pages/HomeScreen";
+import MealPlannerScreen from "@/features/meal-planner/pages/HomeScreen";
 import RestaurantMapScreen from "@/features/restaurant-map/pages/RestaurantMapScreen";
 import VideoHomeScreen from "@/features/video/pages/VideoHomeScreen";
 import VideoWatchScreen from "@/features/video/pages/VideoWatchScreen";
@@ -19,11 +19,12 @@ export default function AppRoutes() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
       <Route path="/verify-otp" element={<VerifyOtpScreen />} />
+      <Route path="/" element={<LandingScreen />} />
       <Route
-        path="/"
+        path="/meal-planner"
         element={
           <ProtectedRoute>
-            <HomePage />
+            <MealPlannerPage />
           </ProtectedRoute>
         }
       />
@@ -68,18 +69,18 @@ function LoginPage() {
   const isAuthenticated = useAuthStore((s) => Boolean(s.token));
   if (isAuthenticated) return <Navigate to="/" replace />;
 
-  return <LoginScreen />;
+  return <AuthScreen />;
 }
 
 function RegisterPage() {
   const isAuthenticated = useAuthStore((s) => Boolean(s.token));
   if (isAuthenticated) return <Navigate to="/" replace />;
 
-  return <RegisterScreen />;
+  return <AuthScreen />;
 }
 
-function HomePage() {
-  return <HomeScreen />;
+function MealPlannerPage() {
+  return <MealPlannerScreen />;
 }
 
 function MapPage() {

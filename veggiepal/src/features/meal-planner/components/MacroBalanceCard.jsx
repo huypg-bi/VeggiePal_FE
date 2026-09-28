@@ -1,12 +1,12 @@
 import { Sprout } from "lucide-react";
 
 import iconMacro from "@/assets/img/icon_macro.png";
-import { macroBreakdown } from "@/features/home/data/mockHome";
+import { macroBreakdown } from "@/features/meal-planner/data/mockHome";
 
 const SEGMENT_COLORS = {
-  carb: "#1D6C3D",
-  protein: "#5CB85C",
-  fat: "#F0883E",
+  carb: "var(--chart-1)",
+  protein: "var(--chart-5)",
+  fat: "var(--chart-4)",
 };
 
 export default function MacroBalanceCard() {
@@ -18,9 +18,9 @@ export default function MacroBalanceCard() {
   });
 
   return (
-    <article className="rounded-[28px] border border-border bg-card p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] sm:p-7">
+    <article className="rounded-[28px] bg-card p-6 shadow-lg sm:p-7">
       <div className="flex items-center gap-2">
-        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-[#E8F5E9] text-brand dark:bg-[#16301f]">
+        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-brand-soft text-brand">
           <Sprout className="h-3.5 w-3.5" />
         </span>
         <span className="text-sm font-semibold text-brand">

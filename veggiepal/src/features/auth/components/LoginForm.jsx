@@ -17,7 +17,7 @@ import googleIcon from "@/assets/svg/gg.svg";
 const fieldClass =
   "h-12 w-full rounded-xl bg-brand-soft pl-10 pr-4 text-[15px] text-ink placeholder:text-subtle outline-none transition focus-visible:ring-2 focus-visible:ring-brand/40 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/40";
 
-export default function LoginForm() {
+export default function LoginForm({ onSwitchMode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -196,7 +196,7 @@ export default function LoginForm() {
         Chưa có tài khoản?{" "}
         <button
           type="button"
-          onClick={() => navigate("/register")}
+          onClick={onSwitchMode}
           className="font-bold text-brand hover:underline"
         >
           Đăng ký ngay

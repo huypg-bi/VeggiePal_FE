@@ -2,12 +2,12 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Bell,
-  Bot,
-  CalendarDays,
+  Broccoli,
   ChevronDown,
   ChevronRight,
   CircleHelp,
   CircleUserRound,
+  Home,
   LogOut,
   MessageSquareWarning,
   Map,
@@ -15,19 +15,19 @@ import {
   SquarePlay,
   UserRound,
   UtensilsCrossed,
-  Users,
 } from "lucide-react";
 
 import logo from "@/assets/img/logo.png";
-import { useAuthStore } from "@/features/auth/store/authStore";
+import { useAuthStore, selectIsAuthenticated } from "@/features/auth/store/authStore";
 import ThemeToggle from "@/shared/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { id: "utensils-crossed", label: "Thực Đơn", icon: UtensilsCrossed, to: "/" },
-  { id: "square-play", label: "Video", icon: SquarePlay, to: "/videos" },
-  { id: "map", label: "Bản đồ", icon: Map, to: "/map" },
-  { id: "bot", label: "Trợ lí AI", icon: Bot },
+  { id: "home", label: "Trang Chủ", icon: Home, to: "/" },
+  { id: "utensils-crossed", label: "Thực Đơn", icon: UtensilsCrossed, to: "/meal-planner" },
+  { id: "square-play", label: "Khám Phá Video", icon: SquarePlay, to: "/videos" },
+  { id: "map", label: "Bản Đồ Xanh", icon: Map, to: "/map" },
+  { id: "broccoli", label: "Trợ Lý Bông Cải", icon: Broccoli },
 ];
 
 const PROFILE_MENU_ITEMS = [
@@ -38,6 +38,7 @@ const PROFILE_MENU_ITEMS = [
 export default function HomeHeader() {
   const [active, setActive] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
+  const isAuthenticated = useAuthStore(selectIsAuthenticated);
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const location = useLocation();
@@ -47,12 +48,12 @@ export default function HomeHeader() {
 
   return (
     <header className="sticky top-4 z-30 mb-4 px-6 sm:px-8">
-      <div className="mx-auto flex w-full max-w-[1230px] items-center gap-4 rounded-3xl border border-border bg-card/90 px-6 py-1 shadow-sm backdrop-blur">
+      <div className="mx-auto flex w-full max-w-[1560px] items-center gap-4 rounded-full border border-border bg-card/90 px-6 py-1 shadow-sm backdrop-blur">
         <a href="/" className="flex shrink-0 items-center gap-2">
-          <img src={logo} alt="VeggiePal" className="h-20 w-auto" />
+          <img src={logo} alt="VeggiePal" className="h-15 w-auto" />
         </a>
 
-        <label className="relative hidden max-w-md flex-1 items-center md:flex">
+        <label className="relative hidden max-w-xl flex-1 items-center md:flex">
           <Search className="pointer-events-none absolute left-3.5 h-4 w-4 text-subtle" />
           <input
             type="search"
@@ -65,7 +66,7 @@ export default function HomeHeader() {
           {NAV_ITEMS.map(({ id, label, icon: Icon, to }) => {
             const isActive = to ? location.pathname === to : active === id;
             const itemClassName = cn(
-              "flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition",
+              "flex items-center gap-1.5 rounded-full px-3.5 py-2 font-display-serif text-base font-medium transition",
               isActive
                 ? "bg-[#E8F5E9] text-brand dark:bg-[#16301f]"
                 : "text-subtle hover:bg-surface hover:text-ink"
@@ -95,17 +96,38 @@ export default function HomeHeader() {
         </nav>
 
         <div className="ml-auto flex items-center gap-3 lg:ml-2">
-          <button
-            type="button"
-            aria-label="Thông báo"
-            className="relative grid size-9 shrink-0 place-items-center rounded-full text-subtle transition hover:bg-surface hover:text-ink"
-          >
-            <Bell className="h-5 w-5" />
-            <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[#EF6461]" />
-          </button>
+
+          {isAuthenticated && (
+            <button
+              type="button"
+              aria-label="Thông báo"
+              className="relative grid size-9 shrink-0 place-items-center rounded-full text-subtle transition hover:bg-surface hover:text-ink"
+            >
+              <Bell className="h-5 w-5" />
+              <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[#EF6461]" />
+            </button>
+          )}
 
           <ThemeToggle />
 
+          {!isAuthenticated && (
+            <div className="flex shrink-0 items-center gap-2">
+              <Link
+                to="/login"
+                className="hidden text-sm font-medium text-subtle transition hover:text-ink sm:block"
+              >
+                Đăng Nhập
+              </Link>
+              <Link
+                to="/register"
+                className="rounded-full bg-brand px-4 py-1.5 text-sm font-medium text-brand-foreground transition hover:opacity-90"
+              >
+                Đăng Ký
+              </Link>
+            </div>
+          )}
+
+          {isAuthenticated && (
           <div className="relative">
             <button
               type="button"
@@ -197,6 +219,7 @@ export default function HomeHeader() {
               </>
             )}
           </div>
+          )}
         </div>
       </div>
     </header>

@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { ArrowRight, Heart, Leaf, Plus, Sparkles } from "lucide-react";
+import { ArrowRight, Plus, Sparkles, Wand2, X } from "lucide-react";
 
 import iconChatbot from "@/assets/img/icon_chatbot_1.png";
-import { availableIngredients, flavorPreferences } from "@/features/home/data/mockHome";
+import { availableIngredients, flavorPreferences } from "@/features/meal-planner/data/mockHome";
 import { cn } from "@/lib/utils";
 
 export default function AiMealSuggestion() {
+  const [ingredients, setIngredients] = useState(availableIngredients);
   const [preferences, setPreferences] = useState(flavorPreferences);
 
   const togglePreference = (id) => {
@@ -14,11 +15,15 @@ export default function AiMealSuggestion() {
     );
   };
 
+  const removeIngredient = (id) => {
+    setIngredients((prev) => prev.filter((item) => item.id !== id));
+  };
+
   return (
-    <section className="relative overflow-hidden rounded-[28px] border border-border bg-[#FBFBF3] p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04)] dark:bg-[#0f1e16] sm:p-8">
+    <section className="relative rounded-[28px] bg-card p-6 shadow-lg sm:p-8">
 
       <div className="relative flex flex-col items-center text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-[#E8F5E9] px-3 py-1 text-base font-semibold text-brand dark:bg-[#16301f]">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1 text-base font-semibold text-brand">
           <Sparkles className="h-3.5 w-3.5" />
           AI Gợi Ý Thực Đơn
         </span>
@@ -41,7 +46,7 @@ export default function AiMealSuggestion() {
           />
         </div>
 
-        <div className="w-full flex-1 rounded-2xl border border-border bg-card p-6 sm:p-8 min-h-[300px] flex flex-col justify-center">
+        <div className="w-full flex-1 rounded-2xl bg-surface p-6 sm:p-8 min-h-[300px] flex flex-col justify-center">
           <div className="flex items-center justify-between">
             <h3 className="text-base font-semibold text-ink">
               Nguyên liệu có sẵn trong bếp:
@@ -56,10 +61,10 @@ export default function AiMealSuggestion() {
           </div>
 
           <div className="mt-3 flex flex-wrap gap-2">
-            {availableIngredients.map((item) => (
+            {ingredients.map((item) => (
               <span
                 key={item.id}
-                className="flex items-center gap-2 rounded-full bg-card px-3 py-1.5 text-xs font-medium text-ink ring-1 ring-border"
+                className="flex items-center gap-2 rounded-full bg-card px-3 py-1.5 text-xs font-medium text-ink shadow-sm"
               >
                 <span
                   className="grid size-5 shrink-0 place-items-center rounded-full text-[11px] leading-none"
@@ -68,8 +73,19 @@ export default function AiMealSuggestion() {
                   {item.icon}
                 </span>
                 {item.label}
+                <button
+                  type="button"
+                  onClick={() => removeIngredient(item.id)}
+                  aria-label={`Bỏ ${item.label}`}
+                  className="grid size-4 shrink-0 place-items-center rounded-full text-subtle transition hover:bg-surface hover:text-ink"
+                >
+                  <X className="h-3 w-3" />
+                </button>
               </span>
             ))}
+            {ingredients.length === 0 && (
+              <span className="text-xs text-subtle">Chưa có nguyên liệu nào, thêm món mới nhé!</span>
+            )}
           </div>
 
           <div className="my-1 h-px" />
@@ -106,18 +122,19 @@ export default function AiMealSuggestion() {
         </div>
       </div>
 
-      <div className="relative mt-7 flex flex-col items-center">
-        <button
-          type="button"
-          className="flex w-full max-w-md items-center justify-center gap-2 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-brand-foreground shadow-sm transition hover:bg-brand/90"
-        >
-          <Sparkles className="h-4 w-4" />
-          Nhờ Bé Bông Cải Lên Thực Đơn Tuần
-          <ArrowRight className="h-4 w-4" />
-        </button>
-        <p className="mt-2.5 text-center text-xs text-subtle">
+      <div className="relative mt-7 flex flex-col items-center gap-4 rounded-2xl bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        <p className="flex items-center gap-2 text-center text-xs text-subtle sm:text-left">
+          <Wand2 className="h-4 w-4 shrink-0 text-brand" />
           Thuật toán AI tự động tối ưu hoá tỷ lệ Axit Amin hoàn chỉnh từ thực vật
         </p>
+        <button
+          type="button"
+          className="flex w-full shrink-0 items-center justify-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-brand-foreground shadow-sm transition hover:bg-brand/90 sm:w-auto"
+        >
+          <Sparkles className="h-4 w-4" />
+          Nhờ Bé Bông Cải Lên Thực Đơn Mới
+          <ArrowRight className="h-4 w-4" />
+        </button>
       </div>
     </section>
   );

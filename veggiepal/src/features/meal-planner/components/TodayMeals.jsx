@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Clock, Heart, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, Heart, RefreshCw, Timer } from "lucide-react";
 
-import { todayMeals, weekDays } from "@/features/home/data/mockHome";
+import { todayMeals, weekDays } from "@/features/meal-planner/data/mockHome";
 import { cn } from "@/lib/utils";
+import Reveal from "@/shared/components/Reveal";
 
 export default function TodayMeals() {
   const [activeDay, setActiveDay] = useState("t4");
@@ -18,7 +19,7 @@ export default function TodayMeals() {
   };
 
   return (
-    <section>
+    <section id="today-meals" className="scroll-mt-28">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="text-xl font-bold text-ink sm:text-2xl">
@@ -63,10 +64,10 @@ export default function TodayMeals() {
       </div>
 
       <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        {todayMeals.map((meal) => (
+        {todayMeals.map((meal, index) => (
+          <Reveal key={meal.id} delay={index * 80}>
           <article
-            key={meal.id}
-            className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition hover:shadow-md"
+            className="flex flex-col overflow-hidden rounded-2xl bg-card shadow-md transition hover:shadow-lg"
           >
             <div className="relative h-40 w-full">
               <img
@@ -75,7 +76,7 @@ export default function TodayMeals() {
                 className="h-full w-full object-cover"
                 loading="lazy"
               />
-              <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-ink shadow-sm">
+              <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-white/95 px-2.5 py-1 text-[11px] font-semibold text-neutral-800 shadow-sm">
                 <Clock className="h-3 w-3" />
                 {meal.meal} • {meal.time}
               </span>
@@ -89,11 +90,17 @@ export default function TodayMeals() {
                   className={cn(
                     "h-3.5 w-3.5 transition",
                     likedMeals.has(meal.id)
-                      ? "fill-[#EF6461] text-[#EF6461]"
-                      : "text-subtle"
+                      ? "fill-danger text-danger"
+                      : "text-neutral-400"
                   )}
                 />
               </button>
+              {meal.prepMinutes && (
+                <span className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-white/95 px-2 py-1 text-[11px] font-semibold text-neutral-800 shadow-sm">
+                  <Timer className="h-3 w-3" />
+                  {meal.prepMinutes} phút
+                </span>
+              )}
             </div>
 
             <div className="flex flex-1 flex-col gap-2 p-4">
@@ -106,30 +113,31 @@ export default function TodayMeals() {
 
               <div className="mt-1 grid grid-cols-4 gap-1 text-center">
                 <MacroStat value={meal.kcal} unit="Kcal" />
-                <MacroStat value={`${meal.protein}g`} unit="Đạm" />
-                <MacroStat value={`${meal.carb}g`} unit="Carb" />
-                <MacroStat value={`${meal.fat}g`} unit="Béo" />
+                <MacroStat value={`${meal.protein}g`} unit="Đạm" valueClass="text-chart-5" />
+                <MacroStat value={`${meal.carb}g`} unit="Carb" valueClass="text-chart-1" />
+                <MacroStat value={`${meal.fat}g`} unit="Béo" valueClass="text-chart-4" />
               </div>
 
               <button
                 type="button"
-                className="mt-3 flex items-center justify-center gap-1.5 rounded-full border border-border py-2 text-xs font-semibold text-ink transition hover:bg-surface"
+                className="mt-3 flex items-center justify-center gap-1.5 rounded-full bg-brand-soft py-2 text-xs font-semibold text-brand transition hover:brightness-95"
               >
                 <RefreshCw className="h-3.5 w-3.5" />
                 Đổi món (AI gợi ý)
               </button>
             </div>
           </article>
+          </Reveal>
         ))}
       </div>
     </section>
   );
 }
 
-function MacroStat({ value, unit }) {
+function MacroStat({ value, unit, valueClass }) {
   return (
     <div className="flex flex-col">
-      <span className="text-xs font-bold text-ink">{value}</span>
+      <span className={cn("text-xs font-bold", valueClass || "text-ink")}>{value}</span>
       <span className="text-[10px] text-subtle">{unit}</span>
     </div>
   );

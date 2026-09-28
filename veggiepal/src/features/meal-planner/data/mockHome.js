@@ -9,7 +9,8 @@ export const mockStats = [
     value: "21.4",
     caption: "Thể trạng lý tưởng",
     progress: 72,
-    barClass: "bg-[#1D6C3D]",
+    barClass: "bg-chart-1",
+    ringClass: "bg-chart-1/15",
   },
   {
     id: "calo",
@@ -19,7 +20,8 @@ export const mockStats = [
     unit: "/ 1,850 kcal",
     caption: "Còn 430 kcal cho bữa tối thanh đạm",
     progress: 77,
-    barClass: "bg-[#F0883E]",
+    barClass: "bg-chart-4",
+    ringClass: "bg-chart-4/15",
   },
   {
     id: "water",
@@ -29,7 +31,8 @@ export const mockStats = [
     unit: "/ 2.4 L",
     caption: "Đã uống 6/8 ly nước mát",
     progress: 75,
-    barClass: "bg-[#2A9DD6]",
+    barClass: "bg-chart-2",
+    ringClass: "bg-chart-2/15",
   },
   {
     id: "activity",
@@ -39,7 +42,8 @@ export const mockStats = [
     badge: "78% mục tiêu",
     caption: "Đã đạt 25 phút Yoga sáng",
     progress: 78,
-    barClass: "bg-[#8B5CF6]",
+    barClass: "bg-chart-3",
+    ringClass: "bg-chart-3/15",
   },
 ];
 
@@ -78,6 +82,7 @@ export const todayMeals = [
     title: "Yến Mạch Chia Berry",
     description: "Bổ sung chất xơ hoà tan Beta-Glucan, quả mọng chống oxy hoá tự nhiên.",
     image: "https://images.unsplash.com/photo-1494859802809-d069c3b71a8a?w=600&q=80&auto=format&fit=crop",
+    prepMinutes: 10,
     kcal: 360,
     protein: 14,
     carb: 52,
@@ -90,6 +95,7 @@ export const todayMeals = [
     title: "Buddha Bowl Đậu Gà & Rau Củ",
     description: "Giàu đạm thực vật, chất xơ, vitamin đủ bộ mang thanh thoát.",
     image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80&auto=format&fit=crop",
+    prepMinutes: 20,
     kcal: 540,
     protein: 24,
     carb: 68,
@@ -102,6 +108,7 @@ export const todayMeals = [
     title: "Tàu Hũ Nóng Hạt Sen",
     description: "Vị thanh của gừng ấm xua tan buồn ngủ, tốt cho giấc ngủ về tối.",
     image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80&auto=format&fit=crop",
+    prepMinutes: 5,
     kcal: 190,
     protein: 12,
     carb: 28,
@@ -114,6 +121,7 @@ export const todayMeals = [
     title: "Súp Bí Đỏ Nấm Đùi Gà",
     description: "Thanh nhẹ, dễ tiêu hoá cho buổi tối, vitamin A và beta-caroten nuôi dưỡng làn da.",
     image: "https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&q=80&auto=format&fit=crop",
+    prepMinutes: 15,
     kcal: 220,
     protein: 11,
     carb: 42,
@@ -122,13 +130,13 @@ export const todayMeals = [
 ];
 
 export const macroBreakdown = [
-  { id: "carb", label: "Tinh bột chậm", value: 50, colorClass: "text-[#1D6C3D]" },
-  { id: "protein", label: "Đạm thực vật", value: 25, colorClass: "text-[#5CB85C]" },
-  { id: "fat", label: "Chất béo tốt", value: 25, colorClass: "text-[#F0883E]" },
+  { id: "carb", label: "Tinh bột chậm", value: 50, colorClass: "text-chart-1" },
+  { id: "protein", label: "Đạm thực vật", value: 25, colorClass: "text-chart-5" },
+  { id: "fat", label: "Chất béo tốt", value: 25, colorClass: "text-chart-4" },
 ];
 
 export const dailyAdviceStats = [
-  { id: "veggie", label: "Ăn đủ rau xanh", value: "~500g/ngày" },
-  { id: "water", label: "Uống đủ nước", value: "2 - 2.5L/ngày" },
-  { id: "sleep", label: "Ngủ đủ giấc", value: "7 - 8 giờ/đêm" },
+  { id: "veggie", label: "Ăn đủ rau xanh", value: "~500g/ngày", done: true },
+  { id: "water", label: "Uống đủ nước", value: "2 - 2.5L/ngày", done: true },
+  { id: "sleep", label: "Ngủ đủ giấc", value: "7 - 8 giờ/đêm", done: false },
 ];
