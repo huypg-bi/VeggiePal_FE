@@ -11,6 +11,7 @@ import RestaurantMapScreen from "@/features/restaurant-map/pages/RestaurantMapSc
 import VideoHomeScreen from "@/features/video/pages/VideoHomeScreen";
 import VideoWatchScreen from "@/features/video/pages/VideoWatchScreen";
 import ProfileScreen from "@/features/profile/pages/ProfileScreen";
+import ChatbotScreen from "@/features/chatbot/pages/ChatbotScreen";
 
 export default function AppRoutes() {
   return (
@@ -60,6 +61,14 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/chatbot"
+        element={
+          <ProtectedRoute>
+            <ChatbotPage />
+          </ProtectedRoute>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
@@ -97,4 +106,8 @@ function VideoWatchPage() {
 
 function ProfilePage() {
   return <ProfileScreen />;
+}
+
+function ChatbotPage() {
+  return <ChatbotScreen />;
 }

@@ -1,7 +1,6 @@
 import { useRef, useState } from "react";
 import { Camera, Loader2, Sparkles, Mail, Phone, Calendar } from "lucide-react";
 
-import bgFrame from "@/assets/img/bg_site_frame.png";
 import { uploadAvatar } from "@/features/profile/api/profileApi";
 import { cn } from "@/lib/utils";
 
@@ -69,11 +68,6 @@ export default function ProfileHeader({ profile, onAvatarUpdated }) {
     <section className="overflow-hidden rounded-3xl border border-emerald-100 bg-card shadow-sm">
       {/* Cover */}
       <div className="relative h-40 w-full overflow-hidden bg-emerald-900 sm:h-52">
-        <img
-          src={bgFrame}
-          alt=""
-          className="h-full w-full object-cover opacity-90"
-        />
         <div className="absolute right-4 top-4 flex items-center gap-1.5 rounded-full border border-white/20 bg-black/40 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
           <Sparkles className="h-3.5 w-3.5 text-emerald-400" />
           <span>VeggiePal Profile</span>
