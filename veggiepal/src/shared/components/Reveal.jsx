@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 
-// Bọc quanh 1 block để nó fade + trượt lên khi cuộn tới. Dùng IntersectionObserver,
-// chỉ trigger 1 lần (không lặp lại khi cuộn qua lại).
 export default function Reveal({ children, className = "", delay = 0 }) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
