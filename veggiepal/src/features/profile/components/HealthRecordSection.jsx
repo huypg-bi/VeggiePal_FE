@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import iconBmi from "@/assets/img/icon_bmi.png";
-import { healthRecordSchema } from "@/features/profile/schema";
+import { healthRecordSchema } from "@/lib/schema";
 import {
   createHealthRecord,
   getHealthRecords,
