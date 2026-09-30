@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Clock } from "lucide-react";
 
+import iconOtp from "@/assets/img/icon_otp.png";
 import phoneIcon from "@/assets/svg/phone.svg";
-import lockIcon from "@/assets/svg/lock.svg";
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 105; // 01:45
@@ -78,25 +78,32 @@ export default function VerifyOtpForm({ phone = "0912 *** 678" }) {
   };
 
   return (
-    <div className="w-full max-w-[420px] rounded-2xl bg-card p-4">
-      <div className="flex items-center justify-between gap-3 rounded-xl bg-brand-soft px-4 py-2.5">
+    <div className="w-full max-w-[380px] px-2 py-4">
+      <div className="flex flex-col items-center gap-2">
+        <img src={iconOtp} alt="" className="h-50 w-auto object-contain" />
+        <h2 className="text-center text-[26px] font-extrabold tracking-tight text-white font-heading">
+          Xác thực mã OTP
+        </h2>
+      </div>
+
+      <div className="mt-6 flex items-center justify-between gap-3 rounded-xl border border-white/20 bg-white/10 px-4 py-2.5">
         <div className="flex items-center gap-2.5">
-          <img src={phoneIcon} alt="" className="w-[15px]" />
+          <img src={phoneIcon} alt="" className="w-[15px] brightness-0 invert opacity-80" />
           <div className="flex flex-col">
-            <span className="text-[12px] text-subtle">Số điện thoại</span>
-            <span className="text-[14px] font-semibold text-ink">{phone}</span>
+            <span className="text-[12px] text-white/70">Số điện thoại</span>
+            <span className="text-[14px] font-semibold text-white">{phone}</span>
           </div>
         </div>
         <button
           type="button"
           onClick={() => navigate(-1)}
-          className="text-[14px] font-semibold text-brand hover:underline"
+          className="text-[14px] font-semibold text-white/90 transition hover:text-white hover:underline"
         >
           Thay đổi
         </button>
       </div>
 
-      <form onSubmit={handleSubmit} noValidate className="mt-3 flex flex-col gap-2">
+      <form onSubmit={handleSubmit} noValidate className="mt-4 flex flex-col gap-3">
         <div className="flex justify-between gap-2" onPaste={handlePaste}>
           {digits.map((digit, index) => (
             <input
@@ -108,17 +115,17 @@ export default function VerifyOtpForm({ phone = "0912 *** 678" }) {
               value={digit}
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
-              className="h-12 w-full max-w-12 rounded-xl bg-brand-soft text-center text-[20px] font-bold text-ink outline-none transition focus-visible:ring-2 focus-visible:ring-brand/40"
+              className="h-12 w-full max-w-12 rounded-xl border border-white/30 bg-white/10 text-center text-[20px] font-bold text-white outline-none transition focus-visible:border-white focus-visible:bg-white/20"
             />
           ))}
         </div>
 
-        <div className="flex items-center gap-1.5 text-[13px] text-subtle">
+        <div className="flex items-center gap-1.5 text-[13px] text-white/70">
           <Clock className="size-3.5" />
           {secondsLeft > 0 ? (
             <span>
               Mã sẽ hết hiệu lực sau:{" "}
-              <span className="font-semibold text-ink">
+              <span className="font-semibold text-white">
                 {minutes}:{seconds}
               </span>
             </span>
@@ -126,7 +133,7 @@ export default function VerifyOtpForm({ phone = "0912 *** 678" }) {
             <button
               type="button"
               onClick={handleResend}
-              className="font-semibold text-brand hover:underline"
+              className="font-semibold text-white transition hover:underline"
             >
               Gửi lại mã xác thực
             </button>
@@ -136,25 +143,17 @@ export default function VerifyOtpForm({ phone = "0912 *** 678" }) {
         <button
           type="submit"
           disabled={!isComplete || isSubmitting}
-          className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-[15px] font-bold text-brand-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] transition hover:bg-brand/90 disabled:opacity-60"
+          className="mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand to-brand-2 text-[15px] font-bold text-white shadow-lg transition hover:brightness-110 disabled:opacity-60"
         >
           {isSubmitting ? "Đang xác nhận..." : "Xác nhận & Tiếp tục"}
           <ArrowRight className="size-4" />
         </button>
       </form>
 
-      <div className="mt-2 flex items-start gap-2.5 rounded-xl bg-brand-soft px-4 py-2.5">
-        <img src={lockIcon} alt="" className="mt-0.5 w-3.5" />
-        <p className="text-[13px] leading-relaxed text-subtle">
-          Không chia sẻ mã xác thực này cho bất kỳ ai, kể cả nhân viên hỗ trợ
-          VeggiePal để bảo vệ tài khoản và chế độ ăn của bạn.
-        </p>
-      </div>
-
       <button
         type="button"
         onClick={() => navigate(-1)}
-        className="mx-auto mt-2 flex items-center gap-1.5 text-[14px] font-semibold text-brand hover:underline"
+        className="mx-auto mt-5 flex items-center gap-1.5 text-[14px] font-semibold text-white/90 transition hover:text-white hover:underline"
       >
         <ArrowLeft className="size-4" />
         Quay lại trang trước

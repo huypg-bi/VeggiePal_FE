@@ -49,10 +49,6 @@ export default function ChatbotScreen() {
     sendMessage(text);
   };
 
-  const handlePromptClick = (text) => {
-    sendMessage(text);
-  };
-
   return (
     <div className="min-h-dvh bg-canvas">
       <HomeHeader />
@@ -89,7 +85,7 @@ export default function ChatbotScreen() {
                     </p>
                   </div>
                 ) : activeMessages.length === 0 ? (
-                  <ChatEmptyState onPromptClick={handlePromptClick} />
+                  <ChatEmptyState />
                 ) : (
                   activeMessages.map((message) => (
                     <ChatMessage key={message.id} message={message} />

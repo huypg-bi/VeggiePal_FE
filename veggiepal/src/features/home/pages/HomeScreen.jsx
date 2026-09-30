@@ -1,5 +1,6 @@
 import heroVideo from "@/assets/video/video_homepage.mp4";
 import HomeHeader from "@/features/meal-planner/components/HomeHeader";
+import HomeFooter from "@/features/meal-planner/components/HomeFooter";
 import LandingHero from "@/features/home/components/LandingHero";
 import TrendingRecipesSection from "@/features/home/components/TrendingRecipesSection";
 import NutritionLookupSection from "@/features/home/components/NutritionLookupSection";
@@ -23,7 +24,7 @@ export default function HomeScreen() {
         <div aria-hidden className="absolute inset-0 bg-black/40" />
         <div
           aria-hidden
-          className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-b from-transparent to-black/70 sm:h-28"
+          className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-background sm:h-40"
         />
 
         <div className="relative z-10 h-full font-landing-sans">
@@ -33,6 +34,7 @@ export default function HomeScreen() {
 
       <TrendingRecipesSection />
       <NutritionLookupSection />
+      <HomeFooter />
     </div>
   );
 }

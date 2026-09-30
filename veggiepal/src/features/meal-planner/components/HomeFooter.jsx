@@ -82,8 +82,8 @@ export default function HomeFooter() {
         visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
       }`}
     >
-      <div className="mx-auto grid w-full max-w-[1230px] grid-cols-1 gap-x-8 gap-y-8 py-10 sm:grid-cols-2 lg:grid-cols-12">
-        <div className="flex flex-col gap-3 sm:col-span-2 lg:col-span-4">
+      <div className="mx-auto grid w-full max-w-[1230px] grid-cols-1 gap-x-8 gap-y-8 py-10 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_auto_auto_auto] lg:gap-x-16">
+        <div className="flex max-w-md flex-col gap-3 sm:col-span-2 lg:col-span-1">
           <p className="text-xs font-semibold tracking-[0.15em] text-brand">
             ĂN CHAY • SỐNG KHỎE • KẾT NỐI CỘNG ĐỒNG
           </p>
@@ -108,7 +108,7 @@ export default function HomeFooter() {
           </p>
         </div>
 
-        <nav className="flex flex-col gap-2.5 lg:col-span-2">
+        <nav className="flex flex-col gap-2.5 lg:col-span-1">
           <p className="text-sm font-semibold text-ink">Khám phá</p>
           {EXPLORE_LINKS.map((link) => (
             <FooterLink key={link.id} to={link.to} href={link.href}>
@@ -117,7 +117,7 @@ export default function HomeFooter() {
           ))}
         </nav>
 
-        <nav className="flex flex-col gap-2.5 lg:col-span-2">
+        <nav className="flex flex-col gap-2.5 lg:col-span-1">
           <p className="text-sm font-semibold text-ink">Hỗ trợ</p>
           {SUPPORT_LINKS.map((link) => (
             <FooterLink key={link.id} to={link.to} href={link.href}>
@@ -126,7 +126,7 @@ export default function HomeFooter() {
           ))}
         </nav>
 
-        <div className="flex flex-col gap-2.5 sm:col-span-2 lg:col-span-4">
+        <div className="flex flex-col gap-2.5 sm:col-span-2 lg:col-span-1">
           <p className="text-sm font-semibold text-ink">Cam kết của chúng tôi</p>
           <div className="flex flex-col gap-3">
             {COMMITMENTS.map(({ id, Icon, title, desc }) => (

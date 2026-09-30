@@ -1,6 +1,6 @@
 import { useId, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Leaf, UserPlus } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,12 +10,10 @@ import { register as registerUser } from "@/features/auth/api/authApi";
 import peopleIcon from "@/assets/svg/people.svg";
 import phoneIcon from "@/assets/svg/phone.svg";
 import mailIcon from "@/assets/svg/mail.svg";
-import keyIcon from "@/assets/svg/key.svg";
-import lockIcon from "@/assets/svg/unlock.svg";
 import googleIcon from "@/assets/svg/gg.svg";
 
 const fieldClass =
-  "h-11 w-full rounded-xl bg-brand-soft pl-10 pr-4 text-[15px] text-ink placeholder:text-subtle outline-none transition focus-visible:ring-2 focus-visible:ring-brand/40 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/40";
+  "auth-input h-10 w-full border-b border-white/40 bg-transparent pr-8 text-[15px] text-white placeholder:text-white/80 outline-none transition focus:border-white aria-[invalid=true]:border-destructive";
 
 export default function RegisterForm({ onSwitchMode }) {
   const navigate = useNavigate();
@@ -59,40 +57,23 @@ export default function RegisterForm({ onSwitchMode }) {
   };
 
   return (
-    <div className="w-full max-w-[480px] rounded-2xl bg-card p-5 shadow-[0_20px_25px_-5px_rgba(0,0,0,0.1),0_8px_10px_-6px_rgba(0,0,0,0.1)]">
-      <div className="flex flex-col items-center gap-1">
-        <span className="mb-1 flex size-10 items-center justify-center rounded-full bg-brand/10">
-          <img src={lockIcon} alt="" className="h-5 w-auto" />
-        </span>
-        <h2 className="flex items-center justify-center gap-1.5 text-center text-[24px] font-semibold tracking-[-0.015em] text-ink">
-          Tạo tài khoản VeggiePal
-        </h2>
-      </div>
+    <div className="w-full max-w-[420px] px-2 py-4">
+      <h2 className="mb-6 text-center text-[30px] font-extrabold tracking-tight text-white font-heading">
+        Tạo tài khoản VeggiePal
+      </h2>
 
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        noValidate
-        className="mt-4 flex flex-col gap-4"
-      >
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="flex flex-col gap-4">
         {errors.root && (
-          <p
-            role="alert"
-            className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive"
-          >
+          <p role="alert" className="rounded-lg bg-destructive/15 px-3 py-2 text-sm text-destructive">
             {errors.root.message}
           </p>
         )}
 
         <div className="relative flex flex-col gap-1">
-          <label htmlFor={fullNameId} className="text-[14px] font-semibold text-ink">
+          <label htmlFor={fullNameId} className="text-[18px] font-semibold tracking-tight text-white font-heading">
             Họ và tên
           </label>
           <div className="relative">
-            <img
-              src={peopleIcon}
-              alt=""
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2"
-            />
             <input
               id={fullNameId}
               type="text"
@@ -101,6 +82,11 @@ export default function RegisterForm({ onSwitchMode }) {
               aria-invalid={Boolean(errors.fullName)}
               className={fieldClass}
               {...register("fullName")}
+            />
+            <img
+              src={peopleIcon}
+              alt=""
+              className="pointer-events-none absolute right-0 top-1/2 size-4 -translate-y-1/2 brightness-0 invert opacity-80"
             />
           </div>
           {errors.fullName && (
@@ -111,15 +97,10 @@ export default function RegisterForm({ onSwitchMode }) {
         </div>
 
         <div className="relative flex flex-col gap-1">
-          <label htmlFor={emailId} className="text-[14px] font-semibold text-ink">
+          <label htmlFor={emailId} className="text-[18px] font-semibold tracking-tight text-white font-heading">
             Email
           </label>
           <div className="relative">
-            <img
-              src={mailIcon}
-              alt=""
-              className="pointer-events-none absolute left-3 top-1/2 w-[17px] -translate-y-1/2"
-            />
             <input
               id={emailId}
               type="email"
@@ -128,6 +109,11 @@ export default function RegisterForm({ onSwitchMode }) {
               aria-invalid={Boolean(errors.email)}
               className={fieldClass}
               {...register("email")}
+            />
+            <img
+              src={mailIcon}
+              alt=""
+              className="pointer-events-none absolute right-0 top-1/2 w-[17px] -translate-y-1/2 brightness-0 invert opacity-80"
             />
           </div>
           {errors.email && (
@@ -138,15 +124,10 @@ export default function RegisterForm({ onSwitchMode }) {
         </div>
 
         <div className="relative flex flex-col gap-1">
-          <label htmlFor={phoneId} className="text-[14px] font-semibold text-ink">
+          <label htmlFor={phoneId} className="text-[18px] font-semibold tracking-tight text-white font-heading">
             Số điện thoại (không bắt buộc)
           </label>
           <div className="relative">
-            <img
-              src={phoneIcon}
-              alt=""
-              className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2"
-            />
             <input
               id={phoneId}
               type="tel"
@@ -156,6 +137,11 @@ export default function RegisterForm({ onSwitchMode }) {
               className={fieldClass}
               {...register("phone")}
             />
+            <img
+              src={phoneIcon}
+              alt=""
+              className="pointer-events-none absolute right-0 top-1/2 size-4 -translate-y-1/2 brightness-0 invert opacity-80"
+            />
           </div>
           {errors.phone && (
             <span className="absolute left-0 top-full mt-1 text-xs leading-tight text-destructive">
@@ -164,31 +150,26 @@ export default function RegisterForm({ onSwitchMode }) {
           )}
         </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="relative flex flex-col gap-1">
-            <label htmlFor={passwordId} className="text-[14px] font-semibold text-ink">
+            <label htmlFor={passwordId} className="text-[18px] font-semibold tracking-tight text-white font-heading">
               Mật khẩu
             </label>
             <div className="relative">
-              <img
-                src={keyIcon}
-                alt=""
-                className="pointer-events-none absolute left-3 top-1/2 w-[17px] -translate-y-1/2"
-              />
               <input
                 id={passwordId}
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 placeholder="Tối thiểu 6 ký tự"
                 aria-invalid={Boolean(errors.password)}
-                className={`${fieldClass} pr-9`}
+                className={fieldClass}
                 {...register("password")}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 aria-label={showPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                className="absolute right-1.5 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-subtle transition hover:text-ink"
+                className="absolute right-0 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center text-white/80 transition hover:text-white"
               >
                 {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>
@@ -201,29 +182,24 @@ export default function RegisterForm({ onSwitchMode }) {
           </div>
 
           <div className="relative flex flex-col gap-1">
-            <label htmlFor={confirmPasswordId} className="text-[14px] font-semibold text-ink">
+            <label htmlFor={confirmPasswordId} className="text-[18px] font-semibold tracking-tight text-white font-heading">
               Xác nhận mật khẩu
             </label>
             <div className="relative">
-              <img
-                src={keyIcon}
-                alt=""
-                className="pointer-events-none absolute left-3 top-1/2 w-[17px] -translate-y-1/2"
-              />
               <input
                 id={confirmPasswordId}
                 type={showConfirmPassword ? "text" : "password"}
                 autoComplete="new-password"
                 placeholder="Nhập lại mật khẩu"
                 aria-invalid={Boolean(errors.confirmPassword)}
-                className={`${fieldClass} pr-9`}
+                className={fieldClass}
                 {...register("confirmPassword")}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword((v) => !v)}
                 aria-label={showConfirmPassword ? "Ẩn mật khẩu" : "Hiện mật khẩu"}
-                className="absolute right-1.5 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-md text-subtle transition hover:text-ink"
+                className="absolute right-0 top-1/2 flex size-6 -translate-y-1/2 items-center justify-center text-white/80 transition hover:text-white"
               >
                 {showConfirmPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
               </button>
@@ -236,55 +212,47 @@ export default function RegisterForm({ onSwitchMode }) {
           </div>
         </div>
 
-        <label className="flex items-start gap-2 text-[13px] leading-5 text-body">
+        <label className="flex items-start gap-2 text-[13px] leading-5 text-white/75">
           <input
             type="checkbox"
-            className="mt-0.5 size-4 shrink-0 rounded border-subtle/60 accent-brand"
+            className="mt-0.5 size-4 shrink-0 rounded border-white/40 accent-brand"
             {...register("acceptTerms")}
           />
           <span>
-            Tôi đồng ý với{" "}
-            <span className="font-semibold text-brand">Điều khoản sử dụng</span> và{" "}
-            <span className="font-semibold text-brand">Chính sách bảo mật</span>
+            Tôi đồng ý với <span className="font-semibold text-white">Điều khoản sử dụng</span> và{" "}
+            <span className="font-semibold text-white">Chính sách bảo mật</span>
           </span>
         </label>
 
         <button
           type="submit"
           disabled={isSubmitting || !acceptTerms}
-          className="flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-[14px] font-bold text-brand-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] transition hover:bg-brand/90 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none disabled:hover:bg-brand"
+          className="flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-brand to-brand-2 text-[15px] font-bold text-white shadow-lg transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          <UserPlus className="size-[17px]" />
           {isSubmitting ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
         </button>
       </form>
 
-      <div className="my-3 flex items-center gap-3">
-        <span className="h-px flex-1 bg-[rgb(191_201_190_/_0.4)] dark:bg-white/10" />
-        <span className="text-[11px] font-medium uppercase tracking-[0.05em] text-subtle">
-          Hoặc đăng ký với
-        </span>
-        <span className="h-px flex-1 bg-[rgb(191_201_190_/_0.4)] dark:bg-white/10" />
+      <p className="mt-4 text-center text-[14px] text-white/75">
+        Đã có tài khoản?{" "}
+        <button type="button" onClick={onSwitchMode} className="font-bold text-white hover:underline">
+          Đăng nhập ngay
+        </button>
+      </p>
+
+      <div className="mt-4 flex items-center gap-3">
+        <span className="h-px flex-1 bg-white/15" />
+        <span className="text-[11px] font-medium uppercase tracking-wide text-white/50">Hoặc</span>
+        <span className="h-px flex-1 bg-white/15" />
       </div>
 
       <button
         type="button"
-        className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand-soft text-[14px] font-semibold text-ink shadow-[0_1px_1px_rgba(0,0,0,0.05)] transition hover:brightness-[0.98]"
+        className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 text-[13px] font-semibold text-white/90 backdrop-blur-sm transition hover:bg-white/20"
       >
-        <img src={googleIcon} alt="" className="size-5" />
+        <img src={googleIcon} alt="" className="size-4" />
         Tiếp tục với Google
       </button>
-
-      <p className="mt-3 text-center text-[14px] text-body">
-        Đã có tài khoản?{" "}
-        <button
-          type="button"
-          onClick={onSwitchMode}
-          className="font-bold text-brand hover:underline"
-        >
-          Đăng nhập ngay
-        </button>
-      </p>
     </div>
   );
 }

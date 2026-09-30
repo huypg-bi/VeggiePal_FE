@@ -1,5 +1,4 @@
 import iconBanner from "@/assets/img/icon_banner.png";
-import textBanner1 from "@/assets/img/text_banner_1.png";
 import tag from "@/assets/img/tag.png"
 
 export default function HeroBanner({ userName }) {

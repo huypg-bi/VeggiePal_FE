@@ -1,8 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 
 import AuthScreen from "@/features/auth/pages/AuthScreen";
-import ForgotPasswordScreen from "@/features/auth/pages/ForgotPasswordScreen";
-import VerifyOtpScreen from "@/features/auth/pages/VerifyOtpScreen";
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import LandingScreen from "@/features/home/pages/HomeScreen";
@@ -18,8 +16,8 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordScreen />} />
-      <Route path="/verify-otp" element={<VerifyOtpScreen />} />
+      <Route path="/forgot-password" element={<AuthScreen />} />
+      <Route path="/verify-otp" element={<AuthScreen />} />
       <Route path="/" element={<LandingScreen />} />
       <Route
         path="/meal-planner"
