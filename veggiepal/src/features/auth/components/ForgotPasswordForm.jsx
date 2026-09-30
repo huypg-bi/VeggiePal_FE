@@ -3,9 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import mailIcon from "@/assets/svg/mail.svg";
+import iconFgp from "@/assets/img/icon_fgp.png";
 
 const fieldClass =
-  "h-12 w-full rounded-xl bg-brand-soft pl-10 pr-4 text-[15px] text-ink placeholder:text-subtle outline-none transition focus-visible:ring-2 focus-visible:ring-brand/40";
+  "auth-input h-11 w-full border-b border-white/20 bg-transparent pr-8 text-[15px] text-white placeholder:text-white/80 outline-none transition focus:border-white";
 
 export default function ForgotPasswordForm() {
   const navigate = useNavigate();
@@ -22,32 +23,40 @@ export default function ForgotPasswordForm() {
   };
 
   return (
-    <div className="w-full max-w-[420px] rounded-2xl bg-card p-5">
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-2">
-        <label htmlFor={contactId} className="text-[14px] font-semibold text-ink">
-          Email hoặc số điện thoại đăng ký
-        </label>
-        <div className="relative">
-          <img
-            src={mailIcon}
-            alt=""
-            className="pointer-events-none absolute left-3 top-1/2 w-[17px] -translate-y-1/2"
-          />
-          <input
-            id={contactId}
-            type="text"
-            autoComplete="username"
-            placeholder="Nhập email hoặc số điện thoại..."
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
-            className={fieldClass}
-          />
+    <div className="w-full max-w-[380px] px-2 py-4">
+      <div className="flex flex-col items-center gap-2">
+        <img src={iconFgp} alt="" className="h-50 w-auto object-contain" />
+        <h2 className="text-center text-[26px] font-extrabold tracking-tight text-white font-heading">
+          Bạn quên mật khẩu rồi à?
+        </h2>
+      </div>
+
+      <form onSubmit={handleSubmit} noValidate className="mt-6 flex flex-col gap-4">
+        <div className="flex flex-col gap-1">
+          <label htmlFor={contactId} className="text-[20px] font-semibold tracking-tight text-white font-heading">
+            Nhập email hoặc số điện thoại đã đăng ký
+          </label>
+          <div className="relative">
+            <input
+              id={contactId}
+              type="text"
+              autoComplete="username"
+              value={contact}
+              onChange={(e) => setContact(e.target.value)}
+              className={fieldClass}
+            />
+            <img
+              src={mailIcon}
+              alt=""
+              className="pointer-events-none absolute right-0 top-1/2 w-[17px] -translate-y-1/2 brightness-0 invert opacity-80"
+            />
+          </div>
         </div>
 
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-3 flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-[15px] font-bold text-brand-foreground shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1),0_2px_4px_-2px_rgba(0,0,0,0.1)] transition hover:bg-brand/90 disabled:opacity-60"
+          className="mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand to-brand-2 text-[15px] font-bold text-white shadow-lg transition hover:brightness-110 disabled:opacity-60"
         >
           {isSubmitting ? "Đang gửi..." : "Gửi mã xác nhận"}
           <ArrowRight className="size-4" />
@@ -57,7 +66,7 @@ export default function ForgotPasswordForm() {
       <button
         type="button"
         onClick={() => navigate("/login")}
-        className="mx-auto mt-3 flex items-center gap-1.5 text-[14px] font-semibold text-brand hover:underline"
+        className="mx-auto mt-5 flex items-center gap-1.5 text-[14px] font-semibold text-white/90 transition hover:text-white hover:underline"
       >
         <ArrowLeft className="size-4" />
         Quay lại đăng nhập

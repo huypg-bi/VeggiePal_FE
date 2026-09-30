@@ -32,8 +32,8 @@ export default function StatsGrid() {
             type="button"
             className="flex items-center gap-2 text-left text-sm font-medium text-subtle transition hover:text-ink"
           >
-            <span className={`grid size-12 shrink-0 place-items-center overflow-hidden rounded-full ${stat.ringClass}`}>
-              <img src={ICONS[stat.icon]} alt="" className="h-full w-full object-cover" />
+            <span className="grid size-12 shrink-0 place-items-center">
+              <img src={ICONS[stat.icon]} alt="" className="h-full w-full object-contain" />
             </span>
             <span className="flex-1">{stat.label}</span>
             {!stat.badge && <ChevronRight className="h-4 w-4" />}
