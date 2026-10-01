@@ -17,9 +17,8 @@ export default function VideoHomeScreen() {
         <Reveal>
           <VideoChannelBar />
         </Reveal>
-        <Reveal>
-          <TrendingVideoGrid />
-        </Reveal>
+        {/* TrendingVideoGrid tự có <Reveal> cho từng video. */}
+        <TrendingVideoGrid />
       </main>
 
       <HomeFooter />

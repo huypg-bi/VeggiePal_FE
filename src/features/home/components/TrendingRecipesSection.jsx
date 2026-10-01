@@ -53,13 +53,10 @@ function RecipeCard({ recipe }) {
       </div>
 
       <div className="p-4">
-        <div className="flex items-center justify-between text-xs text-subtle">
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 text-xs text-subtle">
             <Flame className="h-3.5 w-3.5 text-brand" />
             {recipe.kcal} kcal • {recipe.protein}g Đạm
           </span>
-          <span>{recipe.minutes} phút</span>
-        </div>
 
         <h3 className="mt-2 text-base font-semibold text-ink">{recipe.title}</h3>
 

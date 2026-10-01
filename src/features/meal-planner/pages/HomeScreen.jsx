@@ -10,7 +10,7 @@ import TodayMeals from "@/features/meal-planner/components/TodayMeals";
 import Reveal from "@/shared/components/Reveal";
 
 // Trang chủ / thực đơn hôm nay. Hiện là UI demo với dữ liệu tĩnh trong
-// features/home/data/mockHome.js — thay bằng dữ liệu thật khi BE sẵn sàng.
+// features/meal-planner/data/mockHome.js — thay bằng dữ liệu thật khi BE sẵn sàng.
 export default function HomeScreen() {
   const user = useAuthStore((s) => s.user);
   const firstName = user?.fullName?.trim().split(" ").at(-2);
@@ -22,15 +22,12 @@ export default function HomeScreen() {
 
       <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-12 px-6 py-8">
         <HeroBanner userName={firstName + " " + secondName} />
-        <Reveal>
-          <StatsGrid />
-        </Reveal>
+        {/* StatsGrid và TodayMeals tự có <Reveal> cho từng thẻ nên không bọc thêm ở đây. */}
+        <StatsGrid />
         <Reveal>
           <AiMealSuggestion />
         </Reveal>
-        <Reveal>
-          <TodayMeals />
-        </Reveal>
+        <TodayMeals />
 
         <Reveal>
           <section id="macro-balance" className="grid scroll-mt-28 grid-cols-1 gap-6 lg:grid-cols-2">

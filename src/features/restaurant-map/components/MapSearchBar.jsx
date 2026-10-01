@@ -9,6 +9,7 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { mapFilterChips } from "@/features/restaurant-map/data/mockRestaurantMap";
 
@@ -48,13 +49,10 @@ export default function MapSearchBar() {
           <ChevronRight className="h-4 w-4 shrink-0 text-subtle" />
         </button>
 
-        <button
-          type="button"
-          className="flex h-12 shrink-0 items-center justify-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-brand-foreground transition hover:opacity-90"
-        >
-          <Search className="h-4 w-4" />
+        <Button type="button" size="xl" className="px-6 text-sm">
+          <Search className="size-4" />
           Tìm quán ngon
-        </button>
+        </Button>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -69,7 +67,7 @@ export default function MapSearchBar() {
                 chip.id === "verified"
                   ? "border-transparent bg-[#FDECEC] text-[#D5443B] hover:bg-[#FBDFDF] dark:bg-[#3a1616] dark:text-[#ff8a80] dark:hover:bg-[#4a1d1d]"
                   : chip.active
-                  ? "border-transparent bg-[#E8F5E9] text-brand dark:bg-[#16301f]"
+                  ? "border-transparent bg-brand-soft text-brand"
                   : "border-border bg-surface text-ink hover:bg-[#EEF3EC] dark:hover:bg-white/5"
               )}
             >

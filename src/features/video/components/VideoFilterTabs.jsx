@@ -17,7 +17,7 @@ export default function VideoFilterTabs() {
             "shrink-0 rounded-full px-3.5 py-2 text-xs font-semibold transition",
             active === tab.id
               ? "bg-[#111c2d] text-white dark:bg-brand dark:text-brand-foreground"
-              : "bg-surface text-ink hover:bg-[#E8F5E9] dark:hover:bg-[#16301f]"
+              : "bg-surface text-ink hover:bg-brand-soft"
           )}
         >
           {tab.label}

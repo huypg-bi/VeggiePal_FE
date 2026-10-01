@@ -10,11 +10,12 @@ const SEGMENT_COLORS = {
 };
 
 export default function MacroBalanceCard() {
-  let cursor = 0;
-  const stops = macroBreakdown.map((item) => {
-    const start = cursor;
-    cursor += item.value;
-    return `${SEGMENT_COLORS[item.id]} ${start}% ${cursor}%`;
+  // Mỗi đoạn của biểu đồ bắt đầu ngay sau tổng các đoạn đứng trước nó.
+  const stops = macroBreakdown.map((item, index) => {
+    const start = macroBreakdown
+      .slice(0, index)
+      .reduce((sum, prev) => sum + prev.value, 0);
+    return `${SEGMENT_COLORS[item.id]} ${start}% ${start + item.value}%`;
   });
 
   return (

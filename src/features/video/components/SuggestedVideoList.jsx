@@ -1,5 +1,3 @@
-import { Sparkles } from "lucide-react";
-
 import { suggestedVideos } from "@/features/video/data/mockVideo";
 import VideoFilterTabs from "@/features/video/components/VideoFilterTabs";
 

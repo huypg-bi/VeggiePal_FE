@@ -1,5 +1,7 @@
 import { ArrowUp } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+
 export default function ChatComposer({ value, onChange, onSend, disabled }) {
   const canSend = value.trim().length > 0 && !disabled;
 
@@ -21,15 +23,16 @@ export default function ChatComposer({ value, onChange, onSend, disabled }) {
           placeholder="Hỏi về món chay, dinh dưỡng, thực đơn..."
           className="max-h-40 flex-1 resize-none bg-transparent py-1.5 text-sm text-ink outline-none placeholder:text-subtle"
         />
-        <button
+        <Button
           type="button"
+          size="icon"
           onClick={() => canSend && onSend()}
           disabled={!canSend}
           aria-label="Gửi"
-          className="grid size-8 shrink-0 place-items-center rounded-full bg-brand text-brand-foreground transition hover:opacity-90 disabled:opacity-40"
+          className="disabled:opacity-40"
         >
-          <ArrowUp className="h-4 w-4" />
-        </button>
+          <ArrowUp className="size-4" />
+        </Button>
       </div>
 
       <div className="mx-auto mt-2 flex w-full max-w-3xl items-center justify-between text-xs text-subtle">

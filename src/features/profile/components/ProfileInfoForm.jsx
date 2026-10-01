@@ -3,16 +3,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Save, UserRound } from "lucide-react";
 
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { updateProfileSchema } from "@/lib/schema";
-import { updateProfile } from "@/features/profile/api/profileApi";
-
-const fieldClass =
-  "h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
+import { useUpdateProfile } from "@/features/profile/hooks/useProfile";
 
 /**
  * Form sửa fullName / phone / dateOfBirth → PATCH /users/me
  */
-export default function ProfileInfoForm({ profile, onUpdated }) {
+export default function ProfileInfoForm({ profile }) {
+  const update = useUpdateProfile();
+
   const {
     register,
     handleSubmit,
@@ -47,8 +48,8 @@ export default function ProfileInfoForm({ profile, onUpdated }) {
         phone: values.phone?.trim() ?? "",
         dateOfBirth: values.dateOfBirth || null,
       };
-      const updated = await updateProfile(payload);
-      onUpdated?.(updated);
+      // onSuccess của mutation đã ghi hồ sơ mới vào cache + authStore.
+      const updated = await update.mutateAsync(payload);
       reset({
         fullName: updated.fullName || "",
         phone: updated.phone || "",
@@ -78,10 +79,9 @@ export default function ProfileInfoForm({ profile, onUpdated }) {
           <label className="mb-1.5 block text-sm font-medium text-ink">
             Họ và tên
           </label>
-          <input
+          <Input
             type="text"
             autoComplete="name"
-            className={fieldClass}
             aria-invalid={Boolean(errors.fullName)}
             {...register("fullName")}
           />
@@ -96,11 +96,10 @@ export default function ProfileInfoForm({ profile, onUpdated }) {
           <label className="mb-1.5 block text-sm font-medium text-ink">
             Số điện thoại
           </label>
-          <input
+          <Input
             type="tel"
             autoComplete="tel"
             placeholder="Để trống nếu muốn xóa"
-            className={fieldClass}
             aria-invalid={Boolean(errors.phone)}
             {...register("phone")}
           />
@@ -113,9 +112,8 @@ export default function ProfileInfoForm({ profile, onUpdated }) {
           <label className="mb-1.5 block text-sm font-medium text-ink">
             Ngày sinh
           </label>
-          <input
+          <Input
             type="date"
-            className={fieldClass}
             aria-invalid={Boolean(errors.dateOfBirth)}
             {...register("dateOfBirth")}
           />
@@ -130,11 +128,11 @@ export default function ProfileInfoForm({ profile, onUpdated }) {
           <label className="mb-1.5 block text-sm font-medium text-ink">
             Email
           </label>
-          <input
+          <Input
             type="email"
             disabled
             value={profile?.email || ""}
-            className={fieldClass + " cursor-not-allowed opacity-70"}
+            className="cursor-not-allowed opacity-70"
           />
           <p className="mt-1 text-xs text-subtle">Email không thể thay đổi tại đây</p>
         </div>
@@ -145,18 +143,19 @@ export default function ProfileInfoForm({ profile, onUpdated }) {
           </p>
         )}
 
-        <button
+        <Button
           type="submit"
+          size="lg"
           disabled={isSubmitting || !isDirty}
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-xl"
         >
           {isSubmitting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin" />
           ) : (
-            <Save className="h-4 w-4" />
+            <Save className="size-4" />
           )}
           Lưu thay đổi
-        </button>
+        </Button>
       </form>
     </section>
   );

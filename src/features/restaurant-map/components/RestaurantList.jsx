@@ -1,5 +1,6 @@
 import { ChevronDown } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import mascotWave from "@/assets/img/icon_map_page_1.png";
 import { mockRestaurants } from "@/features/restaurant-map/data/mockRestaurantMap";
 import RestaurantCard from "@/features/restaurant-map/components/RestaurantCard";
@@ -10,7 +11,7 @@ export default function RestaurantList() {
     <section className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="grid size-15 shrink-0 place-items-center overflow-hidden rounded-full bg-[#E8F5E9] dark:bg-[#16301f]">
+          <span className="grid size-15 shrink-0 place-items-center overflow-hidden rounded-full bg-brand-soft">
             <img
               src={mascotWave}
               alt=""
@@ -28,13 +29,10 @@ export default function RestaurantList() {
           </div>
         </div>
 
-        <button
-          type="button"
-          className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 text-sm font-medium text-ink shadow-sm transition hover:bg-surface"
-        >
+        <Button type="button" variant="outline" className="h-9 shadow-sm">
           Gần nhất
-          <ChevronDown className="h-4 w-4 text-subtle" />
-        </button>
+          <ChevronDown className="size-4 text-subtle" />
+        </Button>
       </div>
 
       <div className="flex flex-col gap-4">

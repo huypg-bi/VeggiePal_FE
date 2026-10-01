@@ -1,8 +1,4 @@
-// Dữ liệu demo cho trang Xem video — UI-only, chưa nối BE.
-// Khi có API thật, thay các hằng số này bằng dữ liệu từ query/store tương ứng.
-
 export const currentVideo = {
-  id: "pho-chay-nam-huong",
   title: "Hướng Dẫn Nấu Phở Chay Nấm Hương & Thảo Mộc Thanh Vị",
   channel: {
     name: "Bếp Chay An Nhiên",
@@ -15,7 +11,6 @@ export const currentVideo = {
   uploadedAgo: "2 ngày trước",
   approvedBadge: "Đã duyệt dinh dưỡng bởi VeggiePal",
   likes: "1.2K",
-  duration: "09:18",
   commentsCount: 148,
 };
 
@@ -188,7 +183,6 @@ export const suggestedVideos = [
     uploadedAgo: "1 ngày trước",
     duration: "06:40",
     tag: "Đạm: 21g",
-    steps: "Bóc tách 4 bước",
     thumbClass: "bg-gradient-to-br from-[#C4471F] to-[#3A1F0E]",
     emoji: "🥢",
   },
@@ -200,7 +194,6 @@ export const suggestedVideos = [
     uploadedAgo: "4 ngày trước",
     duration: "08:15",
     tag: "Ít béo • Dễ làm",
-    steps: "Bóc tách 3 bước",
     thumbClass: "bg-gradient-to-br from-[#3B2A6E] to-[#1A1030]",
     emoji: "🍆",
   },
@@ -212,7 +205,6 @@ export const suggestedVideos = [
     uploadedAgo: "1 tuần trước",
     duration: "05:20",
     tag: "Giàu Xơ • Eat Clean",
-    steps: "Bóc tách 3 bước",
     thumbClass: "bg-gradient-to-br from-[#1D6C3D] to-[#0C2818]",
     emoji: "🥗",
   },
@@ -224,7 +216,6 @@ export const suggestedVideos = [
     uploadedAgo: "2 tuần trước",
     duration: "14:10",
     tag: "Ngủ ngon • An thần",
-    steps: "Bóc tách 5 bước",
     thumbClass: "bg-gradient-to-br from-[#2A5FA0] to-[#0F1F38]",
     emoji: "🥣",
   },
@@ -236,7 +227,6 @@ export const suggestedVideos = [
     uploadedAgo: "3 tuần trước",
     duration: "09:45",
     tag: "Đạm cao 24g",
-    steps: "Bóc tách 3 bước",
     thumbClass: "bg-gradient-to-br from-[#B5651D] to-[#3A1F0E]",
     emoji: "🍢",
   },
@@ -248,7 +238,6 @@ export const suggestedVideos = [
     uploadedAgo: "1 tháng trước",
     duration: "07:30",
     tag: "Lành mạnh",
-    steps: "Bóc tách 2 bước",
     thumbClass: "bg-gradient-to-br from-[#E3B23C] to-[#5A4116]",
     emoji: "🥛",
   },

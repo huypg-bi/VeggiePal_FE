@@ -1,11 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AlertTriangle, Loader2, Save } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import {
-  getAllergens,
-  getMyAllergies,
-  replaceMyAllergies,
-} from "@/features/profile/api/profileApi";
+  useAllergens,
+  useMyAllergies,
+  useReplaceMyAllergies,
+} from "@/features/profile/hooks/useAllergies";
 import { cn } from "@/lib/utils";
 
 const CATEGORY_LABEL = {
@@ -25,37 +26,27 @@ const CATEGORY_LABEL = {
  * GET /nutrition/allergens, GET/PUT /nutrition/me/allergies
  */
 export default function AllergySection() {
-  const [catalog, setCatalog] = useState([]);
-  const [selected, setSelected] = useState(new Set());
-  const [initial, setInitial] = useState(new Set());
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
+  const catalogQuery = useAllergens();
+  const myQuery = useMyAllergies();
+  const save = useReplaceMyAllergies();
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
-      const [all, mine] = await Promise.all([getAllergens(), getMyAllergies()]);
-      setCatalog(all ?? []);
-      const ids = new Set((mine ?? []).map((a) => a.id));
-      setSelected(ids);
-      setInitial(new Set(ids));
-    } catch (err) {
-      setError(err.message || "Không tải được danh mục dị ứng");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  // Khi user chưa chỉnh gì thì mục đang chọn lấy từ server (savedIds);
+  // khi user bấm chọn/bỏ thì giữ bản nháp riêng ở draft (null = chưa chỉnh).
+  const [draft, setDraft] = useState(null);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  const catalog = catalogQuery.data;
+  const loading = catalogQuery.isPending || myQuery.isPending;
+  const loadError = catalogQuery.error || myQuery.error;
+
+  const savedIds = useMemo(
+    () => new Set((myQuery.data ?? []).map((a) => a.id)),
+    [myQuery.data]
+  );
+  const selected = draft ?? savedIds;
 
   const grouped = useMemo(() => {
     const map = {};
-    for (const a of catalog) {
+    for (const a of catalog ?? []) {
       const key = a.category || "OTHER";
       if (!map[key]) map[key] = [];
       map[key].push(a);
@@ -64,34 +55,21 @@ export default function AllergySection() {
   }, [catalog]);
 
   const dirty =
-    selected.size !== initial.size ||
-    [...selected].some((id) => !initial.has(id));
+    selected.size !== savedIds.size ||
+    [...selected].some((id) => !savedIds.has(id));
 
   const toggle = (id) => {
-    setSuccess(false);
-    setSelected((prev) => {
-      const next = new Set(prev);
+    save.reset(); // ẩn thông báo thành công / lỗi của lần lưu trước
+    setDraft((prev) => {
+      const next = new Set(prev ?? savedIds);
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return next;
     });
   };
 
-  const handleSave = async () => {
-    setSaving(true);
-    setError("");
-    setSuccess(false);
-    try {
-      const result = await replaceMyAllergies([...selected]);
-      const ids = new Set((result ?? []).map((a) => a.id));
-      setSelected(ids);
-      setInitial(new Set(ids));
-      setSuccess(true);
-    } catch (err) {
-      setError(err.message || "Cập nhật dị ứng thất bại");
-    } finally {
-      setSaving(false);
-    }
+  const handleSave = () => {
+    save.mutate([...selected], { onSuccess: () => setDraft(null) });
   };
 
   return (
@@ -113,9 +91,9 @@ export default function AllergySection() {
           <Loader2 className="h-4 w-4 animate-spin" />
           Đang tải…
         </div>
-      ) : error && catalog.length === 0 ? (
+      ) : loadError ? (
         <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {error}
+          {loadError.message || "Không tải được danh mục dị ứng"}
         </p>
       ) : (
         <>
@@ -149,30 +127,31 @@ export default function AllergySection() {
             ))}
           </div>
 
-          {error && (
+          {save.isError && (
             <p className="mt-4 rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">
-              {error}
+              {save.error.message || "Cập nhật dị ứng thất bại"}
             </p>
           )}
-          {success && (
+          {save.isSuccess && (
             <p className="mt-4 rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
               Đã cập nhật danh sách dị ứng.
             </p>
           )}
 
-          <button
+          <Button
             type="button"
+            size="lg"
             onClick={handleSave}
-            disabled={saving || !dirty}
-            className="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={save.isPending || !dirty}
+            className="mt-5 rounded-xl"
           >
-            {saving ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+            {save.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
             ) : (
-              <Save className="h-4 w-4" />
+              <Save className="size-4" />
             )}
             Lưu dị ứng
-          </button>
+          </Button>
         </>
       )}
     </section>

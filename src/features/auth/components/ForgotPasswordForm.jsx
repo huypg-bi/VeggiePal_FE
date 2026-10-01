@@ -2,11 +2,10 @@ import { useId, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import mailIcon from "@/assets/svg/mail.svg";
 import iconFgp from "@/assets/img/icon_fgp.png";
-
-const fieldClass =
-  "auth-input h-11 w-full border-b border-white/20 bg-transparent pr-8 text-[15px] text-white placeholder:text-white/80 outline-none transition focus:border-white";
 
 export default function ForgotPasswordForm() {
   const navigate = useNavigate();
@@ -37,13 +36,13 @@ export default function ForgotPasswordForm() {
             Nhập email hoặc số điện thoại đã đăng ký
           </label>
           <div className="relative">
-            <input
+            <Input
+              variant="auth"
               id={contactId}
               type="text"
               autoComplete="username"
               value={contact}
               onChange={(e) => setContact(e.target.value)}
-              className={fieldClass}
             />
             <img
               src={mailIcon}
@@ -53,14 +52,16 @@ export default function ForgotPasswordForm() {
           </div>
         </div>
 
-        <button
+        <Button
           type="submit"
+          variant="gradient"
+          size="xl"
           disabled={isSubmitting}
-          className="mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand to-brand-2 text-[15px] font-bold text-white shadow-lg transition hover:brightness-110 disabled:opacity-60"
+          className="mt-1 w-full"
         >
           {isSubmitting ? "Đang gửi..." : "Gửi mã xác nhận"}
           <ArrowRight className="size-4" />
-        </button>
+        </Button>
       </form>
 
       <button

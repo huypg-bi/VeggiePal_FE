@@ -1,5 +1,6 @@
 import { SlidersHorizontal } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import mascotHeart from "@/assets/img/icon_map_page_2.png";
 import eatGreenText from "@/assets/img/icon_map_page_3.png";
 import tag from "@/assets/img/tag.png";
@@ -16,13 +17,10 @@ export default function MapBanner() {
           draggable={false}
         />
 
-        <button
-          type="button"
-          className="flex items-center gap-2 whitespace-nowrap rounded-full bg-brand px-5 py-3 text-sm font-semibold text-brand-foreground shadow-sm transition hover:opacity-90"
-        >
-          <SlidersHorizontal className="h-4 w-4" />
+        <Button type="button" size="lg" className="shadow-sm">
+          <SlidersHorizontal className="size-4" />
           Lọc quán theo yêu cầu
-        </button>
+        </Button>
       </div>
 
       {/* Hàng dưới dùng pt-14/pt-16 để chừa khoảng trống cho hàng trên */}

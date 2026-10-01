@@ -1,9 +1,12 @@
 import { useId, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { registerSchema } from "@/features/auth/schema";
 import { register as registerUser } from "@/features/auth/api/authApi";
 
@@ -11,9 +14,6 @@ import peopleIcon from "@/assets/svg/people.svg";
 import phoneIcon from "@/assets/svg/phone.svg";
 import mailIcon from "@/assets/svg/mail.svg";
 import googleIcon from "@/assets/svg/gg.svg";
-
-const fieldClass =
-  "auth-input h-10 w-full border-b border-white/40 bg-transparent pr-8 text-[15px] text-white placeholder:text-white/80 outline-none transition focus:border-white aria-[invalid=true]:border-destructive";
 
 export default function RegisterForm({ onSwitchMode }) {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ export default function RegisterForm({ onSwitchMode }) {
     register,
     handleSubmit,
     setError,
-    watch,
+    control,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(registerSchema),
@@ -45,12 +45,13 @@ export default function RegisterForm({ onSwitchMode }) {
     },
   });
 
-  const acceptTerms = watch("acceptTerms");
+  const acceptTerms = useWatch({ control, name: "acceptTerms" });
 
   const onSubmit = async ({ fullName, email, phone, password }) => {
     try {
       await registerUser({ fullName, email, phone, password });
-      navigate("/login", { state: { justRegistered: true } });
+      toast.success("Đăng ký thành công! Hãy đăng nhập để tiếp tục.");
+      navigate("/login");
     } catch (err) {
       setError("root", { message: err.message || "Đăng ký thất bại" });
     }
@@ -74,13 +75,14 @@ export default function RegisterForm({ onSwitchMode }) {
             Họ và tên
           </label>
           <div className="relative">
-            <input
+            <Input
+              variant="auth"
               id={fullNameId}
               type="text"
               autoComplete="name"
               placeholder="Nhập họ và tên của bạn"
               aria-invalid={Boolean(errors.fullName)}
-              className={fieldClass}
+              className="h-10 border-white/40"
               {...register("fullName")}
             />
             <img
@@ -101,13 +103,14 @@ export default function RegisterForm({ onSwitchMode }) {
             Email
           </label>
           <div className="relative">
-            <input
+            <Input
+              variant="auth"
               id={emailId}
               type="email"
               autoComplete="email"
               placeholder="Nhập email của bạn"
               aria-invalid={Boolean(errors.email)}
-              className={fieldClass}
+              className="h-10 border-white/40"
               {...register("email")}
             />
             <img
@@ -128,13 +131,14 @@ export default function RegisterForm({ onSwitchMode }) {
             Số điện thoại (không bắt buộc)
           </label>
           <div className="relative">
-            <input
+            <Input
+              variant="auth"
               id={phoneId}
               type="tel"
               autoComplete="tel"
               placeholder="Nhập số điện thoại của bạn"
               aria-invalid={Boolean(errors.phone)}
-              className={fieldClass}
+              className="h-10 border-white/40"
               {...register("phone")}
             />
             <img
@@ -156,13 +160,14 @@ export default function RegisterForm({ onSwitchMode }) {
               Mật khẩu
             </label>
             <div className="relative">
-              <input
+              <Input
+                variant="auth"
                 id={passwordId}
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 placeholder="Tối thiểu 6 ký tự"
                 aria-invalid={Boolean(errors.password)}
-                className={fieldClass}
+                className="h-10 border-white/40"
                 {...register("password")}
               />
               <button
@@ -186,13 +191,14 @@ export default function RegisterForm({ onSwitchMode }) {
               Xác nhận mật khẩu
             </label>
             <div className="relative">
-              <input
+              <Input
+                variant="auth"
                 id={confirmPasswordId}
                 type={showConfirmPassword ? "text" : "password"}
                 autoComplete="new-password"
                 placeholder="Nhập lại mật khẩu"
                 aria-invalid={Boolean(errors.confirmPassword)}
-                className={fieldClass}
+                className="h-10 border-white/40"
                 {...register("confirmPassword")}
               />
               <button
@@ -224,13 +230,15 @@ export default function RegisterForm({ onSwitchMode }) {
           </span>
         </label>
 
-        <button
+        <Button
           type="submit"
+          variant="gradient"
+          size="xl"
           disabled={isSubmitting || !acceptTerms}
-          className="flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-brand to-brand-2 text-[15px] font-bold text-white shadow-lg transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+          className="w-full disabled:cursor-not-allowed disabled:opacity-40"
         >
           {isSubmitting ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
-        </button>
+        </Button>
       </form>
 
       <p className="mt-4 text-center text-[14px] text-white/75">
@@ -246,13 +254,15 @@ export default function RegisterForm({ onSwitchMode }) {
         <span className="h-px flex-1 bg-white/15" />
       </div>
 
-      <button
+      <Button
         type="button"
-        className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 text-[13px] font-semibold text-white/90 backdrop-blur-sm transition hover:bg-white/20"
+        variant="glass"
+        size="md"
+        className="mt-3 w-full text-[13px]"
       >
         <img src={googleIcon} alt="" className="size-4" />
         Tiếp tục với Google
-      </button>
+      </Button>
     </div>
   );
 }

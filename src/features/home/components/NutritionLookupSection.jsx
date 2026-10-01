@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpen, ChefHat, Layers, Scale, ShieldCheck } from "lucide-react";
+import {BookOpen, ChefHat, Layers, Scale, ShieldCheck } from "lucide-react";
 
 import { nutritionLookupCards } from "@/features/home/data/landingData";
 import Reveal from "@/shared/components/Reveal";

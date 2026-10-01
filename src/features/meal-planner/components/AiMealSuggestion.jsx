@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowRight, Plus, Sparkles, Wand2, X } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import iconChatbot from "@/assets/img/icon_chatbot_1.png";
 import { availableIngredients, flavorPreferences } from "@/features/meal-planner/data/mockHome";
 import { cn } from "@/lib/utils";
@@ -88,9 +89,7 @@ export default function AiMealSuggestion() {
             )}
           </div>
 
-          <div className="my-1 h-px" />
-
-          <h3 className="text-base font-semibold text-ink">
+          <h3 className="text-base font-semibold text-ink mt-2">
             Gợi ý món & khẩu vị mong muốn:
           </h3>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -127,14 +126,15 @@ export default function AiMealSuggestion() {
           <Wand2 className="h-4 w-4 shrink-0 text-brand" />
           Thuật toán AI tự động tối ưu hoá tỷ lệ Axit Amin hoàn chỉnh từ thực vật
         </p>
-        <button
+        <Button
           type="button"
-          className="flex w-full shrink-0 items-center justify-center gap-2 rounded-full bg-brand px-6 py-3 text-sm font-semibold text-brand-foreground shadow-sm transition hover:bg-brand/90 sm:w-auto"
+          size="lg"
+          className="h-auto min-h-11 w-full whitespace-normal px-6 py-2.5 shadow-sm sm:w-auto"
         >
-          <Sparkles className="h-4 w-4" />
+          <Sparkles className="size-4" />
           Nhờ Bé Bông Cải Lên Thực Đơn Mới
-          <ArrowRight className="h-4 w-4" />
-        </button>
+          <ArrowRight className="size-4" />
+        </Button>
       </div>
     </section>
   );

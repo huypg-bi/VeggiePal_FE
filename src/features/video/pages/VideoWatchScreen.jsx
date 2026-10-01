@@ -1,3 +1,5 @@
+import { useParams } from "react-router-dom";
+
 import HomeFooter from "@/features/meal-planner/components/HomeFooter";
 import HomeHeader from "@/features/meal-planner/components/HomeHeader";
 import AiSummaryCard from "@/features/video/components/AiSummaryCard";
@@ -12,6 +14,8 @@ import Reveal from "@/shared/components/Reveal";
 // features/video/data/mockVideo.js — khung phát video đang để trống,
 // chờ BE cung cấp nguồn video thật.
 export default function VideoWatchScreen() {
+  const { videoId } = useParams();
+
   return (
     <div className="min-h-dvh">
       <HomeHeader />
@@ -24,7 +28,7 @@ export default function VideoWatchScreen() {
               <VideoMetaHeader />
             </Reveal>
             <Reveal>
-              <AiSummaryCard />
+              <AiSummaryCard videoId={videoId} />
             </Reveal>
             <Reveal>
               <CommentsHeader />

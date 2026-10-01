@@ -1,78 +1,102 @@
-import { useCallback, useEffect, useState } from "react";
+import { useMemo } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { useAuthStore } from "@/features/auth/store/authStore";
-import { getProfile } from "@/features/profile/api/profileApi";
+import {
+  changePassword,
+  getProfile,
+  updateProfile as updateProfileApi,
+  uploadAvatar,
+} from "@/features/profile/api/profileApi";
+import { profileKeys } from "@/features/profile/queryKeys";
+
+// Giữ token, cập nhật user trong store (fullName / avatar hiển thị ở header).
+// Đọc store trực tiếp qua getState() nên không phụ thuộc closure/hook.
+function syncAuthUser(p) {
+  const { token, setAuth } = useAuthStore.getState();
+  if (!p || !token) return;
+  setAuth({
+    token,
+    user: {
+      id: p.id,
+      email: p.email,
+      fullName: p.fullName,
+      role: p.role,
+      avatarUrl: p.avatarUrl,
+    },
+  });
+}
 
 /**
- * Load hồ sơ hiện tại (GET /users/me) và đồng bộ user vào authStore.
+ * Hồ sơ hiện tại (GET /users/me), đồng bộ user vào authStore.
  * Fallback nhẹ từ authStore nếu API lỗi.
  */
 export function useProfile() {
-  const setAuth = useAuthStore((s) => s.setAuth);
-  const token = useAuthStore((s) => s.token);
+  const authUser = useAuthStore((s) => s.user);
 
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const syncAuthUser = useCallback(
-    (p) => {
-      if (!p || !token) return;
-      // Giữ token, cập nhật user trong store (fullName / avatar hiển thị header)
-      setAuth({
-        token,
-        user: {
-          id: p.id,
-          email: p.email,
-          fullName: p.fullName,
-          role: p.role,
-          avatarUrl: p.avatarUrl,
-        },
-      });
-    },
-    [setAuth, token]
-  );
-
-  const loadProfile = useCallback(async () => {
-    setLoading(true);
-    setError("");
-    try {
+  const query = useQuery({
+    queryKey: profileKeys.me,
+    queryFn: async () => {
       const data = await getProfile();
-      setProfile(data);
       syncAuthUser(data);
-    } catch (err) {
-      setError(err.message || "Không tải được hồ sơ");
-      // fallback nhẹ từ auth store nếu API lỗi (đọc trực tiếp, không subscribe
-      // để tránh loadProfile bị tái tạo mỗi khi store user đổi -> gọi lặp vô hạn)
-      const fallbackUser = useAuthStore.getState().user;
-      if (fallbackUser) {
-        setProfile({
-          id: fallbackUser.id,
-          email: fallbackUser.email,
-          fullName: fallbackUser.fullName,
-          role: fallbackUser.role,
-          phone: null,
-          avatarUrl: fallbackUser.avatarUrl || null,
-          dateOfBirth: null,
-          emailVerified: false,
-        });
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [syncAuthUser]);
-
-  useEffect(() => {
-    loadProfile();
-  }, [loadProfile]);
-
-  const updateProfile = useCallback(
-    (updated) => {
-      setProfile(updated);
-      syncAuthUser(updated);
+      return data;
     },
-    [syncAuthUser]
+  });
+
+  // API lỗi mà vẫn còn user trong authStore -> dựng hồ sơ tối thiểu từ đó.
+  const fallbackProfile = useMemo(
+    () =>
+      authUser
+        ? {
+            id: authUser.id,
+            email: authUser.email,
+            fullName: authUser.fullName,
+            role: authUser.role,
+            phone: null,
+            avatarUrl: authUser.avatarUrl || null,
+            dateOfBirth: null,
+            emailVerified: false,
+          }
+        : null,
+    [authUser]
   );
 
-  return { profile, loading, error, updateProfile };
+  return {
+    profile: query.data ?? (query.isError ? fallbackProfile : null),
+    loading: query.isPending,
+    error: query.error ? query.error.message || "Không tải được hồ sơ" : "",
+  };
+}
+
+// Hồ sơ mới từ server -> ghi vào cache (mọi nơi đang đọc useProfile tự cập nhật)
+// và đồng bộ tên/avatar vào authStore để header đổi theo.
+function useApplyProfile() {
+  const queryClient = useQueryClient();
+  return (updated) => {
+    queryClient.setQueryData(profileKeys.me, updated);
+    syncAuthUser(updated);
+  };
+}
+
+/** Sửa fullName / phone / dateOfBirth (PATCH /users/me). */
+export function useUpdateProfile() {
+  const applyProfile = useApplyProfile();
+  return useMutation({
+    mutationFn: updateProfileApi,
+    onSuccess: applyProfile,
+  });
+}
+
+/** Đổi avatar (POST /users/me/avatar) — server trả về hồ sơ đã cập nhật. */
+export function useUploadAvatar() {
+  const applyProfile = useApplyProfile();
+  return useMutation({
+    mutationFn: uploadAvatar,
+    onSuccess: applyProfile,
+  });
+}
+
+/** Đổi mật khẩu (PUT /users/me/password). */
+export function useChangePassword() {
+  return useMutation({ mutationFn: changePassword });
 }
