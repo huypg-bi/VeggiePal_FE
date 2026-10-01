@@ -1,4 +1,3 @@
-import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -11,12 +10,13 @@ import {
 } from "lucide-react";
 
 import iconBmi from "@/assets/img/icon_bmi.png";
+import { Button } from "@/components/ui/button";
 import { healthRecordSchema } from "@/lib/schema";
 import {
-  createHealthRecord,
-  getHealthRecords,
-  getLatestHealthRecord,
-} from "@/features/profile/api/profileApi";
+  useCreateHealthRecord,
+  useHealthRecordHistory,
+  useLatestHealthRecord,
+} from "@/features/profile/hooks/useHealthRecords";
 
 const fieldClass =
   "h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
@@ -50,57 +50,36 @@ function formatDt(iso) {
  * Gọi nutrition-service: /nutrition/me/health-records*
  */
 export default function HealthRecordSection() {
-  const [latest, setLatest] = useState(null);
-  const [history, setHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
+  const latestQuery = useLatestHealthRecord();
+  const historyQuery = useHealthRecordHistory({ size: 5 });
+  const create = useCreateHealthRecord();
+
+  const latest = latestQuery.data ?? null;
+  const history = historyQuery.data ?? [];
+  const loading = latestQuery.isPending || historyQuery.isPending;
+  const loadError = latestQuery.error || historyQuery.error;
 
   const {
     register,
     handleSubmit,
-    reset,
     setError,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(healthRecordSchema),
     defaultValues: { heightCm: "", weightKg: "" },
+    // Form tự đồng bộ theo bản ghi mới nhất mỗi khi nó thay đổi (tải lần đầu,
+    // hoặc sau khi ghi nhận xong và refetch) — thay cho reset() gọi trong effect.
+    values: latest
+      ? { heightCm: latest.heightCm ?? "", weightKg: latest.weightKg ?? "" }
+      : undefined,
   });
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setLoadError("");
-    try {
-      const [lat, page] = await Promise.all([
-        getLatestHealthRecord(),
-        getHealthRecords({ page: 0, size: 5 }),
-      ]);
-      setLatest(lat);
-      setHistory(page?.items ?? []);
-      if (lat) {
-        reset({
-          heightCm: lat.heightCm ?? "",
-          weightKg: lat.weightKg ?? "",
-        });
-      }
-    } catch (err) {
-      setLoadError(err.message || "Không tải được dữ liệu sức khỏe");
-    } finally {
-      setLoading(false);
-    }
-  }, [reset]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
 
   const onSubmit = async (values) => {
     try {
-      const created = await createHealthRecord({
+      await create.mutateAsync({
         heightCm: values.heightCm,
         weightKg: values.weightKg,
       });
-      setLatest(created);
-      await load();
     } catch (err) {
       setError("root", { message: err.message || "Ghi nhận thất bại" });
     }
@@ -129,7 +108,7 @@ export default function HealthRecordSection() {
         </div>
       ) : loadError ? (
         <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">
-          {loadError}
+          {loadError.message || "Không tải được dữ liệu sức khỏe"}
         </p>
       ) : (
         <>
@@ -207,18 +186,19 @@ export default function HealthRecordSection() {
               )}
             </div>
             <div className="flex items-end">
-              <button
+              <Button
                 type="submit"
+                size="lg"
                 disabled={isSubmitting}
-                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:opacity-50 sm:w-auto"
+                className="w-full rounded-xl px-4 sm:w-auto"
               >
                 {isSubmitting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                 ) : (
-                  <Plus className="h-4 w-4" />
+                  <Plus className="size-4" />
                 )}
                 Ghi nhận
-              </button>
+              </Button>
             </div>
             {errors.root && (
               <p className="sm:col-span-3 rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">

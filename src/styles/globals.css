@@ -6,11 +6,6 @@
 @custom-variant dark (&:is(.dark *));
 
 /* Bảng màu thương hiệu VeggiePal (lấy từ file Figma VeggiePalApp). */
-@theme {
-    --color-brand-blue: #2a6486;
-    --color-brand-clay: #914a36;
-}
-
 @theme inline {
     --font-heading: var(--font-display-serif);
     --font-sans: 'Geist Variable', sans-serif;
@@ -169,28 +164,34 @@
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border outline-ring/50;
     }
-  body {
-    @apply bg-background text-foreground;
+
+    body {
+        @apply bg-background text-foreground;
     }
-  html {
-    @apply font-sans;
+
+    html {
+        @apply font-sans;
     }
-  h1, h2, h3 {
-    @apply font-heading;
+
+    h1,
+    h2,
+    h3 {
+        @apply font-heading;
     }
 }
 
 @layer utilities {
-  .no-scrollbar {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
+    .no-scrollbar {
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 /* Circular reveal cho ThemeToggle: tắt cross-fade mặc định của View
@@ -216,6 +217,7 @@
         opacity: 0;
         transform: translateY(-16px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -230,15 +232,7 @@
     .auth-form-enter {
         animation: none;
     }
-}
 
-@media (prefers-reduced-motion: reduce) {
-    .auth-flip-rotator {
-        transition: none;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
     [data-reveal] {
         transition: none !important;
         transform: none !important;

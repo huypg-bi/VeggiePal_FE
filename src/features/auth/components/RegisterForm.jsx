@@ -4,6 +4,7 @@ import { Eye, EyeOff } from "lucide-react";
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
 import { registerSchema } from "@/features/auth/schema";
 import { register as registerUser } from "@/features/auth/api/authApi";
 
@@ -224,13 +225,15 @@ export default function RegisterForm({ onSwitchMode }) {
           </span>
         </label>
 
-        <button
+        <Button
           type="submit"
+          variant="gradient"
+          size="xl"
           disabled={isSubmitting || !acceptTerms}
-          className="flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-brand to-brand-2 text-[15px] font-bold text-white shadow-lg transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
+          className="w-full disabled:cursor-not-allowed disabled:opacity-40"
         >
           {isSubmitting ? "Đang tạo tài khoản..." : "Tạo tài khoản"}
-        </button>
+        </Button>
       </form>
 
       <p className="mt-4 text-center text-[14px] text-white/75">
@@ -246,13 +249,15 @@ export default function RegisterForm({ onSwitchMode }) {
         <span className="h-px flex-1 bg-white/15" />
       </div>
 
-      <button
+      <Button
         type="button"
-        className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 text-[13px] font-semibold text-white/90 backdrop-blur-sm transition hover:bg-white/20"
+        variant="glass"
+        size="md"
+        className="mt-3 w-full text-[13px]"
       >
         <img src={googleIcon} alt="" className="size-4" />
         Tiếp tục với Google
-      </button>
+      </Button>
     </div>
   );
 }

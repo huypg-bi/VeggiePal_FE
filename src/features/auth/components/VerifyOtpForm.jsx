@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Clock } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import iconOtp from "@/assets/img/icon_otp.png";
 import phoneIcon from "@/assets/svg/phone.svg";
 
@@ -140,14 +141,16 @@ export default function VerifyOtpForm({ phone = "0912 *** 678" }) {
           )}
         </div>
 
-        <button
+        <Button
           type="submit"
+          variant="gradient"
+          size="xl"
           disabled={!isComplete || isSubmitting}
-          className="mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand to-brand-2 text-[15px] font-bold text-white shadow-lg transition hover:brightness-110 disabled:opacity-60"
+          className="mt-1 w-full"
         >
           {isSubmitting ? "Đang xác nhận..." : "Xác nhận & Tiếp tục"}
           <ArrowRight className="size-4" />
-        </button>
+        </Button>
       </form>
 
       <button

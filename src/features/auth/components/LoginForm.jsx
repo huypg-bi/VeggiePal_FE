@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { loginSchema } from "@/features/auth/schema";
 import { login } from "@/features/auth/api/authApi";
 import { useAuthStore } from "@/features/auth/store/authStore";
@@ -132,13 +133,15 @@ export default function LoginForm({ onSwitchMode }) {
           </button>
         </div>
 
-        <button
+        <Button
           type="submit"
+          variant="gradient"
+          size="xl"
           disabled={isSubmitting}
-          className="mt-1 flex h-12 w-full items-center justify-center rounded-full bg-gradient-to-r from-brand to-brand-2 text-[15px] font-bold text-white shadow-lg transition hover:brightness-110 disabled:opacity-60"
+          className="mt-1 w-full"
         >
           {isSubmitting ? "Đang đăng nhập..." : "Đăng nhập"}
-        </button>
+        </Button>
       </form>
 
       <p className="mt-5 text-center text-[14px] text-white/75">
@@ -154,14 +157,16 @@ export default function LoginForm({ onSwitchMode }) {
         <span className="h-px flex-1 bg-white/15" />
       </div>
 
-      <button
+      <Button
         type="button"
+        variant="glass"
+        size="md"
         onClick={comingSoon}
-        className="mt-3 flex h-10 w-full items-center justify-center gap-2 rounded-full border border-white/20 bg-white/10 text-[13px] font-semibold text-white/90 backdrop-blur-sm transition hover:bg-white/20"
+        className="mt-3 w-full text-[13px]"
       >
         <img src={googleIcon} alt="" className="size-4" />
         Tiếp tục với Google
-      </button>
+      </Button>
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { Camera, Loader2, Sparkles, Mail, Phone, Calendar } from "lucide-react";
 
-import { uploadAvatar } from "@/features/profile/api/profileApi";
+import { useUploadAvatar } from "@/features/profile/hooks/useProfile";
 import { cn } from "@/lib/utils";
 
 const DEFAULT_AVATAR =
@@ -24,9 +24,10 @@ function formatDate(iso) {
  * Banner + avatar + meta cơ bản của user.
  * Avatar có nút upload gọi POST /users/me/avatar.
  */
-export default function ProfileHeader({ profile, onAvatarUpdated }) {
+export default function ProfileHeader({ profile }) {
   const fileRef = useRef(null);
-  const [uploading, setUploading] = useState(false);
+  const upload = useUploadAvatar();
+  const uploading = upload.isPending;
   const [error, setError] = useState("");
 
   const avatarSrc = profile?.avatarUrl || DEFAULT_AVATAR;
@@ -53,14 +54,11 @@ export default function ProfileHeader({ profile, onAvatarUpdated }) {
     }
 
     setError("");
-    setUploading(true);
     try {
-      const updated = await uploadAvatar(file);
-      onAvatarUpdated?.(updated);
+      // onSuccess của mutation đã ghi hồ sơ mới vào cache + authStore.
+      await upload.mutateAsync(file);
     } catch (err) {
       setError(err.message || "Upload thất bại");
-    } finally {
-      setUploading(false);
     }
   };
 

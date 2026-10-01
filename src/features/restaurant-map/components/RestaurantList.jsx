@@ -1,5 +1,6 @@
 import { ChevronDown } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import mascotWave from "@/assets/img/icon_map_page_1.png";
 import { mockRestaurants } from "@/features/restaurant-map/data/mockRestaurantMap";
 import RestaurantCard from "@/features/restaurant-map/components/RestaurantCard";
@@ -28,13 +29,10 @@ export default function RestaurantList() {
           </div>
         </div>
 
-        <button
-          type="button"
-          className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 text-sm font-medium text-ink shadow-sm transition hover:bg-surface"
-        >
+        <Button type="button" variant="outline" className="h-9 shadow-sm">
           Gần nhất
-          <ChevronDown className="h-4 w-4 text-subtle" />
-        </button>
+          <ChevronDown className="size-4 text-subtle" />
+        </Button>
       </div>
 
       <div className="flex flex-col gap-4">

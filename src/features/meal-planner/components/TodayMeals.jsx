@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Clock, Heart, RefreshCw, Timer } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { todayMeals, weekDays } from "@/features/meal-planner/data/mockHome";
 import { cn } from "@/lib/utils";
 import Reveal from "@/shared/components/Reveal";
@@ -31,13 +32,14 @@ export default function TodayMeals() {
         </div>
 
         <div className="flex items-center gap-1 self-start sm:self-auto">
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-sm"
             aria-label="Tuần trước"
-            className="grid size-7 place-items-center rounded-full text-subtle transition hover:bg-surface hover:text-ink"
           >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
+            <ChevronLeft className="size-4" />
+          </Button>
           {weekDays.map((day) => (
             <button
               key={day.id}
@@ -53,13 +55,14 @@ export default function TodayMeals() {
               {day.label}
             </button>
           ))}
-          <button
+          <Button
             type="button"
+            variant="ghost"
+            size="icon-sm"
             aria-label="Tuần sau"
-            className="grid size-7 place-items-center rounded-full text-subtle transition hover:bg-surface hover:text-ink"
           >
-            <ChevronRight className="h-4 w-4" />
-          </button>
+            <ChevronRight className="size-4" />
+          </Button>
         </div>
       </div>
 
@@ -118,13 +121,10 @@ export default function TodayMeals() {
                 <MacroStat value={`${meal.fat}g`} unit="Béo" valueClass="text-chart-4" />
               </div>
 
-              <button
-                type="button"
-                className="mt-3 flex items-center justify-center gap-1.5 rounded-full bg-brand-soft py-2 text-xs font-semibold text-brand transition hover:brightness-95"
-              >
-                <RefreshCw className="h-3.5 w-3.5" />
+              <Button type="button" variant="soft" className="mt-3 text-xs">
+                <RefreshCw className="size-3.5" />
                 Đổi món (AI gợi ý)
-              </button>
+              </Button>
             </div>
           </article>
           </Reveal>

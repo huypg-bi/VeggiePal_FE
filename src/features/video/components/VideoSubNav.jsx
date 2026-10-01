@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Bookmark, Heart, History, Home, Timer, UserRound } from "lucide-react";
+import { Bookmark, Heart, History, Home, UserRound } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 

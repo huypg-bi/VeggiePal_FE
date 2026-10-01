@@ -2,6 +2,7 @@ import { useId, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import mailIcon from "@/assets/svg/mail.svg";
 import iconFgp from "@/assets/img/icon_fgp.png";
 
@@ -53,14 +54,16 @@ export default function ForgotPasswordForm() {
           </div>
         </div>
 
-        <button
+        <Button
           type="submit"
+          variant="gradient"
+          size="xl"
           disabled={isSubmitting}
-          className="mt-1 flex h-12 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand to-brand-2 text-[15px] font-bold text-white shadow-lg transition hover:brightness-110 disabled:opacity-60"
+          className="mt-1 w-full"
         >
           {isSubmitting ? "Đang gửi..." : "Gửi mã xác nhận"}
           <ArrowRight className="size-4" />
-        </button>
+        </Button>
       </form>
 
       <button

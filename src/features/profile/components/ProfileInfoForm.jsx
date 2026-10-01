@@ -3,8 +3,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Save, UserRound } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { updateProfileSchema } from "@/lib/schema";
-import { updateProfile } from "@/features/profile/api/profileApi";
+import { useUpdateProfile } from "@/features/profile/hooks/useProfile";
 
 const fieldClass =
   "h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
@@ -12,7 +13,9 @@ const fieldClass =
 /**
  * Form sửa fullName / phone / dateOfBirth → PATCH /users/me
  */
-export default function ProfileInfoForm({ profile, onUpdated }) {
+export default function ProfileInfoForm({ profile }) {
+  const update = useUpdateProfile();
+
   const {
     register,
     handleSubmit,
@@ -47,8 +50,8 @@ export default function ProfileInfoForm({ profile, onUpdated }) {
         phone: values.phone?.trim() ?? "",
         dateOfBirth: values.dateOfBirth || null,
       };
-      const updated = await updateProfile(payload);
-      onUpdated?.(updated);
+      // onSuccess của mutation đã ghi hồ sơ mới vào cache + authStore.
+      const updated = await update.mutateAsync(payload);
       reset({
         fullName: updated.fullName || "",
         phone: updated.phone || "",
@@ -145,18 +148,19 @@ export default function ProfileInfoForm({ profile, onUpdated }) {
           </p>
         )}
 
-        <button
+        <Button
           type="submit"
+          size="lg"
           disabled={isSubmitting || !isDirty}
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-xl"
         >
           {isSubmitting ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="size-4 animate-spin" />
           ) : (
-            <Save className="h-4 w-4" />
+            <Save className="size-4" />
           )}
           Lưu thay đổi
-        </button>
+        </Button>
       </form>
     </section>
   );

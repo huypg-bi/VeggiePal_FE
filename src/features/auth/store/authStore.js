@@ -1,5 +1,7 @@
 import { create } from "zustand";
 
+import { queryClient } from "@/lib/queryClient";
+
 /**
  * Nguồn sự thật về trạng thái đăng nhập của toàn app.
  * - token: lưu song song ở localStorage để giữ phiên khi F5 / mở tab mới.
@@ -20,6 +22,8 @@ export const useAuthStore = create((set) => ({
         localStorage.removeItem("token");
         localStorage.removeItem("user");
         set({ token: null, user: null });
+        // Xóa cache React Query để user đăng nhập sau không thấy dữ liệu của user trước.
+        queryClient.clear();
     },
 }));
 

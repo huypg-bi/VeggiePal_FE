@@ -6,6 +6,7 @@ import {
   Trash2,
 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { formatRelativeTime } from "@/features/chatbot/utils/chatUtils";
 import { cn } from "@/lib/utils";
 
@@ -28,22 +29,23 @@ export default function ChatSidebar({
   if (collapsed) {
     return (
       <div className="flex w-14 shrink-0 flex-col items-center gap-3 border-r border-border bg-surface/60 py-4">
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-lg"
           onClick={onToggleCollapsed}
           aria-label="Mở rộng lịch sử trò chuyện"
-          className="grid size-9 place-items-center rounded-full text-subtle transition hover:bg-surface hover:text-ink"
         >
-          <PanelLeft className="h-4.5 w-4.5" />
-        </button>
-        <button
+          <PanelLeft className="size-4.5" />
+        </Button>
+        <Button
           type="button"
+          size="icon-lg"
           onClick={onNewChat}
           aria-label="Đoạn chat mới"
-          className="grid size-9 place-items-center rounded-full bg-brand text-brand-foreground transition hover:opacity-90"
         >
-          <Plus className="h-4.5 w-4.5" />
-        </button>
+          <Plus className="size-4.5" />
+        </Button>
       </div>
     );
   }
@@ -54,25 +56,28 @@ export default function ChatSidebar({
         <h2 className="text-xs font-semibold tracking-wide text-subtle">
           LỊCH SỬ TRÒ CHUYỆN
         </h2>
-        <button
+        <Button
           type="button"
+          variant="ghost"
+          size="icon-sm"
           onClick={onToggleCollapsed}
           aria-label="Thu gọn lịch sử trò chuyện"
-          className="grid size-7 place-items-center rounded-md text-subtle transition hover:bg-surface hover:text-ink"
+          className="rounded-md"
         >
-          <PanelLeftClose className="h-4 w-4" />
-        </button>
+          <PanelLeftClose className="size-4" />
+        </Button>
       </div>
 
       <div className="px-4 pt-3">
-        <button
+        <Button
           type="button"
+          size="md"
           onClick={onNewChat}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-brand px-4 py-2.5 text-sm font-semibold text-brand-foreground transition hover:opacity-90"
+          className="w-full rounded-2xl"
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="size-4" />
           Đoạn chat mới
-        </button>
+        </Button>
       </div>
 
       <nav className="mt-3 flex-1 space-y-1 overflow-y-auto px-3 pb-4">

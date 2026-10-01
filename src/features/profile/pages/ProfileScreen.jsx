@@ -18,7 +18,7 @@ import Reveal from "@/shared/components/Reveal";
  * - Các section: thông tin, mật khẩu, sức khỏe, dị ứng
  */
 export default function ProfileScreen() {
-  const { profile, loading, error, updateProfile } = useProfile();
+  const { profile, loading, error } = useProfile();
 
   return (
     <div className="min-h-dvh bg-canvas">
@@ -40,17 +40,11 @@ export default function ProfileScreen() {
 
             {profile && (
               <>
-                <ProfileHeader
-                  profile={profile}
-                  onAvatarUpdated={updateProfile}
-                />
+                <ProfileHeader profile={profile} />
 
                 <Reveal>
                   <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                    <ProfileInfoForm
-                      profile={profile}
-                      onUpdated={updateProfile}
-                    />
+                    <ProfileInfoForm profile={profile} />
                     <ChangePasswordForm />
                   </div>
                 </Reveal>

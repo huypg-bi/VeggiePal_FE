@@ -10,7 +10,6 @@ export const mockStats = [
     caption: "Thể trạng lý tưởng",
     progress: 72,
     barClass: "bg-chart-1",
-    ringClass: "bg-chart-1/15",
   },
   {
     id: "calo",
@@ -21,7 +20,6 @@ export const mockStats = [
     caption: "Còn 430 kcal cho bữa tối thanh đạm",
     progress: 77,
     barClass: "bg-chart-4",
-    ringClass: "bg-chart-4/15",
   },
   {
     id: "water",
@@ -32,7 +30,6 @@ export const mockStats = [
     caption: "Đã uống 6/8 ly nước mát",
     progress: 75,
     barClass: "bg-chart-2",
-    ringClass: "bg-chart-2/15",
   },
   {
     id: "activity",
@@ -43,7 +40,6 @@ export const mockStats = [
     caption: "Đã đạt 25 phút Yoga sáng",
     progress: 78,
     barClass: "bg-chart-3",
-    ringClass: "bg-chart-3/15",
   },
 ];
 
@@ -130,13 +126,13 @@ export const todayMeals = [
 ];
 
 export const macroBreakdown = [
-  { id: "carb", label: "Tinh bột chậm", value: 50, colorClass: "text-chart-1" },
-  { id: "protein", label: "Đạm thực vật", value: 25, colorClass: "text-chart-5" },
-  { id: "fat", label: "Chất béo tốt", value: 25, colorClass: "text-chart-4" },
+  { id: "carb", label: "Tinh bột chậm", value: 50 },
+  { id: "protein", label: "Đạm thực vật", value: 25 },
+  { id: "fat", label: "Chất béo tốt", value: 25 },
 ];
 
 export const dailyAdviceStats = [
-  { id: "veggie", label: "Ăn đủ rau xanh", value: "~500g/ngày", done: true },
-  { id: "water", label: "Uống đủ nước", value: "2 - 2.5L/ngày", done: true },
-  { id: "sleep", label: "Ngủ đủ giấc", value: "7 - 8 giờ/đêm", done: false },
+  { id: "veggie", label: "Ăn đủ rau xanh", value: "~500g/ngày" },
+  { id: "water", label: "Uống đủ nước", value: "2 - 2.5L/ngày" },
+  { id: "sleep", label: "Ngủ đủ giấc", value: "7 - 8 giờ/đêm" },
 ];

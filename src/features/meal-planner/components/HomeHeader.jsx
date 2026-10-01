@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 
 import logo from "@/assets/img/logo.png";
+import { Button } from "@/components/ui/button";
 import { useAuthStore, selectIsAuthenticated } from "@/features/auth/store/authStore";
 import ThemeToggle from "@/shared/components/ThemeToggle";
 import { cn } from "@/lib/utils";
@@ -98,14 +99,16 @@ export default function HomeHeader() {
         <div className="ml-auto flex items-center gap-3 lg:ml-2">
 
           {isAuthenticated && (
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon-lg"
               aria-label="Thông báo"
-              className="relative grid size-9 shrink-0 place-items-center rounded-full text-subtle transition hover:bg-surface hover:text-ink"
+              className="relative"
             >
-              <Bell className="h-5 w-5" />
+              <Bell className="size-5" />
               <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[#EF6461]" />
-            </button>
+            </Button>
           )}
 
           <ThemeToggle />

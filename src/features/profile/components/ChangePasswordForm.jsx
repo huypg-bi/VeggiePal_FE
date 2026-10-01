@@ -3,8 +3,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, KeyRound, Loader2 } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { changePasswordSchema } from "@/lib/schema";
-import { changePassword } from "@/features/profile/api/profileApi";
+import { useChangePassword } from "@/features/profile/hooks/useProfile";
 
 const fieldClass =
   "h-11 w-full rounded-xl border border-border bg-surface px-3.5 pr-11 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
@@ -15,7 +16,7 @@ const fieldClass =
 export default function ChangePasswordForm() {
   const [showCurrent, setShowCurrent] = useState(false);
   const [showNew, setShowNew] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const change = useChangePassword();
 
   const {
     register,
@@ -33,14 +34,12 @@ export default function ChangePasswordForm() {
   });
 
   const onSubmit = async (values) => {
-    setSuccess(false);
     try {
-      await changePassword({
+      await change.mutateAsync({
         currentPassword: values.currentPassword,
         newPassword: values.newPassword,
       });
       reset();
-      setSuccess(true);
     } catch (err) {
       setError("root", { message: err.message || "Đổi mật khẩu thất bại" });
     }
@@ -138,20 +137,21 @@ export default function ChangePasswordForm() {
             {errors.root.message}
           </p>
         )}
-        {success && (
+        {change.isSuccess && (
           <p className="rounded-xl bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
             Đổi mật khẩu thành công.
           </p>
         )}
 
-        <button
+        <Button
           type="submit"
+          size="lg"
           disabled={isSubmitting}
-          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white transition hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="rounded-xl"
         >
-          {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
+          {isSubmitting && <Loader2 className="size-4 animate-spin" />}
           Đổi mật khẩu
-        </button>
+        </Button>
       </form>
     </section>
   );

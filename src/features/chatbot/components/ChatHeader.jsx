@@ -1,5 +1,7 @@
 import { Sparkles, Plus, Globe } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
+
 export default function ChatHeader({ title, onNewChat }) {
   return (
     <header className="flex items-center justify-between border-b border-border px-6 py-4">
@@ -11,21 +13,14 @@ export default function ChatHeader({ title, onNewChat }) {
       </div>
 
       <div className="flex shrink-0 items-center gap-2">
-        <button
-          type="button"
-          onClick={onNewChat}
-          className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-sm font-medium text-ink transition hover:bg-surface"
-        >
-          <Plus className="h-4 w-4" />
+        <Button type="button" variant="outline" onClick={onNewChat}>
+          <Plus className="size-4" />
           Mới
-        </button>
-        <button
-          type="button"
-          className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-1.5 text-sm font-medium text-ink transition hover:bg-surface"
-        >
-          <Globe className="h-4 w-4" />
+        </Button>
+        <Button type="button" variant="outline">
+          <Globe className="size-4" />
           Khám phá
-        </button>
+        </Button>
       </div>
     </header>
   );

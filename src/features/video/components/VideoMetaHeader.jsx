@@ -1,5 +1,6 @@
 import { CheckCircle2, ChevronDown, Sparkles, ThumbsDown, ThumbsUp } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { currentVideo } from "@/features/video/data/mockVideo";
 
 export default function VideoMetaHeader() {
@@ -26,21 +27,20 @@ export default function VideoMetaHeader() {
             <p className="text-xs text-subtle">{channel.subscribers}</p>
           </div>
 
-          <button
+          <Button
             type="button"
-            className="ml-2 flex items-center gap-1 rounded-full border border-border py-1.5 pl-3 pr-2 text-xs font-semibold text-ink transition hover:bg-surface"
+            variant="outline"
+            size="sm"
+            className="ml-2 gap-1 bg-transparent pl-3 pr-2 font-semibold"
           >
             Đã đăng ký
-            <ChevronDown className="h-3.5 w-3.5" />
-          </button>
+            <ChevronDown className="size-3.5" />
+          </Button>
 
-          <button
-            type="button"
-            className="flex items-center gap-1.5 rounded-full bg-brand px-4 py-1.5 text-xs font-semibold text-brand-foreground shadow-sm transition hover:bg-brand/90"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
+          <Button type="button" size="sm" className="px-4 shadow-sm">
+            <Sparkles className="size-3.5" />
             Bóc tách công thức AI
-          </button>
+          </Button>
         </div>
 
         <div className="flex items-center gap-1 rounded-full border border-border">

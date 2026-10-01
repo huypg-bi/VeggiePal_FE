@@ -1,5 +1,6 @@
 import { ShoppingCart } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import iconNutrition from "@/assets/img/icon_video_page.png";
 import { nutritionFacts } from "@/features/video/data/mockVideo";
 
@@ -41,13 +42,10 @@ export default function NutritionFactsCard() {
         ))}
       </ul>
 
-      <button
-        type="button"
-        className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-brand py-2.5 text-sm font-semibold text-brand-foreground shadow-sm transition hover:bg-brand/90"
-      >
-        <ShoppingCart className="h-4 w-4" />
+      <Button type="button" size="md" className="mt-4 w-full shadow-sm">
+        <ShoppingCart className="size-4" />
         Chép vào giỏ đi chợ
-      </button>
+      </Button>
     </section>
   );
 }

@@ -28,13 +28,6 @@ export default function HeroBanner({ userName }) {
             lên thực đơn cho bạn nè!
           </h1>
 
-          {/* <img
-            src={textBanner1}
-            alt="Ăn ngon, sống khoẻ, cùng Bé Bông Cải"
-            className="h-16 w-auto select-none sm:h-20"
-            draggable={false}
-          /> */}
-
           <p className="max-w-md text-sm leading-relaxed text-subtle sm:text-base">
             Chỉ cần vài thao tác đơn giản, mình sẽ giúp bạn lên thực đơn
             cân bằng và phù hợp với mục tiêu dinh dưỡng của bạn!
