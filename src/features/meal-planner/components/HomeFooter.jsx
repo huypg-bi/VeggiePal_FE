@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { Heart, Leaf, ShieldCheck, Star } from "lucide-react";
+
+import { useRevealOnScroll } from "@/shared/hooks/useRevealOnScroll";
 
 import {
   FacebookIcon,
@@ -53,26 +54,7 @@ function FooterLink({ to, href, children }) {
 }
 
 export default function HomeFooter() {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const node = ref.current;
-    if (!node) return;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.unobserve(node);
-        }
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -60px 0px" }
-    );
-
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, []);
+  const [ref, visible] = useRevealOnScroll({ threshold: 0.1 });
 
   return (
     <footer

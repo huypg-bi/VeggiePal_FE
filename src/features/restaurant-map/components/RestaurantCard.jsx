@@ -40,7 +40,7 @@ export default function RestaurantCard({ restaurant }) {
         <div className="flex flex-wrap items-center gap-1.5 text-xs">
           <span className="text-subtle">{kcal}</span>
           {veganTag && (
-            <span className="rounded-full bg-[#E8F5E9] px-2 py-0.5 font-medium text-brand dark:bg-[#16301f]">
+            <span className="rounded-full bg-brand-soft px-2 py-0.5 font-medium text-brand">
               {veganTag}
             </span>
           )}

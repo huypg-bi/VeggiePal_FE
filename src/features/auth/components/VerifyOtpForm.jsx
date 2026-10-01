@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, ArrowRight, Clock } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import iconOtp from "@/assets/img/icon_otp.png";
@@ -67,7 +68,7 @@ export default function VerifyOtpForm({ phone = "0912 *** 678" }) {
     if (!isComplete) return;
     setIsSubmitting(true);
     // Chưa gắn backend, chỉ mô phỏng UI.
-    window.alert("Tính năng này sẽ sẵn sàng khi tích hợp backend.");
+    toast.info("Tính năng này sẽ sẵn sàng khi tích hợp backend.");
     setIsSubmitting(false);
   };
 

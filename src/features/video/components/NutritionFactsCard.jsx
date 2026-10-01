@@ -16,7 +16,7 @@ export default function NutritionFactsCard() {
             Giá Trị Dinh Dưỡng / 1 Khẩu Phần
           </h2>
         </div>
-        <span className="rounded-full bg-[#E8F5E9] px-2.5 py-1 text-[11px] font-semibold text-brand dark:bg-[#16301f]">
+        <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-semibold text-brand">
           {servingLabel}
         </span>
       </div>

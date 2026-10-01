@@ -20,12 +20,11 @@ export default function RestaurantMapScreen() {
           <MapSearchBar />
         </Reveal>
 
-        <Reveal>
-          <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <RestaurantList />
-            <MapPanel />
-          </section>
-        </Reveal>
+        {/* RestaurantList tự có <Reveal> cho từng quán. Không bọc MapPanel vì nó dùng sticky. */}
+        <section className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <RestaurantList />
+          <MapPanel />
+        </section>
       </main>
 
       <HomeFooter />

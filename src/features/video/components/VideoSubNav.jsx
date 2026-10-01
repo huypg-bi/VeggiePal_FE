@@ -16,7 +16,7 @@ export default function VideoSubNav() {
 
   return (
     <div className="no-scrollbar flex items-center gap-2 overflow-x-auto">
-      {SUB_NAV_ITEMS.map(({ id, label, icon: Icon, count }) => (
+      {SUB_NAV_ITEMS.map(({ id, label, icon: Icon }) => (
         <button
           key={id}
           type="button"
@@ -24,15 +24,12 @@ export default function VideoSubNav() {
           className={cn(
             "flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-medium transition",
             active === id
-              ? "bg-[#E8F5E9] text-brand dark:bg-[#16301f]"
+              ? "bg-brand-soft text-brand"
               : "text-subtle hover:bg-surface hover:text-ink"
           )}
         >
           <Icon className="h-4 w-4" />
           {label}
-          {typeof count === "number" && (
-            <span className="text-xs text-subtle">({count})</span>
-          )}
         </button>
       ))}
     </div>

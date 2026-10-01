@@ -3,12 +3,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, KeyRound, Loader2 } from "lucide-react";
 
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { changePasswordSchema } from "@/lib/schema";
 import { useChangePassword } from "@/features/profile/hooks/useProfile";
-
-const fieldClass =
-  "h-11 w-full rounded-xl border border-border bg-surface px-3.5 pr-11 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
 
 /**
  * Đổi mật khẩu → PUT /users/me/password
@@ -63,11 +61,11 @@ export default function ChangePasswordForm() {
             Mật khẩu hiện tại
           </label>
           <div className="relative">
-            <input
+            <Input
               type={showCurrent ? "text" : "password"}
               autoComplete="current-password"
-              className={fieldClass}
               aria-invalid={Boolean(errors.currentPassword)}
+              className="pr-11"
               {...register("currentPassword")}
             />
             <button
@@ -91,11 +89,11 @@ export default function ChangePasswordForm() {
             Mật khẩu mới
           </label>
           <div className="relative">
-            <input
+            <Input
               type={showNew ? "text" : "password"}
               autoComplete="new-password"
-              className={fieldClass}
               aria-invalid={Boolean(errors.newPassword)}
+              className="pr-11"
               {...register("newPassword")}
             />
             <button
@@ -118,10 +116,9 @@ export default function ChangePasswordForm() {
           <label className="mb-1.5 block text-sm font-medium text-ink">
             Nhập lại mật khẩu mới
           </label>
-          <input
+          <Input
             type="password"
             autoComplete="new-password"
-            className={fieldClass}
             aria-invalid={Boolean(errors.confirmPassword)}
             {...register("confirmPassword")}
           />

@@ -4,7 +4,7 @@ export default function TypingIndicator() {
   return (
     <div className="flex flex-col items-start gap-1.5">
       <span className="flex items-center gap-1.5 text-xs font-medium text-subtle">
-        <span className="grid size-5 place-items-center rounded-full bg-brand-soft text-brand dark:bg-[#16301f]">
+        <span className="grid size-5 place-items-center rounded-full bg-brand-soft text-brand">
           <Sparkles className="h-3 w-3" />
         </span>
         Trợ lý Dinh dưỡng VeggiePal

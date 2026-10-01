@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 
 import AuthScreen from "@/features/auth/pages/AuthScreen";
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
-import { useAuthStore } from "@/features/auth/store/authStore";
+import { useAuthStore, selectIsAuthenticated } from "@/features/auth/store/authStore";
 import LandingScreen from "@/features/home/pages/HomeScreen";
 import MealPlannerScreen from "@/features/meal-planner/pages/HomeScreen";
 import RestaurantMapScreen from "@/features/restaurant-map/pages/RestaurantMapScreen";
@@ -14,8 +14,22 @@ import ChatbotScreen from "@/features/chatbot/pages/ChatbotScreen";
 export default function AppRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+      <Route
+        path="/login"
+        element={
+          <RedirectIfAuthenticated>
+            <AuthScreen />
+          </RedirectIfAuthenticated>
+        }
+      />
+      <Route
+        path="/register"
+        element={
+          <RedirectIfAuthenticated>
+            <AuthScreen />
+          </RedirectIfAuthenticated>
+        }
+      />
       <Route path="/forgot-password" element={<AuthScreen />} />
       <Route path="/verify-otp" element={<AuthScreen />} />
       <Route path="/" element={<LandingScreen />} />
@@ -23,7 +37,7 @@ export default function AppRoutes() {
         path="/meal-planner"
         element={
           <ProtectedRoute>
-            <MealPlannerPage />
+            <MealPlannerScreen />
           </ProtectedRoute>
         }
       />
@@ -31,7 +45,7 @@ export default function AppRoutes() {
         path="/map"
         element={
           <ProtectedRoute>
-            <MapPage />
+            <RestaurantMapScreen />
           </ProtectedRoute>
         }
       />
@@ -39,7 +53,7 @@ export default function AppRoutes() {
         path="/videos"
         element={
           <ProtectedRoute>
-            <VideoHomePage />
+            <VideoHomeScreen />
           </ProtectedRoute>
         }
       />
@@ -47,7 +61,7 @@ export default function AppRoutes() {
         path="/videos/:videoId"
         element={
           <ProtectedRoute>
-            <VideoWatchPage />
+            <VideoWatchScreen />
           </ProtectedRoute>
         }
       />
@@ -55,7 +69,7 @@ export default function AppRoutes() {
         path="/profile"
         element={
           <ProtectedRoute>
-            <ProfilePage />
+            <ProfileScreen />
           </ProtectedRoute>
         }
       />
@@ -63,7 +77,7 @@ export default function AppRoutes() {
         path="/chatbot"
         element={
           <ProtectedRoute>
-            <ChatbotPage />
+            <ChatbotScreen />
           </ProtectedRoute>
         }
       />
@@ -72,40 +86,10 @@ export default function AppRoutes() {
   );
 }
 
-function LoginPage() {
-  const isAuthenticated = useAuthStore((s) => Boolean(s.token));
+// Ngược với ProtectedRoute: đã đăng nhập thì không cho vào trang login/register nữa.
+function RedirectIfAuthenticated({ children }) {
+  const isAuthenticated = useAuthStore(selectIsAuthenticated);
   if (isAuthenticated) return <Navigate to="/" replace />;
 
-  return <AuthScreen />;
-}
-
-function RegisterPage() {
-  const isAuthenticated = useAuthStore((s) => Boolean(s.token));
-  if (isAuthenticated) return <Navigate to="/" replace />;
-
-  return <AuthScreen />;
-}
-
-function MealPlannerPage() {
-  return <MealPlannerScreen />;
-}
-
-function MapPage() {
-  return <RestaurantMapScreen />;
-}
-
-function VideoHomePage() {
-  return <VideoHomeScreen />;
-}
-
-function VideoWatchPage() {
-  return <VideoWatchScreen />;
-}
-
-function ProfilePage() {
-  return <ProfileScreen />;
-}
-
-function ChatbotPage() {
-  return <ChatbotScreen />;
+  return children;
 }

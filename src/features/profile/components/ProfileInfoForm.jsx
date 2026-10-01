@@ -3,12 +3,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Save, UserRound } from "lucide-react";
 
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { updateProfileSchema } from "@/lib/schema";
 import { useUpdateProfile } from "@/features/profile/hooks/useProfile";
-
-const fieldClass =
-  "h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
 
 /**
  * Form sửa fullName / phone / dateOfBirth → PATCH /users/me
@@ -81,10 +79,9 @@ export default function ProfileInfoForm({ profile }) {
           <label className="mb-1.5 block text-sm font-medium text-ink">
             Họ và tên
           </label>
-          <input
+          <Input
             type="text"
             autoComplete="name"
-            className={fieldClass}
             aria-invalid={Boolean(errors.fullName)}
             {...register("fullName")}
           />
@@ -99,11 +96,10 @@ export default function ProfileInfoForm({ profile }) {
           <label className="mb-1.5 block text-sm font-medium text-ink">
             Số điện thoại
           </label>
-          <input
+          <Input
             type="tel"
             autoComplete="tel"
             placeholder="Để trống nếu muốn xóa"
-            className={fieldClass}
             aria-invalid={Boolean(errors.phone)}
             {...register("phone")}
           />
@@ -116,9 +112,8 @@ export default function ProfileInfoForm({ profile }) {
           <label className="mb-1.5 block text-sm font-medium text-ink">
             Ngày sinh
           </label>
-          <input
+          <Input
             type="date"
-            className={fieldClass}
             aria-invalid={Boolean(errors.dateOfBirth)}
             {...register("dateOfBirth")}
           />
@@ -133,11 +128,11 @@ export default function ProfileInfoForm({ profile }) {
           <label className="mb-1.5 block text-sm font-medium text-ink">
             Email
           </label>
-          <input
+          <Input
             type="email"
             disabled
             value={profile?.email || ""}
-            className={fieldClass + " cursor-not-allowed opacity-70"}
+            className="cursor-not-allowed opacity-70"
           />
           <p className="mt-1 text-xs text-subtle">Email không thể thay đổi tại đây</p>
         </div>

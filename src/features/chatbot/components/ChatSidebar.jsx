@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   MessageSquare,
   Plus,
@@ -6,6 +7,17 @@ import {
   Trash2,
 } from "lucide-react";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { formatRelativeTime } from "@/features/chatbot/utils/chatUtils";
 import { cn } from "@/lib/utils";
@@ -19,11 +31,19 @@ export default function ChatSidebar({
   onNewChat,
   onDeleteSession,
 }) {
+  // Một hộp thoại xác nhận dùng chung cho mọi dòng. Tách open và pendingDelete
+  // để tiêu đề không bị trống trong lúc hộp thoại đang mờ dần khi đóng.
+  const [pendingDelete, setPendingDelete] = useState(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
   const handleDelete = (session) => {
-    const confirmed = window.confirm(
-      `Xoá "${session.title}"? Hành động này không thể hoàn tác.`
-    );
-    if (confirmed) onDeleteSession(session.id);
+    setPendingDelete(session);
+    setDeleteOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (pendingDelete) onDeleteSession(pendingDelete.id);
+    setDeleteOpen(false);
   };
 
   if (collapsed) {
@@ -94,7 +114,7 @@ export default function ChatSidebar({
               className={cn(
                 "group relative flex items-center rounded-xl transition",
                 isActive
-                  ? "bg-brand-soft text-brand dark:bg-[#16301f]"
+                  ? "bg-brand-soft text-brand"
                   : "hover:bg-surface"
               )}
             >
@@ -126,6 +146,27 @@ export default function ChatSidebar({
           );
         })}
       </nav>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-destructive/10 text-destructive">
+              <Trash2 />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Xoá đoạn chat?</AlertDialogTitle>
+            <AlertDialogDescription>
+              “{pendingDelete?.title}” sẽ bị xoá khỏi lịch sử. Hành động này
+              không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Huỷ</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={confirmDelete}>
+              Xoá
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </aside>
   );
 }

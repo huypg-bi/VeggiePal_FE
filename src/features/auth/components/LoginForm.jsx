@@ -3,7 +3,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { loginSchema } from "@/features/auth/schema";
 import { login } from "@/features/auth/api/authApi";
@@ -11,9 +13,6 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 
 import mailIcon from "@/assets/svg/mail.svg";
 import googleIcon from "@/assets/svg/gg.svg";
-
-const fieldClass =
-  "auth-input h-11 w-full border-b border-white/20 bg-transparent pr-8 text-[15px] text-white placeholder:text-white/80 outline-none transition focus:border-white aria-[invalid=true]:border-destructive";
 
 export default function LoginForm({ onSwitchMode }) {
   const navigate = useNavigate();
@@ -40,7 +39,7 @@ export default function LoginForm({ onSwitchMode }) {
   const onSubmit = async (values) => {
     try {
       const { token, user } = await login(values);
-      setAuth({ token, user });
+      setAuth({ token, user, remember: Boolean(values.remember) });
       navigate(from, { replace: true });
     } catch (err) {
       setError("root", { message: err.message || "Đăng nhập thất bại" });
@@ -49,7 +48,7 @@ export default function LoginForm({ onSwitchMode }) {
 
   // Các nút phụ chưa gắn backend.
   const comingSoon = () =>
-    window.alert("Tính năng này sẽ sẵn sàng khi tích hợp backend.");
+    toast.info("Tính năng này sẽ sẵn sàng khi tích hợp backend.");
 
   return (
     <div className="w-full max-w-[380px] px-2 py-4">
@@ -69,13 +68,13 @@ export default function LoginForm({ onSwitchMode }) {
             Email
           </label>
           <div className="relative">
-            <input
+            <Input
+              variant="auth"
               id={emailId}
               type="text"
               autoComplete="email"
               placeholder="Nhập email hoặc số điện thoại..."
               aria-invalid={Boolean(errors.email)}
-              className={fieldClass}
               {...register("email")}
             />
             <img
@@ -92,13 +91,13 @@ export default function LoginForm({ onSwitchMode }) {
             Mật khẩu
           </label>
           <div className="relative">
-            <input
+            <Input
+              variant="auth"
               id={passwordId}
               type={showPassword ? "text" : "password"}
               autoComplete="current-password"
               placeholder="Nhập mật khẩu của bạn..."
               aria-invalid={Boolean(errors.password)}
-              className={fieldClass}
               {...register("password")}
             />
             <button

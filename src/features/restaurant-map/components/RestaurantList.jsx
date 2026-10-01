@@ -11,7 +11,7 @@ export default function RestaurantList() {
     <section className="flex flex-col gap-4">
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="grid size-15 shrink-0 place-items-center overflow-hidden rounded-full bg-[#E8F5E9] dark:bg-[#16301f]">
+          <span className="grid size-15 shrink-0 place-items-center overflow-hidden rounded-full bg-brand-soft">
             <img
               src={mascotWave}
               alt=""

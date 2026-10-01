@@ -9,6 +9,7 @@ import {
   History,
 } from "lucide-react";
 
+import { Input } from "@/components/ui/input";
 import iconBmi from "@/assets/img/icon_bmi.png";
 import { Button } from "@/components/ui/button";
 import { healthRecordSchema } from "@/lib/schema";
@@ -17,9 +18,6 @@ import {
   useHealthRecordHistory,
   useLatestHealthRecord,
 } from "@/features/profile/hooks/useHealthRecords";
-
-const fieldClass =
-  "h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
 
 function bmiLabel(bmi) {
   const n = Number(bmi);
@@ -153,11 +151,10 @@ export default function HealthRecordSection() {
               <label className="mb-1 block text-xs font-medium text-ink">
                 Chiều cao (cm)
               </label>
-              <input
+              <Input
                 type="number"
                 step="0.1"
                 placeholder="170"
-                className={fieldClass}
                 aria-invalid={Boolean(errors.heightCm)}
                 {...register("heightCm")}
               />
@@ -171,11 +168,10 @@ export default function HealthRecordSection() {
               <label className="mb-1 block text-xs font-medium text-ink">
                 Cân nặng (kg)
               </label>
-              <input
+              <Input
                 type="number"
                 step="0.1"
                 placeholder="60"
-                className={fieldClass}
                 aria-invalid={Boolean(errors.weightKg)}
                 {...register("weightKg")}
               />

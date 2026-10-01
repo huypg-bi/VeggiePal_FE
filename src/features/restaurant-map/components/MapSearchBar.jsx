@@ -67,7 +67,7 @@ export default function MapSearchBar() {
                 chip.id === "verified"
                   ? "border-transparent bg-[#FDECEC] text-[#D5443B] hover:bg-[#FBDFDF] dark:bg-[#3a1616] dark:text-[#ff8a80] dark:hover:bg-[#4a1d1d]"
                   : chip.active
-                  ? "border-transparent bg-[#E8F5E9] text-brand dark:bg-[#16301f]"
+                  ? "border-transparent bg-brand-soft text-brand"
                   : "border-border bg-surface text-ink hover:bg-[#EEF3EC] dark:hover:bg-white/5"
               )}
             >

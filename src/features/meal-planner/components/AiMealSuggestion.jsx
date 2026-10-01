@@ -89,9 +89,7 @@ export default function AiMealSuggestion() {
             )}
           </div>
 
-          <div className="my-1 h-px" />
-
-          <h3 className="text-base font-semibold text-ink">
+          <h3 className="text-base font-semibold text-ink mt-2">
             Gợi ý món & khẩu vị mong muốn:
           </h3>
           <div className="mt-3 flex flex-wrap gap-2">
