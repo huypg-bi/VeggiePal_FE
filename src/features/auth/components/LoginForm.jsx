@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { loginSchema } from "@/features/auth/schema";
 import { login } from "@/features/auth/api/authApi";
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { resolvePostLoginPath } from "@/features/auth/utils/roleRedirect";
 
 import mailIcon from "@/assets/svg/mail.svg";
 import googleIcon from "@/assets/svg/gg.svg";
@@ -24,7 +25,7 @@ export default function LoginForm({ onSwitchMode }) {
   const passwordId = useId();
 
   // trang người dùng muốn vào trước khi bị đá về /login (nếu có)
-  const from = location.state?.from?.pathname || "/";
+  const from = location.state?.from?.pathname;
 
   const {
     register,
@@ -40,7 +41,8 @@ export default function LoginForm({ onSwitchMode }) {
     try {
       const { token, user } = await login(values);
       setAuth({ token, user, remember: Boolean(values.remember) });
-      navigate(from, { replace: true });
+      // ADMIN vào thẳng trang quản trị; người dùng thường quay lại trang trước đó (hoặc "/").
+      navigate(resolvePostLoginPath(user, from), { replace: true });
     } catch (err) {
       setError("root", { message: err.message || "Đăng nhập thất bại" });
     }
