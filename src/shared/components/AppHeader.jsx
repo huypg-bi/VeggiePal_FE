@@ -43,7 +43,7 @@ const PROFILE_MENU_ITEMS = [
   { id: "report", label: "Báo cáo sự cố", icon: MessageSquareWarning },
 ];
 
-export default function HomeHeader() {
+export default function AppHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
   const user = useAuthStore((s) => s.user);
@@ -57,7 +57,7 @@ export default function HomeHeader() {
     <header className="sticky top-4 z-30 mb-4 px-6 sm:px-8">
       <div className="mx-auto flex w-full max-w-[1560px] items-center gap-4 rounded-full border border-border bg-card/90 px-6 py-1 shadow-sm backdrop-blur">
         <Link to="/" className="flex shrink-0 items-center gap-2">
-          <img src={logo} alt="VeggiePal" className="h-15 w-auto" />
+          <img src={logo} alt="VeggiePal" className="h-12 w-auto mt-1 mb-1" />
         </Link>
 
         <label className="relative hidden max-w-xl flex-1 items-center md:flex">
@@ -162,7 +162,7 @@ export default function HomeHeader() {
                   className="mt-3 cursor-pointer justify-center gap-2 rounded-full bg-[#E8ECFB] px-4 py-2.5 font-medium text-ink focus:bg-[#DEE3FA] dark:bg-brand-soft dark:focus:bg-[#1c3d27]"
                 >
                   <CircleUserRound className="h-4 w-4 text-brand" />
-                  Xem tất cả trang cá nhân
+                  Xem trang cá nhân
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator className="my-3" />

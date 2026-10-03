@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import iconLeaf from "@/assets/img/icon_leaf.png";
 import iconSleep from "@/assets/img/icon_sleep.png";
 import iconWater from "@/assets/img/icon_water.png";
-import { dailyAdviceStats } from "@/features/meal-planner/data/mockHome";
+import { dailyAdviceStats } from "@/features/meal-planner/data/mockMealPlanner";
 
 const STAT_ICONS = {
   veggie: iconLeaf,

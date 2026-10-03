@@ -53,7 +53,7 @@ function FooterLink({ to, href, children }) {
   );
 }
 
-export default function HomeFooter() {
+export default function AppFooter() {
   const [ref, visible] = useRevealOnScroll({ threshold: 0.1 });
 
   return (

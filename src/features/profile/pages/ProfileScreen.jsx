@@ -1,7 +1,7 @@
 import { Loader2 } from "lucide-react";
 
-import HomeHeader from "@/features/meal-planner/components/HomeHeader";
-import HomeFooter from "@/features/meal-planner/components/HomeFooter";
+import AppHeader from "@/shared/components/AppHeader";
+import AppFooter from "@/shared/components/AppFooter";
 import { useProfile } from "@/features/profile/hooks/useProfile";
 
 import ProfileHeader from "@/features/profile/components/ProfileHeader";
@@ -13,7 +13,7 @@ import Reveal from "@/shared/components/Reveal";
 
 /**
  * Trang hồ sơ cá nhân (/profile).
- * - Header + footer dùng chung layout home
+ * - Header + footer dùng chung layout app
  * - Load GET /users/me (qua useProfile)
  * - Các section: thông tin, mật khẩu, sức khỏe, dị ứng
  */
@@ -22,7 +22,7 @@ export default function ProfileScreen() {
 
   return (
     <div className="min-h-dvh bg-canvas">
-      <HomeHeader />
+      <AppHeader />
 
       <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
         {loading ? (
@@ -61,7 +61,7 @@ export default function ProfileScreen() {
         )}
       </main>
 
-      <HomeFooter />
+      <AppFooter />
     </div>
   );
 }

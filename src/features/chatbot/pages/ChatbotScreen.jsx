@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Info, Loader2 } from "lucide-react";
 
-import HomeHeader from "@/features/meal-planner/components/HomeHeader";
-import HomeFooter from "@/features/meal-planner/components/HomeFooter";
+import AppHeader from "@/shared/components/AppHeader";
+import AppFooter from "@/shared/components/AppFooter";
 import { useChatbot } from "@/features/chatbot/hooks/useChatbot";
 import ChatSidebar from "@/features/chatbot/components/ChatSidebar";
 import ChatHeader from "@/features/chatbot/components/ChatHeader";
@@ -51,7 +51,7 @@ export default function ChatbotScreen() {
 
   return (
     <div className="min-h-dvh bg-canvas">
-      <HomeHeader />
+      <AppHeader />
 
       <main className="mx-auto w-full max-w-[1280px] px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex h-[75dvh] min-h-[620px] max-h-[960px] overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
@@ -112,7 +112,7 @@ export default function ChatbotScreen() {
         </div>
       </main>
 
-      <HomeFooter />
+      <AppFooter />
     </div>
   );
 }

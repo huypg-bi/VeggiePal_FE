@@ -1,7 +1,7 @@
 import { Sprout } from "lucide-react";
 
 import iconMacro from "@/assets/img/icon_macro.png";
-import { macroBreakdown } from "@/features/meal-planner/data/mockHome";
+import { macroBreakdown } from "@/features/meal-planner/data/mockMealPlanner";
 
 const SEGMENT_COLORS = {
   carb: "var(--chart-1)",

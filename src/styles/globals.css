@@ -10,7 +10,7 @@
     --font-heading: var(--font-display-serif);
     --font-sans: 'Geist Variable', sans-serif;
     --font-display-serif: 'Playfair Display', serif;
-    --font-landing-sans: 'Inter', system-ui, sans-serif;
+    --font-home-sans: 'Inter', system-ui, sans-serif;
     --color-brand: var(--brand);
     --color-brand-foreground: var(--brand-foreground);
     --color-brand-soft: var(--brand-soft);

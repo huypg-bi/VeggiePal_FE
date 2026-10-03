@@ -1,7 +1,7 @@
 import heroVideo from "@/assets/video/video_homepage.mp4";
-import HomeHeader from "@/features/meal-planner/components/HomeHeader";
-import HomeFooter from "@/features/meal-planner/components/HomeFooter";
-import LandingHero from "@/features/home/components/LandingHero";
+import AppHeader from "@/shared/components/AppHeader";
+import AppFooter from "@/shared/components/AppFooter";
+import HomeHero from "@/features/home/components/HomeHero";
 import TrendingRecipesSection from "@/features/home/components/TrendingRecipesSection";
 import NutritionLookupSection from "@/features/home/components/NutritionLookupSection";
 
@@ -9,7 +9,7 @@ export default function HomeScreen() {
   return (
     <div className="relative bg-background">
       <div className="fixed inset-x-0 top-3 z-50">
-        <HomeHeader />
+        <AppHeader />
       </div>
 
       <section className="relative h-screen w-full overflow-hidden">
@@ -27,14 +27,14 @@ export default function HomeScreen() {
           className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-background sm:h-40"
         />
 
-        <div className="relative z-10 h-full font-landing-sans">
-          <LandingHero />
+        <div className="relative z-10 h-full font-home-sans">
+          <HomeHero />
         </div>
       </section>
 
       <TrendingRecipesSection />
       <NutritionLookupSection />
-      <HomeFooter />
+      <AppFooter />
     </div>
   );
 }

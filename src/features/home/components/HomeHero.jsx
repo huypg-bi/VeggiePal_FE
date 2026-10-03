@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Play } from "lucide-react";
 
-export default function LandingHero() {
+export default function HomeHero() {
   return (
     <div className="flex h-full flex-col items-center justify-center px-6 pt-20 text-center sm:pt-24">
       <h1 className="max-w-5xl font-display-serif text-3xl leading-[1.1] text-white sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">

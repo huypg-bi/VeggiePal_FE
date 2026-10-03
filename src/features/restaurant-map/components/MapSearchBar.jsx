@@ -1,26 +1,6 @@
-import {
-  ChevronRight,
-  Flame,
-  Leaf,
-  MapPin,
-  Search,
-  ShieldCheck,
-  Star,
-  UtensilsCrossed,
-} from "lucide-react";
+import { ChevronRight, MapPin, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { mapFilterChips } from "@/features/restaurant-map/data/mockRestaurantMap";
-
-const CHIP_ICONS = {
-  leaf: Leaf,
-  utensils: UtensilsCrossed,
-  flame: Flame,
-  pin: MapPin,
-  star: Star,
-  shield: ShieldCheck,
-};
 
 export default function MapSearchBar() {
   return (
@@ -53,39 +33,6 @@ export default function MapSearchBar() {
           <Search className="size-4" />
           Tìm quán ngon
         </Button>
-      </div>
-
-      <div className="mt-4 flex flex-wrap gap-2">
-        {mapFilterChips.map((chip) => {
-          const Icon = CHIP_ICONS[chip.icon];
-          return (
-            <button
-              key={chip.id}
-              type="button"
-              className={cn(
-                "flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-xs font-medium transition",
-                chip.id === "verified"
-                  ? "border-transparent bg-[#FDECEC] text-[#D5443B] hover:bg-[#FBDFDF] dark:bg-[#3a1616] dark:text-[#ff8a80] dark:hover:bg-[#4a1d1d]"
-                  : chip.active
-                  ? "border-transparent bg-brand-soft text-brand"
-                  : "border-border bg-surface text-ink hover:bg-[#EEF3EC] dark:hover:bg-white/5"
-              )}
-            >
-              {Icon && (
-                <Icon
-                  className={cn(
-                    "h-3.5 w-3.5",
-                    chip.id === "rating" && "fill-[#F5B93D] text-[#F5B93D]"
-                  )}
-                />
-              )}
-              {chip.label}
-              {(chip.id === "verified" || chip.id === "vegan100") && (
-                <ChevronRight className="h-3.5 w-3.5" />
-              )}
-            </button>
-          );
-        })}
       </div>
     </section>
   );

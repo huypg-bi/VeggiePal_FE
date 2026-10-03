@@ -78,7 +78,7 @@ src/
 │   ├── provider.jsx         # QueryClientProvider + BrowserRouter (provider dùng chung)
 │   └── routes.jsx           # TẤT CẢ route khai báo ở đây
 ├── assets/                  # img/ svg/ video/ — import trực tiếp vào component
-├── components/ui/           # component shadcn (button.jsx, button-variants.js ...)
+├── components/ui/           # component shadcn (button.jsx ...); cva variants ở ui/variants/ (button-variants.js ...)
 ├── features/                # MỖI TÍNH NĂNG 1 THƯ MỤC (xem bên dưới)
 │   ├── auth/  chatbot/  home/  meal-planner/  profile/  restaurant-map/  video/
 ├── lib/                     # tiện ích dùng chung: queryClient.js, schema.js, utils.js (cn)
@@ -119,8 +119,8 @@ features/<ten-feature>/
 |---|---|---|
 | auth | `/login` `/register` `/forgot-password` `/verify-otp` | API thật (`authApi.js`) |
 | profile | `/profile` | API thật + React Query (`profileApi.js`, `useProfile`...) |
-| home (landing) | `/` | Dữ liệu tĩnh (`landingData.js`) |
-| meal-planner | `/meal-planner` | Mock (`mockHome.js`) |
+| home | `/` | Dữ liệu tĩnh (`homeData.js`) |
+| meal-planner | `/meal-planner` | Mock (`mockMealPlanner.js`) |
 | restaurant-map | `/map` | Mock (`mockRestaurantMap.js`) |
 | video | `/videos`, `/videos/:videoId` | Mock (`mockVideo.js`) |
 | chatbot | `/chatbot` | API mock (`chatbotApi.js` + `mockChatData.js`), state bằng `useState` |
@@ -162,7 +162,7 @@ Luôn dùng class Tailwind map tới token (đã khai báo trong `@theme inline`
 
 - **Tiêu đề (`h1,h2,h3`, class `font-heading` / `font-display-serif`)**: **Playfair Display** (serif) — nạp qua Google Fonts trong `index.html`.
 - **Chữ thường (`font-sans`, mặc định `html`)**: **Geist Variable** (`@fontsource-variable/geist`).
-- **Landing (`font-landing-sans`)**: **Inter**.
+- **Trang chủ (`font-home-sans`)**: **Inter**.
 - Menu nav dùng `font-display-serif`. Không thêm font mới.
 
 ### 4.3. Bo góc, khoảng cách, bóng
@@ -187,12 +187,12 @@ import { Button } from "@/components/ui/button";
 
 - **variant**: `default` (xanh brand) · `outline` · `secondary` · `soft` · `ghost` · `destructive` · `link` · `gradient` (CTA/submit ở auth) · `glass` (trên nền tối/ảnh).
 - **size**: `xs` `sm` `default` `md` `lg` `xl` `icon` `icon-xs` `icon-sm` `icon-lg`.
-- Style `<Link>` giống nút: `className={buttonVariants({ variant, size })}` (import từ `button-variants.js`).
+- Style `<Link>` giống nút: `className={buttonVariants({ variant, size })}` (import từ `@/components/ui/variants/button-variants`).
 - **Không tạo `<button>` tự style** để thay `<Button>` cho nút mới (trừ các icon-toggle nhỏ như nút hiện/ẩn mật khẩu).
 
 ### 4.5. Layout & mẫu trang
 
-- Trang sau đăng nhập luôn có khung: `<HomeHeader />` + `<main>` + `<HomeFooter />` (import từ `@/features/meal-planner/components/`), bọc trong `<div className="min-h-dvh bg-canvas">`.
+- Trang sau đăng nhập luôn có khung: `<AppHeader />` + `<main>` + `<AppFooter />` (import từ `@/shared/components/`), bọc trong `<div className="min-h-dvh bg-canvas">`.
 - Section xuất hiện dần khi cuộn: bọc `<Reveal>` (`@/shared/components/Reveal`).
 - Trạng thái loading: `<Loader2 className="size-4 animate-spin" />` + chữ mô tả tiếng Việt.
 - Thông báo lỗi trong form: `rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive`; thành công: nền emerald nhạt, chữ emerald.

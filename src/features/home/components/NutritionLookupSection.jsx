@@ -1,6 +1,6 @@
 import {BookOpen, ChefHat, Layers, Scale, ShieldCheck } from "lucide-react";
 
-import { nutritionLookupCards } from "@/features/home/data/landingData";
+import { nutritionLookupCards } from "@/features/home/data/homeData";
 import Reveal from "@/shared/components/Reveal";
 
 const ICONS = {
