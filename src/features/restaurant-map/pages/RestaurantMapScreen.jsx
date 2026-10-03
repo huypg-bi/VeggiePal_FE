@@ -1,5 +1,5 @@
-import HomeFooter from "@/features/meal-planner/components/HomeFooter";
-import HomeHeader from "@/features/meal-planner/components/HomeHeader";
+import AppFooter from "@/shared/components/AppFooter";
+import AppHeader from "@/shared/components/AppHeader";
 import MapBanner from "@/features/restaurant-map/components/MapBanner";
 import MapPanel from "@/features/restaurant-map/components/MapPanel";
 import MapSearchBar from "@/features/restaurant-map/components/MapSearchBar";
@@ -12,7 +12,7 @@ import Reveal from "@/shared/components/Reveal";
 export default function RestaurantMapScreen() {
   return (
     <div className="min-h-dvh">
-      <HomeHeader />
+      <AppHeader />
 
       <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-6 py-6">
         <MapBanner />
@@ -27,7 +27,7 @@ export default function RestaurantMapScreen() {
         </section>
       </main>
 
-      <HomeFooter />
+      <AppFooter />
     </div>
   );
 }

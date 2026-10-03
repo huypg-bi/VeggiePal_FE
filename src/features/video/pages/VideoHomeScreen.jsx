@@ -1,5 +1,5 @@
-import HomeFooter from "@/features/meal-planner/components/HomeFooter";
-import HomeHeader from "@/features/meal-planner/components/HomeHeader";
+import AppFooter from "@/shared/components/AppFooter";
+import AppHeader from "@/shared/components/AppHeader";
 import TrendingVideoGrid from "@/features/video/components/TrendingVideoGrid";
 import VideoChannelBar from "@/features/video/components/VideoChannelBar";
 import VideoSubNav from "@/features/video/components/VideoSubNav";
@@ -10,7 +10,7 @@ import Reveal from "@/shared/components/Reveal";
 export default function VideoHomeScreen() {
   return (
     <div className="min-h-dvh">
-      <HomeHeader />
+      <AppHeader />
 
       <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-6 py-6">
         <VideoSubNav />
@@ -21,7 +21,7 @@ export default function VideoHomeScreen() {
         <TrendingVideoGrid />
       </main>
 
-      <HomeFooter />
+      <AppFooter />
     </div>
   );
 }

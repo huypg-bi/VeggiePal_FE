@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 
-import HomeFooter from "@/features/meal-planner/components/HomeFooter";
-import HomeHeader from "@/features/meal-planner/components/HomeHeader";
+import AppFooter from "@/shared/components/AppFooter";
+import AppHeader from "@/shared/components/AppHeader";
 import AiSummaryCard from "@/features/video/components/AiSummaryCard";
 import CommentsHeader from "@/features/video/components/CommentsHeader";
 import NutritionFactsCard from "@/features/video/components/NutritionFactsCard";
@@ -18,7 +18,7 @@ export default function VideoWatchScreen() {
 
   return (
     <div className="min-h-dvh">
-      <HomeHeader />
+      <AppHeader />
 
       <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-6 py-6">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -46,7 +46,7 @@ export default function VideoWatchScreen() {
         </div>
       </main>
 
-      <HomeFooter />
+      <AppFooter />
     </div>
   );
 }

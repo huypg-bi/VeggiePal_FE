@@ -2,15 +2,6 @@
 // Khi có API thật (danh sách quán + bản đồ), thay các hằng số này bằng
 // dữ liệu từ query/store tương ứng.
 
-export const mapFilterChips = [
-  { id: "vegan100", label: "Thuần chay 100%", icon: "leaf", active: true },
-  { id: "office", label: "Cơm văn phòng sạch", icon: "utensils" },
-  { id: "hotpot", label: "Lẩu & Nướng chay", icon: "flame" },
-  { id: "near", label: "Gần tôi (<2km)", icon: "pin" },
-  { id: "rating", label: "Đánh giá 4.5+", icon: "star" },
-  { id: "verified", label: "Bé Bông Cải bảo chứng", icon: "shield" },
-];
-
 export const mockRestaurants = [
   {
     id: "bong-sung",

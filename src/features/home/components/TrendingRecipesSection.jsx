@@ -1,6 +1,6 @@
 import { Bookmark, ChevronRight, Clock, Flame, TrendingUp } from "lucide-react";
 
-import { trendingRecipes } from "@/features/home/data/landingData";
+import { trendingRecipes } from "@/features/home/data/homeData";
 import Reveal from "@/shared/components/Reveal";
 
 export default function TrendingRecipesSection() {

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Clock, Heart, RefreshCw, Timer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { todayMeals, weekDays } from "@/features/meal-planner/data/mockHome";
+import { todayMeals, weekDays } from "@/features/meal-planner/data/mockMealPlanner";
 import { cn } from "@/lib/utils";
 import Reveal from "@/shared/components/Reveal";
 

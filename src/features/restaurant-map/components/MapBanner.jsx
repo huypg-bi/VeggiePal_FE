@@ -1,50 +1,36 @@
-import { SlidersHorizontal } from "lucide-react";
-
-import { Button } from "@/components/ui/button";
-import mascotHeart from "@/assets/img/icon_map_page_2.png";
-import eatGreenText from "@/assets/img/icon_map_page_3.png";
+import mapIllustration from "@/assets/img/icon_map_page_2.png";
 import tag from "@/assets/img/tag.png";
 
+// Cùng bố cục với HeroBanner của meal-planner, nhưng nằm trong container và không có gradient nền.
 export default function MapBanner() {
   return (
-    <section className="relative overflow-hidden rounded-[28px] border border-border bg-gradient-to-br from-[#EAF7E6] to-[#F3FBEF] px-6 py-4 dark:from-[#12261a] dark:to-[#0d1c13] sm:px-8 sm:py-6">
-      {/* Hàng trên đặt absolute để không tốn chiều cao container */}
-      <div className="absolute top-4 left-6 right-6 z-10 flex items-center justify-between gap-3 sm:top-5 sm:left-8 sm:right-8">
+    <section className="rounded-[28px] border border-border bg-brand-soft/40 px-6 py-6 sm:px-8">
+      <div className="flex flex-col items-center gap-8 lg:flex-row lg:items-center lg:justify-center lg:gap-16">
+        <div className="flex max-w-2xl flex-col items-center gap-4 text-center lg:items-start lg:text-left">
+          <img
+            src={tag}
+            alt="Đồng hành cùng bạn"
+            className="h-16 w-auto select-none sm:h-20"
+            draggable={false}
+          />
+
+          <h1 className="text-3xl font-bold leading-tight text-ink sm:text-4xl">
+            Khám phá các quán ăn "ngon lành" quanh bạn cùng{" "}
+            <span className="text-brand">Bé Bông Cải</span> nhé.
+          </h1>
+
+          <p className="max-w-md text-sm leading-relaxed text-subtle sm:text-base">
+            Tìm quán chay gần bạn, xem đánh giá và chọn nơi phù hợp nhất cho
+            bữa ăn xanh hôm nay!
+          </p>
+        </div>
+
         <img
-          src={tag}
-          alt="Đồng hành cùng bạn"
-          className="h-20 w-auto select-none"
+          src={mapIllustration}
+          alt="Bản đồ quán chay cùng Bé Bông Cải"
+          className="h-auto w-full max-w-xs shrink-0 select-none drop-shadow-sm sm:max-w-sm lg:max-w-md"
           draggable={false}
         />
-
-        <Button type="button" size="lg" className="shadow-sm">
-          <SlidersHorizontal className="size-4" />
-          Lọc quán theo yêu cầu
-        </Button>
-      </div>
-
-      {/* Hàng dưới dùng pt-14/pt-16 để chừa khoảng trống cho hàng trên */}
-      <div className="relative pt-14 flex flex-col items-center gap-6 sm:pt-16 lg:flex-row lg:items-center lg:justify-start lg:gap-10">
-        <h1 className="max-w-lg text-center text-2xl font-bold leading-snug text-ink sm:text-4xl lg:text-left">
-          Khám phá các quán ăn ngon, lành mạnh xung quanh bạn cùng{" "}
-          <span className="text-brand">Bé Bông Cải</span> nhé.
-        </h1>
-
-        <div className="flex shrink-0 items-center gap-4">
-          <img
-            src={mascotHeart}
-            alt="Bé Bông Cải"
-            className="h-32 w-auto select-none drop-shadow-sm sm:h-50"
-            draggable={false}
-          />
-
-          <img
-            src={eatGreenText}
-            alt="Ăn xanh là yêu bản thân"
-            className="hidden h-30 w-auto select-none sm:block"
-            draggable={false}
-          />
-        </div>
       </div>
     </section>
   );

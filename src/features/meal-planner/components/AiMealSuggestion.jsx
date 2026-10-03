@@ -3,7 +3,7 @@ import { ArrowRight, Plus, Sparkles, Wand2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import iconChatbot from "@/assets/img/icon_chatbot_1.png";
-import { availableIngredients, flavorPreferences } from "@/features/meal-planner/data/mockHome";
+import { availableIngredients, flavorPreferences } from "@/features/meal-planner/data/mockMealPlanner";
 import { cn } from "@/lib/utils";
 
 export default function AiMealSuggestion() {

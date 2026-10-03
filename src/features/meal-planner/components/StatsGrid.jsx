@@ -4,7 +4,7 @@ import iconBmi from "@/assets/img/icon_bmi.png";
 import iconFire from "@/assets/img/icon_fire.png";
 import iconRun from "@/assets/img/icon_run.png";
 import iconWater from "@/assets/img/icon_water.png";
-import { mockStats } from "@/features/meal-planner/data/mockHome";
+import { mockStats } from "@/features/meal-planner/data/mockMealPlanner";
 import Reveal from "@/shared/components/Reveal";
 
 const ICONS = {

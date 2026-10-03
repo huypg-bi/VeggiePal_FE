@@ -3,8 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import AuthScreen from "@/features/auth/pages/AuthScreen";
 import ProtectedRoute from "@/features/auth/components/ProtectedRoute";
 import { useAuthStore, selectIsAuthenticated } from "@/features/auth/store/authStore";
-import LandingScreen from "@/features/home/pages/HomeScreen";
-import MealPlannerScreen from "@/features/meal-planner/pages/HomeScreen";
+import HomeScreen from "@/features/home/pages/HomeScreen";
+import MealPlannerScreen from "@/features/meal-planner/pages/MealPlannerScreen";
 import RestaurantMapScreen from "@/features/restaurant-map/pages/RestaurantMapScreen";
 import VideoHomeScreen from "@/features/video/pages/VideoHomeScreen";
 import VideoWatchScreen from "@/features/video/pages/VideoWatchScreen";
@@ -32,7 +32,7 @@ export default function AppRoutes() {
       />
       <Route path="/forgot-password" element={<AuthScreen />} />
       <Route path="/verify-otp" element={<AuthScreen />} />
-      <Route path="/" element={<LandingScreen />} />
+      <Route path="/" element={<HomeScreen />} />
       <Route
         path="/meal-planner"
         element={
