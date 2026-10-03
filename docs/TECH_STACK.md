@@ -80,7 +80,7 @@ src/
 ├── assets/                  # img/ svg/ video/ — import trực tiếp vào component
 ├── components/ui/           # component shadcn (button.jsx ...); cva variants ở ui/variants/ (button-variants.js ...)
 ├── features/                # MỖI TÍNH NĂNG 1 THƯ MỤC (xem bên dưới)
-│   ├── auth/  chatbot/  home/  meal-planner/  profile/  restaurant-map/  video/
+│   ├── auth/  admin/  blog/  chatbot/  home/  ingredient/  meal-planner/  my-content/  profile/  recipe/  restaurant-map/  video/
 ├── lib/                     # tiện ích dùng chung: queryClient.js, schema.js, utils.js (cn)
 ├── shared/                  # dùng chung nhiều feature
 │   ├── api/apiClient.js     # axios instance duy nhất
@@ -119,10 +119,14 @@ features/<ten-feature>/
 |---|---|---|
 | auth | `/login` `/register` `/forgot-password` `/verify-otp` | API thật (`authApi.js`) |
 | profile | `/profile` | API thật + React Query (`profileApi.js`, `useProfile`...) |
-| home | `/` | Dữ liệu tĩnh (`homeData.js`) |
+| home | `/` | Món chay nổi bật: API thật (`useRecipes` + `useRecipeNutrition` + `usePublicUsers`); phần còn lại tĩnh (`homeData.js`) |
 | meal-planner | `/meal-planner` | Mock (`mockMealPlanner.js`) |
 | restaurant-map | `/map` | Mock (`mockRestaurantMap.js`) |
 | video | `/videos`, `/videos/:videoId` | Mock (`mockVideo.js`) |
+| blog | `/blog`, `/blog/:blogId`, `/blog/new`, `/blog/:blogId/edit` | API thật: feed (tìm kiếm/sắp xếp/lọc danh mục trên URL), chi tiết bài, bài liên quan, danh mục, bình luận, vote, viết/sửa bài + ảnh bìa; bảng vàng/chủ đề/thử thách: mock (`mockBlog.js`) |
+| my-content | `/my-content` | API thật: bài viết của tôi (`/blogs/me`) và công thức của tôi (`/recipes/me`), kèm sửa / gửi duyệt / đăng / xóa |
+| recipe | `/recipes/new`, `/recipes/:recipeId/edit` | API thật: tạo / sửa công thức (chọn nguyên liệu từ `/ingredients`); danh sách công khai hiện ở trang chủ |
+| admin | `/admin`, `/admin/categories`, `/admin/ingredients` | API thật, chỉ role ADMIN (`AdminRoute`): tổng quan, quản lý danh mục (`/categories`) và nguyên liệu (`/ingredients`). ADMIN đăng nhập xong vào thẳng `/admin` (`resolvePostLoginPath`) |
 | chatbot | `/chatbot` | API mock (`chatbotApi.js` + `mockChatData.js`), state bằng `useState` |
 
 Khi nối API thật cho feature đang mock: giữ nguyên UI, thay nguồn dữ liệu bằng `*Api.js` + React Query hook theo mẫu của `profile`.

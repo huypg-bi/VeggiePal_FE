@@ -1,39 +1,3 @@
-export const trendingRecipes = [
-  {
-    id: "tofu-tomato",
-    title: "Đậu hũ sốt cà chua nấm hương",
-    image:
-      "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80&auto=format&fit=crop",
-    minutes: 35,
-    kcal: 285,
-    protein: 18.5,
-    author: "Bếp Chay An Nhiên",
-    authorAvatar: "https://i.pravatar.cc/64?img=12",
-  },
-  {
-    id: "sour-mushroom-soup",
-    title: "Canh chua nấm đậu bắp miền Tây",
-    image:
-      "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80&auto=format&fit=crop",
-    minutes: 40,
-    kcal: 145,
-    protein: 7.2,
-    author: "Tuệ Minh Vegan",
-    authorAvatar: "https://i.pravatar.cc/64?img=32",
-  },
-  {
-    id: "mushroom-hotpot",
-    title: "Lẩu nấm dưỡng sinh ngọt nước",
-    image:
-      "https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=800&q=80&auto=format&fit=crop",
-    minutes: 75,
-    kcal: 320,
-    protein: 12,
-    author: "Bếp Chay An Nhiên",
-    authorAvatar: "https://i.pravatar.cc/64?img=12",
-  },
-];
-
 export const nutritionLookupCards = [
   {
     id: "nutrition-100g",

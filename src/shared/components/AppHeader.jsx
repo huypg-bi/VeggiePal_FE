@@ -7,11 +7,14 @@ import {
   ChevronRight,
   CircleHelp,
   CircleUserRound,
+  FileText,
   Home,
   LogOut,
   MessageSquareWarning,
   Map,
+  ShieldCheck,
   Search,
+  Users,
   SquarePlay,
   UserRound,
   UtensilsCrossed,
@@ -34,6 +37,7 @@ const NAV_ITEMS = [
   { id: "home", label: "Trang Chủ", icon: Home, to: "/" },
   { id: "utensils-crossed", label: "Thực Đơn", icon: UtensilsCrossed, to: "/meal-planner" },
   { id: "square-play", label: "Khám Phá Video", icon: SquarePlay, to: "/videos" },
+  { id: "users", label: "Cộng Đồng", icon: Users, to: "/blog" },
   { id: "map", label: "Bản Đồ Xanh", icon: Map, to: "/map" },
   { id: "broccoli", label: "Trợ Lý Bông Cải", icon: Broccoli, to: "/chatbot" },
 ];
@@ -76,7 +80,9 @@ export default function AppHeader() {
               to={to}
               className={cn(
                 "flex items-center gap-1.5 rounded-full px-3.5 py-2 font-display-serif text-base font-medium transition",
-                location.pathname === to
+                // Trang con (vd /blog/5) cũng tính là đang ở mục cha (/blog).
+                location.pathname === to ||
+                  (to !== "/" && location.pathname.startsWith(`${to}/`))
                   ? "bg-brand-soft text-brand"
                   : "text-subtle hover:bg-surface hover:text-ink"
               )}
@@ -163,6 +169,30 @@ export default function AppHeader() {
                 >
                   <CircleUserRound className="h-4 w-4 text-brand" />
                   Xem trang cá nhân
+                </DropdownMenuItem>
+
+                {user?.role === "ADMIN" && (
+                  <DropdownMenuItem
+                    render={<Link to="/admin" />}
+                    className="mt-3 cursor-pointer gap-3 rounded-xl px-1 py-2"
+                  >
+                    <span className="grid size-9 shrink-0 place-items-center rounded-full bg-brand-soft text-brand">
+                      <ShieldCheck className="h-4 w-4" />
+                    </span>
+                    <span className="flex-1 text-sm font-medium text-ink">Trang quản trị</span>
+                    <ChevronRight className="h-4 w-4 text-subtle" />
+                  </DropdownMenuItem>
+                )}
+
+                <DropdownMenuItem
+                  render={<Link to="/my-content" />}
+                  className="mt-3 cursor-pointer gap-3 rounded-xl px-1 py-2"
+                >
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#E8ECFB] text-ink dark:bg-brand-soft">
+                    <FileText className="h-4 w-4" />
+                  </span>
+                  <span className="flex-1 text-sm font-medium text-ink">Bài viết của tôi</span>
+                  <ChevronRight className="h-4 w-4 text-subtle" />
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator className="my-3" />
