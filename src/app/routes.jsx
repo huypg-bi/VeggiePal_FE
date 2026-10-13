@@ -11,6 +11,7 @@ import RestaurantMapScreen from "@/features/restaurant-map/pages/RestaurantMapSc
 import VideoHomeScreen from "@/features/video/pages/VideoHomeScreen";
 import VideoWatchScreen from "@/features/video/pages/VideoWatchScreen";
 import ProfileScreen from "@/features/profile/pages/ProfileScreen";
+import EditProfileScreen from "@/features/profile/pages/EditProfileScreen";
 import ChatbotScreen from "@/features/chatbot/pages/ChatbotScreen";
 import BlogScreen from "@/features/blog/pages/BlogScreen";
 import BlogDetailScreen from "@/features/blog/pages/BlogDetailScreen";
@@ -44,6 +45,7 @@ export default function AppRoutes() {
       <Route path="/forgot-password" element={<AuthScreen />} />
       <Route path="/verify-otp" element={<AuthScreen />} />
       <Route path="/" element={<HomeScreen />} />
+
       {/* Blog công khai với khách (BE cho GET /blogs không cần token) */}
       <Route path="/blog" element={<BlogScreen />} />
       <Route
@@ -63,6 +65,7 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/recipes/new"
         element={
@@ -79,6 +82,7 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/meal-planner"
         element={
@@ -95,6 +99,7 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/videos"
         element={
@@ -111,6 +116,9 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* --- NHÓM PROFILE --- */}
+      {/* 1. Trang xem hồ sơ cá nhân */}
       <Route
         path="/profile"
         element={
@@ -119,6 +127,16 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      {/* 2. Trang chỉnh sửa hồ sơ cá nhân (Route riêng) */}
+      <Route
+        path="/profile/edit"
+        element={
+          <ProtectedRoute>
+            <EditProfileScreen />
+          </ProtectedRoute>
+        }
+      />
+
       <Route
         path="/my-content"
         element={
@@ -135,7 +153,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      {/* Khu quản trị: chỉ ADMIN (AdminRoute chặn), dùng khung AdminLayout riêng thay vì AppHeader. */}
+
+      {/* Khu quản trị: chỉ ADMIN (AdminRoute chặn), dùng khung AdminLayout riêng thay vì AppHeader */}
       <Route element={<AdminRoute />}>
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboardScreen />} />
@@ -143,6 +162,7 @@ export default function AppRoutes() {
           <Route path="/admin/ingredients" element={<AdminIngredientsScreen />} />
         </Route>
       </Route>
+
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
