@@ -15,6 +15,7 @@ import {
 } from "@/features/blog/utils/blogFormat";
 import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
+import FallbackImage from "@/shared/components/FallbackImage";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
 // Trang đọc một bài (route /blog/:blogId), công khai. Nội dung BE lưu là text thuần,
@@ -38,21 +39,20 @@ export default function BlogDetailScreen() {
     <div className="min-h-dvh">
       <AppHeader />
 
-      {/* 3 cột như trang Cộng đồng: trái để trống (dành cho phát triển thêm), bài chính ở giữa,
-          bài liên quan bên phải. Hai cột bên rộng gần bằng nhau nên bài luôn nằm đúng giữa trang,
-          kể cả khi chưa có bài liên quan. Dưới lg chỉ còn 1 cột: bài trước, bài liên quan sau. */}
+      {/* 3 cột như trang Cộng đồng: trái là nút quay lại, bài chính ở giữa, bài liên quan bên phải.
+          Nút quay lại nằm ở cột trái nên khung bài chính và khung bài liên quan bắt đầu cùng một mức.
+          Hai cột bên rộng gần bằng nhau nên bài luôn nằm đúng giữa trang, kể cả khi chưa có bài
+          liên quan. Dưới lg chỉ còn 1 cột: nút quay lại, bài, rồi bài liên quan. */}
       <main className="mx-auto w-full max-w-[1280px] px-6 py-6">
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[250px_minmax(0,1fr)_300px]">
-          <aside aria-hidden className="hidden lg:block" />
+          <aside>
+            <Button type="button" variant="ghost" size="sm" onClick={goBack}>
+              <ArrowLeft className="size-4" />
+              Quay lại Cộng đồng
+            </Button>
+          </aside>
 
           <div className="flex min-w-0 flex-col gap-6">
-            <div>
-              <Button type="button" variant="ghost" size="sm" onClick={goBack}>
-                <ArrowLeft className="size-4" />
-                Quay lại Cộng đồng
-              </Button>
-            </div>
-
             {id === null || isError ? (
               <NotFound />
             ) : isPending ? (
@@ -60,17 +60,7 @@ export default function BlogDetailScreen() {
             ) : (
               <>
                 <article className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
-                  {blog.categoryName && (
-                    <span className="inline-block rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-medium text-brand">
-                      {blog.categoryName}
-                    </span>
-                  )}
-
-                  <h1 className="mt-3 font-heading text-2xl font-bold leading-tight text-ink sm:text-4xl">
-                    {blog.title}
-                  </h1>
-
-                  <div className="mt-4 flex items-center gap-3">
+                  <div className="flex items-center gap-3">
                     <AuthorAvatar author={author} />
                     <div className="min-w-0">
                       <p className="truncate text-sm font-semibold text-ink">
@@ -80,27 +70,39 @@ export default function BlogDetailScreen() {
                         {formatTimeAgo(blog.publishedAt ?? blog.createdAt)}
                       </p>
                     </div>
-                    <div className="ml-auto flex items-center gap-4 text-sm text-subtle">
-                      <VoteButton blog={blog} myVote={myVotes?.get(blog.id)} />
-                      <span className="flex items-center gap-1.5">
-                        <Eye className="size-4" />
-                        {formatCompactNumber(blog.viewCount)}
-                      </span>
+                    {/* Bên phải: danh mục, và ngay dưới là tim + lượt xem cỡ nhỏ (không chen vào hàng tiêu đề,
+                        vì tiêu đề dài sẽ đẩy chúng xuống dòng). */}
+                    <div className="ml-auto flex shrink-0 flex-col items-end gap-1.5">
+                      {blog.categoryName && (
+                        <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-medium text-brand">
+                          {blog.categoryName}
+                        </span>
+                      )}
+                      <div className="flex items-center gap-3 text-sm font-medium text-body">
+                        <VoteButton blog={blog} myVote={myVotes?.get(blog.id)} />
+                        <span className="flex items-center gap-1.5">
+                          <Eye className="size-4 text-brand" />
+                          {formatCompactNumber(blog.viewCount)}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  {blog.thumbnailUrl ? (
-                    <img
-                      src={blog.thumbnailUrl}
-                      alt={blog.title}
-                      className="mt-6 aspect-[16/9] w-full rounded-2xl object-cover"
-                      draggable={false}
-                    />
-                  ) : (
-                    <div className="mt-6 grid aspect-[16/6] w-full place-items-center rounded-2xl bg-surface text-subtle">
-                      <ImageOff className="size-8" />
-                    </div>
-                  )}
+                  <h1 className="mt-5 font-heading text-2xl font-bold leading-tight text-ink sm:text-4xl">
+                    {blog.title}
+                  </h1>
+
+                  <FallbackImage
+                    src={blog.thumbnailUrl}
+                    alt={blog.title}
+                    className="mt-6 aspect-[16/9] w-full rounded-2xl object-cover"
+                    draggable={false}
+                    fallback={
+                      <div className="mt-6 grid aspect-[16/6] w-full place-items-center rounded-2xl bg-surface text-subtle">
+                        <ImageOff className="size-8" />
+                      </div>
+                    }
+                  />
 
                   <div className="mt-6 whitespace-pre-line break-words text-base leading-relaxed text-body">
                     {blog.content}
@@ -148,12 +150,15 @@ function ArticleSkeleton() {
       aria-hidden
       className="animate-pulse rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8"
     >
-      <div className="h-5 w-24 rounded-full bg-surface" />
-      <div className="mt-4 h-8 w-4/5 rounded bg-surface" />
-      <div className="mt-4 flex items-center gap-3">
+      <div className="flex items-center gap-3">
         <div className="size-11 rounded-full bg-surface" />
         <div className="h-4 w-40 rounded bg-surface" />
+        <div className="ml-auto space-y-1.5">
+          <div className="ml-auto h-5 w-20 rounded-full bg-surface" />
+          <div className="ml-auto h-4 w-16 rounded bg-surface" />
+        </div>
       </div>
+      <div className="mt-5 h-8 w-4/5 rounded bg-surface" />
       <div className="mt-6 aspect-[16/9] w-full rounded-2xl bg-surface" />
       <div className="mt-6 space-y-3">
         <div className="h-4 w-full rounded bg-surface" />

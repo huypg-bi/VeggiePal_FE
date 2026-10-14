@@ -37,31 +37,32 @@ export default function LeaderboardCard() {
         {leaderboard.map((user, index) => {
           const isFollowing = following.has(user.id);
           return (
-            <li
-              key={user.id}
-              className="flex items-center gap-2.5 rounded-2xl bg-surface p-2.5"
-            >
-              <span
-                className={cn(
-                  "grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold",
-                  RANK_STYLES[index]
-                )}
-              >
-                {index + 1}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-ink">{user.name}</p>
-                <p className="truncate text-[11px] text-subtle">
-                  {user.recipes != null
-                    ? `${user.recipes} công thức`
-                    : `${user.articles} bài viết`}{" "}
-                  • {user.likes}
-                </p>
+            <li key={user.id} className="rounded-2xl bg-surface p-2.5">
+              <div className="flex items-center gap-2.5">
+                <span
+                  className={cn(
+                    "grid size-7 shrink-0 place-items-center rounded-full text-xs font-bold",
+                    RANK_STYLES[index]
+                  )}
+                >
+                  {index + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-ink">{user.name}</p>
+                  <p className="truncate text-[11px] text-subtle">
+                    {user.recipes != null
+                      ? `${user.recipes} công thức`
+                      : `${user.articles} bài viết`}{" "}
+                    • {user.likes}
+                  </p>
+                </div>
               </div>
+              {/* Nút theo dõi nằm dưới thông tin, rộng bằng cả ô. */}
               <Button
                 type="button"
-                size="xs"
+                size="sm"
                 variant={isFollowing ? "soft" : "default"}
+                className="mt-2.5 w-full"
                 onClick={() => toggle(user.id)}
               >
                 {isFollowing ? "Đang theo dõi" : "Theo dõi"}

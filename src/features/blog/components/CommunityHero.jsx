@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
-import { BadgeCheck, BookOpen, Broccoli, PenLine, ShieldCheck, Sprout } from "lucide-react";
+import { BadgeCheck, BookOpen, PenLine, ShieldCheck, Sprout } from "lucide-react";
 
+import mascot from "@/assets/img/icon_admin_page_3.png";
 import { buttonVariants } from "@/components/ui/variants/button-variants";
 import { broccoliQuote, communityStats } from "@/features/blog/data/mockBlog";
 
@@ -38,24 +39,25 @@ export default function CommunityHero() {
           })}
         </ul>
 
+      </div>
+
+      <div className="flex shrink-0 flex-col gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm lg:max-w-md">
+        <div className="flex items-center gap-3">
+          <img src={mascot} alt="Bé Bông Cải" className="size-14 shrink-0 object-contain" draggable={false} />
+          <div className="min-w-0">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-subtle">
+              {broccoliQuote.label}
+            </p>
+            <p className="font-heading text-base font-bold text-ink">{broccoliQuote.quote}</p>
+            <p className="text-xs text-subtle">{broccoliQuote.hint}</p>
+          </div>
+        </div>
+
         {/* /blog/new cần đăng nhập: khách bấm sẽ được đưa sang trang đăng nhập rồi quay lại. */}
-        <Link to="/blog/new" className={`${buttonVariants({ variant: "default", size: "md" })} mt-4`}>
+        <Link to="/blog/new" className={`${buttonVariants({ variant: "default", size: "md" })} w-full`}>
           <PenLine className="size-4" />
           Viết bài chia sẻ
         </Link>
-      </div>
-
-      <div className="flex shrink-0 items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm lg:max-w-xs">
-        <span className="grid size-11 shrink-0 place-items-center rounded-full bg-brand-soft text-brand">
-          <Broccoli className="size-5" />
-        </span>
-        <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-subtle">
-            {broccoliQuote.label}
-          </p>
-          <p className="font-heading text-base font-bold text-ink">{broccoliQuote.quote}</p>
-          <p className="text-xs text-subtle">{broccoliQuote.hint}</p>
-        </div>
       </div>
     </section>
   );

@@ -27,13 +27,3 @@ export const trendingTopics = [
   { id: "wfpb", tag: "WFPB_Vietnam", count: "2.4k" },
   { id: "hat", tag: "SuaHatTuNhien", count: "520" },
 ];
-
-export const weeklyChallenge = {
-  badge: "Thử thách tháng 10",
-  title: "7 Ngày Sống Thuần Chay Tươi Mới",
-  description:
-    "Hoàn thành 3 ngày tiếp theo để mở khóa huy hiệu độc quyền “Trái Tim Xanh Veggie” và nhận voucher quán chay đối tác!",
-  done: 4,
-  total: 7,
-  streakLabel: "Đã check-in: Thứ 2, 3, 4, 5",
-};

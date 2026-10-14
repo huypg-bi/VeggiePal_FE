@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { ImagePlus } from "lucide-react";
+import { ImageOff, ImagePlus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { THUMBNAIL_TYPES, validateThumbnail } from "@/features/blog/utils/blogForm";
+import FallbackImage from "@/shared/components/FallbackImage";
 
 /**
  * Chọn ảnh bìa (JPEG/PNG/WEBP ≤ 5MB). Chỉ giữ file trong bộ nhớ; việc tải lên do form cha làm
@@ -60,7 +61,17 @@ export default function ThumbnailPicker({ currentUrl, onChange }) {
 
       {shown ? (
         <div className="relative overflow-hidden rounded-2xl border border-border">
-          <img src={shown} alt="Ảnh bìa" className="aspect-[16/9] w-full object-cover" />
+          <FallbackImage
+            src={shown}
+            alt="Ảnh bìa"
+            className="aspect-[16/9] w-full object-cover"
+            // Ảnh bìa hiện có bị hỏng -> khung trống, vẫn bấm "Đổi ảnh" được.
+            fallback={
+              <div className="grid aspect-[16/9] w-full place-items-center bg-surface text-subtle">
+                <ImageOff className="size-8" />
+              </div>
+            }
+          />
           <div className="absolute right-3 top-3 flex gap-2">
             <Button type="button" size="sm" variant="secondary" onClick={() => inputRef.current?.click()}>
               Đổi ảnh
