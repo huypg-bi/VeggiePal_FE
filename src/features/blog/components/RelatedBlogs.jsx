@@ -3,6 +3,7 @@ import { Eye, ImageOff } from "lucide-react";
 
 import { useRelatedBlogs } from "@/features/blog/hooks/useBlogs";
 import { formatCompactNumber, formatTimeAgo } from "@/features/blog/utils/blogFormat";
+import FallbackImage from "@/shared/components/FallbackImage";
 
 // Tối đa 5 bài cùng danh mục (GET /blogs/:id/related). Không có bài liên quan thì ẩn cả khối.
 export default function RelatedBlogs({ blogId }) {
@@ -31,18 +32,16 @@ export default function RelatedBlogs({ blogId }) {
           {related.map((post) => (
             <li key={post.id}>
               <Link to={`/blog/${post.id}`} className="group flex gap-3">
-                {post.thumbnailUrl ? (
-                  <img
-                    src={post.thumbnailUrl}
-                    alt=""
-                    className="size-16 shrink-0 rounded-xl object-cover"
-                    draggable={false}
-                  />
-                ) : (
-                  <span className="grid size-16 shrink-0 place-items-center rounded-xl bg-surface text-subtle">
-                    <ImageOff className="size-5" />
-                  </span>
-                )}
+                <FallbackImage
+                  src={post.thumbnailUrl}
+                  className="size-16 shrink-0 rounded-xl object-cover"
+                  draggable={false}
+                  fallback={
+                    <span className="grid size-16 shrink-0 place-items-center rounded-xl bg-surface text-subtle">
+                      <ImageOff className="size-5" />
+                    </span>
+                  }
+                />
                 <div className="min-w-0">
                   <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-ink transition group-hover:text-brand">
                     {post.title}

@@ -8,6 +8,7 @@ import {
   formatCompactNumber,
   formatTimeAgo,
 } from "@/features/blog/utils/blogFormat";
+import FallbackImage from "@/shared/components/FallbackImage";
 
 // `post` là BlogSummaryResponse của BE (GET /blogs); `author` là { fullName, avatarUrl }
 // từ usePublicUsers, có thể undefined (đang tải hoặc user không còn hiển thị công khai).
@@ -40,19 +41,17 @@ export default function BlogPostCard({ post, author, myVote }) {
       </h2>
 
       <Link to={detailPath} tabIndex={-1} aria-hidden className="mt-4 block">
-        {post.thumbnailUrl ? (
-          <img
-            src={post.thumbnailUrl}
-            alt=""
-            className="aspect-[4/3] w-full rounded-2xl object-cover sm:aspect-[16/10]"
-            draggable={false}
-          />
-        ) : (
-          // Bài chưa có ảnh bìa -> khung nền nhạt để các card không lệch nhau.
-          <div className="grid aspect-[16/7] w-full place-items-center rounded-2xl bg-surface text-subtle">
-            <ImageOff className="size-8" />
-          </div>
-        )}
+        <FallbackImage
+          src={post.thumbnailUrl}
+          className="aspect-[4/3] w-full rounded-2xl object-cover sm:aspect-[16/10]"
+          draggable={false}
+          // Chưa có ảnh bìa hoặc ảnh tải lỗi -> khung nền nhạt để các card không lệch nhau.
+          fallback={
+            <div className="grid aspect-[16/7] w-full place-items-center rounded-2xl bg-surface text-subtle">
+              <ImageOff className="size-8" />
+            </div>
+          }
+        />
       </Link>
 
       <footer className="mt-4 flex items-center gap-5 border-t border-border pt-3 text-sm text-subtle">

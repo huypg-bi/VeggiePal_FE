@@ -18,6 +18,7 @@ import {
 } from "@/features/my-content/utils/statusInfo";
 import { cn } from "@/lib/utils";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
+import FallbackImage from "@/shared/components/FallbackImage";
 
 // Tab "Bài viết": lọc theo trạng thái (GET /blogs/me?status=) + danh sách "Xem thêm",
 // mỗi dòng có Sửa / Gửi duyệt / Xóa tùy trạng thái.
@@ -119,18 +120,16 @@ function BlogRow({ post }) {
 
   const summary = (
     <>
-      {post.thumbnailUrl ? (
-        <img
-          src={post.thumbnailUrl}
-          alt=""
-          className="size-20 shrink-0 rounded-2xl object-cover"
-          draggable={false}
-        />
-      ) : (
-        <span className="grid size-20 shrink-0 place-items-center rounded-2xl bg-surface text-subtle">
-          <ImageOff className="size-6" />
-        </span>
-      )}
+      <FallbackImage
+        src={post.thumbnailUrl}
+        className="size-20 shrink-0 rounded-2xl object-cover"
+        draggable={false}
+        fallback={
+          <span className="grid size-20 shrink-0 place-items-center rounded-2xl bg-surface text-subtle">
+            <ImageOff className="size-6" />
+          </span>
+        }
+      />
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">

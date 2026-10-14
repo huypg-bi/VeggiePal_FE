@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { PlusCircle, Edit3, CheckCircle, Video, Users, Bookmark, Activity } from "lucide-react";
+import { PlusCircle, Edit3, CheckCircle, Video, Users, Bookmark, Activity, Heart } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useChallenge } from "@/features/blog/hooks/useChallenge";
+import { CHALLENGE_BADGE_NAME } from "@/features/blog/utils/challenge";
 import { useProfileStats } from "@/features/profile/hooks/useProfileStats";
 import { bmiInfo } from "@/features/profile/utils/editProfileHelpers";
 
@@ -11,6 +13,8 @@ const DEFAULT_AVATAR =
 export default function ProfileBanner({ profile }) {
   const navigate = useNavigate();
   const stats = useProfileStats();
+  // Huy hiệu mở khóa khi hoàn thành thử thách 7 ngày ở trang Cộng đồng.
+  const { completed: hasChallengeBadge } = useChallenge();
 
   const displayName = profile?.fullName?.trim() || "Người dùng VeggiePal";
   const avatarUrl = profile?.avatarUrl || DEFAULT_AVATAR;
@@ -53,6 +57,12 @@ export default function ProfileBanner({ profile }) {
                 <span className="rounded-full border border-brand/30 bg-brand-soft px-3 py-0.5 text-xs font-semibold text-brand">
                   Đầu Bếp Chay Sáng Tạo
                 </span>
+                {hasChallengeBadge && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-chart-4/30 bg-chart-4/15 px-3 py-0.5 text-xs font-semibold text-chart-4">
+                    <Heart className="size-3 fill-current" />
+                    {CHALLENGE_BADGE_NAME}
+                  </span>
+                )}
               </div>
               {/* @username: chỉ hiển thị khi có trường username */}
               {profile?.username && (

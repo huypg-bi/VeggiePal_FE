@@ -1,20 +1,62 @@
 import { useEffect, useRef, useState } from "react";
-import { Search, X } from "lucide-react";
+import { ChevronDown, Search, X } from "lucide-react";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useCategories } from "@/features/blog/hooks/useCategories";
 import { SORT_OPTIONS, flattenCategories } from "@/features/blog/utils/feedFilters";
 import { cn } from "@/lib/utils";
 
 const SEARCH_DEBOUNCE_MS = 400;
 
-const pillClass = (active) =>
-  cn(
-    "shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition",
-    active ? "bg-brand-soft text-brand" : "text-subtle hover:bg-surface hover:text-ink"
-  );
+// Giá trị rỗng/undefined ("Mới nhất", "Tất cả danh mục") cùng được coi là mặc định khi so sánh.
+const toKey = (value) => (value === "" || value == null ? "" : String(value));
 
 /**
- * Thanh tìm kiếm + sắp xếp + lọc danh mục của feed.
+ * Ô chọn dạng dropdown cùng kiểu với ô tìm kiếm. `active` tô nhẹ nút khi đang lọc khác mặc định.
+ * options: [{ value, label }]; onSelect(value) nhận lại đúng `value` của option được bấm.
+ */
+function FilterDropdown({ label, options, value, onSelect, active = false, menuClassName }) {
+  const [open, setOpen] = useState(false);
+  const selected = options.find((o) => toKey(o.value) === toKey(value)) ?? options[0];
+
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger
+        aria-label={label}
+        className={cn(
+          "flex h-11 min-w-0 items-center justify-between gap-2 rounded-full border px-4 text-sm font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-brand/30",
+          active
+            ? "border-brand/40 bg-brand-soft text-brand"
+            : "border-border bg-surface text-ink hover:border-brand/40"
+        )}
+      >
+        <span className="truncate">{selected.label}</span>
+        <ChevronDown className={cn("size-4 shrink-0 transition-transform", open && "rotate-180")} />
+      </DropdownMenuTrigger>
+
+      {/* Menu rộng bằng nút (mặc định của DropdownMenuContent); mục đang chọn được tô sáng, không có dấu tick. */}
+      <DropdownMenuContent align="start" className={cn("rounded-2xl p-1.5", menuClassName)}>
+        {options.map((option) => (
+          <DropdownMenuItem
+            key={toKey(option.value)}
+            onClick={() => onSelect(option.value)}
+            className={toKey(option.value) === toKey(value) ? "bg-brand-soft font-semibold text-brand" : undefined}
+          >
+            {option.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+/**
+ * Thanh tìm kiếm + hai dropdown sắp xếp / lọc danh mục của feed, cùng một hàng.
  * - filters: { keyword, sort, categoryId } (nguồn sự thật nằm ở URL, xem BlogScreen)
  * - onChange(patch): gộp patch vào bộ lọc hiện tại
  * Ô tìm kiếm giữ chữ đang gõ ở state cục bộ và chỉ báo lên sau khi ngừng gõ,
@@ -53,67 +95,59 @@ export default function BlogFilterBar({ filters, onChange }) {
     pushKeyword("");
   };
 
+  const categoryOptions = [
+    { value: undefined, label: "Tất cả danh mục" },
+    ...categories.map(({ id, name }) => ({ value: id, label: name })),
+  ];
+
   return (
     <section className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-5">
-      <form onSubmit={handleSubmit} role="search" className="relative">
-        <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-subtle" />
-        <input
-          type="search"
-          value={text}
-          onChange={handleTextChange}
-          placeholder="Tìm bài viết theo tiêu đề hoặc nội dung..."
-          aria-label="Tìm bài viết"
-          className="h-11 w-full rounded-full border border-border bg-surface pl-10 pr-10 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 [&::-webkit-search-cancel-button]:hidden"
-        />
-        {text && (
-          <button
-            type="button"
-            onClick={handleClear}
-            aria-label="Xóa từ khóa"
-            className="absolute right-3 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-full text-subtle transition hover:bg-card hover:text-ink"
-          >
-            <X className="size-4" />
-          </button>
-        )}
-      </form>
-
-      <div className="no-scrollbar mt-3 flex items-center gap-1 overflow-x-auto">
-        {SORT_OPTIONS.map(({ value, label }) => (
-          <button
-            key={label}
-            type="button"
-            onClick={() => onChange({ sort: value })}
-            aria-pressed={filters.sort === value}
-            className={pillClass(filters.sort === value)}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {categories.length > 0 && (
-        <div className="no-scrollbar mt-2 flex items-center gap-2 overflow-x-auto border-t border-border pt-3">
-          <button
-            type="button"
-            onClick={() => onChange({ categoryId: undefined })}
-            aria-pressed={!filters.categoryId}
-            className={pillClass(!filters.categoryId)}
-          >
-            Tất cả
-          </button>
-          {categories.map(({ id, name }) => (
+      <div className="flex flex-wrap items-center gap-3">
+        <form onSubmit={handleSubmit} role="search" className="relative min-w-56 flex-1">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-subtle" />
+          <input
+            type="search"
+            value={text}
+            onChange={handleTextChange}
+            placeholder="Tìm theo tiêu đề hoặc nội dung..."
+            aria-label="Tìm bài viết"
+            className={cn(
+              "h-11 w-full rounded-full border border-border bg-surface pl-10 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 [&::-webkit-search-cancel-button]:hidden",
+              // Chỉ chừa chỗ cho nút xóa khi đã có chữ, để placeholder được dùng hết bề ngang.
+              text ? "pr-10" : "pr-4"
+            )}
+          />
+          {text && (
             <button
-              key={id}
               type="button"
-              onClick={() => onChange({ categoryId: id })}
-              aria-pressed={filters.categoryId === id}
-              className={pillClass(filters.categoryId === id)}
+              onClick={handleClear}
+              aria-label="Xóa từ khóa"
+              className="absolute right-3 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-full text-subtle transition hover:bg-card hover:text-ink"
             >
-              {name}
+              <X className="size-4" />
             </button>
-          ))}
-        </div>
-      )}
+          )}
+        </form>
+
+        <FilterDropdown
+          label="Sắp xếp bài viết"
+          options={SORT_OPTIONS}
+          value={filters.sort}
+          onSelect={(sort) => onChange({ sort })}
+          active={Boolean(filters.sort)}
+        />
+
+        {categories.length > 0 && (
+          <FilterDropdown
+            label="Lọc theo danh mục"
+            options={categoryOptions}
+            value={filters.categoryId}
+            onSelect={(categoryId) => onChange({ categoryId })}
+            active={Boolean(filters.categoryId)}
+            menuClassName="max-h-72"
+          />
+        )}
+      </div>
     </section>
   );
 }
