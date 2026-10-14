@@ -1,81 +1,183 @@
-import React from 'react';
-import { TrendingDown, ChevronRight, ThumbsUp } from 'lucide-react';
+import { useMemo, useState } from "react";
+import { TrendingDown, ChevronRight, ThumbsUp, Loader2 } from "lucide-react";
+
+import { useHealthRecordHistory } from "@/features/profile/hooks/useHealthRecords";
+import { bmiInfo } from "@/features/profile/utils/editProfileHelpers";
+import {
+  calcChartPoints,
+  calcTrendAnalysis,
+} from "@/features/profile/utils/bmiChartHelpers";
 
 export default function BmiTrackerCard() {
-  const points = [
-    { label: 'Tháng 10 (BMI 22.8)', y: 80 },
-    { label: 'Tháng 11', y: 65 },
-    { label: 'Tháng 12', y: 55 },
-    { label: 'Tháng 01', y: 48 },
-    { label: 'Tháng 02', y: 42 },
-    { label: 'Hiện tại (21.4) 🎯', y: 40 },
-  ];
+  const [metric, setMetric] = useState("bmi"); // 'bmi' | 'weightKg'
+  const { data, isPending, error } = useHealthRecordHistory({ size: 6 });
+
+  // Sắp xếp các bản ghi theo trình tự thời gian (cũ -> mới) để vẽ trục từ trái sang phải
+  const records = useMemo(() => {
+    return [...(data ?? [])].sort(
+      (a, b) => new Date(a.recordedAt) - new Date(b.recordedAt)
+    );
+  }, [data]);
+
+  const hasEnoughData = records.length >= 2;
+  const chartData = hasEnoughData ? calcChartPoints(records, metric, 500, 120) : null;
+  const trend = hasEnoughData ? calcTrendAnalysis(records, metric) : null;
+
+  const latestRecord = records[records.length - 1];
+  const latestBmi = bmiInfo(latestRecord?.bmi);
+  const latestValue = latestRecord
+    ? Number(latestRecord[metric] ?? 0).toFixed(1)
+    : "—";
 
   return (
-    <div className="bg-white dark:bg-stone-900 rounded-3xl p-6 shadow-sm border border-stone-100 dark:border-stone-800">
+    <div className="bg-card rounded-3xl p-6 shadow-sm border border-border">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-6">
         <div>
           <div className="flex items-center gap-2">
-            <TrendingDown className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-            <h3 className="font-bold text-sm text-stone-800 dark:text-stone-100">Theo Dõi Thể Trạng & BMI 6 Tháng</h3>
+            <TrendingDown className="w-4 h-4 text-brand" />
+            <h3 className="font-bold text-sm text-ink">
+              Theo Dõi Thể Trạng &amp; BMI
+            </h3>
           </div>
-          <p className="text-[11px] text-stone-400 mt-0.5">Thuật toán AI đề xuất giúp duy trì thể trạng 21.4 (Chuẩn)</p>
+          <p className="text-[11px] text-subtle mt-0.5">
+            {latestRecord ? (
+              metric === "bmi" ? (
+                `Thuật toán AI đề xuất giúp duy trì thể trạng ${latestValue} (${latestBmi.text})`
+              ) : (
+                `Cân nặng hiện tại: ${latestValue} kg`
+              )
+            ) : (
+              "Chưa có dữ liệu thể trạng"
+            )}
+          </p>
         </div>
 
-        <div className="flex items-center bg-stone-100 dark:bg-stone-800 p-1 rounded-xl text-[11px] font-semibold text-stone-600 dark:text-stone-300">
-          <button className="px-3 py-1 bg-white dark:bg-stone-700 rounded-lg shadow-2xs text-stone-800 dark:text-stone-100">BMI</button>
-          <button className="px-3 py-1 hover:text-stone-900 dark:hover:text-stone-100">Cân nặng (kg)</button>
-        </div>
-      </div>
-
-      <div className="w-full h-44 relative mb-4">
-        <svg className="w-full h-full overflow-visible" viewBox="0 0 500 120" preserveAspectRatio="none">
-          <defs>
-            <linearGradient id="bmiGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
-              <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
-            </linearGradient>
-          </defs>
-
-          <path
-            d="M 10 80 Q 100 65, 200 55 T 300 48 T 400 42 T 490 40 L 490 120 L 10 120 Z"
-            fill="url(#bmiGradient)"
-          />
-
-          <path
-            d="M 10 80 Q 100 65, 200 55 T 300 48 T 400 42 T 490 40"
-            fill="none"
-            stroke="#10b981"
-            strokeWidth="3.5"
-            strokeLinecap="round"
-          />
-
-          <circle cx="10" cy="80" r="4.5" fill="#10b981" stroke="#ffffff" strokeWidth="2" />
-          <circle cx="106" cy="67" r="4.5" fill="#10b981" stroke="#ffffff" strokeWidth="2" />
-          <circle cx="203" cy="55" r="4.5" fill="#10b981" stroke="#ffffff" strokeWidth="2" />
-          <circle cx="300" cy="48" r="4.5" fill="#10b981" stroke="#ffffff" strokeWidth="2" />
-          <circle cx="397" cy="42" r="4.5" fill="#10b981" stroke="#ffffff" strokeWidth="2" />
-          <circle cx="490" cy="40" r="5.5" fill="#047857" stroke="#ffffff" strokeWidth="2" />
-        </svg>
-
-        <div className="flex justify-between text-[10px] text-stone-400 mt-2 font-medium">
-          {points.map((p, i) => (
-            <span key={i}>{p.label}</span>
-          ))}
+        {/* Toggle BMI / Cân nặng (kg) */}
+        <div className="flex items-center bg-surface p-1 rounded-xl text-[11px] font-semibold text-body">
+          <button
+            type="button"
+            onClick={() => setMetric("bmi")}
+            className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${
+              metric === "bmi"
+                ? "bg-card shadow-2xs text-ink"
+                : "hover:text-ink"
+            }`}
+          >
+            BMI
+          </button>
+          <button
+            type="button"
+            onClick={() => setMetric("weightKg")}
+            className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${
+              metric === "weightKg"
+                ? "bg-card shadow-2xs text-ink"
+                : "hover:text-ink"
+            }`}
+          >
+            Cân nặng (kg)
+          </button>
         </div>
       </div>
 
-      <div className="p-3 bg-emerald-50/70 dark:bg-emerald-950/40 rounded-2xl border border-emerald-100 dark:border-emerald-900 flex items-center justify-between text-xs text-stone-700 dark:text-stone-300">
-        <div className="flex items-center gap-2">
-          <ThumbsUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
-          <span className="text-[11px] leading-tight">
-            <strong>Chỉ số giảm đều -1.4 điểm:</strong> Hiệu quả rõ rệt sau 45 ngày áp dụng thực đơn thuần WFPB
-          </span>
+      {isPending ? (
+        <div className="flex items-center justify-center gap-2 py-14 text-xs text-subtle">
+          <Loader2 className="w-4 h-4 animate-spin text-brand" />
+          Đang tải dữ liệu thể trạng…
         </div>
-        <button className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 hover:underline flex items-center gap-0.5 shrink-0">
-          Xem chi tiết phân tích AI <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
+      ) : error ? (
+        <p className="rounded-xl bg-destructive/10 px-3 py-2 text-xs text-destructive">
+          {error.message || "Không tải được lịch sử sức khỏe"}
+        </p>
+      ) : !hasEnoughData || !chartData ? (
+        <div className="flex items-center justify-center rounded-2xl border border-dashed border-border py-12 text-xs text-subtle">
+          Chưa đủ dữ liệu để vẽ biểu đồ
+        </div>
+      ) : (
+        <>
+          {/* Biểu đồ SVG với điểm và path tính toán từ dữ liệu thật */}
+          <div className="w-full h-44 relative mb-4">
+            <svg
+              className="w-full h-full overflow-visible"
+              viewBox="0 0 500 120"
+              preserveAspectRatio="none"
+            >
+              <defs>
+                <linearGradient id="bmiTrackerGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop
+                    offset="0%"
+                    className="text-brand"
+                    stopColor="currentColor"
+                    stopOpacity="0.25"
+                  />
+                  <stop
+                    offset="100%"
+                    className="text-brand"
+                    stopColor="currentColor"
+                    stopOpacity="0.0"
+                  />
+                </linearGradient>
+              </defs>
+
+              {/* Vùng mờ bên dưới đường biểu đồ */}
+              <path d={chartData.areaPath} fill="url(#bmiTrackerGradient)" />
+
+              {/* Đường line biểu đồ */}
+              <path
+                d={chartData.linePath}
+                fill="none"
+                stroke="currentColor"
+                className="text-brand"
+                strokeWidth="3.5"
+                strokeLinecap="round"
+              />
+
+              {/* Các điểm đo trên biểu đồ */}
+              {chartData.points.map((p, i) => (
+                <circle
+                  key={records[i]?.id ?? i}
+                  cx={p.x}
+                  cy={p.y}
+                  r={p.isLast ? 5.5 : 4.5}
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className={
+                    p.isLast
+                      ? "fill-brand text-card"
+                      : "fill-brand/70 text-card"
+                  }
+                />
+              ))}
+            </svg>
+
+            {/* Nhãn trục thời gian */}
+            <div className="flex justify-between text-[10px] text-subtle mt-2 font-medium">
+              {chartData.points.map((p, i) => (
+                <span key={records[i]?.id ?? i} className={p.isLast ? "font-bold text-body" : ""}>
+                  {p.date} ({p.value.toFixed(1)})
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Nhận xét AI dựa trên dữ liệu thật */}
+          {trend && (
+            <div className="p-3 bg-brand-soft rounded-2xl border border-brand/20 flex items-center justify-between text-xs text-body">
+              <div className="flex items-center gap-2">
+                <ThumbsUp className="w-4 h-4 text-brand shrink-0" />
+                <span className="text-[11px] leading-tight">
+                  <strong className="text-ink">{trend.highlight}:</strong> {trend.detail}
+                </span>
+              </div>
+              <button
+                type="button"
+                className="text-[11px] font-semibold text-brand hover:underline flex items-center gap-0.5 shrink-0 cursor-pointer"
+              >
+                Xem chi tiết phân tích AI <ChevronRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

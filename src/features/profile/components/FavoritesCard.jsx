@@ -1,4 +1,4 @@
-import React from 'react';
+// Component hiển thị bộ sưu tập yêu thích (mock UI)
 import { Bookmark } from 'lucide-react';
 
 export default function FavoritesCard() {
@@ -12,13 +12,13 @@ export default function FavoritesCard() {
   ];
 
   return (
-    <div className="bg-white dark:bg-stone-900 rounded-3xl p-5 shadow-sm border border-stone-100 dark:border-stone-800 mb-5">
+    <div className="bg-card rounded-3xl p-5 shadow-sm border border-border mb-5">
       <div className="flex items-center justify-between mb-3.5">
         <div className="flex items-center gap-2">
-          <Bookmark className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-          <h3 className="font-bold text-stone-800 dark:text-stone-100 text-sm">Bộ Sưu Tập Yêu Thích</h3>
+          <Bookmark className="w-4 h-4 text-brand" />
+          <h3 className="font-bold text-ink text-sm">Bộ Sưu Tập Yêu Thích</h3>
         </div>
-        <button className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 hover:underline">
+        <button className="text-[11px] font-semibold text-brand hover:underline cursor-pointer">
           Xem tất cả
         </button>
       </div>
