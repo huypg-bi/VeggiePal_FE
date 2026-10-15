@@ -29,7 +29,7 @@
 | Validation | **`zod`** | ^3.25 | **Zod 3** (không phải Zod 4). Schema đặt trong `schema.js` |
 | Font | `@fontsource-variable/geist` + Google Fonts (Playfair Display, Inter) | — | Xem mục 4 |
 | Lint | **ESLint 10** (flat config) + `react-hooks` + `react-refresh` | — | `npm run lint` |
-| Test | **`node:test`** (built-in Node) + `node:assert/strict` | — | `npm test`. **Không dùng Jest/Vitest** |
+| Test | **`node:test`** (built-in Node) + `node:assert/strict` | — | `npm test` — chỉ dùng cho **test tạm** (xem 5.7). **Không dùng Jest/Vitest** |
 
 ### Lệnh
 
@@ -38,7 +38,7 @@ npm run dev       # chạy dev server (vite)
 npm run build     # build production -> dist/
 npm run preview   # xem bản build
 npm run lint      # eslint .
-npm test          # node --test "src/**/*.test.js"
+npm test          # node --test "src/**/*.test.js" — chỉ chạy khi đang có file *.test.js tạm (repo không giữ test lâu dài)
 ```
 
 ### Biến môi trường (`.env`)
@@ -100,7 +100,7 @@ features/<ten-feature>/
 ├── pages/       # <Ten>Screen.jsx — màn hình cấp route
 ├── store/       # zustand store (nếu cần)
 ├── data/        # mock data (mock*.js) khi chưa có API thật
-├── utils/       # hàm thuần + file *.test.js cạnh nó
+├── utils/       # hàm thuần (file *.test.js chỉ tồn tại tạm lúc test, test xong thì xóa)
 ├── queryKeys.js # khóa cache React Query của feature
 └── schema.js    # zod schema riêng (hoặc dùng src/lib/schema.js)
 ```
@@ -109,7 +109,7 @@ features/<ten-feature>/
 - Component / Screen: `PascalCase.jsx` (`LoginForm.jsx`, `ProfileScreen.jsx`).
 - Hook: `useXxx.js` (`useProfile.js`). Store: `xxxStore.js` với hook `useXxxStore`.
 - API: `xxxApi.js`, hàm export dạng `getXxx`, `updateXxx`, `createXxx`...
-- Test: `xxx.test.js` đặt **cạnh** file được test.
+- Test tạm: `xxx.test.js` đặt **cạnh** file được test, **xóa sau khi test xong** (xem 5.7).
 - Thư mục: `kebab-case` (`meal-planner`, `restaurant-map`).
 - Feature mới → tạo thư mục mới trong `features/`, đừng nhét vào feature khác.
 - Route mới → thêm vào `src/app/routes.jsx`; trang cần đăng nhập thì bọc `<ProtectedRoute>`.
@@ -265,10 +265,12 @@ import { Button } from "@/components/ui/button";
 - Ảnh/SVG/video: đặt trong `src/assets/`, `import` vào component. Favicon ở `public/favicon.png`.
 - Comment trong code viết bằng **tiếng Việt**, ngắn, giải thích "vì sao" (theo phong cách hiện có).
 
-### 5.7. Test
+### 5.7. Test (test tạm — viết để kiểm tra, xong thì xóa)
 
-- `node:test` + `node:assert/strict`, đặt `xxx.test.js` cạnh file thuần JS cần test (utils, logic không phụ thuộc React/DOM).
+- Repo **không giữ file test lâu dài**. Khi cần kiểm tra logic (có lỗi logic, code/flow mới), cứ viết `xxx.test.js` để test, **test xong và mọi thứ ổn thì xóa file test đi** cho repo gọn.
+- Dùng `node:test` + `node:assert/strict`, đặt `xxx.test.js` cạnh file thuần JS cần test (utils, logic không phụ thuộc React/DOM).
 - Chạy: `npm test`. Không viết test cần DOM/JSX nếu không cài thêm công cụ — hãy tách logic ra hàm thuần để test.
+- UI thì không viết test: người dùng tự kiểm tra, có lỗi UI thì báo lại để cùng sửa.
 
 ### 5.8. Lint
 
@@ -298,4 +300,5 @@ Sau khi thêm: kiểm tra component dùng đúng token màu của VeggiePal (m�
 - [ ] API đi qua `apiClient`, tự check `status >= 400`, thông báo lỗi tiếng Việt.
 - [ ] Dữ liệu server dùng React Query; state toàn cục dùng Zustand; form dùng RHF + zod.
 - [ ] Responsive (mobile → desktop) và có trạng thái loading/lỗi.
-- [ ] `npm run lint` và `npm test` chạy sạch.
+- [ ] `npm run lint` chạy sạch. Nếu có viết test tạm thì `npm test` phải pass, rồi **xóa file `*.test.js` đã viết**.
+- [ ] **Cập nhật tài liệu**: có code mới / flow mới / thay đổi cấu trúc, route, API, env, lệnh... thì cập nhật lại `docs/TECH_STACK.md` và `README.md` cho khớp.
