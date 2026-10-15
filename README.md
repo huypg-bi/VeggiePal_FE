@@ -110,7 +110,7 @@ Giao diện chạy tại: http://localhost:5173
 | `npm run build` | Build production vào thư mục `dist/` |
 | `npm run preview` | Chạy thử bản build |
 | `npm run lint` | Kiểm tra code với ESLint |
-| `npm test` | Chạy unit test |
+| `npm test` | Chạy test tạm (`*.test.js`). Repo không giữ file test lâu dài: viết để kiểm tra, test xong thì xóa |
 
 ---
 
