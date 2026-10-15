@@ -56,7 +56,7 @@ export function mergeAndSortContent(blogs = [], recipes = []) {
     prepTime: r.prepTimeMinutes ?? r.prepTime ?? null,
     cookTime: r.cookTimeMinutes ?? r.cookTime ?? null,
     ingredients: Array.isArray(r.ingredients) ? r.ingredients : null,
-    link: `/recipes/${r.id}/edit`,
+    link: `/recipes/${r.id}`,
   }));
 
   return [...blogItems, ...recipeItems].sort((a, b) => {

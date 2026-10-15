@@ -12,6 +12,7 @@ import { useDeleteRecipe, usePublishRecipe } from "@/features/recipe/hooks/useRe
 import { useMyRecipes } from "@/features/recipe/hooks/useMyRecipes";
 import { totalMinutes } from "@/features/recipe/utils/recipeNutrition";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
+import FallbackImage from "@/shared/components/FallbackImage";
 
 // Tab "Công thức": công thức của tôi ở mọi trạng thái (GET /recipes/me), "Xem thêm".
 export default function MyRecipeList() {
@@ -110,18 +111,16 @@ function RecipeRow({ recipe }) {
   return (
     <li className="rounded-3xl border border-border bg-card p-4 shadow-sm">
       <div className="flex gap-4">
-        {recipe.imageUrl ? (
-          <img
-            src={recipe.imageUrl}
-            alt=""
-            className="size-20 shrink-0 rounded-2xl object-cover"
-            draggable={false}
-          />
-        ) : (
-          <span className="grid size-20 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand">
-            <ChefHat className="size-7" />
-          </span>
-        )}
+        <FallbackImage
+          src={recipe.imageUrl}
+          className="size-20 shrink-0 rounded-2xl object-cover"
+          draggable={false}
+          fallback={
+            <span className="grid size-20 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand">
+              <ChefHat className="size-7" />
+            </span>
+          }
+        />
 
         <div className="min-w-0 flex-1">
           <StatusBadge info={info} />
@@ -146,6 +145,12 @@ function RecipeRow({ recipe }) {
       </div>
 
       <div className="mt-3 flex flex-wrap justify-end gap-2 border-t border-border pt-3">
+        <Link
+          to={`/recipes/${recipe.id}`}
+          className={buttonVariants({ variant: "outline", size: "xs" })}
+        >
+          Xem
+        </Link>
         <Link
           to={`/recipes/${recipe.id}/edit`}
           className={buttonVariants({ variant: "outline", size: "xs" })}

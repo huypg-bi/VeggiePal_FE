@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
-import { CheckCircle, Loader2 } from "lucide-react";
+import { CheckCircle, ImageOff, Loader2 } from "lucide-react";
 
 import { useMyBlogs } from "@/features/blog/hooks/useMyBlogs";
 import { useMyRecipes } from "@/features/recipe/hooks/useMyRecipes";
 import { useProfile } from "@/features/profile/hooks/useProfile";
 import { formatTimeAgo } from "@/features/blog/utils/blogFormat";
+import FallbackImage from "@/shared/components/FallbackImage";
 import {
   getStatusBadgeText,
   mergeAndSortContent,
@@ -139,10 +140,15 @@ export default function RecipeFeedCard() {
             {/* Image (nếu có ảnh thực tế) */}
             {item.imageUrl && (
               <div className="rounded-2xl overflow-hidden mb-4 relative aspect-video max-h-80 bg-surface">
-                <img
+                <FallbackImage
                   src={item.imageUrl}
                   alt={item.title}
                   className="w-full h-full object-cover"
+                  fallback={
+                    <div className="grid h-full w-full place-items-center text-subtle">
+                      <ImageOff className="size-8" />
+                    </div>
+                  }
                 />
               </div>
             )}

@@ -20,6 +20,8 @@ import AdminCategoriesScreen from "@/features/admin/pages/AdminCategoriesScreen"
 import AdminDashboardScreen from "@/features/admin/pages/AdminDashboardScreen";
 import AdminIngredientsScreen from "@/features/admin/pages/AdminIngredientsScreen";
 import BlogFormScreen from "@/features/blog/pages/BlogFormScreen";
+import RecipeListScreen from "@/features/recipe/pages/RecipeListScreen";
+import RecipeDetailScreen from "@/features/recipe/pages/RecipeDetailScreen";
 import RecipeFormScreen from "@/features/recipe/pages/RecipeFormScreen";
 import MyContentScreen from "@/features/my-content/pages/MyContentScreen";
 
@@ -74,6 +76,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route path="/recipes" element={<RecipeListScreen />} />
+      <Route path="/recipes/:recipeId" element={<RecipeDetailScreen />} />
       <Route
         path="/recipes/:recipeId/edit"
         element={

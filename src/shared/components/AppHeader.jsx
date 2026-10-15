@@ -13,11 +13,11 @@ import {
   MessageSquareWarning,
   Map,
   ShieldCheck,
-  Search,
   Users,
   SquarePlay,
   UserRound,
   UtensilsCrossed,
+  ChefHat,
 } from "lucide-react";
 
 import logo from "@/assets/img/logo.png";
@@ -36,6 +36,7 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS = [
   { id: "home", label: "Trang Chủ", icon: Home, to: "/" },
   { id: "utensils-crossed", label: "Thực Đơn", icon: UtensilsCrossed, to: "/meal-planner" },
+  { id: "recipes", label: "Công Thức", icon: ChefHat, to: "/recipes" },
   { id: "square-play", label: "Khám Phá Video", icon: SquarePlay, to: "/videos" },
   { id: "users", label: "Cộng Đồng", icon: Users, to: "/blog" },
   { id: "map", label: "Bản Đồ Xanh", icon: Map, to: "/map" },
@@ -63,15 +64,6 @@ export default function AppHeader() {
         <Link to="/" className="flex shrink-0 items-center gap-2">
           <img src={logo} alt="VeggiePal" className="h-12 w-auto mt-1 mb-1" />
         </Link>
-
-        <label className="relative hidden max-w-xl flex-1 items-center md:flex">
-          <Search className="pointer-events-none absolute left-3.5 h-4 w-4 text-subtle" />
-          <input
-            type="search"
-            placeholder="Tìm kiếm món ăn, công thức, nguyên liệu..."
-            className="h-10 w-full rounded-full border border-border bg-surface pl-10 pr-4 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/30 focus:bg-card focus:ring-2 focus:ring-brand/10"
-          />
-        </label>
 
         <nav className="ml-auto hidden items-center gap-1 lg:flex">
           {NAV_ITEMS.map(({ id, label, icon: Icon, to }) => (
