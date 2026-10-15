@@ -44,6 +44,7 @@ npm test          # node --test "src/**/*.test.js"
 ### Biến môi trường (`.env`)
 
 - `VITE_VEGGIEPAL_API_BASE_URL` — base URL của API gateway (vd: `http://localhost:8080/api`). Đọc bằng `import.meta.env.VITE_VEGGIEPAL_API_BASE_URL`.
+- `VITE_MAPBOX_TOKEN`, `VITE_MAPBOX_STYLE` — token và style (`mapbox://styles/...`) cho bản đồ ở `/map`. Thiếu token thì trang hiện thông báo thay vì bản đồ.
 - Biến phải có tiền tố `VITE_`. Không hardcode URL API trong code.
 
 ---
@@ -121,7 +122,7 @@ features/<ten-feature>/
 | profile | `/profile` | API thật + React Query (`profileApi.js`, `useProfile`...) |
 | home | `/` | Món chay nổi bật: API thật (`useRecipes` + `useRecipeNutrition` + `usePublicUsers`); phần còn lại tĩnh (`homeData.js`) |
 | meal-planner | `/meal-planner` | Mock (`mockMealPlanner.js`) |
-| restaurant-map | `/map` | Mock (`mockRestaurantMap.js`) |
+| restaurant-map | `/map` | API thật: quán chay quanh vị trí người dùng (`GET /restaurants/nearby` của location-service, công khai) trên bản đồ Mapbox (`react-map-gl`), có gom cụm, lọc theo tên, chọn bán kính. Cần `VITE_MAPBOX_TOKEN`, `VITE_MAPBOX_STYLE` |
 | video | `/videos`, `/videos/:videoId` | Mock (`mockVideo.js`) |
 | blog | `/blog`, `/blog/:blogId`, `/blog/new`, `/blog/:blogId/edit` | API thật: feed (tìm kiếm/sắp xếp/lọc danh mục trên URL), chi tiết bài, bài liên quan, danh mục, bình luận, vote, viết/sửa bài + ảnh bìa; bảng vàng/chủ đề/thử thách: mock (`mockBlog.js`) |
 | my-content | `/my-content` | API thật: bài viết của tôi (`/blogs/me`) và công thức của tôi (`/recipes/me`), kèm sửa / gửi duyệt / đăng / xóa |
