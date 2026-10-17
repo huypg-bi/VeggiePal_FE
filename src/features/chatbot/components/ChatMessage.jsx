@@ -10,6 +10,7 @@ import {
   UserRound,
 } from "lucide-react";
 
+import ChatMarkdown from "@/features/chatbot/components/ChatMarkdown";
 import { FALLBACK_NOTICE } from "@/features/chatbot/data/mockChatData";
 import { cn } from "@/lib/utils";
 
@@ -71,8 +72,8 @@ export default function ChatMessage({ message }) {
         Trợ lý Dinh dưỡng VeggiePal
       </span>
 
-      <div className="max-w-[80%] rounded-2xl rounded-tl-sm bg-surface px-4 py-3 text-sm text-body">
-        <p className="whitespace-pre-wrap">{message.content}</p>
+      <div className="max-w-[92%] min-w-0 rounded-2xl rounded-tl-sm bg-surface px-4 py-3 text-sm text-body sm:max-w-[85%]">
+        <ChatMarkdown content={message.content} />
 
         {message.isFallback && (
           <div className="mt-3 flex items-start gap-2 rounded-xl border border-warning/30 bg-warning/10 px-3 py-2.5 text-xs text-warning">
