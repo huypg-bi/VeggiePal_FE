@@ -113,6 +113,7 @@ features/<ten-feature>/
 - Test tạm: `xxx.test.js` đặt **cạnh** file được test, **xóa sau khi test xong** (xem 5.7).
 - Thư mục: `kebab-case` (`meal-planner`, `restaurant-map`).
 - Feature mới → tạo thư mục mới trong `features/`, đừng nhét vào feature khác.
+- **Mọi thứ chỉ dành cho ADMIN nằm trong `features/admin/`** (không tạo feature riêng ở ngoài). Trang (`pages/`), khung (`components/AdminLayout.jsx`) và form dùng chung của khu admin để ở thư mục gốc của `admin/`. Khi một chức năng admin có nhiều file thì tạo **thư mục con theo chức năng** trong `admin/`, bên trong dùng lại cấu trúc `api/ hooks/ components/ utils/ queryKeys.js`. Hiện có: `admin/monitoring/` (giám sát AI). Danh mục và nguyên liệu dùng chung với người dùng thường nên vẫn nằm ở `blog/` và `ingredient/`, trang quản lý của chúng ở `admin/pages/`.
 - Route mới → thêm vào `src/app/routes.jsx`; trang cần đăng nhập thì bọc `<ProtectedRoute>`.
 
 ### Trạng thái từng feature (tham khảo để biết mock hay thật)
@@ -128,7 +129,7 @@ features/<ten-feature>/
 | blog | `/blog`, `/blog/:blogId`, `/blog/new`, `/blog/:blogId/edit` | API thật: feed (tìm kiếm/sắp xếp/lọc danh mục trên URL), chi tiết bài, bài liên quan, danh mục, bình luận, vote, viết/sửa bài + ảnh bìa; bảng vàng/chủ đề/thử thách: mock (`mockBlog.js`) |
 | my-content | `/my-content` | API thật: bài viết của tôi (`/blogs/me`) và công thức của tôi (`/recipes/me`), kèm sửa / gửi duyệt / đăng / xóa |
 | recipe | `/recipes/new`, `/recipes/:recipeId/edit` | API thật: tạo / sửa công thức (chọn nguyên liệu từ `/ingredients`); danh sách công khai hiện ở trang chủ |
-| admin | `/admin`, `/admin/categories`, `/admin/ingredients` | API thật, chỉ role ADMIN (`AdminRoute`): tổng quan, quản lý danh mục (`/categories`) và nguyên liệu (`/ingredients`). ADMIN đăng nhập xong vào thẳng `/admin` (`resolvePostLoginPath`) |
+| admin | `/admin`, `/admin/categories`, `/admin/ingredients`, `/admin/ai-monitoring` | API thật, chỉ role ADMIN (`AdminRoute`): tổng quan, quản lý danh mục (`/categories`) và nguyên liệu (`/ingredients`), giám sát AI (ai-service qua gateway: `GET /ai/admin/monitoring/summary`, `/logs/search`, `/models`, `/limits`; code API/hook/component nằm ở `features/admin/monitoring`, trang ở `features/admin/pages`; model và giới hạn chỉ xem, log lọc theo tác vụ / trạng thái / userId / ngày, phân trang 20/trang). ADMIN đăng nhập xong vào thẳng `/admin` (`resolvePostLoginPath`) |
 | chatbot | `/chatbot` (công khai) | API thật (ai-service, `chatbotApi.js` + `useChatbot` React Query): thành viên chat nhiều lượt + xem/xóa lịch sử hội thoại (`/ai/chat`, `/ai/chat/conversations`); khách chưa đăng nhập dùng thử qua `/ai/chat/guest-sessions` + `/ai/chat/guest` (có giới hạn lượt/ngày, phiên lưu `sessionStorage`). `mockChatData.js` chỉ còn `FALLBACK_NOTICE` (chưa dùng thực tế) |
 
 Khi nối API thật cho feature đang mock: giữ nguyên UI, thay nguồn dữ liệu bằng `*Api.js` + React Query hook theo mẫu của `profile`.
