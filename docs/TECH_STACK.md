@@ -45,6 +45,7 @@ npm test          # node --test "src/**/*.test.js" — chỉ chạy khi đang c�
 
 - `VITE_VEGGIEPAL_API_BASE_URL` — base URL của API gateway (vd: `http://localhost:8080/api`). Đọc bằng `import.meta.env.VITE_VEGGIEPAL_API_BASE_URL`.
 - `VITE_MAPBOX_TOKEN`, `VITE_MAPBOX_STYLE` — token và style (`mapbox://styles/...`) cho bản đồ ở `/map`. Thiếu token thì trang hiện thông báo thay vì bản đồ.
+- `VITE_GOOGLE_CLIENT_ID` — OAuth Client ID (Web) cho "Tiếp tục với Google" ở `/login` và `/register`. **Phải trùng `GOOGLE_CLIENT_ID` của identity-service**, và origin của FE (vd `http://localhost:5173`) phải nằm trong "Authorized JavaScript origins" của Client ID đó. Thiếu biến thì bấm nút sẽ báo chưa cấu hình.
 - Biến phải có tiền tố `VITE_`. Không hardcode URL API trong code.
 
 ---
@@ -118,7 +119,7 @@ features/<ten-feature>/
 
 | Feature | Route | Dữ liệu |
 |---|---|---|
-| auth | `/login` `/register` `/forgot-password` `/verify-otp` | API thật (`authApi.js`) |
+| auth | `/login` `/register` `/forgot-password` `/verify-otp` | API thật (`authApi.js`): đăng nhập, đăng ký và **đăng nhập Google** (`POST /auth/google`, thư viện `@react-oauth/google`, component `GoogleSignInButton`: nút kính mờ của app phủ nút Google thật trong suốt để lấy ID token; BE tự tạo tài khoản nếu chưa có, phiên lưu lâu dài). Quên mật khẩu / OTP chỉ có UI (BE chưa có endpoint) |
 | profile | `/profile` | API thật + React Query (`profileApi.js`, `useProfile`...) |
 | home | `/` | Món chay nổi bật: API thật (`useRecipes` + `useRecipeNutrition` + `usePublicUsers`); phần còn lại tĩnh (`homeData.js`) |
 | meal-planner | `/meal-planner` | API thật (ai-service qua gateway, cần đăng nhập): tạo thực đơn 7 ngày × 3 bữa bằng AI (`POST /ai/meal-plans`, nguyên liệu chọn từ `/ingredients`, khẩu vị, mục tiêu dinh dưỡng tùy chọn), danh sách thực đơn đã lưu, xem theo ngày, đổi món (`POST /ai/meal-plans/:id/replace`); tên/ảnh món lấy qua `GET /recipes/:id`; thẻ BMI từ nutrition-service. Cần có chỉ số sức khỏe mới tạo được thực đơn (BE lỗi 6010) nên form khóa nút và dẫn tới `/profile/edit` khi chưa có; nguyên liệu có sẵn chỉ là ưu tiên; món có nhãn "Khẩu phần ×N" khi BE co giãn khẩu phần (`servingMultiplier`); lỗi 6010/6011/6012 được dịch trong `mealPlanApi.js`. Vẫn là dữ liệu mẫu (`mockMealPlanner.js`): thẻ Nước & Vận Động, Bữa Phụ, nút tim (BE chưa có) |
