@@ -1,26 +1,8 @@
-// Dữ liệu demo cho trang Trang chủ / Thực đơn — UI-only, chưa nối BE.
-// Khi có API thật, thay các hằng số này bằng dữ liệu từ query/store tương ứng.
+// Dữ liệu mẫu còn lại của trang Thực đơn — chỉ cho những khối mà BE CHƯA có API:
+// thẻ Nước & Khoáng, thẻ Vận Động và Bữa Phụ (thực đơn AI chỉ có sáng / trưa / tối).
+// Thực đơn, dinh dưỡng, BMI và biểu đồ macro đã lấy từ BE; khi BE bổ sung phần còn lại thì thay các hằng số này.
 
 export const mockStats = [
-  {
-    id: "bmi",
-    icon: "bmi",
-    label: "Chỉ số BMI",
-    value: "21.4",
-    caption: "Thể trạng lý tưởng",
-    progress: 72,
-    barClass: "bg-chart-1",
-  },
-  {
-    id: "calo",
-    icon: "fire",
-    label: "Calo Mục Tiêu",
-    value: "1,420",
-    unit: "/ 1,850 kcal",
-    caption: "Còn 430 kcal cho bữa tối thanh đạm",
-    progress: 77,
-    barClass: "bg-chart-4",
-  },
   {
     id: "water",
     icon: "water",
@@ -43,93 +25,42 @@ export const mockStats = [
   },
 ];
 
-export const availableIngredients = [
-  { id: "mushroom", label: "Nấm đùi gà", icon: "🍄", color: "#E3F3E1" },
-  { id: "tofu", label: "Đậu hũ non mềm", icon: "🧊", color: "#EAEAEE" },
-  { id: "pumpkin", label: "Bí đỏ Nhật ngọt", icon: "🎃", color: "#FBE7D0" },
-  { id: "kale", label: "Cải xoăn Kale xoăn", icon: "🥬", color: "#DFF3E6" },
-  { id: "lotus", label: "Hạt sen tươi Huế", icon: "🪷", color: "#DCEBFB" },
-  { id: "avocado", label: "Bơ sáp Đắk Lắk", icon: "🥑", color: "#FBF0CE" },
-];
-
+// Khẩu vị gợi ý gửi cho AI qua `preferences`. `label` là chuỗi gửi đi nên viết rõ nghĩa.
 export const flavorPreferences = [
-  { id: "light", label: "Thanh đạm vị ngọt nhẹ", icon: "✨", color: "#1D6C3D", active: true },
-  { id: "sea", label: "Đậm đà Đông Nam Á", icon: "✏️", color: "#EAEAEA", active: false },
-  { id: "low-oil", label: "Ít dầu mỡ & chiên xào", icon: "🔥", color: "#FBE1CE", active: false },
-  { id: "no-sugar", label: "Không đường tinh luyện", icon: "✨", color: "#DCEBFB", active: false },
-  { id: "soup", label: "Chuộng món súp ấm nóng", icon: "🍥", color: "#DCEBFB", active: false },
+  { id: "light", label: "Thanh đạm vị ngọt nhẹ", icon: "✨", color: "#1D6C3D" },
+  { id: "sea", label: "Đậm đà Đông Nam Á", icon: "✏️", color: "#EAEAEA" },
+  { id: "low-oil", label: "Ít dầu mỡ & chiên xào", icon: "🔥", color: "#FBE1CE" },
+  { id: "no-sugar", label: "Không đường tinh luyện", icon: "✨", color: "#DCEBFB" },
+  { id: "soup", label: "Chuộng món súp ấm nóng", icon: "🍥", color: "#DCEBFB" },
 ];
 
-export const weekDays = [
-  { id: "t2", label: "T2" },
-  { id: "t3", label: "T3" },
-  { id: "t4", label: "T4" },
-  { id: "t5", label: "T5" },
-  { id: "t6", label: "T6" },
-  { id: "t7", label: "T7" },
-  { id: "cn", label: "CN" },
+// Mục tiêu sức khỏe gợi ý nhanh, bấm để điền vào ô "Mục tiêu".
+export const healthGoalSuggestions = [
+  "Giảm cân nhẹ, ăn thanh đạm",
+  "Tăng cơ, nhiều đạm thực vật",
+  "Duy trì cân nặng và vóc dáng",
+  "Ăn đủ chất, dễ tiêu hoá",
 ];
 
-export const todayMeals = [
-  {
-    id: "breakfast",
-    meal: "Bữa Sáng",
-    time: "07:30",
-    title: "Yến Mạch Chia Berry",
-    description: "Bổ sung chất xơ hoà tan Beta-Glucan, quả mọng chống oxy hoá tự nhiên.",
-    image: "https://images.unsplash.com/photo-1494859802809-d069c3b71a8a?w=600&q=80&auto=format&fit=crop",
-    prepMinutes: 10,
-    kcal: 360,
-    protein: 14,
-    carb: 52,
-    fat: 8,
-  },
-  {
-    id: "lunch",
-    meal: "Bữa Trưa",
-    time: "12:15",
-    title: "Buddha Bowl Đậu Gà & Rau Củ",
-    description: "Giàu đạm thực vật, chất xơ, vitamin đủ bộ mang thanh thoát.",
-    image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80&auto=format&fit=crop",
-    prepMinutes: 20,
-    kcal: 540,
-    protein: 24,
-    carb: 68,
-    fat: 18,
-  },
-  {
-    id: "snack",
-    meal: "Bữa Phụ",
-    time: "15:30",
-    title: "Tàu Hũ Nóng Hạt Sen",
-    description: "Vị thanh của gừng ấm xua tan buồn ngủ, tốt cho giấc ngủ về tối.",
-    image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80&auto=format&fit=crop",
-    prepMinutes: 5,
-    kcal: 190,
-    protein: 12,
-    carb: 28,
-    fat: 4,
-  },
-  {
-    id: "dinner",
-    meal: "Bữa Tối",
-    time: "19:00",
-    title: "Súp Bí Đỏ Nấm Đùi Gà",
-    description: "Thanh nhẹ, dễ tiêu hoá cho buổi tối, vitamin A và beta-caroten nuôi dưỡng làn da.",
-    image: "https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&q=80&auto=format&fit=crop",
-    prepMinutes: 15,
-    kcal: 220,
-    protein: 11,
-    carb: 42,
-    fat: 6,
-  },
-];
+export const mockSnack = {
+  id: "snack",
+  meal: "Bữa Phụ",
+  time: "15:30",
+  title: "Tàu Hũ Nóng Hạt Sen",
+  description: "Vị thanh của gừng ấm xua tan buồn ngủ, tốt cho giấc ngủ về tối.",
+  image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80&auto=format&fit=crop",
+  prepMinutes: 5,
+  kcal: 190,
+  protein: 12,
+  carb: 28,
+  fat: 4,
+};
 
-export const macroBreakdown = [
-  { id: "carb", label: "Tinh bột chậm", value: 50 },
-  { id: "protein", label: "Đạm thực vật", value: 25 },
-  { id: "fat", label: "Chất béo tốt", value: 25 },
-];
+export const macroLabels = {
+  carb: "Tinh bột chậm",
+  protein: "Đạm thực vật",
+  fat: "Chất béo tốt",
+};
 
 export const dailyAdviceStats = [
   { id: "veggie", label: "Ăn đủ rau xanh", value: "~500g/ngày" },

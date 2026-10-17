@@ -121,7 +121,7 @@ features/<ten-feature>/
 | auth | `/login` `/register` `/forgot-password` `/verify-otp` | API thật (`authApi.js`) |
 | profile | `/profile` | API thật + React Query (`profileApi.js`, `useProfile`...) |
 | home | `/` | Món chay nổi bật: API thật (`useRecipes` + `useRecipeNutrition` + `usePublicUsers`); phần còn lại tĩnh (`homeData.js`) |
-| meal-planner | `/meal-planner` | Mock (`mockMealPlanner.js`) |
+| meal-planner | `/meal-planner` | API thật (ai-service qua gateway, cần đăng nhập): tạo thực đơn 7 ngày × 3 bữa bằng AI (`POST /ai/meal-plans`, nguyên liệu chọn từ `/ingredients`, khẩu vị, mục tiêu dinh dưỡng tùy chọn), danh sách thực đơn đã lưu, xem theo ngày, đổi món (`POST /ai/meal-plans/:id/replace`); tên/ảnh món lấy qua `GET /recipes/:id`; thẻ BMI từ nutrition-service. Cần có chỉ số sức khỏe mới tạo được thực đơn (BE lỗi 6010) nên form khóa nút và dẫn tới `/profile/edit` khi chưa có; nguyên liệu có sẵn chỉ là ưu tiên; món có nhãn "Khẩu phần ×N" khi BE co giãn khẩu phần (`servingMultiplier`); lỗi 6010/6011/6012 được dịch trong `mealPlanApi.js`. Vẫn là dữ liệu mẫu (`mockMealPlanner.js`): thẻ Nước & Vận Động, Bữa Phụ, nút tim (BE chưa có) |
 | restaurant-map | `/map` | API thật: quán chay quanh vị trí người dùng (`GET /restaurants/nearby` của location-service, công khai) trên bản đồ Mapbox (`react-map-gl`), có gom cụm, lọc theo tên, chọn bán kính. Cần `VITE_MAPBOX_TOKEN`, `VITE_MAPBOX_STYLE` |
 | video | `/videos`, `/videos/:videoId` | Mock (`mockVideo.js`) |
 | blog | `/blog`, `/blog/:blogId`, `/blog/new`, `/blog/:blogId/edit` | API thật: feed (tìm kiếm/sắp xếp/lọc danh mục trên URL), chi tiết bài, bài liên quan, danh mục, bình luận, vote, viết/sửa bài + ảnh bìa; bảng vàng/chủ đề/thử thách: mock (`mockBlog.js`) |

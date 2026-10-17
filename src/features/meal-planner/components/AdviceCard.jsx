@@ -1,6 +1,6 @@
 import { CalendarDays, Lightbulb, Settings2 } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/variants/button-variants";
 import iconLeaf from "@/assets/img/icon_leaf.png";
 import iconSleep from "@/assets/img/icon_sleep.png";
 import iconWater from "@/assets/img/icon_water.png";
@@ -50,23 +50,27 @@ export default function AdviceCard() {
 
       <div className="mt-5 flex items-center gap-3">
         {/* Hai nút co giãn theo flex và nhãn có thể xuống dòng nên dùng h-auto + min-h thay vì chiều cao cố định. */}
-        <Button
-          type="button"
-          size="lg"
-          className="h-auto min-h-11 flex-[1.6] shrink whitespace-normal px-2 py-2.5"
+        <a
+          href="#today-meals"
+          className={buttonVariants({
+            size: "lg",
+            className: "h-auto min-h-11 flex-[1.6] shrink whitespace-normal px-2 py-2.5",
+          })}
         >
           <CalendarDays className="size-4" />
           Xem Kế Hoạch Chi Tiết
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          size="lg"
-          className="h-auto min-h-11 flex-1 shrink whitespace-normal px-2 py-2.5"
+        </a>
+        <a
+          href="#ai-suggestion"
+          className={buttonVariants({
+            variant: "secondary",
+            size: "lg",
+            className: "h-auto min-h-11 flex-1 shrink whitespace-normal px-2 py-2.5",
+          })}
         >
           <Settings2 className="size-4" />
           Chỉnh Sửa Nhu Cầu
-        </Button>
+        </a>
       </div>
     </article>
   );
