@@ -19,6 +19,7 @@ import BlogDetailScreen from "@/features/blog/pages/BlogDetailScreen";
 import AdminLayout from "@/features/admin/components/AdminLayout";
 import AdminCategoriesScreen from "@/features/admin/pages/AdminCategoriesScreen";
 import AdminDashboardScreen from "@/features/admin/pages/AdminDashboardScreen";
+import AdminAiMonitoringScreen from "@/features/admin/pages/AdminAiMonitoringScreen";
 import AdminIngredientsScreen from "@/features/admin/pages/AdminIngredientsScreen";
 import BlogFormScreen from "@/features/blog/pages/BlogFormScreen";
 import RecipeListScreen from "@/features/recipe/pages/RecipeListScreen";
@@ -162,6 +163,7 @@ export default function AppRoutes() {
           <Route path="/admin" element={<AdminDashboardScreen />} />
           <Route path="/admin/categories" element={<AdminCategoriesScreen />} />
           <Route path="/admin/ingredients" element={<AdminIngredientsScreen />} />
+          <Route path="/admin/ai-monitoring" element={<AdminAiMonitoringScreen />} />
         </Route>
       </Route>
 

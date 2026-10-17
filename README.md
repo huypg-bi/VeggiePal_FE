@@ -149,3 +149,4 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | `GET` / `PUT` | `/nutrition/me/allergies` | Xem / cập nhật dị ứng |
 | `GET` / `POST` | `/nutrition/me/health-records` | Lịch sử / ghi chỉ số sức khỏe |
 | `GET` | `/nutrition/me/health-records/latest` | Chỉ số sức khỏe mới nhất |
+| `GET` | `/ai/admin/monitoring/summary`, `/logs/search`, `/models`, `/limits` | Giám sát AI (chỉ ADMIN): tổng hợp, nhật ký, model, giới hạn |
