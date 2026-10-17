@@ -39,7 +39,7 @@
 - **🔐 Quản lý tài khoản (Authentication):** Đăng ký, đăng nhập xác thực JWT, bảo vệ đường dẫn riêng tư (Protected Routes).
 - **👤 Hồ sơ cá nhân (Profile):** Quản lý thông tin cá nhân, cập nhật ảnh đại diện và đổi mật khẩu.
 - **📊 Sức khỏe & Dị ứng (Nutrition):** Ghi nhận chiều cao/cân nặng, theo dõi lịch sử BMI, chọn danh mục thực phẩm dị ứng.
-- **🥗 Thực đơn dinh dưỡng (Meal Planner):** Thống kê calo, lượng nước, vận động và gợi ý món ăn theo nguyên liệu sẵn có *(Mock Data)*.
+- **🥗 Thực đơn dinh dưỡng (Meal Planner):** AI lên thực đơn 7 ngày × 3 bữa theo nguyên liệu sẵn có, khẩu vị và mục tiêu dinh dưỡng; xem theo ngày, đổi món, chuyển giữa các thực đơn đã lưu *(API thật; thẻ nước, vận động và bữa phụ vẫn là Mock Data)*.
 - **🎥 Khám phá video (Videos):** Xem video hướng dẫn nấu món chay kèm phân tích thông tin dinh dưỡng *(Mock Data)*.
 - **📍 Bản đồ xanh (Map):** Tìm kiếm và xem danh sách các nhà hàng, quán ăn chay *(Mock Data)*.
 - **🤖 Trợ lý Bông Cải (AI Chatbot):** Giao diện hỏi đáp kiến thức dinh dưỡng chay, quản lý nhiều đoạn chat *(API thật: ai-service, có chế độ dùng thử cho khách)*.
