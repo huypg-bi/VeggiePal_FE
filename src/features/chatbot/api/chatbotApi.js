@@ -1,101 +1,63 @@
+import apiClient from "@/shared/api/apiClient";
 import {
-  MOCK_MESSAGES_BY_SESSION,
-  MOCK_SESSIONS,
-} from "@/features/chatbot/data/mockChatData";
-import {
-  createLocalId,
-  deriveSessionTitle,
-  getMockAssistantReply,
+  toMessageItem,
+  toSessionItem,
 } from "@/features/chatbot/utils/chatUtils";
 
 /**
- * Lớp "API" cho chatbot — hiện chưa có backend nên trả Promise từ mock data
- * kèm độ trễ giả lập. Chữ ký hàm được thiết kế giống REST call thật
- * (GET /chatbot/sessions, POST /chatbot/sessions/:id/messages, ...) để sau
- * này thay bằng apiClient (@/shared/api/apiClient) mà không cần sửa hook/UI.
+ * API chatbot — ai-service qua gateway (baseURL đã có /api nên đường dẫn bắt
+ * đầu từ /ai/...). Response envelope: { code, message, result }.
  */
 
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-// Giữ state trong module để mô phỏng "server" xuyên suốt phiên làm việc.
-const sessions = MOCK_SESSIONS.map((s) => ({ ...s }));
-const messagesBySession = Object.fromEntries(
-  Object.entries(MOCK_MESSAGES_BY_SESSION).map(([id, msgs]) => [
-    id,
-    msgs.map((m) => ({ ...m })),
-  ])
-);
-
-/** GET /chatbot/sessions — danh sách đoạn chat trong lịch sử */
-export async function fetchChatSessions() {
-  await delay(300);
-  return sessions.map((s) => ({ ...s }));
+// Gắn status + code vào Error để UI dịch sang tiếng Việt (BE trả message tiếng Anh).
+function unwrap(res, fallbackMessage) {
+  if (res.status >= 400) {
+    const error = new Error(res.data?.message || fallbackMessage);
+    error.status = res.status;
+    error.code = res.data?.code;
+    throw error;
+  }
+  return res.data?.result;
 }
 
-/** GET /chatbot/sessions/:id/messages */
-export async function fetchSessionMessages(sessionId) {
-  await delay(200);
-  return (messagesBySession[sessionId] ?? []).map((m) => ({ ...m }));
+/** POST /ai/chat/guest-sessions — tạo phiên dùng thử (mỗi khách 1 phiên). */
+export async function createGuestSession() {
+  const res = await apiClient.post("/ai/chat/guest-sessions");
+  return unwrap(res, "Không tạo được phiên dùng thử");
 }
 
-/** POST /chatbot/sessions — tạo đoạn chat mới, trống tin nhắn */
-export async function createChatSession() {
-  await delay(150);
-  const session = {
-    id: createLocalId("session"),
-    title: "Cuộc trò chuyện mới",
-    updatedAt: new Date().toISOString(),
-  };
-  sessions.unshift(session);
-  messagesBySession[session.id] = [];
-  return { ...session };
-}
-
-/** DELETE /chatbot/sessions/:id — xoá đoạn chat khỏi lịch sử */
-export async function deleteChatSession(sessionId) {
-  await delay(150);
-  const index = sessions.findIndex((s) => s.id === sessionId);
-  if (index !== -1) sessions.splice(index, 1);
-  delete messagesBySession[sessionId];
+/** POST /ai/chat/guest — hỏi AI khi chưa đăng nhập (giới hạn lượt/ngày). */
+export async function sendGuestMessage({ guestSession, message }) {
+  const res = await apiClient.post("/ai/chat/guest", { guestSession, message });
+  return unwrap(res, "Không gửi được câu hỏi");
 }
 
 /**
- * POST /chatbot/sessions/:id/messages — gửi câu hỏi, nhận lại tin nhắn của
- * user (đã lưu) + phản hồi mock của trợ lý.
+ * POST /ai/chat — hỏi AI khi đã đăng nhập. `conversationId` rỗng = BE tự tạo
+ * hội thoại mới, có giá trị = nối tiếp hội thoại cũ (nhiều lượt).
  */
-export async function sendChatMessage(sessionId, text) {
-  const userMessage = {
-    id: createLocalId("msg"),
-    sessionId,
-    role: "user",
-    content: text,
-    createdAt: new Date().toISOString(),
-  };
+export async function sendChatMessage({ conversationId, message }) {
+  const body = conversationId ? { conversationId, message } : { message };
+  const res = await apiClient.post("/ai/chat", body);
+  return unwrap(res, "Không gửi được câu hỏi");
+}
 
-  const list = messagesBySession[sessionId] ?? (messagesBySession[sessionId] = []);
-  list.push(userMessage);
+/** GET /ai/chat/conversations — danh sách hội thoại (mới nhất trước). */
+export async function fetchConversations() {
+  const res = await apiClient.get("/ai/chat/conversations");
+  const list = unwrap(res, "Không tải được lịch sử trò chuyện") ?? [];
+  return list.map(toSessionItem);
+}
 
-  const session = sessions.find((s) => s.id === sessionId);
-  if (session) {
-    session.updatedAt = userMessage.createdAt;
-    if (session.title === "Cuộc trò chuyện mới") {
-      session.title = deriveSessionTitle(text);
-    }
-  }
+/** GET /ai/chat/conversations/:id — tin nhắn của một hội thoại. */
+export async function fetchConversationMessages(conversationId) {
+  const res = await apiClient.get(`/ai/chat/conversations/${conversationId}`);
+  const detail = unwrap(res, "Không tải được cuộc trò chuyện");
+  return (detail?.messages ?? []).map(toMessageItem);
+}
 
-  // Giả lập độ trễ trả lời của AI.
-  await delay(900);
-
-  const { content, isFallback } = getMockAssistantReply(text);
-  const assistantMessage = {
-    id: createLocalId("msg"),
-    sessionId,
-    role: "assistant",
-    content,
-    isFallback,
-    createdAt: new Date().toISOString(),
-  };
-  list.push(assistantMessage);
-
-  return { userMessage, assistantMessage };
+/** DELETE /ai/chat/conversations/:id */
+export async function deleteConversation(conversationId) {
+  const res = await apiClient.delete(`/ai/chat/conversations/${conversationId}`);
+  unwrap(res, "Không xoá được cuộc trò chuyện");
 }

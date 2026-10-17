@@ -149,14 +149,8 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
-      <Route
-        path="/chatbot"
-        element={
-          <ProtectedRoute>
-            <ChatbotScreen />
-          </ProtectedRoute>
-        }
-      />
+      {/* Công khai: khách chat thử (POST /ai/chat/guest), thành viên có lịch sử hội thoại */}
+      <Route path="/chatbot" element={<ChatbotScreen />} />
 
       {/* Khu quản trị: chỉ ADMIN (AdminRoute chặn), dùng khung AdminLayout riêng thay vì AppHeader */}
       <Route element={<AdminRoute />}>

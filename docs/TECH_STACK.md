@@ -128,7 +128,7 @@ features/<ten-feature>/
 | my-content | `/my-content` | API thật: bài viết của tôi (`/blogs/me`) và công thức của tôi (`/recipes/me`), kèm sửa / gửi duyệt / đăng / xóa |
 | recipe | `/recipes/new`, `/recipes/:recipeId/edit` | API thật: tạo / sửa công thức (chọn nguyên liệu từ `/ingredients`); danh sách công khai hiện ở trang chủ |
 | admin | `/admin`, `/admin/categories`, `/admin/ingredients` | API thật, chỉ role ADMIN (`AdminRoute`): tổng quan, quản lý danh mục (`/categories`) và nguyên liệu (`/ingredients`). ADMIN đăng nhập xong vào thẳng `/admin` (`resolvePostLoginPath`) |
-| chatbot | `/chatbot` | API mock (`chatbotApi.js` + `mockChatData.js`), state bằng `useState` |
+| chatbot | `/chatbot` (công khai) | API thật (ai-service, `chatbotApi.js` + `useChatbot` React Query): thành viên chat nhiều lượt + xem/xóa lịch sử hội thoại (`/ai/chat`, `/ai/chat/conversations`); khách chưa đăng nhập dùng thử qua `/ai/chat/guest-sessions` + `/ai/chat/guest` (có giới hạn lượt/ngày, phiên lưu `sessionStorage`). `mockChatData.js` chỉ còn `FALLBACK_NOTICE` (chưa dùng thực tế) |
 
 Khi nối API thật cho feature đang mock: giữ nguyên UI, thay nguồn dữ liệu bằng `*Api.js` + React Query hook theo mẫu của `profile`.
 

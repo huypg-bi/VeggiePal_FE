@@ -1,57 +1,15 @@
-import { FALLBACK_NOTICE } from "../data/mockChatData.js";
-
-/** Regex nhận diện các từ khoá người dùng gõ để chủ động xem trạng thái
- * dự phòng (fallback) trên UI khi chưa có API thật. */
-const FALLBACK_TRIGGER = /(fallback|qua ?tai|quá tải|loi he thong|lỗi hệ thống)/i;
-
-const REPLY_RULES = [
-  {
-    keywords: ["phở", "pho", "nước dùng", "nuoc dung"],
-    content:
-      "Với nước dùng chay thanh ngọt tự nhiên, bạn có thể ninh xương rau củ từ củ cải trắng, bắp cải, hành tây nướng và nấm hương khô trong 2-3 tiếng, nêm bằng nước tương và muối thay vì bột ngọt hay hạt nêm công nghiệp (dữ liệu minh hoạ).",
-  },
-  {
-    keywords: ["thực đơn", "thuc don", "meal plan", "menu"],
-    content:
-      "Mình gợi ý bạn ghé mục Meal Planner để lên thực đơn chay cân bằng đạm - tinh bột - chất xơ theo tuần (dữ liệu minh hoạ).",
-  },
-  {
-    keywords: ["dị ứng", "di ung", "allergy"],
-    content:
-      "Bạn có thể cập nhật danh sách dị ứng trong trang Hồ sơ để trợ lý tránh gợi ý các nguyên liệu đó trong thực đơn (dữ liệu minh hoạ).",
-  },
-];
-
-const DEFAULT_REPLY =
-  "Cảm ơn bạn đã hỏi! Đây là câu trả lời minh hoạ vì hệ thống AI thật chưa được kết nối — hãy hỏi cụ thể hơn về món chay, dinh dưỡng hoặc thực đơn để xem gợi ý phù hợp.";
-
-/** Sinh id ngắn, đủ duy nhất cho message/session phía client (mock, chưa có id từ server). */
+/** Sinh id ngắn, đủ duy nhất cho tin nhắn tạm phía client (chưa có id từ server). */
 export function createLocalId(prefix = "id") {
   const random = Math.random().toString(36).slice(2, 9);
   return `${prefix}-${Date.now().toString(36)}-${random}`;
-}
-
-/** Rút gọn tin nhắn đầu tiên của user thành tiêu đề đoạn chat mới. */
-export function deriveSessionTitle(text, maxLength = 40) {
-  const trimmed = (text ?? "").trim().replace(/\s+/g, " ");
-  if (!trimmed) return "Cuộc trò chuyện mới";
-  if (trimmed.length <= maxLength) return trimmed;
-  return `${trimmed.slice(0, maxLength).trimEnd()}…`;
-}
-
-/** Sắp xếp session theo thời gian cập nhật gần nhất lên đầu. */
-export function sortSessionsByRecent(sessions) {
-  return [...sessions].sort(
-    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-  );
 }
 
 /**
  * Xác định session nên active sau khi xoá `deletedId`.
  * - Nếu session bị xoá không phải session đang active, giữ nguyên active hiện tại.
  * - Nếu đang active bị xoá, chuyển sang session gần nhất còn lại (sessions cần
- *   được sắp xếp sẵn theo thời gian, xem sortSessionsByRecent).
- * - Nếu không còn session nào, trả về null.
+ *   được sắp xếp sẵn theo thời gian — BE đã trả về theo updatedAt giảm dần).
+ * - Nếu không còn session nào, trả về null (= đoạn chat mới).
  */
 export function pickNextActiveSessionId(sessions, deletedId, currentActiveId) {
   if (currentActiveId !== deletedId) return currentActiveId;
@@ -75,20 +33,65 @@ export function formatRelativeTime(dateInput, referenceDate = new Date()) {
   return `${diffDays} ngày trước`;
 }
 
+/** ConversationSummary của BE -> item sidebar. */
+export function toSessionItem(conversation) {
+  return {
+    id: conversation.id,
+    title: conversation.title || "Cuộc trò chuyện mới",
+    updatedAt: conversation.updatedAt ?? conversation.createdAt,
+  };
+}
+
+/** MessageView của BE -> tin nhắn hiển thị (role: "user" | "assistant"). */
+export function toMessageItem(message) {
+  return {
+    id: message.id,
+    role: message.role === "user" ? "user" : "assistant",
+    content: message.content,
+    createdAt: message.createdAt,
+  };
+}
+
 /**
- * Sinh câu trả lời mock cho trợ lý dựa trên từ khoá trong câu hỏi.
- * Gõ kèm từ như "fallback" / "quá tải" để xem trạng thái dự phòng trên UI.
+ * Phiên khách còn dùng được không. BE trả `expiresAt` dạng LocalDateTime
+ * (không có múi giờ) nên chừa 60 giây đệm để tránh gửi sát giờ hết hạn.
  */
-export function getMockAssistantReply(userText) {
-  const normalized = (userText ?? "").toLowerCase();
+export function isGuestSessionValid(stored, now = new Date()) {
+  if (!stored?.guestSession || !stored?.expiresAt) return false;
+  const expires = new Date(stored.expiresAt).getTime();
+  if (Number.isNaN(expires)) return false;
+  return expires - 60_000 > now.getTime();
+}
 
-  if (FALLBACK_TRIGGER.test(normalized)) {
-    return { content: FALLBACK_NOTICE, isFallback: true };
+/**
+ * Dịch lỗi của ai-service (ErrorCode 6000-6999) sang thông báo tiếng Việt.
+ * BE trả message tiếng Anh nên không hiển thị trực tiếp cho người dùng.
+ */
+export function getChatErrorMessage(error, { guest = false } = {}) {
+  const code = error?.code;
+  const status = error?.status;
+
+  if (code === 6003 || status === 429) {
+    return guest
+      ? "Bạn đã dùng hết lượt hỏi thử hôm nay. Hãy đăng nhập để tiếp tục trò chuyện."
+      : "Bạn đã dùng hết lượt hỏi AI trong hôm nay. Vui lòng quay lại vào ngày mai.";
   }
-
-  const rule = REPLY_RULES.find((r) =>
-    r.keywords.some((kw) => normalized.includes(kw))
-  );
-
-  return { content: rule ? rule.content : DEFAULT_REPLY, isFallback: false };
+  if (code === 6001 || status === 401) {
+    return guest
+      ? "Phiên dùng thử đã hết hạn. Hãy gửi lại câu hỏi để tạo phiên mới."
+      : "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+  }
+  if (code === 6002 || status === 404) {
+    return "Không tìm thấy cuộc trò chuyện này.";
+  }
+  if (code === 6000 || status === 400) {
+    return "Câu hỏi không hợp lệ hoặc quá dài (tối đa 4000 ký tự).";
+  }
+  if ([6004, 6005, 6006, 6007].includes(code) || (status >= 500 && status < 600)) {
+    return "Trợ lý AI tạm thời không khả dụng. Vui lòng thử lại sau ít phút.";
+  }
+  if (!status) {
+    return "Không kết nối được máy chủ. Vui lòng kiểm tra mạng và thử lại.";
+  }
+  return "Đã có lỗi xảy ra. Vui lòng thử lại.";
 }

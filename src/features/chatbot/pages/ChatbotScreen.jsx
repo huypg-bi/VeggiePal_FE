@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { Info, Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Info, Loader2, TriangleAlert, X } from "lucide-react";
 
+import { buttonVariants } from "@/components/ui/variants/button-variants";
 import AppHeader from "@/shared/components/AppHeader";
 import AppFooter from "@/shared/components/AppFooter";
 import { useChatbot } from "@/features/chatbot/hooks/useChatbot";
@@ -13,17 +15,21 @@ import ChatComposer from "@/features/chatbot/components/ChatComposer";
 
 /**
  * Trang chatbot dinh dưỡng (/chatbot).
- * Chưa có API AI thật — toàn bộ session/tin nhắn dùng mock data + độ trễ
- * giả lập qua @/features/chatbot/api/chatbotApi.js, dễ thay bằng API thật
- * sau này mà không đổi UI.
+ * Dùng ai-service thật qua @/features/chatbot/api/chatbotApi.js:
+ * - Đã đăng nhập: lịch sử hội thoại lưu ở BE (sidebar, nhiều lượt).
+ * - Chưa đăng nhập: chế độ dùng thử, không có sidebar, giới hạn số lượt hỏi.
  */
 export default function ChatbotScreen() {
   const {
+    isAuthenticated,
     sessions,
     activeSessionId,
     activeMessages,
-    loadingSessions,
+    loadingMessages,
     sending,
+    remainingRequests,
+    errorMessage,
+    dismissError,
     selectSession,
     startNewSession,
     deleteSession,
@@ -43,10 +49,12 @@ export default function ChatbotScreen() {
     });
   }, [activeMessages, sending]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const text = draft;
     setDraft("");
-    sendMessage(text);
+    const ok = await sendMessage(text);
+    // Gửi lỗi thì trả lại nội dung để người dùng không phải gõ lại.
+    if (!ok) setDraft((current) => current || text);
   };
 
   return (
@@ -55,15 +63,17 @@ export default function ChatbotScreen() {
 
       <main className="mx-auto w-full max-w-[1280px] px-4 py-4 sm:px-6 lg:px-8">
         <div className="flex h-[75dvh] min-h-[620px] max-h-[960px] overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
-          <ChatSidebar
-            sessions={sessions}
-            activeSessionId={activeSessionId}
-            collapsed={collapsed}
-            onToggleCollapsed={() => setCollapsed((c) => !c)}
-            onSelectSession={selectSession}
-            onNewChat={startNewSession}
-            onDeleteSession={deleteSession}
-          />
+          {isAuthenticated && (
+            <ChatSidebar
+              sessions={sessions}
+              activeSessionId={activeSessionId}
+              collapsed={collapsed}
+              onToggleCollapsed={() => setCollapsed((c) => !c)}
+              onSelectSession={selectSession}
+              onNewChat={startNewSession}
+              onDeleteSession={deleteSession}
+            />
+          )}
 
           <div className="flex min-w-0 flex-1 flex-col">
             <ChatHeader
@@ -71,18 +81,48 @@ export default function ChatbotScreen() {
               onNewChat={startNewSession}
             />
 
+            {!isAuthenticated && (
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-brand-soft px-6 py-2.5 text-xs text-brand">
+                <span>
+                  Bạn đang dùng thử
+                  {remainingRequests != null &&
+                    ` — còn ${remainingRequests} lượt hỏi`}
+                  . Đăng nhập để lưu lịch sử và hỏi nhiều hơn.
+                </span>
+                <Link
+                  to="/login"
+                  state={{ from: { pathname: "/chatbot" } }}
+                  className={buttonVariants({ variant: "default", size: "sm" })}
+                >
+                  Đăng nhập
+                </Link>
+              </div>
+            )}
+
+            {errorMessage && (
+              <div
+                role="alert"
+                className="mx-6 mt-4 flex items-start gap-2 rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive"
+              >
+                <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
+                <span className="flex-1">{errorMessage}</span>
+                <button
+                  type="button"
+                  onClick={dismissError}
+                  aria-label="Đóng thông báo lỗi"
+                  className="shrink-0 rounded-full p-0.5 transition hover:bg-destructive/10"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6">
               <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
-                {loadingSessions ? (
+                {loadingMessages ? (
                   <div className="flex items-center justify-center gap-2 py-24 text-sm text-subtle">
                     <Loader2 className="h-5 w-5 animate-spin text-brand" />
-                    Đang tải lịch sử trò chuyện…
-                  </div>
-                ) : !activeSessionId ? (
-                  <div className="flex flex-col items-center justify-center gap-2 py-24 text-center text-sm text-subtle">
-                    <p>
-                      Chưa có đoạn chat nào. Nhấn "Đoạn chat mới" để bắt đầu.
-                    </p>
+                    Đang tải cuộc trò chuyện…
                   </div>
                 ) : activeMessages.length === 0 ? (
                   <ChatEmptyState />
@@ -99,7 +139,7 @@ export default function ChatbotScreen() {
               value={draft}
               onChange={setDraft}
               onSend={handleSend}
-              disabled={sending || !activeSessionId}
+              disabled={sending || loadingMessages}
             />
 
             <p className="flex items-center justify-center gap-1.5 px-6 pb-4 text-center text-xs text-subtle">

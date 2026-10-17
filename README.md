@@ -42,7 +42,7 @@
 - **🥗 Thực đơn dinh dưỡng (Meal Planner):** Thống kê calo, lượng nước, vận động và gợi ý món ăn theo nguyên liệu sẵn có *(Mock Data)*.
 - **🎥 Khám phá video (Videos):** Xem video hướng dẫn nấu món chay kèm phân tích thông tin dinh dưỡng *(Mock Data)*.
 - **📍 Bản đồ xanh (Map):** Tìm kiếm và xem danh sách các nhà hàng, quán ăn chay *(Mock Data)*.
-- **🤖 Trợ lý Bông Cải (AI Chatbot):** Giao diện hỏi đáp kiến thức dinh dưỡng chay, quản lý nhiều đoạn chat *(Mock API)*.
+- **🤖 Trợ lý Bông Cải (AI Chatbot):** Giao diện hỏi đáp kiến thức dinh dưỡng chay, quản lý nhiều đoạn chat *(API thật: ai-service, có chế độ dùng thử cho khách)*.
 - **🎨 Giao diện & Trải nghiệm:** Landing page hiện đại, hỗ trợ chuyển đổi chế độ Sáng/Tối (Light/Dark Mode).
 
 ---
