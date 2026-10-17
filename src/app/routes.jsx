@@ -10,6 +10,7 @@ import MealPlannerScreen from "@/features/meal-planner/pages/MealPlannerScreen";
 import RestaurantMapScreen from "@/features/restaurant-map/pages/RestaurantMapScreen";
 import VideoHomeScreen from "@/features/video/pages/VideoHomeScreen";
 import VideoWatchScreen from "@/features/video/pages/VideoWatchScreen";
+import VideoFormScreen from "@/features/video/pages/VideoFormScreen";
 import ProfileScreen from "@/features/profile/pages/ProfileScreen";
 import EditProfileScreen from "@/features/profile/pages/EditProfileScreen";
 import ChatbotScreen from "@/features/chatbot/pages/ChatbotScreen";
@@ -104,19 +105,22 @@ export default function AppRoutes() {
         }
       />
 
+      {/* Video công khai với khách (BE cho GET /videos và GET /videos/:id không cần token) */}
+      <Route path="/videos" element={<VideoHomeScreen />} />
       <Route
-        path="/videos"
+        path="/videos/new"
         element={
           <ProtectedRoute>
-            <VideoHomeScreen />
+            <VideoFormScreen />
           </ProtectedRoute>
         }
       />
+      <Route path="/videos/:videoId" element={<VideoWatchScreen />} />
       <Route
-        path="/videos/:videoId"
+        path="/videos/:videoId/edit"
         element={
           <ProtectedRoute>
-            <VideoWatchScreen />
+            <VideoFormScreen />
           </ProtectedRoute>
         }
       />

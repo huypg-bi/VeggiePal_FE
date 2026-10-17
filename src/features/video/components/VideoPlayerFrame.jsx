@@ -1,29 +1,77 @@
-import { Play, Share2, Bookmark } from "lucide-react";
+import { Bookmark, Share2 } from "lucide-react";
+import { toast } from "sonner";
 
-// Khung trống cho trình phát video — chờ BE cung cấp nguồn video thật.
-export default function VideoPlayerFrame() {
+/**
+ * Trình phát video:
+ * - sourceType === "YOUTUBE": dùng <iframe> với videoUrl là embed URL do BE trả về.
+ * - sourceType === "UPLOAD": dùng thẻ <video> HTML5 với videoUrl là tệp .mp4.
+ */
+export default function VideoPlayerFrame({ video }) {
+  if (!video) {
+    return (
+      <div className="relative aspect-video w-full animate-pulse overflow-hidden rounded-3xl bg-surface" />
+    );
+  }
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: video.title,
+          url: window.location.href,
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Đã sao chép liên kết video vào bộ nhớ tạm");
+      }
+    } catch {
+      // Người dùng hủy chia sẻ
+    }
+  };
+
+  const handleBookmark = () => {
+    toast.info("Tính năng lưu video yêu thích đang được phát triển.");
+  };
+
   return (
-    <div className="relative aspect-video w-full overflow-hidden rounded-3xl bg-[#0B0F0C]">
-      <div className="absolute inset-0 grid place-items-center">
-        <span className="grid size-16 place-items-center rounded-full bg-white/10 text-white/70">
-          <Play className="h-7 w-7 translate-x-0.5 fill-current" />
-        </span>
-      </div>
+    <div className="relative aspect-video w-full overflow-hidden rounded-3xl bg-black shadow-lg">
+      {video.sourceType === "YOUTUBE" ? (
+        <iframe
+          src={video.videoUrl}
+          title={video.title}
+          className="size-full border-0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowFullScreen
+        />
+      ) : (
+        <video
+          src={video.videoUrl}
+          poster={video.thumbnailUrl}
+          controls
+          playsInline
+          className="size-full object-contain"
+        >
+          Trình duyệt của bạn không hỗ trợ thẻ video.
+        </video>
+      )}
 
-      <div className="absolute right-4 top-4 flex items-center gap-2">
+      {/* Nút thao tác nhanh trên góc */}
+      <div className="absolute right-4 top-4 flex items-center gap-2 z-10 pointer-events-auto">
         <button
           type="button"
+          onClick={handleBookmark}
           aria-label="Lưu video"
-          className="grid size-9 place-items-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
+          className="grid size-9 place-items-center rounded-full bg-black/60 text-white transition hover:bg-black/80 backdrop-blur-sm"
         >
-          <Bookmark className="h-4 w-4" />
+          <Bookmark className="size-4" />
         </button>
         <button
           type="button"
+          onClick={handleShare}
           aria-label="Chia sẻ video"
-          className="grid size-9 place-items-center rounded-full bg-black/40 text-white transition hover:bg-black/60"
+          className="grid size-9 place-items-center rounded-full bg-black/60 text-white transition hover:bg-black/80 backdrop-blur-sm"
         >
-          <Share2 className="h-4 w-4" />
+          <Share2 className="size-4" />
         </button>
       </div>
     </div>
