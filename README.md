@@ -92,11 +92,13 @@ Tạo file `.env` ở thư mục gốc (file đã được `.gitignore`, không 
 
 ```env
 VITE_VEGGIEPAL_API_BASE_URL=http://localhost:8080/api
+VITE_GOOGLE_CLIENT_ID=<oauth-client-id>.apps.googleusercontent.com
 ```
 
 | Biến | Mô tả |
 | :--- | :--- |
 | `VITE_VEGGIEPAL_API_BASE_URL` | Base URL của API Gateway (đã gồm `/api`) |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth Client ID cho đăng nhập Google; phải trùng `GOOGLE_CLIENT_ID` của identity-service |
 
 ### 4. Khởi chạy
 ```bash
@@ -139,6 +141,7 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | :--- | :--- | :--- |
 | `POST` | `/auth/login` | Đăng nhập |
 | `POST` | `/auth/register` | Đăng ký |
+| `POST` | `/auth/google` | Đăng nhập / đăng ký bằng Google (gửi `idToken`) |
 | `GET` / `PATCH` | `/users/me` | Xem / sửa hồ sơ |
 | `PUT` | `/users/me/password` | Đổi mật khẩu |
 | `POST` | `/users/me/avatar` | Tải ảnh đại diện |

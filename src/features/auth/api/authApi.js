@@ -1,5 +1,18 @@
 import apiClient from "@/shared/api/apiClient";
 
+// LoginResponse của identity-service (dùng chung cho /auth/login và /auth/google) -> { token, user }.
+function toSession(result) {
+  return {
+    token: result.accessToken,
+    user: {
+      id: result.userId,
+      email: result.email,
+      fullName: result.fullName,
+      role: result.role,
+    },
+  };
+}
+
 /**
  * Đăng nhập bằng email + mật khẩu (khớp /auth/login của identity-service).
  * Trả về: { token, user: { id, email, fullName, role } }
@@ -12,16 +25,26 @@ export async function login({ email, password }) {
     throw new Error(res.data?.message || "Đăng nhập thất bại");
   }
 
-  const result = res.data.result;
-  return {
-    token: result.accessToken,
-    user: {
-      id: result.userId,
-      email: result.email,
-      fullName: result.fullName,
-      role: result.role,
-    },
-  };
+  return toSession(res.data.result);
+}
+
+/**
+ * Đăng nhập bằng Google (khớp POST /auth/google của identity-service).
+ * `idToken` là `credential` của Google Identity Services; BE tự kiểm tra token và liên kết
+ * tài khoản theo email (chưa có thì tạo mới). Kết quả giống `login`.
+ */
+export async function loginWithGoogle(idToken) {
+  const res = await apiClient.post("/auth/google", { idToken });
+
+  if (res.status >= 400) {
+    // 1019 = GOOGLE_TOKEN_INVALID (token sai/hết hạn, email chưa xác minh, hoặc BE chưa cấu hình GOOGLE_CLIENT_ID).
+    if (res.data?.code === 1019) {
+      throw new Error("Không xác thực được tài khoản Google. Vui lòng thử lại.");
+    }
+    throw new Error(res.data?.message || "Đăng nhập bằng Google thất bại");
+  }
+
+  return toSession(res.data.result);
 }
 
 /**

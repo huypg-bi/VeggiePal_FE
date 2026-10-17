@@ -7,13 +7,13 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import GoogleSignInButton from "@/features/auth/components/GoogleSignInButton";
 import { registerSchema } from "@/features/auth/schema";
 import { register as registerUser } from "@/features/auth/api/authApi";
 
 import peopleIcon from "@/assets/svg/people.svg";
 import phoneIcon from "@/assets/svg/phone.svg";
 import mailIcon from "@/assets/svg/mail.svg";
-import googleIcon from "@/assets/svg/gg.svg";
 
 export default function RegisterForm({ onSwitchMode }) {
   const navigate = useNavigate();
@@ -254,15 +254,7 @@ export default function RegisterForm({ onSwitchMode }) {
         <span className="h-px flex-1 bg-white/15" />
       </div>
 
-      <Button
-        type="button"
-        variant="glass"
-        size="md"
-        className="mt-3 w-full text-[13px]"
-      >
-        <img src={googleIcon} alt="" className="size-4" />
-        Tiếp tục với Google
-      </Button>
+      <GoogleSignInButton onError={(message) => setError("root", { message })} />
     </div>
   );
 }

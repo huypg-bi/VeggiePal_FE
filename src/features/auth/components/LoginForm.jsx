@@ -3,17 +3,16 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import GoogleSignInButton from "@/features/auth/components/GoogleSignInButton";
 import { loginSchema } from "@/features/auth/schema";
 import { login } from "@/features/auth/api/authApi";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { resolvePostLoginPath } from "@/features/auth/utils/roleRedirect";
 
 import mailIcon from "@/assets/svg/mail.svg";
-import googleIcon from "@/assets/svg/gg.svg";
 
 export default function LoginForm({ onSwitchMode }) {
   const navigate = useNavigate();
@@ -47,10 +46,6 @@ export default function LoginForm({ onSwitchMode }) {
       setError("root", { message: err.message || "Đăng nhập thất bại" });
     }
   };
-
-  // Các nút phụ chưa gắn backend.
-  const comingSoon = () =>
-    toast.info("Tính năng này sẽ sẵn sàng khi tích hợp backend.");
 
   return (
     <div className="w-full max-w-[380px] px-2 py-4">
@@ -158,16 +153,7 @@ export default function LoginForm({ onSwitchMode }) {
         <span className="h-px flex-1 bg-white/15" />
       </div>
 
-      <Button
-        type="button"
-        variant="glass"
-        size="md"
-        onClick={comingSoon}
-        className="mt-3 w-full text-[13px]"
-      >
-        <img src={googleIcon} alt="" className="size-4" />
-        Tiếp tục với Google
-      </Button>
+      <GoogleSignInButton onError={(message) => setError("root", { message })} />
     </div>
   );
 }
