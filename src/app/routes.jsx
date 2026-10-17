@@ -10,7 +10,7 @@ import MealPlannerScreen from "@/features/meal-planner/pages/MealPlannerScreen";
 import RestaurantMapScreen from "@/features/restaurant-map/pages/RestaurantMapScreen";
 import VideoHomeScreen from "@/features/video/pages/VideoHomeScreen";
 import VideoWatchScreen from "@/features/video/pages/VideoWatchScreen";
-import VideoFormScreen from "@/features/video/pages/VideoFormScreen";
+// import VideoFormScreen from "@/features/video/pages/VideoFormScreen";
 import ProfileScreen from "@/features/profile/pages/ProfileScreen";
 import EditProfileScreen from "@/features/profile/pages/EditProfileScreen";
 import ChatbotScreen from "@/features/chatbot/pages/ChatbotScreen";
@@ -109,23 +109,8 @@ export default function AppRoutes() {
 
       {/* Video công khai với khách (BE cho GET /videos và GET /videos/:id không cần token) */}
       <Route path="/videos" element={<VideoHomeScreen />} />
-      <Route
-        path="/videos/new"
-        element={
-          <ProtectedRoute>
-            <VideoFormScreen />
-          </ProtectedRoute>
-        }
-      />
+      {/* Tạm tắt /videos/new và /videos/:videoId/edit vì chưa có VideoFormScreen */}
       <Route path="/videos/:videoId" element={<VideoWatchScreen />} />
-      <Route
-        path="/videos/:videoId/edit"
-        element={
-          <ProtectedRoute>
-            <VideoFormScreen />
-          </ProtectedRoute>
-        }
-      />
 
       {/* --- NHÓM PROFILE --- */}
       {/* 1. Trang xem hồ sơ cá nhân */}
