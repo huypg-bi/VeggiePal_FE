@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { ExternalLink, FolderTree, LayoutDashboard, LogOut, Salad, ShieldCheck } from "lucide-react";
+import { Activity, ExternalLink, FolderTree, LayoutDashboard, LogOut, Salad, ShieldCheck } from "lucide-react";
 
 import logo from "@/assets/img/logo.png";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: "/admin", label: "Tổng quan", icon: LayoutDashboard, end: true },
   { to: "/admin/categories", label: "Danh mục", icon: FolderTree },
   { to: "/admin/ingredients", label: "Nguyên liệu", icon: Salad },
+  { to: "/admin/ai-monitoring", label: "Giám sát AI", icon: Activity },
 ];
 
 const navClass = ({ isActive }) =>

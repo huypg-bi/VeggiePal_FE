@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Eye, EyeOff, FolderTree, Leaf, Salad, TriangleAlert } from "lucide-react";
+import { Activity, ArrowRight, Eye, EyeOff, FolderTree, Leaf, Salad, TriangleAlert } from "lucide-react";
 
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { useCategories } from "@/features/blog/hooks/useCategories";
@@ -77,6 +77,12 @@ export default function AdminDashboardScreen() {
           icon={Salad}
           title="Quản lý nguyên liệu"
           description="Cập nhật nguyên liệu và dinh dưỡng trên 100g để tính kcal công thức."
+        />
+        <ShortcutCard
+          to="/admin/ai-monitoring"
+          icon={Activity}
+          title="Giám sát AI"
+          description="Lượt dùng, token, độ trễ, lỗi và nhật ký các tính năng AI."
         />
       </section>
 
