@@ -10,6 +10,7 @@ import MealPlannerScreen from "@/features/meal-planner/pages/MealPlannerScreen";
 import RestaurantMapScreen from "@/features/restaurant-map/pages/RestaurantMapScreen";
 import VideoHomeScreen from "@/features/video/pages/VideoHomeScreen";
 import VideoWatchScreen from "@/features/video/pages/VideoWatchScreen";
+import VideoFormScreen from "@/features/video/pages/VideoFormScreen";
 import ProfileScreen from "@/features/profile/pages/ProfileScreen";
 import EditProfileScreen from "@/features/profile/pages/EditProfileScreen";
 import ChatbotScreen from "@/features/chatbot/pages/ChatbotScreen";
@@ -19,6 +20,7 @@ import AdminLayout from "@/features/admin/components/AdminLayout";
 import AdminCategoriesScreen from "@/features/admin/pages/AdminCategoriesScreen";
 import AdminDashboardScreen from "@/features/admin/pages/AdminDashboardScreen";
 import AdminAiMonitoringScreen from "@/features/admin/pages/AdminAiMonitoringScreen";
+import AdminModerationScreen from "@/features/admin/pages/AdminModerationScreen";
 import AdminIngredientsScreen from "@/features/admin/pages/AdminIngredientsScreen";
 import BlogFormScreen from "@/features/blog/pages/BlogFormScreen";
 import RecipeListScreen from "@/features/recipe/pages/RecipeListScreen";
@@ -105,19 +107,22 @@ export default function AppRoutes() {
         }
       />
 
+      {/* Video công khai với khách (BE cho GET /videos và GET /videos/:id không cần token) */}
+      <Route path="/videos" element={<VideoHomeScreen />} />
       <Route
-        path="/videos"
+        path="/videos/new"
         element={
           <ProtectedRoute>
-            <VideoHomeScreen />
+            <VideoFormScreen />
           </ProtectedRoute>
         }
       />
+      <Route path="/videos/:videoId" element={<VideoWatchScreen />} />
       <Route
-        path="/videos/:videoId"
+        path="/videos/:videoId/edit"
         element={
           <ProtectedRoute>
-            <VideoWatchScreen />
+            <VideoFormScreen />
           </ProtectedRoute>
         }
       />
@@ -159,6 +164,7 @@ export default function AppRoutes() {
           <Route path="/admin" element={<AdminDashboardScreen />} />
           <Route path="/admin/categories" element={<AdminCategoriesScreen />} />
           <Route path="/admin/ingredients" element={<AdminIngredientsScreen />} />
+          <Route path="/admin/moderation" element={<AdminModerationScreen />} />
           <Route path="/admin/ai-monitoring" element={<AdminAiMonitoringScreen />} />
         </Route>
       </Route>
