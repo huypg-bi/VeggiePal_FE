@@ -183,7 +183,7 @@ export default function AppHeader() {
                   <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#E8ECFB] text-ink dark:bg-brand-soft">
                     <FileText className="h-4 w-4" />
                   </span>
-                  <span className="flex-1 text-sm font-medium text-ink">Bài viết của tôi</span>
+                  <span className="flex-1 text-sm font-medium text-ink">Nội dung của tôi</span>
                   <ChevronRight className="h-4 w-4 text-subtle" />
                 </DropdownMenuItem>
 
