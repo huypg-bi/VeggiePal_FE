@@ -31,7 +31,7 @@ export default function ReviewDecisionDialog({
     onConfirm({
       id: item?.caseId,
       decision,
-      reason,
+      reason: reason?.trim() || null,
     });
   };
 
@@ -67,7 +67,29 @@ export default function ReviewDecisionDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-2 py-2">
+        {/* Thông tin tóm tắt của case */}
+        {item && (
+          <div className="rounded-2xl border border-border bg-surface p-3 text-xs text-subtle space-y-1">
+            <div className="flex justify-between">
+              <span>Loại nội dung:</span>
+              <span className="font-semibold text-ink">{item.contentType || "Chưa xác định"}</span>
+            </div>
+            {item.externalContentId != null && (
+              <div className="flex justify-between">
+                <span>Mã nội dung gốc:</span>
+                <span className="font-mono font-semibold text-ink">#{item.externalContentId}</span>
+              </div>
+            )}
+            {item.reason && (
+              <div className="pt-1 border-t border-border/60">
+                <span className="block text-[11px] text-subtle">Lý do từ AI:</span>
+                <p className="line-clamp-2 italic text-body">{item.reason}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2 py-1">
           <label htmlFor="moderation-reason" className="text-xs font-semibold text-ink">
             Lý do quyết định {isApprove ? "(tùy chọn)" : "(khuyến khích)"}
           </label>
