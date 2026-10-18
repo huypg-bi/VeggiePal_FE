@@ -1,21 +1,36 @@
-import { Sparkles, ArrowRight } from "lucide-react";
+import { Sparkles, ArrowRight, AlertTriangle, RefreshCw } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { selectIsAuthenticated, useAuthStore } from "@/features/auth/store/authStore";
 import RecommendationCard from "@/features/home/components/RecommendationCard";
 import { useRecommendations } from "@/features/home/hooks/useRecommendations";
+import { recommendationKeys } from "@/features/home/queryKeys";
 import Reveal from "@/shared/components/Reveal";
 import { buttonVariants } from "@/components/ui/variants/button-variants";
+import { Button } from "@/components/ui/button";
 
 /**
  * Khối "Gợi ý dành riêng cho bạn" trên trang chủ:
  * Sử dụng GET /ai/recommendations của ai-service.
  * - Đã đăng nhập: lấy danh sách các món ăn & bài viết AI đề xuất kèm lý do.
  * - Chưa đăng nhập: hiển thị banner giới thiệu đăng nhập để cá nhân hóa nội dung.
+ * - Có xử lý riêng biệt lỗi Server (isError) và trạng thái rỗng.
  */
 export default function AiRecommendationsSection() {
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
-  const { data: recommendations = [], isPending, isError } = useRecommendations({ limit: 6 });
+  const queryClient = useQueryClient();
+  const {
+    data: recommendations = [],
+    isPending,
+    isError,
+    error,
+    isFetching,
+  } = useRecommendations({ limit: 6 });
+
+  const handleRetry = () => {
+    queryClient.invalidateQueries({ queryKey: recommendationKeys.all });
+  };
 
   return (
     <section className="border-t border-border bg-surface/30 px-6 py-16 font-sans md:px-12 lg:px-16">
@@ -78,13 +93,32 @@ export default function AiRecommendationsSection() {
               />
             ))}
           </div>
-        ) : isError || recommendations.length === 0 ? (
-          /* Empty state */
+        ) : isError ? (
+          /* Trạng thái lỗi từ Backend kèm nút Thử lại */
+          <div className="mt-8 flex flex-col items-center justify-center rounded-2xl border border-destructive/20 bg-destructive/5 p-6 text-center">
+            <AlertTriangle className="size-8 text-destructive" />
+            <p className="mt-2 text-sm font-medium text-destructive">
+              {error?.message || "Không thể tải danh sách gợi ý AI lúc này."}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isFetching}
+              onClick={handleRetry}
+              className="mt-4 gap-1.5"
+            >
+              <RefreshCw className={`size-3.5 ${isFetching ? "animate-spin" : ""}`} />
+              Thử lại
+            </Button>
+          </div>
+        ) : recommendations.length === 0 ? (
+          /* Trạng thái rỗng khi chưa có đủ dữ liệu */
           <div className="mt-8 rounded-2xl border border-border bg-card p-6 text-center text-sm text-subtle">
             Hiện tại chưa có đủ dữ liệu gợi ý mới. Hãy thử xem qua danh sách công thức thịnh hành bên trên!
           </div>
         ) : (
-          /* Danh sách card gợi ý */
+          /* Danh sách card gợi ý trực tiếp từ API */
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {recommendations.map((item, index) => (
               <Reveal key={`${item.type}-${item.id}`} delay={index * 100}>
