@@ -12,7 +12,12 @@ import NutritionTargetFields from "@/features/meal-planner/components/NutritionT
 import { flavorPreferences, healthGoalSuggestions } from "@/features/meal-planner/data/mockMealPlanner";
 import { useCreateMealPlan } from "@/features/meal-planner/hooks/useMealPlanMutations";
 import { MEAL_PLAN_LIMITS, mealPlanSchema } from "@/features/meal-planner/schema";
-import { buildGeneratePayload, defaultPlanName, TARGET_FIELDS } from "@/features/meal-planner/utils/mealPlan";
+import {
+  buildGeneratePayload,
+  countMissedDays,
+  defaultPlanName,
+  TARGET_FIELDS,
+} from "@/features/meal-planner/utils/mealPlan";
 import { useLatestHealthRecord } from "@/features/profile/hooks/useHealthRecords";
 import IngredientPicker from "@/features/recipe/components/IngredientPicker";
 import { cn } from "@/lib/utils";
@@ -89,7 +94,14 @@ export default function AiMealSuggestion({ onCreated }) {
 
     try {
       const plan = await createPlan.mutateAsync(payload);
-      toast.success("Bé Bông Cải đã lên xong thực đơn cho bạn!");
+      const missedDays = countMissedDays(plan);
+      if (missedDays > 0) {
+        toast.warning(
+          `Thực đơn đã xong, nhưng ${missedDays}/7 ngày chưa đạt mục tiêu dinh dưỡng. Bạn xem chi tiết ở từng ngày nhé.`,
+        );
+      } else {
+        toast.success("Bé Bông Cải đã lên xong thực đơn cho bạn!");
+      }
       onCreated?.(plan);
     } catch (error) {
       toast.error(error.message);

@@ -9,14 +9,16 @@ import apiClient from "@/shared/api/apiClient";
  *
  * MealPlan: { id, name, goal, createdAt, updatedAt, plan: {
  *   days: [{ day: "MONDAY", meals: [{ mealType: "BREAKFAST"|"LUNCH"|"DINNER", recipeId, note?,
- *     servingMultiplier?, nutrition: { calories, protein, carbohydrate, fat } }], nutritionTotals: { ... } }],
+ *     servingMultiplier?, nutrition: { calories, protein, carbohydrate, fat } }], nutritionTotals: { ... },
+ *     targetMet?: boolean, targetDeviations?: { calories|protein|carbohydrate|fat: { actual, min?, max? } } }],
  *   constraints: { preferences, availableIngredients, allergies, healthRecord, dailyNutritionTarget } } }
  * nutrition do BE cộng từ nguyên liệu (không phải AI tự bịa) và ĐÃ nhân `servingMultiplier`.
  * servingMultiplier (0.75 - 1.5) chỉ có khi BE co giãn khẩu phần để tổng calo ngày gần mục tiêu.
  * BE luôn trả đủ 7 ngày × 3 bữa; `day` là "MONDAY".."SUNDAY" (vẫn chuẩn hóa ở utils/mealPlan.js).
  * Nếu AI lỗi, BE tự lập thực đơn bằng thuật toán cố định nên FE không phân biệt được hai trường hợp.
- * Lỗi cần xử lý riêng: 6010 (chưa có hồ sơ sức khỏe), 6011 (không còn món phù hợp),
- * 6012 (mục tiêu dinh dưỡng không đạt được, dung sai 15%).
+ * Có đặt dailyNutritionTarget mà một ngày vẫn lệch (ngoài dung sai 15%) thì BE KHÔNG báo lỗi, vẫn trả thực đơn
+ * và đánh dấu ngày đó bằng targetMet=false + targetDeviations (xem utils/mealPlan.js: dayTargetDeviations).
+ * Lỗi cần xử lý riêng: 6010 (chưa có hồ sơ sức khỏe), 6011 (không còn món phù hợp).
  * Meal chỉ có recipeId, tên/ảnh món lấy qua GET /recipes/:id.
  */
 
@@ -35,7 +37,6 @@ const VI_MESSAGES = {
   6007: "AI chưa xếp được thực đơn đạt yêu cầu, vui lòng thử lại",
   6010: "Bạn cần cập nhật chiều cao và cân nặng trong hồ sơ sức khỏe trước khi lên thực đơn",
   6011: "Không tìm thấy món chay nào phù hợp với dị ứng và yêu cầu dinh dưỡng của bạn",
-  6012: "Mục tiêu dinh dưỡng quá chặt so với các món hiện có. Hãy nới khoảng calo, đạm, tinh bột hoặc béo rồi thử lại",
 };
 
 // Lỗi 401/403 do Spring Security trả về có thể không kèm mã 60xx nên dựa thêm vào HTTP status.
