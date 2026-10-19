@@ -34,9 +34,15 @@ export default function SelectField({
   "aria-invalid": ariaInvalid,
   align = "start",
 }) {
-  const items = options.map((option) => ({ value: toKey(option.value), label: option.label }));
+  const items = options.map((option) => ({
+    value: toKey(option.value),
+    label: option.label,
+    icon: option.icon,
+  }));
   const key = toKey(value);
   const selectedKey = items.some((item) => item.value === key) ? key : null;
+  const selectedItem = items.find((item) => item.value === selectedKey);
+  const SelectedIcon = selectedItem?.icon;
 
   const handleValueChange = (nextKey) => {
     const option = options.find((o) => toKey(o.value) === nextKey);
@@ -65,27 +71,37 @@ export default function SelectField({
           // Các nhãn ẩn xếp chồng cùng một ô lưới để nút luôn rộng bằng mục dài nhất,
           // nhờ đó menu (rộng đúng bằng nút) và nút không bao giờ lệch nhau.
           <span className="grid min-w-0 flex-1 text-left">
-            <SelectValue placeholder={placeholder} className="col-start-1 row-start-1" />
-            {[...items.map((item) => item.label), placeholder].map((label, index) =>
-              label ? (
+            <span className="col-start-1 row-start-1 flex items-center gap-2 truncate">
+              {SelectedIcon && <SelectedIcon className="size-4 shrink-0" />}
+              <SelectValue placeholder={placeholder} />
+            </span>
+            {[...items, { label: placeholder, icon: null }].map((item, index) =>
+              item.label ? (
                 <span
                   key={index}
                   aria-hidden
-                  className="invisible col-start-1 row-start-1 h-0 overflow-hidden font-semibold whitespace-nowrap"
+                  className="invisible col-start-1 row-start-1 flex h-0 items-center gap-2 overflow-hidden font-semibold whitespace-nowrap"
                 >
-                  {label}
+                  {item.icon && <item.icon className="size-4 shrink-0" />}
+                  {item.label}
                 </span>
               ) : null,
             )}
           </span>
         ) : (
-          <SelectValue placeholder={placeholder} />
+          <span className="flex items-center gap-2 truncate">
+            {SelectedIcon && <SelectedIcon className="size-4 shrink-0" />}
+            <SelectValue placeholder={placeholder} />
+          </span>
         )}
       </SelectTrigger>
       <SelectContent align={align} className={contentClassName}>
         {items.map((item) => (
           <SelectItem key={item.value} value={item.value}>
-            {item.label}
+            <span className="flex items-center gap-2">
+              {item.icon && <item.icon className="size-4 shrink-0" />}
+              <span>{item.label}</span>
+            </span>
           </SelectItem>
         ))}
       </SelectContent>
