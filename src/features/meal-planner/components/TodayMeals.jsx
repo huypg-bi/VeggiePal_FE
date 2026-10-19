@@ -1,18 +1,21 @@
 import { useState } from "react";
-import { CalendarX2, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { CalendarX2, ChevronLeft, ChevronRight, Sparkles, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import MealCard from "@/features/meal-planner/components/MealCard";
-import { mockSnack } from "@/features/meal-planner/data/mockMealPlanner";
 import { useDayRecipes } from "@/features/meal-planner/hooks/useDayRecipes";
 import { useReplaceMeal } from "@/features/meal-planner/hooks/useMealPlanMutations";
 import {
   dayKeyOf,
   dayLabel,
+  dayTargetDeviations,
+  formatDayMonth,
+  isSameDate,
   mealLabel,
   mealTime,
   normalizeDay,
+  planDayDate,
   sortedMeals,
   toRounded,
 } from "@/features/meal-planner/utils/mealPlan";
@@ -22,17 +25,11 @@ import Reveal from "@/shared/components/Reveal";
 const selectClass =
   "h-9 max-w-full rounded-full border border-border bg-card px-3 text-sm font-medium text-ink outline-none transition focus:border-brand/40 focus:ring-2 focus:ring-brand/15";
 
-function formatDate(iso) {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
-}
-
 /**
  * Thực đơn theo ngày của thực đơn đang xem.
  * - plans / plan: các thực đơn đã lưu (mới nhất trước) và cái đang xem.
  * - days: các ngày của thực đơn đang xem, đã sắp T2 -> CN; activeDay: ngày đang chọn.
- * Bữa Phụ vẫn là dữ liệu mẫu vì BE chưa có (thực đơn AI chỉ có sáng / trưa / tối).
+ * Thực đơn AI chỉ có 3 bữa sáng / trưa / tối (BE không có bữa phụ).
  */
 export default function TodayMeals({
   plans,
@@ -57,8 +54,13 @@ export default function TodayMeals({
   const newerPlan = planIndex > 0 ? plans[planIndex - 1] : undefined;
 
   const activeKey = normalizeDay(activeDay?.day);
-  const isToday = activeKey === dayKeyOf();
-  const dayTitle = activeDay ? (isToday ? "Hôm Nay" : dayLabel(activeDay).long) : "Hôm Nay";
+  // Ngày cụ thể của thứ đang chọn (theo tuần chứa ngày tạo thực đơn). "Hôm Nay" chỉ khi đúng là hôm nay,
+  // tránh gọi nhầm thứ Năm của một thực đơn tuần trước. Thiếu ngày thì so theo tên thứ như trước.
+  const activeDate = activeDay ? planDayDate(plan, activeDay.day) : null;
+  const isToday = activeDate ? isSameDate(activeDate, new Date()) : activeKey === dayKeyOf();
+  const dayName = activeDay ? (isToday ? "Hôm Nay" : dayLabel(activeDay).long) : "Hôm Nay";
+  const dayTitle = activeDate ? `${dayName} (${formatDayMonth(activeDate)})` : dayName;
+  const missedTargets = dayTargetDeviations(activeDay);
 
   const toggleLike = (id) => {
     setLikedMeals((prev) => {
@@ -120,10 +122,9 @@ export default function TodayMeals({
     }
     if (!plan || !activeDay) return <EmptyState />;
 
-    const cards = [];
-    meals.forEach((meal) => {
+    const cards = meals.map((meal) => {
       const key = `${activeKey}-${normalizeDay(meal.mealType)}`;
-      cards.push(
+      return (
         <MealCard
           key={key}
           meal={toCardMeal(meal)}
@@ -132,26 +133,12 @@ export default function TodayMeals({
           onReplace={() => handleReplace(meal)}
           replacing={replacingKey === key}
           replaceDisabled={replacingKey !== null}
-        />,
+        />
       );
-      // Bữa phụ mẫu nằm giữa bữa trưa và bữa tối.
-      if (normalizeDay(meal.mealType) === "LUNCH") {
-        cards.push(
-          <MealCard
-            key="snack"
-            meal={{ ...mockSnack, label: mockSnack.meal }}
-            liked={likedMeals.has("snack")}
-            onToggleLike={() => toggleLike("snack")}
-            onReplace={() => {}}
-            replaceDisabled
-            replaceHint="Bữa phụ sẽ được hỗ trợ sau"
-          />,
-        );
-      }
     });
 
     return (
-      <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
         {cards.map((card, index) => (
           <Reveal key={card.key} delay={index * 80}>
             {card}
@@ -165,7 +152,7 @@ export default function TodayMeals({
     <section id="today-meals" className="scroll-mt-28">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold text-ink sm:text-2xl">Thực Đơn 4 Bữa {dayTitle} 🌱</h2>
+          <h2 className="text-xl font-bold text-ink sm:text-2xl">Thực Đơn 3 Bữa {dayTitle} 🌱</h2>
           <p className="mt-1 text-sm text-subtle">Lên kế hoạch năng lượng từng bữa, cùng sống xanh mỗi ngày!</p>
         </div>
 
@@ -184,19 +171,23 @@ export default function TodayMeals({
             </Button>
             {days.map((day) => {
               const key = normalizeDay(day.day);
+              const missed = dayTargetDeviations(day).length > 0;
+              const date = planDayDate(plan, day.day);
               return (
                 <button
                   key={key}
                   type="button"
                   onClick={() => onSelectDay(key)}
                   aria-pressed={key === activeKey}
-                  aria-label={dayLabel(day).long}
+                  aria-label={missed ? `${dayLabel(day).long} (chưa đạt mục tiêu dinh dưỡng)` : dayLabel(day).long}
+                  title={date ? `${dayLabel(day).long} (${formatDayMonth(date)})` : undefined}
                   className={cn(
-                    "grid size-9 place-items-center rounded-full text-sm font-semibold transition",
+                    "relative grid size-9 place-items-center rounded-full text-sm font-semibold transition",
                     key === activeKey ? "bg-brand text-brand-foreground" : "text-subtle hover:bg-surface hover:text-ink",
                   )}
                 >
                   {dayLabel(day).short}
+                  {missed && <span className="absolute right-1 top-1 size-2 rounded-full bg-warning" aria-hidden="true" />}
                 </button>
               );
             })}
@@ -229,11 +220,34 @@ export default function TodayMeals({
             {plans.map((item) => (
               <option key={item.id} value={item.id}>
                 {item.name}
-                {formatDate(item.createdAt) ? ` (${formatDate(item.createdAt)})` : ""}
               </option>
             ))}
           </select>
           {plan.goal && <span className="line-clamp-1 text-xs">Mục tiêu: {plan.goal}</span>}
+        </div>
+      )}
+
+      {missedTargets.length > 0 && (
+        <div
+          role="status"
+          className="mt-4 flex items-start gap-3 rounded-2xl bg-warning/10 px-4 py-3 text-sm text-body ring-1 ring-warning/30"
+        >
+          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
+          <div>
+            <p className="font-semibold text-ink">Ngày này chưa đạt mục tiêu dinh dưỡng bạn đặt</p>
+            <ul className="mt-1 list-inside list-disc text-subtle">
+              {missedTargets.map((item) => (
+                <li key={item.key}>
+                  {item.label}: {item.actual.toLocaleString("vi-VN", { maximumFractionDigits: 1 })} {item.unit}
+                  {item.range && ` (mục tiêu ${item.range})`}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-1 text-xs text-subtle">
+              Các món hiện có chưa ghép được ngày này đúng khoảng đó. Bạn có thể đổi món hoặc nới khoảng mục tiêu rồi lên
+              thực đơn lại.
+            </p>
+          </div>
         </div>
       )}
 
@@ -244,8 +258,8 @@ export default function TodayMeals({
 
 function MealSkeletons() {
   return (
-    <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4" aria-busy="true" aria-label="Đang tải thực đơn">
-      {Array.from({ length: 4 }, (_, index) => (
+    <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3" aria-busy="true" aria-label="Đang tải thực đơn">
+      {Array.from({ length: 3 }, (_, index) => (
         <div key={index} className="h-80 animate-pulse rounded-2xl bg-card shadow-md" />
       ))}
     </div>
