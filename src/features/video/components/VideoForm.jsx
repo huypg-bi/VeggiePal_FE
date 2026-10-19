@@ -2,7 +2,7 @@ import { useEffect, useId, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileVideo, Loader2, SquarePlay, UploadCloud } from "lucide-react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -19,6 +19,7 @@ import {
   VIDEO_TITLE_MAX,
 } from "@/features/video/utils/videoForm";
 import { cn } from "@/lib/utils";
+import SelectField from "@/shared/components/SelectField";
 
 const fieldClass =
   "w-full rounded-xl border border-border bg-surface px-3.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
@@ -66,6 +67,7 @@ export default function VideoForm({ video, categories = [] }) {
   const youtubeUrl = useWatch({ control, name: "youtubeUrl" });
   const titleLength = useWatch({ control, name: "title" })?.length ?? 0;
   const descriptionLength = useWatch({ control, name: "description" })?.length ?? 0;
+  const categoryOptions = categories.map(({ id, name }) => ({ value: String(id), label: name }));
 
   const youtubeId = extractYouTubeId(youtubeUrl);
 
@@ -339,19 +341,22 @@ export default function VideoForm({ video, categories = [] }) {
           <label htmlFor={`${idPrefix}-category`} className={labelClass}>
             Danh mục
           </label>
-          <select
-            id={`${idPrefix}-category`}
-            aria-invalid={Boolean(errors.categoryId)}
-            className={`${fieldClass} h-11`}
-            {...register("categoryId")}
-          >
-            <option value="">Chọn danh mục</option>
-            {categories.map(({ id, name }) => (
-              <option key={id} value={String(id)}>
-                {name}
-              </option>
-            ))}
-          </select>
+          <Controller
+            name="categoryId"
+            control={control}
+            render={({ field }) => (
+              <SelectField
+                id={`${idPrefix}-category`}
+                variant="field"
+                placeholder="Chọn danh mục"
+                options={categoryOptions}
+                value={field.value}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+                aria-invalid={Boolean(errors.categoryId)}
+              />
+            )}
+          />
           {errors.categoryId && <p className={errorClass}>{errors.categoryId.message}</p>}
         </div>
 

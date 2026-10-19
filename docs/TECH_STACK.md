@@ -80,7 +80,7 @@ src/
 │   ├── provider.jsx         # QueryClientProvider + BrowserRouter (provider dùng chung)
 │   └── routes.jsx           # TẤT CẢ route khai báo ở đây
 ├── assets/                  # img/ svg/ video/ — import trực tiếp vào component
-├── components/ui/           # component shadcn (button.jsx ...); cva variants ở ui/variants/ (button-variants.js ...)
+├── components/ui/           # component shadcn (button.jsx, select.jsx ...); cva variants ở ui/variants/ (button-variants.js ...)
 ├── features/                # MỖI TÍNH NĂNG 1 THƯ MỤC (xem bên dưới)
 │   ├── auth/  admin/  blog/  chatbot/  home/  ingredient/  meal-planner/  my-content/  profile/  recipe/  restaurant-map/  video/
 ├── lib/                     # tiện ích dùng chung: queryClient.js, schema.js, utils.js (cn)
@@ -204,6 +204,15 @@ import { Button } from "@/components/ui/button";
 - Trạng thái loading: `<Loader2 className="size-4 animate-spin" />` + chữ mô tả tiếng Việt.
 - Thông báo lỗi trong form: `rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive`; thành công: nền emerald nhạt, chữ emerald.
 - Ngôn ngữ giao diện: **tiếng Việt** (label, placeholder, thông báo lỗi). Giữ giọng văn hiện có.
+
+### 4.6. Dropdown chọn giá trị — luôn dùng `SelectField`
+
+- **Không dùng thẻ `<select>` gốc** (danh sách `<option>` do hệ điều hành vẽ, không đồng bộ giao diện). Dùng `SelectField` (`@/shared/components/SelectField`), bọc shadcn `Select` (`@/components/ui/select`, chạy trên `@base-ui/react`).
+- Props chính: `options` (`[{ value, label }]`), `value`, `onValueChange(value)` (nhận lại đúng `value` gốc, số hay chuỗi đều được), `placeholder`, `id` (cho `<label htmlFor>`), `aria-label`, `aria-invalid`.
+- `variant="pill"` (mặc định): thanh lọc, bo tròn hẳn. `variant="field"`: ô trong form, bo `rounded-xl` cùng dáng ô input. Truyền `className` để đổi chiều cao (vd `h-10`); `active` tô nhẹ nút khi đang lọc khác mặc định.
+- Popup bo `rounded-2xl`, xổ ngay dưới nút, mục đang chọn tô `bg-brand-soft` (không có dấu tick).
+- Trong form react-hook-form phải bọc bằng `Controller` (không dùng `register`): `onValueChange={field.onChange}`, `onBlur={field.onBlur}`.
+- Giá trị rỗng/`undefined` của option (vd "Tất cả danh mục") được coi là một lựa chọn hợp lệ; giá trị không khớp option nào thì hiện `placeholder`.
 
 ---
 

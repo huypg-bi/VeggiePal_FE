@@ -40,7 +40,7 @@ export default function BlogFormScreen() {
   } else if (categoriesError) {
     body = <Notice title="Không tải được danh mục">Vui lòng tải lại trang và thử lại.</Notice>;
   } else if (categoriesPending || (isEdit && blogPending)) {
-    // Form chỉ dựng sau khi có danh mục + bài, vì <select> cần đủ <option> để nhận giá trị ban đầu.
+    // Form chỉ dựng sau khi có danh mục + bài, vì dropdown danh mục cần đủ option để hiện giá trị ban đầu.
     body = <FormSkeleton />;
   } else {
     body = <BlogForm blog={isEdit ? blog : undefined} categories={flattenCategories(categoryTree)} />;
