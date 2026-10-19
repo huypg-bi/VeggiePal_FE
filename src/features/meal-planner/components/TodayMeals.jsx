@@ -21,9 +21,7 @@ import {
 } from "@/features/meal-planner/utils/mealPlan";
 import { cn } from "@/lib/utils";
 import Reveal from "@/shared/components/Reveal";
-
-const selectClass =
-  "h-9 max-w-full rounded-full border border-border bg-card px-3 text-sm font-medium text-ink outline-none transition focus:border-brand/40 focus:ring-2 focus:ring-brand/15";
+import SelectField from "@/shared/components/SelectField";
 
 /**
  * Thực đơn theo ngày của thực đơn đang xem.
@@ -52,6 +50,7 @@ export default function TodayMeals({
   const planIndex = plan ? plans.findIndex((item) => item.id === plan.id) : -1;
   const olderPlan = planIndex >= 0 ? plans[planIndex + 1] : undefined;
   const newerPlan = planIndex > 0 ? plans[planIndex - 1] : undefined;
+  const planOptions = plans.map((item) => ({ value: item.id, label: item.name }));
 
   const activeKey = normalizeDay(activeDay?.day);
   // Ngày cụ thể của thứ đang chọn (theo tuần chứa ngày tạo thực đơn). "Hôm Nay" chỉ khi đúng là hôm nay,
@@ -211,18 +210,13 @@ export default function TodayMeals({
           <label htmlFor="meal-plan-select" className="font-medium">
             Thực đơn đang xem:
           </label>
-          <select
+          <SelectField
             id="meal-plan-select"
+            options={planOptions}
             value={plan.id}
-            onChange={(event) => onSelectPlan(Number(event.target.value))}
-            className={selectClass}
-          >
-            {plans.map((item) => (
-              <option key={item.id} value={item.id}>
-                {item.name}
-              </option>
-            ))}
-          </select>
+            onValueChange={onSelectPlan}
+            className="h-9 max-w-full px-3"
+          />
           {plan.goal && <span className="line-clamp-1 text-xs">Mục tiêu: {plan.goal}</span>}
         </div>
       )}

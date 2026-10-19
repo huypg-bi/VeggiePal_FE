@@ -121,10 +121,10 @@ Giao diện chạy tại: http://localhost:5173
 ```text
 src/
 ├── app/            # App, provider (Query + Router), routes
-├── components/ui/  # Component shadcn/ui
+├── components/ui/  # Component shadcn/ui (button, dialog, dropdown-menu, select ...)
 ├── features/       # auth, home, meal-planner, profile, video, restaurant-map, chatbot
 ├── lib/            # queryClient, schema zod, cn
-├── shared/         # apiClient (axios), Reveal, ThemeToggle, themeStore
+├── shared/         # apiClient (axios), Reveal, ThemeToggle, SelectField (dropdown chọn giá trị), themeStore
 └── styles/         # globals.css (Tailwind + design token)
 docs/TECH_STACK.md  # Quy ước công nghệ & UI
 ```
