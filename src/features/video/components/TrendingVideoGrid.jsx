@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { formatCompactNumber, formatTimeAgo, getInitials } from "@/features/blog/utils/blogFormat";
 import FallbackImage from "@/shared/components/FallbackImage";
 import Reveal from "@/shared/components/Reveal";
+import SelectField from "@/shared/components/SelectField";
 
 export default function TrendingVideoGrid({
   videos = [],
@@ -17,15 +18,30 @@ export default function TrendingVideoGrid({
   isFetchingNextPage,
   onClearFilter,
   hasFilter,
+  categories = [],
+  activeCategoryId,
+  onCategoryChange,
 }) {
+  const categoryOptions = [
+    { value: undefined, label: "Tất cả danh mục" },
+    ...categories.map((cat) => ({ value: cat.id, label: cat.name })),
+  ];
+
   return (
     <section className="flex flex-col gap-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-bold text-ink sm:text-2xl">
           Video nấu ăn mới nhất
         </h2>
-        {videos.length > 0 && (
-          <span className="text-xs text-subtle">{videos.length} video</span>
+        {categories.length > 0 && (
+          <SelectField
+            aria-label="Lọc theo danh mục"
+            options={categoryOptions}
+            value={activeCategoryId ?? undefined}
+            onValueChange={onCategoryChange}
+            align="end"
+            active={Boolean(activeCategoryId)}
+          />
         )}
       </div>
 

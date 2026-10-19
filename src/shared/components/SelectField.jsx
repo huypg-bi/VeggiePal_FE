@@ -32,6 +32,7 @@ export default function SelectField({
   contentClassName,
   "aria-label": ariaLabel,
   "aria-invalid": ariaInvalid,
+  align = "start",
 }) {
   const items = options.map((option) => ({ value: toKey(option.value), label: option.label }));
   const key = toKey(value);
@@ -81,7 +82,7 @@ export default function SelectField({
           <SelectValue placeholder={placeholder} />
         )}
       </SelectTrigger>
-      <SelectContent className={contentClassName}>
+      <SelectContent align={align} className={contentClassName}>
         {items.map((item) => (
           <SelectItem key={item.value} value={item.value}>
             {item.label}
