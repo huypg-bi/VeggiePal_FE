@@ -60,18 +60,20 @@ export default function AppHeader() {
 
   return (
     <header className="sticky top-4 z-30 mb-4 px-6 sm:px-8">
-      <div className="mx-auto flex w-full max-w-[1560px] items-center gap-4 rounded-full border border-border bg-card/90 px-6 py-1 shadow-sm backdrop-blur">
-        <Link to="/" className="flex shrink-0 items-center gap-2">
-          <img src={logo} alt="VeggiePal" className="h-12 w-auto mt-1 mb-1" />
-        </Link>
+      <div className="mx-auto flex w-full max-w-[1560px] items-center justify-between gap-4 rounded-full border border-border bg-card/90 px-6 py-1 shadow-sm backdrop-blur lg:grid lg:grid-cols-[1fr_auto_1fr]">
+        <div className="flex items-center justify-start">
+          <Link to="/" className="flex shrink-0 items-center gap-2">
+            <img src={logo} alt="VeggiePal" className="h-12 w-auto mt-1 mb-1" />
+          </Link>
+        </div>
 
-        <nav className="ml-auto hidden items-center gap-1 lg:flex">
+        <nav className="hidden items-center justify-center gap-1 lg:flex">
           {NAV_ITEMS.map(({ id, label, icon: Icon, to }) => (
             <Link
               key={id}
               to={to}
               className={cn(
-                "flex items-center gap-1.5 rounded-full px-3.5 py-2 font-display-serif text-base font-medium transition",
+                "flex items-center gap-1.5 rounded-full px-2.5 py-1.5 font-display-serif text-sm font-medium transition xl:px-3.5 xl:py-2 xl:text-base",
                 // Trang con (vd /blog/5) cũng tính là đang ở mục cha (/blog).
                 location.pathname === to ||
                   (to !== "/" && location.pathname.startsWith(`${to}/`))
@@ -85,7 +87,7 @@ export default function AppHeader() {
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-3 lg:ml-2">
+        <div className="flex items-center justify-end gap-3">
 
           {isAuthenticated && (
             <Button

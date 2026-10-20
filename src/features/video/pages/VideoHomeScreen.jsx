@@ -7,7 +7,6 @@ import { flattenCategories } from "@/features/blog/utils/feedFilters";
 import TrendingVideoGrid from "@/features/video/components/TrendingVideoGrid";
 import VideoChannelBar from "@/features/video/components/VideoChannelBar";
 import { useVideoFeed } from "@/features/video/hooks/useVideos";
-import { cn } from "@/lib/utils";
 import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
@@ -70,37 +69,6 @@ export default function VideoHomeScreen() {
           </Link>
         </div>
 
-        {/* Thanh lọc theo danh mục */}
-        <div className="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1">
-          <button
-            type="button"
-            onClick={() => setCategory(null)}
-            className={cn(
-              "shrink-0 rounded-full px-4 py-2 text-sm font-medium transition",
-              activeCategoryId === null
-                ? "bg-brand text-brand-foreground shadow-sm"
-                : "bg-surface text-subtle hover:bg-surface/80 hover:text-ink"
-            )}
-          >
-            Tất cả danh mục
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => setCategory(cat.id)}
-              className={cn(
-                "shrink-0 rounded-full px-4 py-2 text-sm font-medium transition",
-                activeCategoryId === cat.id
-                  ? "bg-brand text-brand-foreground shadow-sm"
-                  : "bg-surface text-subtle hover:bg-surface/80 hover:text-ink"
-              )}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
-
         <Reveal>
           <VideoChannelBar />
         </Reveal>
@@ -116,6 +84,9 @@ export default function VideoHomeScreen() {
           isFetchingNextPage={isFetchingNextPage}
           hasFilter={activeCategoryId !== null}
           onClearFilter={() => setCategory(null)}
+          categories={categories}
+          activeCategoryId={activeCategoryId}
+          onCategoryChange={setCategory}
         />
       </main>
 

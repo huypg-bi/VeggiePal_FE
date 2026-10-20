@@ -1,10 +1,46 @@
 import { Link } from "react-router-dom";
-import { Loader2, PlaySquare, Video as VideoIcon } from "lucide-react";
+import {
+  CakeSlice,
+  ChefHat,
+  Coffee,
+  Cookie,
+  CookingPot,
+  LayoutGrid,
+  Leaf,
+  Loader2,
+  PlaySquare,
+  Salad,
+  Sandwich,
+  Soup,
+  Sprout,
+  Utensils,
+  Video as VideoIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { formatCompactNumber, formatTimeAgo, getInitials } from "@/features/blog/utils/blogFormat";
 import FallbackImage from "@/shared/components/FallbackImage";
 import Reveal from "@/shared/components/Reveal";
+import SelectField from "@/shared/components/SelectField";
+
+function getCategoryIcon(name) {
+  if (!name) return LayoutGrid;
+  const n = name.toLowerCase().trim();
+
+  if (n.includes("tất cả")) return LayoutGrid;
+  if (n.includes("chính")) return Utensils;
+  if (n.includes("sáng")) return Sandwich;
+  if (n.includes("salad")) return Salad;
+  if (n.includes("nước") || n.includes("canh") || n.includes("súp") || n.includes("soup") || n.includes("phở")) return Soup;
+  if (n.includes("healthy") || n.includes("sức khỏe")) return Sprout;
+  if (n.includes("việt nam") || n.includes("truyền thống")) return CookingPot;
+  if (n.includes("tráng miệng") || n.includes("bánh")) return CakeSlice;
+  if (n.includes("uống") || n.includes("nước ép") || n.includes("trà") || n.includes("cà phê")) return Coffee;
+  if (n.includes("vặt")) return Cookie;
+  if (n.includes("chay")) return Leaf;
+
+  return ChefHat;
+}
 
 export default function TrendingVideoGrid({
   videos = [],
@@ -17,15 +53,34 @@ export default function TrendingVideoGrid({
   isFetchingNextPage,
   onClearFilter,
   hasFilter,
+  categories = [],
+  activeCategoryId,
+  onCategoryChange,
 }) {
+  const categoryOptions = [
+    { value: undefined, label: "Tất cả danh mục", icon: LayoutGrid },
+    ...categories.map((cat) => ({
+      value: cat.id,
+      label: cat.name,
+      icon: getCategoryIcon(cat.name),
+    })),
+  ];
+
   return (
     <section className="flex flex-col gap-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-bold text-ink sm:text-2xl">
           Video nấu ăn mới nhất
         </h2>
-        {videos.length > 0 && (
-          <span className="text-xs text-subtle">{videos.length} video</span>
+        {categories.length > 0 && (
+          <SelectField
+            aria-label="Lọc theo danh mục"
+            options={categoryOptions}
+            value={activeCategoryId ?? undefined}
+            onValueChange={onCategoryChange}
+            align="end"
+            active={Boolean(activeCategoryId)}
+          />
         )}
       </div>
 
