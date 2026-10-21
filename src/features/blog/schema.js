@@ -19,7 +19,7 @@ export const BLOG_TITLE_MAX = 150;
 export const BLOG_CONTENT_MIN = 20;
 
 // Form viết / sửa bài, khớp BlogRequest: tiêu đề tối đa 150 ký tự, nội dung tối thiểu 20 ký tự,
-// bắt buộc chọn danh mục. categoryId giữ dạng chuỗi vì lấy từ <select>, đổi sang số khi gửi.
+// bắt buộc chọn danh mục. categoryId giữ dạng chuỗi vì lấy từ dropdown, đổi sang số khi gửi.
 export const blogSchema = z.object({
   title: z
     .string()

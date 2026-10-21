@@ -29,8 +29,8 @@ const EMPTY_PAGE = {
 // sang tiếng Việt theo `code`. Lỗi lạ dùng message của BE.
 const VI_MESSAGES = {
   1001: "Dữ liệu không hợp lệ, vui lòng kiểm tra lại các trường đã nhập",
-  1002: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
-  1003: "Bạn không có quyền thực hiện thao tác này",
+  1008: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
+  1009: "Bạn không có quyền thực hiện thao tác này",
   4000: "Vui lòng nhập tên nguyên liệu",
   4001: "Tên nguyên liệu tối đa 150 ký tự",
   4002: "Mô tả tối đa 1000 ký tự",
