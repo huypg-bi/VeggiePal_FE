@@ -1,10 +1,6 @@
 import {
-  AlertCircle,
-  Calendar,
   Check,
-  CheckCircle2,
   ExternalLink,
-  Eye,
   FileText,
   Info,
   MessageSquare,
@@ -13,7 +9,6 @@ import {
   Video,
   X,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import {

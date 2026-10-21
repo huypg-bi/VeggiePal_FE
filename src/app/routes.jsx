@@ -27,6 +27,10 @@ import RecipeListScreen from "@/features/recipe/pages/RecipeListScreen";
 import RecipeDetailScreen from "@/features/recipe/pages/RecipeDetailScreen";
 import RecipeFormScreen from "@/features/recipe/pages/RecipeFormScreen";
 import MyContentScreen from "@/features/my-content/pages/MyContentScreen";
+import PricingScreen from "@/features/payment/pages/PricingScreen";
+import PaymentSuccessScreen from "@/features/payment/pages/PaymentSuccessScreen";
+import PaymentCancelScreen from "@/features/payment/pages/PaymentCancelScreen";
+import PaymentHistoryScreen from "@/features/payment/pages/PaymentHistoryScreen";
 
 export default function AppRoutes() {
   return (
@@ -157,6 +161,33 @@ export default function AppRoutes() {
       />
       {/* Công khai: khách chat thử (POST /ai/chat/guest), thành viên có lịch sử hội thoại */}
       <Route path="/chatbot" element={<ChatbotScreen />} />
+
+      {/* Gói thành viên & Thanh toán payOS */}
+      <Route path="/pricing" element={<PricingScreen />} />
+      <Route
+        path="/payment/success"
+        element={
+          <ProtectedRoute>
+            <PaymentSuccessScreen />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment/cancel"
+        element={
+          <ProtectedRoute>
+            <PaymentCancelScreen />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment/history"
+        element={
+          <ProtectedRoute>
+            <PaymentHistoryScreen />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Khu quản trị: chỉ ADMIN (AdminRoute chặn), dùng khung AdminLayout riêng thay vì AppHeader */}
       <Route element={<AdminRoute />}>

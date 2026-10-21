@@ -44,7 +44,7 @@ const VI_MESSAGES = {
   6000: "Thông tin chưa hợp lệ, vui lòng kiểm tra lại các mục đã nhập (ví dụ mục tiêu dinh dưỡng có mức tối thiểu lớn hơn tối đa)",
   6001: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
   6002: "Không tìm thấy thực đơn này",
-  6003: "Bạn đã dùng hết lượt AI hôm nay, vui lòng quay lại vào ngày mai",
+  6003: "Bạn đã dùng hết lượt tạo thực đơn trong tháng này. Bạn có thể nâng cấp gói tại /pricing để tiếp tục hoặc quay lại vào tháng sau",
   6004: "AI đang tạm thời quá tải, vui lòng thử lại sau ít phút",
   6005: "Tính năng AI chưa được cấu hình trên máy chủ",
   6006: "Chưa lấy được dữ liệu công thức hoặc sức khỏe của bạn, vui lòng thử lại sau",

@@ -82,7 +82,7 @@ src/
 ├── assets/                  # img/ svg/ video/ — import trực tiếp vào component
 ├── components/ui/           # component shadcn (button.jsx, select.jsx ...); cva variants ở ui/variants/ (button-variants.js ...)
 ├── features/                # MỖI TÍNH NĂNG 1 THƯ MỤC (xem bên dưới)
-│   ├── auth/  admin/  blog/  chatbot/  home/  ingredient/  meal-planner/  my-content/  profile/  recipe/  restaurant-map/  video/
+│   ├── auth/  admin/  blog/  chatbot/  home/  ingredient/  meal-planner/  my-content/  payment/  profile/  recipe/  restaurant-map/  video/
 ├── lib/                     # tiện ích dùng chung: queryClient.js, schema.js, utils.js (cn)
 ├── shared/                  # dùng chung nhiều feature
 │   ├── api/apiClient.js     # axios instance duy nhất
@@ -131,6 +131,7 @@ features/<ten-feature>/
 | recipe | `/recipes/new`, `/recipes/:recipeId/edit` | API thật: tạo / sửa công thức (chọn nguyên liệu từ `/ingredients`); danh sách công khai hiện ở trang chủ. `GET /recipes/:id` kèm token thì chủ công thức / ADMIN đọc được bản nháp (nạp form sửa, xem chi tiết), người khác nhận 404; công thức ARCHIVED (đã xóa) hoặc HIDDEN không sửa / đăng / xóa được (lỗi 4108). Lỗi recipe-service (1008/1009, 4100-4108) được dịch trong `recipeApi.js`, lỗi nguyên liệu trong `ingredientApi.js` |
 | admin | `/admin`, `/admin/categories`, `/admin/ingredients`, `/admin/moderation`, `/admin/ai-monitoring` | API thật, chỉ role ADMIN (`AdminRoute`): tổng quan, quản lý danh mục (`/categories`), nguyên liệu (`/ingredients`), kiểm duyệt nội dung (ai-service: hàng đợi `GET /ai/admin/moderation` với các case REVIEW_REQUIRED, duyệt/từ chối `PUT /ai/admin/moderation/:id` kèm lý do, BE tự đồng bộ về blog-service) và giám sát AI (ai-service qua gateway: `GET /ai/admin/monitoring/summary`, `/logs/search`, `/models`, `/limits`). ADMIN đăng nhập xong vào thẳng `/admin` (`resolvePostLoginPath`) |
 | chatbot | `/chatbot` (công khai) | API thật (ai-service, `chatbotApi.js` + `useChatbot` React Query): thành viên chat nhiều lượt + xem/xóa lịch sử hội thoại (`/ai/chat`, `/ai/chat/conversations`); khách chưa đăng nhập dùng thử qua `/ai/chat/guest-sessions` + `/ai/chat/guest` (có giới hạn lượt/ngày, phiên lưu `sessionStorage`). `mockChatData.js` chỉ còn `FALLBACK_NOTICE` (chưa dùng thực tế) |
+| payment | /pricing, /payment/success, /payment/cancel, /payment/history | API thật (payment-service qua gateway, tích hợp payOS): xem các gói thành viên công khai (GET /payments/plans), tạo đơn thanh toán payOS (POST /payments/checkout, lưu order.id tạm ở sessionStorage, chuyển hướng cổng payOS), trang thành công (/payment/success, polling GET /payments/orders/:id xác nhận webhook, không tin query param payOS, cập nhật gói ngay), trang hủy (/payment/cancel), lịch sử đơn hàng (/payment/history, GET /payments/history), thông tin gói hiện tại (GET /subscriptions/me, hiển thị ở header menu và trang profile). Bảng dịch lỗi riêng trong paymentApi.js (6001-6004, 1008/401). |
 
 Khi nối API thật cho feature đang mock: giữ nguyên UI, thay nguồn dữ liệu bằng `*Api.js` + React Query hook theo mẫu của `profile`.
 

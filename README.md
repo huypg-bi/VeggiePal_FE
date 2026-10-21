@@ -44,6 +44,7 @@
 - **📍 Bản đồ xanh (Map):** Tìm kiếm và xem danh sách các nhà hàng, quán ăn chay *(Mock Data)*.
 - **🤖 Trợ lý Bông Cải (AI Chatbot):** Giao diện hỏi đáp kiến thức dinh dưỡng chay, quản lý nhiều đoạn chat *(API thật: ai-service, có chế độ dùng thử cho khách)*.
 - **🎨 Giao diện & Trải nghiệm:** Landing page hiện đại, hỗ trợ chuyển đổi chế độ Sáng/Tối (Light/Dark Mode).
+- **💳 Gói thành viên & Thanh toán (Payment & Subscriptions):** Xem bảng giá các gói thành viên (FREE, PLUS, PRO), thanh toán qua cổng payOS VietQR, polling kiểm tra webhook kích hoạt gói tức thì, quản lý lịch sử thanh toán và thời hạn sử dụng *(API thật: payment-service)*.
 
 ---
 
@@ -122,7 +123,7 @@ Giao diện chạy tại: http://localhost:5173
 src/
 ├── app/            # App, provider (Query + Router), routes
 ├── components/ui/  # Component shadcn/ui (button, dialog, dropdown-menu, select ...)
-├── features/       # auth, home, meal-planner, profile, video, restaurant-map, chatbot
+├── features/       # auth, home, meal-planner, payment, profile, video, restaurant-map, chatbot
 ├── lib/            # queryClient, schema zod, cn
 ├── shared/         # apiClient (axios), Reveal, ThemeToggle, SelectField (dropdown chọn giá trị), themeStore
 └── styles/         # globals.css (Tailwind + design token)
@@ -150,3 +151,9 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | `GET` / `POST` | `/nutrition/me/health-records` | Lịch sử / ghi chỉ số sức khỏe |
 | `GET` | `/nutrition/me/health-records/latest` | Chỉ số sức khỏe mới nhất |
 | `GET` | `/ai/admin/monitoring/summary`, `/logs/search`, `/models`, `/limits` | Giám sát AI (chỉ ADMIN): tổng hợp, nhật ký, model, giới hạn |
+
+| GET | /payments/plans | Danh sách gói thành viên (công khai) |
+| POST | /payments/checkout | Tạo đơn thanh toán payOS (gói PLUS / PRO) |
+| GET | /payments/orders/:id | Chi tiết đơn thanh toán theo ID |
+| GET | /payments/history | Lịch sử giao dịch của người dùng |
+| GET | /subscriptions/me | Thông tin gói thành viên hiện tại và hạn dùng |
