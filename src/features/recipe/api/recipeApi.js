@@ -3,17 +3,21 @@ import apiClient from "@/shared/api/apiClient";
 /**
  * Recipe APIs (recipe-service qua api-gateway) — GET công khai, không cần token.
  *   GET /recipes?keyword=&page=&size=
- *   GET /recipes/:id   (BE không lọc trạng thái nên bản nháp cũng đọc được -> dùng để nạp form sửa)
+ *   GET /recipes/:id   (công thức đã đăng ai cũng đọc được; bản nháp / đang ẩn (DRAFT, HIDDEN) chỉ chủ công thức
+ *     và ADMIN đọc được khi kèm token hợp lệ, người khác nhận 404 (4100) -> dùng để nạp form sửa.
+ *     Token hỏng / hết hạn bị bỏ qua, không làm 401. Công thức ARCHIVED (đã xóa) vẫn đọc được để thực đơn
+ *     cũ còn hiện món.)
  * Cần đăng nhập:
  *   POST   /recipes             tạo (luôn là DRAFT)
  *   PUT    /recipes/:id         sửa (chủ công thức hoặc ADMIN), không đổi trạng thái
- *   POST   /recipes/:id/publish đăng (DRAFT/HIDDEN -> PUBLISHED, không kiểm duyệt)
- *   DELETE /recipes/:id
- *   GET    /recipes/me
+ *   POST   /recipes/:id/publish đăng (DRAFT -> PUBLISHED, không kiểm duyệt)
+ *   DELETE /recipes/:id         xóa mềm (chuyển ARCHIVED)
+ *   GET    /recipes/me          (không gồm công thức đã xóa)
+ * Công thức ARCHIVED / HIDDEN không sửa, đăng, xóa được (lỗi 4108).
  * Recipe: { id, userId, title, description, imageUrl, servings, prepTime, cookTime,
  *   status, ingredients: [{ ingredientId, ingredientName, quantity, unit, note }],
  *   steps: [{ stepNumber, instruction }], createdAt, updatedAt, publishedAt }
- * status: "DRAFT" | "PUBLISHED" | "HIDDEN"
+ * status: "DRAFT" | "PUBLISHED" | "HIDDEN" | "ARCHIVED"
  * Page: { content, page, size, totalElements, totalPages, first, last }
  * userId là id tác giả -> lấy tên qua usePublicUsers (GET /users/batch).
  */
@@ -32,15 +36,18 @@ const EMPTY_PAGE = {
 // sang tiếng Việt theo `code`. Lỗi lạ dùng message của BE.
 const VI_MESSAGES = {
   1001: "Dữ liệu không hợp lệ, vui lòng kiểm tra lại các trường đã nhập",
-  1002: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
-  1003: "Bạn không có quyền thực hiện thao tác này",
+  1008: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
+  1009: "Bạn không có quyền thực hiện thao tác này",
   4003: "Có nguyên liệu không tồn tại",
-  4004: "Có nguyên liệu bị chọn trùng, mỗi nguyên liệu chỉ được thêm một lần",
   4100: "Công thức không tồn tại",
   4101: "Vui lòng nhập tên công thức",
   4102: "Bạn không thể chỉnh sửa công thức này",
   4103: "Công thức này đã được đăng rồi",
   4104: "Có nguyên liệu đã ngừng sử dụng, vui lòng chọn nguyên liệu khác",
+  4105: "Có nguyên liệu bị chọn trùng, mỗi nguyên liệu chỉ được thêm một lần",
+  4106: "Các bước thực hiện bị trùng số thứ tự, vui lòng thử lại",
+  4107: "Có đơn vị nguyên liệu chưa được hỗ trợ, vui lòng chọn lại đơn vị",
+  4108: "Công thức đã bị xóa hoặc đang bị ẩn nên không thể thực hiện thao tác này",
 };
 
 function unwrap(res, fallbackMessage) {

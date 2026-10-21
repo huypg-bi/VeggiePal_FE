@@ -65,7 +65,7 @@ export const canEditBlog = (status) => status !== "BANNED";
 /** Gửi duyệt: chỉ bản nháp (BE trả lỗi 3015 với trạng thái khác). */
 export const canSubmitBlog = (status) => status === "DRAFT";
 
-/** Đăng công thức: chỉ bản nháp. (BE còn cho đăng lại công thức HIDDEN, nhưng đó là quản trị ẩn nên không mở.) */
+/** Đăng công thức: chỉ bản nháp. (BE từ chối đăng công thức HIDDEN / ARCHIVED với lỗi 4108.) */
 export const canPublishRecipe = (status) => status === "DRAFT";
 
 /** Sửa video: BE cho sửa ở mọi trạng thái trừ BANNED. */
