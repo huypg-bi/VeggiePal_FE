@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, Loader2, X } from "lucide-react";
+import { Check, ExternalLink, Loader2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -31,7 +31,7 @@ export default function ReviewDecisionDialog({
     onConfirm({
       id: item?.caseId,
       decision,
-      reason,
+      reason: reason?.trim() || null,
     });
   };
 
@@ -67,7 +67,56 @@ export default function ReviewDecisionDialog({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-2 py-2">
+        {/* Thông tin tóm tắt của case */}
+        {item && (
+          <div className="rounded-2xl border border-border bg-surface p-3 text-xs text-subtle space-y-1.5">
+            <div className="flex justify-between">
+              <span>Loại nội dung:</span>
+              <span className="font-semibold text-ink">{item.contentType || "Chưa xác định"}</span>
+            </div>
+            {item.externalContentId != null && (
+              <div className="flex justify-between items-center">
+                <span>Mã nội dung gốc:</span>
+                {item.contentType === "BLOG" ? (
+                  <a
+                    href={`/blog/${item.externalContentId}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 font-mono font-semibold text-ink underline hover:text-brand"
+                    title="Mở bài viết trong tab mới (Admin có quyền xem bài chưa đăng)"
+                  >
+                    #{item.externalContentId}
+                    <ExternalLink className="size-3 text-subtle" />
+                  </a>
+                ) : (
+                  <span className="font-mono font-semibold text-ink">#{item.externalContentId}</span>
+                )}
+              </div>
+            )}
+            {item.authorId != null && (
+              <div className="flex justify-between">
+                <span>Mã tác giả:</span>
+                <span className="font-mono font-semibold text-ink">#{item.authorId}</span>
+              </div>
+            )}
+            {item.content && (
+              <div className="pt-1 border-t border-border/60">
+                <span className="block text-[11px] font-medium text-subtle mb-0.5">Nội dung bị gắn cờ:</span>
+                <p className="line-clamp-3 italic text-body bg-destructive/5 rounded-xl border border-destructive/15 p-2 text-[11px]">
+                  "{item.content}"
+                </p>
+              </div>
+            )}
+            {item.reason && (
+              <div className="pt-1 border-t border-border/60">
+                <span className="block text-[11px] font-medium text-subtle mb-0.5">Lý do từ AI:</span>
+                <p className="line-clamp-2 italic text-body">{item.reason}</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2 py-1">
           <label htmlFor="moderation-reason" className="text-xs font-semibold text-ink">
             Lý do quyết định {isApprove ? "(tùy chọn)" : "(khuyến khích)"}
           </label>
