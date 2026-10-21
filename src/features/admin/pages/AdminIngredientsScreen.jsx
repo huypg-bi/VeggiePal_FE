@@ -7,24 +7,14 @@ import IngredientFormDialog from "@/features/admin/components/IngredientFormDial
 import { useDeleteIngredient } from "@/features/ingredient/hooks/useIngredientMutations";
 import { useIngredients } from "@/features/ingredient/hooks/useIngredients";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
-import SelectField from "@/shared/components/SelectField";
 
 const PAGE_SIZE = 10;
 const SEARCH_DEBOUNCE_MS = 400;
 
-const VEGAN_OPTIONS = [
-  { value: "", label: "Mọi loại" },
-  { value: "true", label: "Thuần chay" },
-  { value: "false", label: "Không thuần chay" },
-];
+const selectClass =
+  "h-10 rounded-full border border-border bg-surface px-3.5 text-sm text-ink outline-none transition focus:border-brand/40 focus:ring-2 focus:ring-brand/15";
 
-const ALLERGEN_OPTIONS = [
-  { value: "", label: "Dị ứng: tất cả" },
-  { value: "true", label: "Có thể gây dị ứng" },
-  { value: "false", label: "Không gây dị ứng" },
-];
-
-// Giá trị của dropdown lọc -> tham số boolean của BE ("" = không lọc).
+// Giá trị của <select> lọc -> tham số boolean của BE ("" = không lọc).
 const toBool = (value) => (value === "" ? undefined : value === "true");
 
 const num = (value) => (value == null ? "—" : Number(value));
@@ -63,8 +53,8 @@ export default function AdminIngredientsScreen() {
     }, SEARCH_DEBOUNCE_MS);
   };
 
-  const handleFilter = (setter) => (value) => {
-    setter(value);
+  const handleFilter = (setter) => (event) => {
+    setter(event.target.value);
     setPage(0);
   };
 
@@ -109,20 +99,21 @@ export default function AdminIngredientsScreen() {
             className="h-10 w-full rounded-full border border-border bg-surface pl-10 pr-4 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15"
           />
         </div>
-        <SelectField
-          aria-label="Lọc thuần chay"
-          options={VEGAN_OPTIONS}
-          value={vegan}
-          onValueChange={handleFilter(setVegan)}
-          className="h-10"
-        />
-        <SelectField
-          aria-label="Lọc dị ứng"
-          options={ALLERGEN_OPTIONS}
+        <select value={vegan} onChange={handleFilter(setVegan)} aria-label="Lọc thuần chay" className={selectClass}>
+          <option value="">Mọi loại</option>
+          <option value="true">Thuần chay</option>
+          <option value="false">Không thuần chay</option>
+        </select>
+        <select
           value={allergen}
-          onValueChange={handleFilter(setAllergen)}
-          className="h-10"
-        />
+          onChange={handleFilter(setAllergen)}
+          aria-label="Lọc dị ứng"
+          className={selectClass}
+        >
+          <option value="">Dị ứng: tất cả</option>
+          <option value="true">Có thể gây dị ứng</option>
+          <option value="false">Không gây dị ứng</option>
+        </select>
       </div>
 
       {isError ? (

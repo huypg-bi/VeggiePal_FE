@@ -1,4 +1,4 @@
-import { Clock, Loader2, Pencil, RefreshCw, Scale, Timer, Utensils } from "lucide-react";
+import { Clock, Heart, Loader2, RefreshCw, Scale, Timer, Utensils } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
@@ -12,13 +12,13 @@ import FallbackImage from "@/shared/components/FallbackImage";
  * - href: có thì tên món dẫn tới trang công thức.
  * - onReplace: có thì hiện nút "Đổi món"; `replacing` đang đổi bữa này, `replaceDisabled` khóa nút
  *   (đang đổi bữa khác hoặc bữa này không đổi được).
- * - onEdit: có thì hiện nút "Tự chọn món / khẩu phần" (mở hộp thoại chỉnh tay), khóa cùng điều kiện với "Đổi món".
- * (Yêu thích là theo cả thực đơn, nút nằm ở TodayMeals chứ không ở từng thẻ món.)
+ * - liked / onToggleLike: nút tim yêu thích (hiện mới lưu tạm trong phiên, BE chưa có API).
  */
 export default function MealCard({
   meal,
+  liked,
+  onToggleLike,
   onReplace,
-  onEdit,
   replacing = false,
   replaceDisabled = false,
   replaceHint,
@@ -50,6 +50,15 @@ export default function MealCard({
           {meal.label}
           {meal.time ? ` • ${meal.time}` : ""}
         </span>
+        <button
+          type="button"
+          aria-label="Yêu thích món này"
+          aria-pressed={liked}
+          onClick={onToggleLike}
+          className="absolute right-3 top-3 grid size-7 place-items-center rounded-full bg-white/95 shadow-sm transition hover:scale-105"
+        >
+          <Heart className={cn("h-3.5 w-3.5 transition", liked ? "fill-danger text-danger" : "text-neutral-400")} />
+        </button>
         {meal.servingMultiplier > 0 && meal.servingMultiplier !== 1 && (
           <span
             title="Khẩu phần được điều chỉnh để tổng năng lượng trong ngày sát mục tiêu của bạn"
@@ -78,34 +87,18 @@ export default function MealCard({
           <MacroStat value={`${meal.fat}g`} unit="Béo" valueClass="text-chart-4" />
         </div>
 
-        {(onReplace || onEdit) && (
-          <div className="mt-3 flex flex-col gap-2">
-            {onReplace && (
-              <Button
-                type="button"
-                variant="soft"
-                className="text-xs"
-                disabled={replaceDisabled || replacing}
-                title={replaceHint}
-                onClick={onReplace}
-              >
-                {replacing ? <Loader2 className="size-3.5 animate-spin" /> : <RefreshCw className="size-3.5" />}
-                {replacing ? "Đang đổi món..." : "Đổi món (AI gợi ý)"}
-              </Button>
-            )}
-            {onEdit && (
-              <Button
-                type="button"
-                variant="outline"
-                className="text-xs"
-                disabled={replaceDisabled || replacing}
-                onClick={onEdit}
-              >
-                <Pencil className="size-3.5" />
-                Tự chọn món / khẩu phần
-              </Button>
-            )}
-          </div>
+        {onReplace && (
+          <Button
+            type="button"
+            variant="soft"
+            className="mt-3 text-xs"
+            disabled={replaceDisabled || replacing}
+            title={replaceHint}
+            onClick={onReplace}
+          >
+            {replacing ? <Loader2 className="size-3.5 animate-spin" /> : <RefreshCw className="size-3.5" />}
+            {replacing ? "Đang đổi món..." : "Đổi món (AI gợi ý)"}
+          </Button>
         )}
       </div>
     </article>

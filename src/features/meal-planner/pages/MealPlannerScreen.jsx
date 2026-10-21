@@ -16,8 +16,7 @@ import Reveal from "@/shared/components/Reveal";
 const EMPTY_PLANS = [];
 
 // Trang thực đơn (/meal-planner): tạo thực đơn 7 ngày bằng AI (ai-service) và xem/đổi món theo ngày.
-// Thẻ Nước & Vận Động vẫn là dữ liệu mẫu (BE chưa có), xem data/mockMealPlanner.js.
-// Yêu thích là theo cả thực đơn (nút trong TodayMeals).
+// Thẻ Nước & Vận Động, Bữa Phụ và nút tim vẫn là dữ liệu mẫu (BE chưa có), xem data/mockMealPlanner.js.
 export default function MealPlannerScreen() {
   const user = useAuthStore((s) => s.user);
   const firstName = user?.fullName?.trim().split(" ").at(-2);

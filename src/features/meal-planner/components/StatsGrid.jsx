@@ -18,6 +18,14 @@ const ICONS = {
   run: iconRun,
 };
 
+// Thanh tiến độ BMI chạy trên dải 15 -> 35 để giá trị thường gặp nằm giữa thanh.
+const BMI_BAR_MIN = 15;
+const BMI_BAR_MAX = 35;
+
+function clampPercent(value) {
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
 function bmiStat(record, isPending) {
   const bmi = Number(record?.bmi);
   const hasBmi = Number.isFinite(bmi) && bmi > 0;
@@ -33,6 +41,8 @@ function bmiStat(record, isPending) {
       : isPending
         ? "Đang tải chỉ số..."
         : "Chưa có chỉ số, hãy cập nhật hồ sơ sức khỏe",
+    progress: hasBmi ? clampPercent(((bmi - BMI_BAR_MIN) / (BMI_BAR_MAX - BMI_BAR_MIN)) * 100) : 0,
+    barClass: "bg-chart-1",
     to: hasBmi ? undefined : "/profile/edit",
   };
 }
@@ -58,6 +68,9 @@ function calorieStat(dayTotals, target, dayLong) {
     value: dayTotals ? calories.toLocaleString("en-US") : "—",
     unit: hasMax && dayTotals ? `/ ${max.toLocaleString("en-US")} kcal` : dayTotals ? "kcal" : undefined,
     caption,
+    // Chỉ có thanh tiến độ khi người dùng đặt mục tiêu calo tối đa để so sánh.
+    progress: hasMax && dayTotals ? clampPercent((calories / max) * 100) : null,
+    barClass: "bg-chart-4",
   };
 }
 
@@ -91,6 +104,12 @@ export default function StatsGrid({ dayTotals, target, dayLong = "hôm nay" }) {
             </div>
 
             <p className="text-xs leading-snug text-subtle">{stat.caption}</p>
+
+            {stat.progress != null && (
+              <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
+                <div className={`h-full rounded-full ${stat.barClass}`} style={{ width: `${stat.progress}%` }} />
+              </div>
+            )}
           </article>
         </Reveal>
       ))}

@@ -2,7 +2,6 @@ import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Eye, ImageOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/features/auth/store/authStore";
 import AuthorAvatar from "@/features/blog/components/AuthorAvatar";
 import CommentSection from "@/features/blog/components/CommentSection";
 import RelatedBlogs from "@/features/blog/components/RelatedBlogs";
@@ -14,8 +13,6 @@ import {
   formatCompactNumber,
   formatTimeAgo,
 } from "@/features/blog/utils/blogFormat";
-import StatusBadge from "@/features/my-content/components/StatusBadge";
-import { canEditBlog, getBlogStatusInfo } from "@/features/my-content/utils/statusInfo";
 import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import FallbackImage from "@/shared/components/FallbackImage";
@@ -23,8 +20,6 @@ import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
 // Trang đọc một bài (route /blog/:blogId), công khai. Nội dung BE lưu là text thuần,
 // nên hiển thị bằng text (giữ xuống dòng) chứ không render HTML.
-// Chủ bài / ADMIN (kèm token) còn mở được bài chưa đăng: lúc đó hiện nhãn trạng thái và ẩn vote,
-// bình luận, bài liên quan vì những phần này chỉ dành cho bài đã đăng.
 export default function BlogDetailScreen() {
   const { blogId } = useParams();
   const navigate = useNavigate();
@@ -32,15 +27,10 @@ export default function BlogDetailScreen() {
 
   // Id không phải số nguyên dương thì không gọi API, hiện luôn "không tìm thấy".
   const id = /^[1-9]\d*$/.test(blogId ?? "") ? Number(blogId) : null;
-  const user = useAuthStore((s) => s.user);
   const { data: blog, isPending, isError } = useBlog(id);
-  const isPublished = blog?.status === "PUBLISHED";
   const { data: authors } = usePublicUsers(blog ? [blog.authorId] : []);
   const author = blog ? authors?.get(blog.authorId) : undefined;
-  const { data: myVotes } = useMyVotes(isPublished ? [blog.id] : []);
-  const statusInfo = getBlogStatusInfo(blog?.status);
-  // Chỉ tác giả mới có nút sửa ở đây (admin xem để kiểm duyệt, không sửa hộ).
-  const canEdit = blog && blog.authorId === user?.id && canEditBlog(blog.status);
+  const { data: myVotes } = useMyVotes(blog ? [blog.id] : []);
 
   // Có lịch sử trong app thì quay lại (giữ nguyên bộ lọc của feed), mở thẳng link thì về /blog.
   const goBack = () => (location.key !== "default" ? navigate(-1) : navigate("/blog"));
@@ -69,23 +59,6 @@ export default function BlogDetailScreen() {
               <ArticleSkeleton />
             ) : (
               <>
-                {!isPublished && (
-                  <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-warning/10 px-4 py-3 text-sm text-body ring-1 ring-warning/30">
-                    <StatusBadge info={statusInfo} />
-                    <span className="min-w-0 flex-1 text-subtle">
-                      {statusInfo.hint || "Bài viết này chưa được đăng công khai."}
-                    </span>
-                    {canEdit && (
-                      <Link
-                        to={`/blog/${blog.id}/edit`}
-                        className="shrink-0 font-semibold text-brand underline-offset-2 hover:underline"
-                      >
-                        Sửa bài
-                      </Link>
-                    )}
-                  </div>
-                )}
-
                 <article className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-8">
                   <div className="flex items-center gap-3">
                     <AuthorAvatar author={author} />
@@ -105,15 +78,13 @@ export default function BlogDetailScreen() {
                           {blog.categoryName}
                         </span>
                       )}
-                      {isPublished && (
-                        <div className="flex items-center gap-3 text-sm font-medium text-body">
-                          <VoteButton blog={blog} myVote={myVotes?.get(blog.id)} />
-                          <span className="flex items-center gap-1.5">
-                            <Eye className="size-4 text-brand" />
-                            {formatCompactNumber(blog.viewCount)}
-                          </span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-3 text-sm font-medium text-body">
+                        <VoteButton blog={blog} myVote={myVotes?.get(blog.id)} />
+                        <span className="flex items-center gap-1.5">
+                          <Eye className="size-4 text-brand" />
+                          {formatCompactNumber(blog.viewCount)}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
@@ -138,12 +109,12 @@ export default function BlogDetailScreen() {
                   </div>
                 </article>
 
-                {isPublished && <CommentSection blogId={blog.id} />}
+                <CommentSection blogId={blog.id} />
               </>
             )}
           </div>
 
-          {isPublished && (
+          {blog && (
             <aside className="lg:sticky lg:top-24">
               <RelatedBlogs blogId={blog.id} />
             </aside>
@@ -161,7 +132,7 @@ function NotFound() {
     <div className="rounded-3xl border border-border bg-card p-8 text-center shadow-sm">
       <h1 className="font-heading text-xl font-bold text-ink">Không tìm thấy bài viết</h1>
       <p className="mt-2 text-sm text-subtle">
-        Bài viết không tồn tại, chưa được đăng, đã bị gỡ hoặc bạn không có quyền xem.
+        Bài viết không tồn tại, chưa được đăng hoặc đã bị gỡ.
       </p>
       <Link
         to="/blog"

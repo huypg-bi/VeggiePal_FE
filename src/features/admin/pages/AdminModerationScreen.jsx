@@ -4,6 +4,7 @@ import {
   Check,
   CheckCircle2,
   Clock,
+  ExternalLink,
   Eye,
   FileText,
   Filter,
@@ -63,7 +64,7 @@ function formatDateTime(isoString) {
 /**
  * Trang kiểm duyệt nội dung của Admin (/admin/moderation):
  * - Hàng đợi các case cần duyệt (REVIEW_REQUIRED, cũ nhất trước).
- * - Hiển thị: caseId, loại nội dung (BLOG, VIDEO, COMMENT), externalContentId, categories, reason, confidence.
+ * - Hiển thị: caseId, loại nội dung (BLOG, VIDEO, COMMENT), externalContentId, authorId, content (nội dung bị gắn cờ), categories, reason, confidence.
  * - Hỗ trợ chế độ Mock Data để test giao diện và luồng duyệt/từ chối ngay cả khi BE chưa có dữ liệu.
  */
 export default function AdminModerationScreen() {
@@ -71,12 +72,15 @@ export default function AdminModerationScreen() {
   const { data: realCases = [], isPending, isError, error, isFetching } = usePendingModerationCases();
   const reviewMutation = useReviewModeration();
 
-  // Chế độ dữ liệu mẫu để kiểm thử
+  // Kiểm tra BE đã trả về dữ liệu thật chưa
+  const hasRealData = realCases.length > 0;
+
+  // Chế độ dữ liệu mẫu để kiểm thử (chỉ hiển thị khi BE chưa có dữ liệu thật)
   const [isMockMode, setIsMockMode] = useState(false);
   const [mockCases, setMockCases] = useState(MOCK_MODERATION_CASES);
 
-  // Danh sách thực tế hiển thị
-  const activeCases = isMockMode ? mockCases : realCases;
+  // Danh sách thực tế hiển thị: Khi BE đã trả dữ liệu thật, luôn ưu tiên hiển thị dữ liệu thật
+  const activeCases = hasRealData ? realCases : (isMockMode ? mockCases : realCases);
 
   // Bộ lọc và tìm kiếm
   const [searchQuery, setSearchQuery] = useState("");
@@ -92,7 +96,7 @@ export default function AdminModerationScreen() {
   const [detailItem, setDetailItem] = useState(null);
 
   const handleReviewConfirm = ({ id, decision, reason }) => {
-    if (isMockMode) {
+    if (!hasRealData && isMockMode) {
       // Giả lập xử lý khi dùng dữ liệu mẫu
       setTimeout(() => {
         setMockCases((prev) => prev.filter((c) => c.caseId !== id));
@@ -119,13 +123,18 @@ export default function AdminModerationScreen() {
         },
         onError: (err) => {
           toast.error(err.message || "Có lỗi xảy ra khi cập nhật quyết định");
+          // Khi gặp lỗi 6013 (Case đã được xử lý bởi admin khác), đóng modal và làm mới hàng đợi
+          if (err?.code === 6013) {
+            setActiveModal({ item: null, decision: null });
+            queryClient.invalidateQueries({ queryKey: moderationKeys.all });
+          }
         },
       }
     );
   };
 
   const handleRefresh = () => {
-    if (isMockMode) {
+    if (!hasRealData && isMockMode) {
       setMockCases(MOCK_MODERATION_CASES);
       toast.info("Đã làm mới dữ liệu mẫu.");
     } else {
@@ -145,18 +154,26 @@ export default function AdminModerationScreen() {
         }
       }
 
-      // Lọc theo từ khóa (Mã case, ID gốc, categories, lý do, tác giả, tiêu đề)
+      // Lọc theo từ khóa (Mã case, ID gốc, Mã tác giả, nội dung bị gắn cờ, categories, lý do)
       if (searchQuery.trim()) {
         const query = searchQuery.toLowerCase().trim();
         const matchCaseId = String(c.caseId).includes(query);
         const matchExternalId = c.externalContentId != null && String(c.externalContentId).includes(query);
+        const matchAuthorId = c.authorId != null && String(c.authorId).includes(query);
+        const matchContent = c.content && c.content.toLowerCase().includes(query);
         const matchReason = c.reason && c.reason.toLowerCase().includes(query);
         const matchCategories = c.categories && c.categories.some((cat) => cat.toLowerCase().includes(query));
         const matchType = c.contentType && c.contentType.toLowerCase().includes(query);
-        const matchTitle = c.contentTitle && c.contentTitle.toLowerCase().includes(query);
-        const matchAuthor = c.authorName && c.authorName.toLowerCase().includes(query);
 
-        return matchCaseId || matchExternalId || matchReason || matchCategories || matchType || matchTitle || matchAuthor;
+        return (
+          matchCaseId ||
+          matchExternalId ||
+          matchAuthorId ||
+          matchContent ||
+          matchReason ||
+          matchCategories ||
+          matchType
+        );
       }
 
       return true;
@@ -175,7 +192,7 @@ export default function AdminModerationScreen() {
                 {activeCases.length} chờ duyệt
               </span>
             )}
-            {isMockMode && (
+            {!hasRealData && isMockMode && (
               <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400 border border-amber-500/20">
                 <Sparkles className="size-3" />
                 Chế độ Test Demo
@@ -188,19 +205,21 @@ export default function AdminModerationScreen() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Nút bật/tắt Mock Mode */}
-          <Button
-            type="button"
-            variant={isMockMode ? "secondary" : "outline"}
-            size="sm"
-            onClick={() => setIsMockMode((prev) => !prev)}
-            className="gap-1.5 text-xs"
-          >
-            <Sparkles className="size-3.5 text-amber-500" />
-            {isMockMode ? "Tắt dữ liệu mẫu" : "Dữ liệu mẫu (Demo)"}
-          </Button>
+          {/* Nút bật/tắt Mock Mode chỉ hiển thị khi BE chưa có dữ liệu thật */}
+          {!hasRealData && (
+            <Button
+              type="button"
+              variant={isMockMode ? "secondary" : "outline"}
+              size="sm"
+              onClick={() => setIsMockMode((prev) => !prev)}
+              className="gap-1.5 text-xs"
+            >
+              <Sparkles className="size-3.5 text-amber-500" />
+              {isMockMode ? "Tắt dữ liệu mẫu" : "Dữ liệu mẫu (Demo)"}
+            </Button>
+          )}
 
-          {isMockMode && (
+          {!hasRealData && isMockMode && (
             <Button
               type="button"
               variant="outline"
@@ -239,7 +258,7 @@ export default function AdminModerationScreen() {
             • Khi quản trị viên chọn <strong className="text-brand">Duyệt</strong> hoặc <strong className="text-destructive">Từ chối</strong>, AI-Service sẽ tự động đồng bộ quyết định sang Blog-Service để công khai hoặc gỡ bỏ nội dung.
           </p>
           <p className="leading-relaxed">
-            • Dữ liệu kiểm duyệt chứa mã phân tích và mã nội dung gốc (<code className="rounded bg-surface px-1 py-0.5 font-mono text-[11px] text-ink">externalContentId</code>). Do nội dung PENDING chưa được công khai trên hệ thống, hiện tại chỉ có thể xem sau khi được duyệt.
+            • Quản trị viên có thể nhấp trực tiếp vào mã ID gốc (<code className="rounded bg-surface px-1 py-0.5 font-mono text-[11px] text-ink">externalContentId</code>) của bài viết để xem toàn bộ nội dung (bao gồm cả bài viết chưa xuất bản).
           </p>
         </div>
       </div>
@@ -277,7 +296,7 @@ export default function AdminModerationScreen() {
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-subtle" />
             <Input
               type="search"
-              placeholder="Tìm theo mã case, ID gốc, từ khóa, tác giả..."
+              placeholder="Tìm theo mã case, ID gốc, tác giả, nội dung, lý do..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9 text-xs rounded-xl"
@@ -369,14 +388,16 @@ export default function AdminModerationScreen() {
             <table className="w-full text-left text-sm">
               <thead className="border-b border-border bg-surface text-xs font-semibold text-subtle">
                 <tr>
-                  <th scope="col" className="px-5 py-3.5">Mã Case</th>
-                  <th scope="col" className="px-5 py-3.5">Loại nội dung</th>
-                  <th scope="col" className="px-5 py-3.5">Mã ID gốc</th>
-                  <th scope="col" className="px-5 py-3.5">Danh mục vi phạm</th>
-                  <th scope="col" className="px-5 py-3.5">Lý do từ AI</th>
-                  <th scope="col" className="px-5 py-3.5 text-center">Độ tin cậy</th>
-                  <th scope="col" className="px-5 py-3.5">Thời gian gửi</th>
-                  <th scope="col" className="px-5 py-3.5 text-right">Thao tác</th>
+                  <th scope="col" className="px-4 py-3.5">Mã Case</th>
+                  <th scope="col" className="px-4 py-3.5">Loại</th>
+                  <th scope="col" className="px-4 py-3.5">ID Gốc</th>
+                  <th scope="col" className="px-4 py-3.5">Mã Tác Giả</th>
+                  <th scope="col" className="px-4 py-3.5">Nội dung bị gắn cờ</th>
+                  <th scope="col" className="px-4 py-3.5">Danh mục vi phạm</th>
+                  <th scope="col" className="px-4 py-3.5">Lý do từ AI</th>
+                  <th scope="col" className="px-4 py-3.5 text-center">Độ tin cậy</th>
+                  <th scope="col" className="px-4 py-3.5">Thời gian gửi</th>
+                  <th scope="col" className="px-4 py-3.5 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -391,12 +412,12 @@ export default function AdminModerationScreen() {
                   return (
                     <tr key={c.caseId} className="transition hover:bg-surface/50">
                       {/* Case ID */}
-                      <td className="px-5 py-4 font-mono font-semibold text-ink">
+                      <td className="px-4 py-4 font-mono font-semibold text-ink">
                         #{c.caseId}
                       </td>
 
                       {/* Loại nội dung */}
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-4">
                         <span
                           className={cn(
                             "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium",
@@ -409,16 +430,49 @@ export default function AdminModerationScreen() {
                       </td>
 
                       {/* Mã ID gốc (externalContentId) */}
-                      <td className="px-5 py-4 font-mono text-xs text-subtle">
+                      <td className="px-4 py-4 font-mono text-xs text-subtle">
                         {c.externalContentId != null ? (
-                          <span className="font-semibold text-ink">#{c.externalContentId}</span>
+                          c.contentType === "BLOG" ? (
+                            <a
+                              href={`/blog/${c.externalContentId}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 font-semibold text-ink underline hover:text-brand"
+                              title="Mở bài viết trong tab mới (Admin có quyền xem bài chưa đăng)"
+                            >
+                              #{c.externalContentId}
+                              <ExternalLink className="size-3 text-subtle" />
+                            </a>
+                          ) : (
+                            <span className="font-semibold text-ink">#{c.externalContentId}</span>
+                          )
                         ) : (
-                          <span title="Backend chưa gửi trường externalContentId">—</span>
+                          <span>—</span>
+                        )}
+                      </td>
+
+                      {/* Mã tác giả (authorId) */}
+                      <td className="px-4 py-4 font-mono text-xs text-subtle">
+                        {c.authorId != null ? (
+                          <span className="font-semibold text-ink">#{c.authorId}</span>
+                        ) : (
+                          <span>—</span>
+                        )}
+                      </td>
+
+                      {/* Flagged Content */}
+                      <td className="max-w-xs px-4 py-4">
+                        {c.content ? (
+                          <p className="line-clamp-2 text-xs italic text-body" title={c.content}>
+                            "{c.content}"
+                          </p>
+                        ) : (
+                          <span className="text-xs text-subtle italic">Không có</span>
                         )}
                       </td>
 
                       {/* Categories */}
-                      <td className="px-5 py-4">
+                      <td className="px-4 py-4">
                         {c.categories && c.categories.length > 0 ? (
                           <div className="flex flex-wrap gap-1">
                             {c.categories.map((cat) => (
@@ -436,14 +490,14 @@ export default function AdminModerationScreen() {
                       </td>
 
                       {/* Reason */}
-                      <td className="max-w-xs px-5 py-4">
+                      <td className="max-w-xs px-4 py-4">
                         <p className="line-clamp-2 text-xs text-body" title={c.reason}>
                           {c.reason || "Cần quản trị viên kiểm tra và đưa ra quyết định."}
                         </p>
                       </td>
 
                       {/* Confidence */}
-                      <td className="px-5 py-4 text-center">
+                      <td className="px-4 py-4 text-center">
                         <span className="inline-flex items-center gap-1 rounded-full bg-surface px-2.5 py-0.5 font-mono text-xs font-medium text-ink">
                           <Percent className="size-3 text-subtle" />
                           {formatConfidence(c.confidence)}
@@ -451,7 +505,7 @@ export default function AdminModerationScreen() {
                       </td>
 
                       {/* Created At */}
-                      <td className="px-5 py-4 whitespace-nowrap text-xs text-subtle">
+                      <td className="px-4 py-4 whitespace-nowrap text-xs text-subtle">
                         <span className="inline-flex items-center gap-1">
                           <Clock className="size-3.5 text-subtle" />
                           {formatDateTime(c.createdAt)}
@@ -459,7 +513,7 @@ export default function AdminModerationScreen() {
                       </td>
 
                       {/* Thao tác */}
-                      <td className="px-5 py-4 text-right">
+                      <td className="px-4 py-4 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <Button
                             type="button"

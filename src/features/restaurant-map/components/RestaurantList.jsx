@@ -3,6 +3,7 @@ import { Loader2, SearchX } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import mascotWave from "@/assets/img/icon_map_page_1.png";
+import OptionDropdown from "@/features/restaurant-map/components/OptionDropdown";
 import RestaurantCard from "@/features/restaurant-map/components/RestaurantCard";
 import {
   MAX_RADIUS_KM,
@@ -13,7 +14,6 @@ import {
   SORT_RATING,
 } from "@/features/restaurant-map/utils/restaurantFormat";
 import Reveal from "@/shared/components/Reveal";
-import SelectField from "@/shared/components/SelectField";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 5;
@@ -227,19 +227,17 @@ export default function RestaurantList({
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <SelectField
-            aria-label="Bán kính tìm kiếm"
+          <OptionDropdown
+            label="Bán kính tìm kiếm"
             options={RADIUS_DROPDOWN_OPTIONS}
             value={radiusKm}
-            onValueChange={onRadiusChange}
-            className="h-9 px-3 shadow-sm"
+            onSelect={onRadiusChange}
           />
-          <SelectField
-            aria-label="Sắp xếp"
+          <OptionDropdown
+            label="Sắp xếp"
             options={SORT_OPTIONS}
             value={sort}
-            onValueChange={onSortChange}
-            className="h-9 px-3 shadow-sm"
+            onSelect={onSortChange}
           />
         </div>
       </div>
