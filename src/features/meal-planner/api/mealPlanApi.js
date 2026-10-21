@@ -17,6 +17,11 @@ import apiClient from "@/shared/api/apiClient";
  *     body { changeSummary?, edits: [{ day, mealType, action: "REPLACE" | "UPDATE_SERVING", recipeId?, servingMultiplier? }] }
  *     BE tính lại dinh dưỡng từng bữa + tổng ngày + targetMet; chỉ nhận món chay, không chứa dị ứng của người dùng
  *     (6018 / 6019). Bản trước được lưu vào lịch sử phiên bản.
+ *   GET /ai/meal-plans/:id                    một thực đơn của tôi (cùng dạng MealPlan trong danh sách)
+ *   GET /ai/meal-plans/favorites?page&size    thực đơn yêu thích, mới yêu thích trước: PageResponse { content, page, size,
+ *     totalElements, totalPages, first, last } (size tối đa 100)
+ *   GET /ai/meal-plans/favorites/:id          một thực đơn yêu thích (6015 khi thực đơn chưa được yêu thích)
+ *   GET /ai/meal-plans/:id/versions/:version  một phiên bản cũ (6017 khi không có số phiên bản đó)
  *   GET /ai/meal-plans/:id/versions  các bản cũ đã được thay thế, mới nhất trước:
  *     [{ id, mealPlanId, version, name, goal, plan, changeSummary, createdAt }]. Mỗi lần cập nhật theo sức khỏe hoặc
  *     sửa thủ công, BE lưu bản trước đó ở đây (đổi món bằng AI `/replace` thì không tạo phiên bản). Chưa có API khôi phục.
@@ -39,6 +44,8 @@ import apiClient from "@/shared/api/apiClient";
 // Tạo thực đơn gọi LLM (đọc tối đa 45s, thử lại 2 lần) nên cho chờ lâu hơn mặc định.
 const CREATE_TIMEOUT_MS = 120_000;
 
+const EMPTY_PAGE = { content: [], page: 0, size: 0, totalElements: 0, totalPages: 0, first: true, last: true };
+
 // ai-service dùng dải mã 60xx. Message gốc của BE là tiếng Anh nên đổi sang tiếng Việt theo `code`.
 const VI_MESSAGES = {
   6000: "Thông tin chưa hợp lệ, vui lòng kiểm tra lại các mục đã nhập (ví dụ mục tiêu dinh dưỡng có mức tối thiểu lớn hơn tối đa)",
@@ -54,8 +61,10 @@ const VI_MESSAGES = {
   6014: "Thực đơn này đã có trong danh sách yêu thích",
   6015: "Thực đơn này chưa có trong danh sách yêu thích",
   6016: "Bạn không có quyền với thực đơn này",
+  6017: "Không tìm thấy phiên bản này của thực đơn",
   6018: "Món này không phải món thuần chay, bạn chọn món khác nhé",
   6019: "Món này chứa thành phần gây dị ứng của bạn, bạn chọn món khác nhé",
+  6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
 };
 
 // Lỗi 401/403 do Spring Security trả về có thể không kèm mã 60xx nên dựa thêm vào HTTP status.
@@ -105,6 +114,24 @@ export async function getMealPlans() {
   return unwrap(res, "Không lấy được danh sách thực đơn") ?? [];
 }
 
+/** GET /ai/meal-plans/:id — một thực đơn của tôi (dùng để lấy bản mới nhất từ server). */
+export async function getMealPlan(id) {
+  const res = await apiClient.get(`/ai/meal-plans/${id}`);
+  return unwrap(res, "Không lấy được thực đơn");
+}
+
+/** GET /ai/meal-plans/favorites — các thực đơn yêu thích (phân trang, mới yêu thích trước). */
+export async function getFavoriteMealPlans({ page = 0, size = 5 } = {}) {
+  const res = await apiClient.get("/ai/meal-plans/favorites", { params: { page, size } });
+  return unwrap(res, "Không lấy được danh sách thực đơn yêu thích") ?? EMPTY_PAGE;
+}
+
+/** GET /ai/meal-plans/favorites/:id — một thực đơn yêu thích. */
+export async function getFavoriteMealPlan(id) {
+  const res = await apiClient.get(`/ai/meal-plans/favorites/${id}`);
+  return unwrap(res, "Không lấy được thực đơn yêu thích");
+}
+
 /**
  * POST /ai/meal-plans/:id/favorite — thêm thực đơn vào yêu thích. Đã có sẵn (6014) coi như đã xong,
  * vì ý người dùng là "thực đơn này đang được yêu thích".
@@ -133,6 +160,12 @@ export async function editMealPlan(id, { edits, changeSummary, preview = false }
     edits,
   });
   return unwrap(res, preview ? "Không xem trước được thay đổi" : "Lưu thay đổi thất bại");
+}
+
+/** GET /ai/meal-plans/:id/versions/:version — nội dung đầy đủ của một phiên bản cũ. */
+export async function getMealPlanVersion(id, version) {
+  const res = await apiClient.get(`/ai/meal-plans/${id}/versions/${version}`);
+  return unwrap(res, "Không lấy được phiên bản này");
 }
 
 /** GET /ai/meal-plans/:id/versions — các phiên bản cũ của một thực đơn, mới nhất trước. */
