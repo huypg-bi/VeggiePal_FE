@@ -105,7 +105,19 @@ export default function ChatbotScreen() {
                 className="mx-6 mt-4 flex items-start gap-2 rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive"
               >
                 <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-                <span className="flex-1">{errorMessage}</span>
+                <span className="flex-1">
+                  {errorMessage.includes("/pricing") ? (
+                    <>
+                      {errorMessage.split("/pricing")[0]}
+                      <Link to="/pricing" className="font-bold underline hover:opacity-85">
+                        /pricing
+                      </Link>
+                      {errorMessage.split("/pricing")[1]}
+                    </>
+                  ) : (
+                    errorMessage
+                  )}
+                </span>
                 <button
                   type="button"
                   onClick={dismissError}

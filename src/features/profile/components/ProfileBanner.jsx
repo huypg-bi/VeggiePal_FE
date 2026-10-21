@@ -1,10 +1,23 @@
-import { useNavigate } from "react-router-dom";
-import { PlusCircle, Edit3, CheckCircle, Video, Users, Bookmark, Activity, Heart } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import {
+  PlusCircle,
+  Edit3,
+  CheckCircle,
+  Video,
+  Users,
+  Bookmark,
+  Activity,
+  Heart,
+  Crown,
+  History,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useChallenge } from "@/features/blog/hooks/useChallenge";
 import { CHALLENGE_BADGE_NAME } from "@/features/blog/utils/challenge";
 import { useProfileStats } from "@/features/profile/hooks/useProfileStats";
+import { useMySubscription } from "@/features/payment/hooks/useMySubscription";
+import { formatDate } from "@/features/payment/utils/paymentFormat";
 import { bmiInfo } from "@/features/profile/utils/editProfileHelpers";
 
 const DEFAULT_AVATAR =
@@ -13,6 +26,7 @@ const DEFAULT_AVATAR =
 export default function ProfileBanner({ profile }) {
   const navigate = useNavigate();
   const stats = useProfileStats();
+  const { subscription } = useMySubscription();
   // Huy hiệu mở khóa khi hoàn thành thử thách 7 ngày ở trang Cộng đồng.
   const { completed: hasChallengeBadge } = useChallenge();
 
@@ -63,6 +77,15 @@ export default function ProfileBanner({ profile }) {
                     {CHALLENGE_BADGE_NAME}
                   </span>
                 )}
+                {/* Gói thành viên hiện tại */}
+                <Link
+                  to="/pricing"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-400 hover:opacity-85 transition"
+                >
+                  <Crown className="size-3.5 text-amber-500" />
+                  Gói {subscription?.planCode || "FREE"}
+                  {subscription?.expiresAt && ` (Hạn: ${formatDate(subscription.expiresAt)})`}
+                </Link>
               </div>
               {/* @username: chỉ hiển thị khi có trường username */}
               {profile?.username && (
@@ -77,7 +100,7 @@ export default function ProfileBanner({ profile }) {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex shrink-0 items-center gap-2 flex-wrap justify-center">
             {/* Nút Tạo Blog & Video Mới -> điều hướng sang /blog/new */}
             <Button
               type="button"
@@ -100,6 +123,18 @@ export default function ProfileBanner({ profile }) {
             >
               <Edit3 className="h-4 w-4" />
               Sửa hồ sơ
+            </Button>
+
+            {/* Nút Lịch sử thanh toán */}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/payment/history")}
+              className="rounded-full gap-1.5 cursor-pointer font-medium text-subtle hover:text-ink"
+            >
+              <History className="h-4 w-4" />
+              Lịch sử gói
             </Button>
           </div>
         </div>

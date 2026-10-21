@@ -18,6 +18,9 @@ import {
   UserRound,
   UtensilsCrossed,
   ChefHat,
+  Crown,
+  Receipt,
+  Sparkles,
 } from "lucide-react";
 
 import logo from "@/assets/img/logo.png";
@@ -30,6 +33,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthStore, selectIsAuthenticated } from "@/features/auth/store/authStore";
+import { useMySubscription } from "@/features/payment/hooks/useMySubscription";
+import { formatDate } from "@/features/payment/utils/paymentFormat";
 import ThemeToggle from "@/shared/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +59,7 @@ export default function AppHeader() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const location = useLocation();
+  const { subscription } = useMySubscription();
 
   const displayName = user?.fullName?.trim();
   const displayEmail = user?.email;
@@ -85,8 +91,7 @@ export default function AppHeader() {
           ))}
         </nav>
 
-        <div className="ml-auto flex items-center gap-3 lg:ml-2">
-
+        <div className="flex items-center justify-end gap-3">
           {isAuthenticated && (
             <Button
               type="button"
@@ -104,6 +109,12 @@ export default function AppHeader() {
 
           {!isAuthenticated && (
             <div className="flex shrink-0 items-center gap-2">
+              <Link
+                to="/pricing"
+                className="hidden text-sm font-semibold text-brand transition hover:opacity-80 sm:block px-3 py-1.5 rounded-full bg-brand-soft"
+              >
+                Gói Dịch Vụ
+              </Link>
               <Link
                 to="/login"
                 className="hidden text-sm font-medium text-subtle transition hover:text-ink sm:block"
@@ -152,6 +163,19 @@ export default function AppHeader() {
                     <p className="truncate text-sm text-subtle">
                       {displayEmail}
                     </p>
+                    {subscription && (
+                      <div className="mt-1 flex items-center gap-1.5 flex-wrap">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-brand/10 border border-brand/20 px-2 py-0.5 text-[11px] font-bold text-brand">
+                          <Sparkles className="size-2.5" />
+                          Gói {subscription.planCode || "FREE"}
+                        </span>
+                        {subscription.expiresAt && (
+                          <span className="text-[11px] text-subtle">
+                            Hạn: {formatDate(subscription.expiresAt)}
+                          </span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -184,6 +208,29 @@ export default function AppHeader() {
                     <FileText className="h-4 w-4" />
                   </span>
                   <span className="flex-1 text-sm font-medium text-ink">Bài viết của tôi</span>
+                  <ChevronRight className="h-4 w-4 text-subtle" />
+                </DropdownMenuItem>
+
+                {/* Mục Gói thành viên và Lịch sử thanh toán */}
+                <DropdownMenuItem
+                  render={<Link to="/pricing" />}
+                  className="mt-1 cursor-pointer gap-3 rounded-xl px-1 py-2"
+                >
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                    <Crown className="h-4 w-4" />
+                  </span>
+                  <span className="flex-1 text-sm font-medium text-ink">Gói thành viên</span>
+                  <ChevronRight className="h-4 w-4 text-subtle" />
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  render={<Link to="/payment/history" />}
+                  className="mt-1 cursor-pointer gap-3 rounded-xl px-1 py-2"
+                >
+                  <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#E8ECFB] text-ink dark:bg-brand-soft">
+                    <Receipt className="h-4 w-4" />
+                  </span>
+                  <span className="flex-1 text-sm font-medium text-ink">Lịch sử thanh toán</span>
                   <ChevronRight className="h-4 w-4 text-subtle" />
                 </DropdownMenuItem>
 

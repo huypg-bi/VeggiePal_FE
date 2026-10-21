@@ -74,7 +74,7 @@ export function getChatErrorMessage(error, { guest = false } = {}) {
   if (code === 6003 || status === 429) {
     return guest
       ? "Bạn đã dùng hết lượt hỏi thử hôm nay. Hãy đăng nhập để tiếp tục trò chuyện."
-      : "Bạn đã dùng hết lượt hỏi AI trong hôm nay. Vui lòng quay lại vào ngày mai.";
+      : "Bạn đã dùng hết lượt hỏi AI hôm nay. Nâng cấp gói thành viên tại /pricing để nhận thêm lượt hoặc quay lại vào ngày mai.";
   }
   if (code === 6001 || status === 401) {
     return guest
