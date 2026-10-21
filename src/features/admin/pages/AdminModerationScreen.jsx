@@ -72,12 +72,15 @@ export default function AdminModerationScreen() {
   const { data: realCases = [], isPending, isError, error, isFetching } = usePendingModerationCases();
   const reviewMutation = useReviewModeration();
 
-  // Chế độ dữ liệu mẫu để kiểm thử
+  // Kiểm tra BE đã trả về dữ liệu thật chưa
+  const hasRealData = realCases.length > 0;
+
+  // Chế độ dữ liệu mẫu để kiểm thử (chỉ hiển thị khi BE chưa có dữ liệu thật)
   const [isMockMode, setIsMockMode] = useState(false);
   const [mockCases, setMockCases] = useState(MOCK_MODERATION_CASES);
 
-  // Danh sách thực tế hiển thị
-  const activeCases = isMockMode ? mockCases : realCases;
+  // Danh sách thực tế hiển thị: Khi BE đã trả dữ liệu thật, luôn ưu tiên hiển thị dữ liệu thật
+  const activeCases = hasRealData ? realCases : (isMockMode ? mockCases : realCases);
 
   // Bộ lọc và tìm kiếm
   const [searchQuery, setSearchQuery] = useState("");
@@ -93,7 +96,7 @@ export default function AdminModerationScreen() {
   const [detailItem, setDetailItem] = useState(null);
 
   const handleReviewConfirm = ({ id, decision, reason }) => {
-    if (isMockMode) {
+    if (!hasRealData && isMockMode) {
       // Giả lập xử lý khi dùng dữ liệu mẫu
       setTimeout(() => {
         setMockCases((prev) => prev.filter((c) => c.caseId !== id));
@@ -131,7 +134,7 @@ export default function AdminModerationScreen() {
   };
 
   const handleRefresh = () => {
-    if (isMockMode) {
+    if (!hasRealData && isMockMode) {
       setMockCases(MOCK_MODERATION_CASES);
       toast.info("Đã làm mới dữ liệu mẫu.");
     } else {
@@ -189,7 +192,7 @@ export default function AdminModerationScreen() {
                 {activeCases.length} chờ duyệt
               </span>
             )}
-            {isMockMode && (
+            {!hasRealData && isMockMode && (
               <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400 border border-amber-500/20">
                 <Sparkles className="size-3" />
                 Chế độ Test Demo
@@ -202,19 +205,21 @@ export default function AdminModerationScreen() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Nút bật/tắt Mock Mode */}
-          <Button
-            type="button"
-            variant={isMockMode ? "secondary" : "outline"}
-            size="sm"
-            onClick={() => setIsMockMode((prev) => !prev)}
-            className="gap-1.5 text-xs"
-          >
-            <Sparkles className="size-3.5 text-amber-500" />
-            {isMockMode ? "Tắt dữ liệu mẫu" : "Dữ liệu mẫu (Demo)"}
-          </Button>
+          {/* Nút bật/tắt Mock Mode chỉ hiển thị khi BE chưa có dữ liệu thật */}
+          {!hasRealData && (
+            <Button
+              type="button"
+              variant={isMockMode ? "secondary" : "outline"}
+              size="sm"
+              onClick={() => setIsMockMode((prev) => !prev)}
+              className="gap-1.5 text-xs"
+            >
+              <Sparkles className="size-3.5 text-amber-500" />
+              {isMockMode ? "Tắt dữ liệu mẫu" : "Dữ liệu mẫu (Demo)"}
+            </Button>
+          )}
 
-          {isMockMode && (
+          {!hasRealData && isMockMode && (
             <Button
               type="button"
               variant="outline"
