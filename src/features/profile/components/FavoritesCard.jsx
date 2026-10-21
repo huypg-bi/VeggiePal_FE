@@ -12,7 +12,7 @@ export default function FavoritesCard() {
   ];
 
   return (
-    <div className="bg-card rounded-3xl p-5 shadow-sm border border-border mb-5">
+    <div className="bg-card rounded-3xl p-5 shadow-sm border border-border">
       <div className="flex items-center justify-between mb-3.5">
         <div className="flex items-center gap-2">
           <Bookmark className="w-4 h-4 text-brand" />

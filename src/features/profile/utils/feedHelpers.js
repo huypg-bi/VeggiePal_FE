@@ -40,6 +40,7 @@ export function mergeAndSortContent(blogs = [], recipes = []) {
     voteScore: b.voteScore ?? null,
     ingredients: null,
     link: `/blog/${b.id}`,
+    rawBlog: b,
   }));
 
   const recipeItems = (recipes ?? []).map((r) => ({
@@ -57,6 +58,7 @@ export function mergeAndSortContent(blogs = [], recipes = []) {
     cookTime: r.cookTimeMinutes ?? r.cookTime ?? null,
     ingredients: Array.isArray(r.ingredients) ? r.ingredients : null,
     link: `/recipes/${r.id}`,
+    rawRecipe: r,
   }));
 
   return [...blogItems, ...recipeItems].sort((a, b) => {
