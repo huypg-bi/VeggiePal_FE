@@ -18,8 +18,8 @@ import FallbackImage from "@/shared/components/FallbackImage";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
 // Trang đọc một công thức (route /recipes/:recipeId), công khai với công thức đã đăng.
-// BE chỉ trả bản nháp/đang ẩn cho tác giả hoặc ADMIN (kèm token), người khác nhận 404. FE vẫn kiểm tra
-// thêm ở đây để chắc chắn không hiện nhầm (vd. công thức ARCHIVED, BE trả cho mọi người vì thực đơn cũ cần).
+// GET /recipes/:id của BE không lọc trạng thái, nên FE tự giấu bản nháp/đang ẩn khỏi người không
+// phải tác giả hoặc ADMIN (BE nên chặn thêm ở phía server).
 export default function RecipeDetailScreen() {
   const { recipeId } = useParams();
   const navigate = useNavigate();

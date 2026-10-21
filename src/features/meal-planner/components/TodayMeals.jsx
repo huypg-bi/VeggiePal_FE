@@ -1,41 +1,38 @@
 import { useState } from "react";
-import { CalendarX2, ChevronLeft, ChevronRight, Heart, Loader2, Sparkles, TriangleAlert } from "lucide-react";
+import { CalendarX2, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import EditMealDialog from "@/features/meal-planner/components/EditMealDialog";
-import HealthUpdateButton from "@/features/meal-planner/components/HealthUpdateButton";
 import MealCard from "@/features/meal-planner/components/MealCard";
-import PlanVersionsButton from "@/features/meal-planner/components/PlanVersionsButton";
+import { mockSnack } from "@/features/meal-planner/data/mockMealPlanner";
 import { useDayRecipes } from "@/features/meal-planner/hooks/useDayRecipes";
-import { useReplaceMeal, useSetPlanFavorite } from "@/features/meal-planner/hooks/useMealPlanMutations";
+import { useReplaceMeal } from "@/features/meal-planner/hooks/useMealPlanMutations";
 import {
   dayKeyOf,
   dayLabel,
-  dayTargetDeviations,
-  formatDayMonth,
-  isSameDate,
   mealLabel,
   mealTime,
   normalizeDay,
-  planDayDate,
   sortedMeals,
   toRounded,
 } from "@/features/meal-planner/utils/mealPlan";
 import { cn } from "@/lib/utils";
 import Reveal from "@/shared/components/Reveal";
-import SelectField from "@/shared/components/SelectField";
 
-// Icon trái tim đã tô đỏ dùng làm `icon` của option trong SelectField (nhận className từ SelectField).
-function FavoriteHeart({ className }) {
-  return <Heart className={cn(className, "fill-danger text-danger")} />;
+const selectClass =
+  "h-9 max-w-full rounded-full border border-border bg-card px-3 text-sm font-medium text-ink outline-none transition focus:border-brand/40 focus:ring-2 focus:ring-brand/15";
+
+function formatDate(iso) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit" });
 }
 
 /**
  * Thực đơn theo ngày của thực đơn đang xem.
  * - plans / plan: các thực đơn đã lưu (mới nhất trước) và cái đang xem.
  * - days: các ngày của thực đơn đang xem, đã sắp T2 -> CN; activeDay: ngày đang chọn.
- * Thực đơn AI chỉ có 3 bữa sáng / trưa / tối (BE không có bữa phụ).
+ * Bữa Phụ vẫn là dữ liệu mẫu vì BE chưa có (thực đơn AI chỉ có sáng / trưa / tối).
  */
 export default function TodayMeals({
   plans,
@@ -48,11 +45,9 @@ export default function TodayMeals({
   onSelectPlan,
   onSelectDay,
 }) {
+  const [likedMeals, setLikedMeals] = useState(() => new Set());
   const [replacingKey, setReplacingKey] = useState(null);
-  // Bữa đang tự chỉnh bằng hộp thoại (meal của plan), null khi không mở.
-  const [editingMeal, setEditingMeal] = useState(null);
   const replaceMeal = useReplaceMeal();
-  const setFavorite = useSetPlanFavorite();
 
   const meals = sortedMeals(activeDay);
   const recipes = useDayRecipes(meals.map((meal) => meal.recipeId));
@@ -60,31 +55,18 @@ export default function TodayMeals({
   const planIndex = plan ? plans.findIndex((item) => item.id === plan.id) : -1;
   const olderPlan = planIndex >= 0 ? plans[planIndex + 1] : undefined;
   const newerPlan = planIndex > 0 ? plans[planIndex - 1] : undefined;
-  // Thực đơn yêu thích có trái tim (cùng icon với nút "Yêu thích") trước tên trong danh sách chọn.
-  const planOptions = plans.map((item) => ({
-    value: item.id,
-    label: item.name,
-    icon: item.isFavorite ? FavoriteHeart : undefined,
-  }));
 
   const activeKey = normalizeDay(activeDay?.day);
-  // Ngày cụ thể của thứ đang chọn (theo tuần chứa ngày tạo thực đơn). "Hôm Nay" chỉ khi đúng là hôm nay,
-  // tránh gọi nhầm thứ Năm của một thực đơn tuần trước. Thiếu ngày thì so theo tên thứ như trước.
-  const activeDate = activeDay ? planDayDate(plan, activeDay.day) : null;
-  const isToday = activeDate ? isSameDate(activeDate, new Date()) : activeKey === dayKeyOf();
-  const dayName = activeDay ? (isToday ? "Hôm Nay" : dayLabel(activeDay).long) : "Hôm Nay";
-  const dayTitle = activeDate ? `${dayName} (${formatDayMonth(activeDate)})` : dayName;
-  const missedTargets = dayTargetDeviations(activeDay);
+  const isToday = activeKey === dayKeyOf();
+  const dayTitle = activeDay ? (isToday ? "Hôm Nay" : dayLabel(activeDay).long) : "Hôm Nay";
 
-  // Yêu thích theo cả thực đơn (BE: POST/DELETE /ai/meal-plans/:id/favorite), không theo từng món.
-  const handleToggleFavorite = async () => {
-    const next = !plan.isFavorite;
-    try {
-      await setFavorite.mutateAsync({ planId: plan.id, favorite: next });
-      toast.success(next ? "Đã thêm thực đơn vào yêu thích" : "Đã bỏ thực đơn khỏi yêu thích");
-    } catch (err) {
-      toast.error(err.message);
-    }
+  const toggleLike = (id) => {
+    setLikedMeals((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
 
   const handleReplace = async (meal) => {
@@ -138,22 +120,38 @@ export default function TodayMeals({
     }
     if (!plan || !activeDay) return <EmptyState />;
 
-    const cards = meals.map((meal) => {
+    const cards = [];
+    meals.forEach((meal) => {
       const key = `${activeKey}-${normalizeDay(meal.mealType)}`;
-      return (
+      cards.push(
         <MealCard
           key={key}
           meal={toCardMeal(meal)}
+          liked={likedMeals.has(key)}
+          onToggleLike={() => toggleLike(key)}
           onReplace={() => handleReplace(meal)}
-          onEdit={() => setEditingMeal(meal)}
           replacing={replacingKey === key}
           replaceDisabled={replacingKey !== null}
-        />
+        />,
       );
+      // Bữa phụ mẫu nằm giữa bữa trưa và bữa tối.
+      if (normalizeDay(meal.mealType) === "LUNCH") {
+        cards.push(
+          <MealCard
+            key="snack"
+            meal={{ ...mockSnack, label: mockSnack.meal }}
+            liked={likedMeals.has("snack")}
+            onToggleLike={() => toggleLike("snack")}
+            onReplace={() => {}}
+            replaceDisabled
+            replaceHint="Bữa phụ sẽ được hỗ trợ sau"
+          />,
+        );
+      }
     });
 
     return (
-      <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
         {cards.map((card, index) => (
           <Reveal key={card.key} delay={index * 80}>
             {card}
@@ -167,7 +165,7 @@ export default function TodayMeals({
     <section id="today-meals" className="scroll-mt-28">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold text-ink sm:text-2xl">Thực Đơn 3 Bữa {dayTitle} 🌱</h2>
+          <h2 className="text-xl font-bold text-ink sm:text-2xl">Thực Đơn 4 Bữa {dayTitle} 🌱</h2>
           <p className="mt-1 text-sm text-subtle">Lên kế hoạch năng lượng từng bữa, cùng sống xanh mỗi ngày!</p>
         </div>
 
@@ -186,23 +184,19 @@ export default function TodayMeals({
             </Button>
             {days.map((day) => {
               const key = normalizeDay(day.day);
-              const missed = dayTargetDeviations(day).length > 0;
-              const date = planDayDate(plan, day.day);
               return (
                 <button
                   key={key}
                   type="button"
                   onClick={() => onSelectDay(key)}
                   aria-pressed={key === activeKey}
-                  aria-label={missed ? `${dayLabel(day).long} (chưa đạt mục tiêu dinh dưỡng)` : dayLabel(day).long}
-                  title={date ? `${dayLabel(day).long} (${formatDayMonth(date)})` : undefined}
+                  aria-label={dayLabel(day).long}
                   className={cn(
-                    "relative grid size-9 place-items-center rounded-full text-sm font-semibold transition",
+                    "grid size-9 place-items-center rounded-full text-sm font-semibold transition",
                     key === activeKey ? "bg-brand text-brand-foreground" : "text-subtle hover:bg-surface hover:text-ink",
                   )}
                 >
                   {dayLabel(day).short}
-                  {missed && <span className="absolute right-1 top-1 size-2 rounded-full bg-warning" aria-hidden="true" />}
                 </button>
               );
             })}
@@ -226,83 +220,32 @@ export default function TodayMeals({
           <label htmlFor="meal-plan-select" className="font-medium">
             Thực đơn đang xem:
           </label>
-          <SelectField
+          <select
             id="meal-plan-select"
-            options={planOptions}
             value={plan.id}
-            onValueChange={onSelectPlan}
-            className="h-9 max-w-full px-3"
-          />
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            aria-pressed={Boolean(plan.isFavorite)}
-            disabled={setFavorite.isPending}
-            onClick={handleToggleFavorite}
+            onChange={(event) => onSelectPlan(Number(event.target.value))}
+            className={selectClass}
           >
-            {setFavorite.isPending ? (
-              <Loader2 className="size-4 animate-spin" />
-            ) : (
-              <Heart className={cn("size-4", plan.isFavorite && "fill-danger text-danger")} />
-            )}
-            {plan.isFavorite ? "Đã yêu thích" : "Yêu thích"}
-          </Button>
-          <HealthUpdateButton plan={plan} />
-          <PlanVersionsButton plan={plan} />
-          {plan.goal &&<span className="line-clamp-1 text-xs">Mục tiêu: {plan.goal}</span>}
-        </div>
-      )}
-
-      {missedTargets.length > 0 && (
-        <div
-          role="status"
-          className="mt-4 flex items-start gap-3 rounded-2xl bg-warning/10 px-4 py-3 text-sm text-body ring-1 ring-warning/30"
-        >
-          <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warning" />
-          <div>
-            <p className="font-semibold text-ink">Ngày này chưa đạt mục tiêu dinh dưỡng bạn đặt</p>
-            <ul className="mt-1 list-inside list-disc text-subtle">
-              {missedTargets.map((item) => (
-                <li key={item.key}>
-                  {item.label}: {item.actual.toLocaleString("vi-VN", { maximumFractionDigits: 1 })} {item.unit}
-                  {item.range && ` (mục tiêu ${item.range})`}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-1 text-xs text-subtle">
-              Các món hiện có chưa ghép được ngày này đúng khoảng đó. Bạn có thể đổi món hoặc nới khoảng mục tiêu rồi lên
-              thực đơn lại.
-            </p>
-          </div>
+            {plans.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.name}
+                {formatDate(item.createdAt) ? ` (${formatDate(item.createdAt)})` : ""}
+              </option>
+            ))}
+          </select>
+          {plan.goal && <span className="line-clamp-1 text-xs">Mục tiêu: {plan.goal}</span>}
         </div>
       )}
 
       {renderBody()}
-
-      {editingMeal && plan && activeDay && (
-        <EditMealDialog
-          // key theo ngày + bữa để hộp thoại dựng lại với state mới mỗi lần mở.
-          key={`${plan.id}-${activeKey}-${normalizeDay(editingMeal.mealType)}`}
-          plan={plan}
-          day={activeDay}
-          meal={editingMeal}
-          current={{
-            title: toCardMeal(editingMeal).title,
-            image: toCardMeal(editingMeal).image,
-          }}
-          usedRecipeIds={meals.filter((m) => m !== editingMeal).map((m) => m.recipeId)}
-          onClose={() => setEditingMeal(null)}
-        />
-      )}
     </section>
   );
 }
 
 function MealSkeletons() {
   return (
-    <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3" aria-busy="true" aria-label="Đang tải thực đơn">
-      {Array.from({ length: 3 }, (_, index) => (
+    <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4" aria-busy="true" aria-label="Đang tải thực đơn">
+      {Array.from({ length: 4 }, (_, index) => (
         <div key={index} className="h-80 animate-pulse rounded-2xl bg-card shadow-md" />
       ))}
     </div>

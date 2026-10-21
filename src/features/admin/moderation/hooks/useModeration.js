@@ -28,5 +28,11 @@ export function useReviewModeration() {
       // Invalidate để tự động làm mới danh sách hàng đợi
       queryClient.invalidateQueries({ queryKey: moderationKeys.all });
     },
+    onError: (error) => {
+      // Khi gặp lỗi 6013 (Case đã được xử lý): tự động tải lại hàng đợi kiểm duyệt
+      if (error?.code === 6013) {
+        queryClient.invalidateQueries({ queryKey: moderationKeys.all });
+      }
+    },
   });
 }

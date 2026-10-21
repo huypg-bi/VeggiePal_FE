@@ -14,8 +14,7 @@ const ROWS = [
 
 /**
  * Mục tiêu dinh dưỡng MỖI NGÀY (tùy chọn), nằm trong form react-hook-form của AiMealSuggestion.
- * Để trống = không ràng buộc. Nhập quá chặt thì BE vẫn lên thực đơn nhưng đánh dấu ngày không đạt
- * (targetMet=false), TodayMeals sẽ cảnh báo.
+ * Để trống = không ràng buộc. Nhập quá chặt thì BE trả lỗi 6012 (mục tiêu không đạt được).
  */
 export default function NutritionTargetFields({ register, errors }) {
   const idPrefix = useId();
@@ -32,7 +31,7 @@ export default function NutritionTargetFields({ register, errors }) {
       <div className="flex flex-col gap-3 border-t border-border px-4 pb-4 pt-3">
         <p className="text-xs leading-relaxed text-subtle">
           Điền khoảng bạn muốn, mỗi ngày trong thực đơn sẽ nằm trong khoảng đó (cho phép lệch tối đa khoảng
-          15%). Bỏ trống ô nào thì ô đó không bị giới hạn. Nếu khoảng quá chặt so với các món hiện có, ngày nào không đạt sẽ được báo lại ngay trên thực đơn.
+          15%). Bỏ trống ô nào thì ô đó không bị giới hạn. Khoảng quá chặt so với các món hiện có sẽ không lên được thực đơn.
         </p>
 
         {ROWS.map((row) => {

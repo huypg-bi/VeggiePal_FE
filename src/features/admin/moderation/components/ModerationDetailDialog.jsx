@@ -1,19 +1,13 @@
 import {
-  AlertCircle,
-  Calendar,
   Check,
-  CheckCircle2,
   ExternalLink,
-  Eye,
   FileText,
-  Info,
   MessageSquare,
   Percent,
   ShieldAlert,
   Video,
   X,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -54,7 +48,7 @@ function formatDateTime(isoString) {
 
 /**
  * Modal hiển thị toàn bộ thông tin chi tiết của một case kiểm duyệt.
- * Cung cấp thông tin cảnh báo AI, mã case, id nội dung gốc và hướng dẫn xử lý.
+ * Hiển thị trực tiếp nội dung văn bản bị gắn cờ (content) và mã tác giả (authorId) từ AI-Service.
  */
 export default function ModerationDetailDialog({
   item,
@@ -66,7 +60,7 @@ export default function ModerationDetailDialog({
   if (!item) return null;
 
   const typeMeta = CONTENT_TYPE_MAP[item.contentType] || {
-    label: item.contentType || "Chưa phân loại (Chờ BE bổ sung)",
+    label: item.contentType || "Chưa phân loại",
     icon: ShieldAlert,
     className: "bg-surface text-subtle",
   };
@@ -86,7 +80,7 @@ export default function ModerationDetailDialog({
             <DialogTitle>Chi tiết kiểm duyệt #{item.caseId}</DialogTitle>
           </div>
           <DialogDescription>
-            Xem xét các tiêu chí AI gắn cờ và quyết định phê duyệt hoặc từ chối nội dung.
+            Xem xét nội dung vi phạm thực tế và quyết định phê duyệt hoặc từ chối nội dung.
           </DialogDescription>
         </DialogHeader>
 
@@ -110,8 +104,32 @@ export default function ModerationDetailDialog({
 
             <div>
               <span className="text-xs text-subtle">Mã ID nội dung gốc:</span>
+              <div className="mt-1 flex items-center gap-1.5">
+                {hasExternalId ? (
+                  isBlog ? (
+                    <a
+                      href={`/blog/${item.externalContentId}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 font-mono text-sm font-semibold text-ink underline hover:text-brand"
+                      title="Mở bài viết trong tab mới (Admin có quyền xem bài chưa đăng)"
+                    >
+                      #{item.externalContentId}
+                      <ExternalLink className="size-3 text-subtle" />
+                    </a>
+                  ) : (
+                    <span className="font-mono text-sm font-semibold text-ink">#{item.externalContentId}</span>
+                  )
+                ) : (
+                  <span className="text-subtle">—</span>
+                )}
+              </div>
+            </div>
+
+            <div>
+              <span className="text-xs text-subtle">Mã tác giả:</span>
               <p className="mt-1 font-mono text-sm font-semibold text-ink">
-                {hasExternalId ? `#${item.externalContentId}` : "Chưa có (BE chưa trả trường externalContentId)"}
+                {item.authorId != null ? `#${item.authorId}` : "—"}
               </p>
             </div>
 
@@ -123,7 +141,7 @@ export default function ModerationDetailDialog({
               </div>
             </div>
 
-            <div>
+            <div className="col-span-2">
               <span className="text-xs text-subtle">Thời gian phát hiện:</span>
               <p className="mt-1 text-xs text-subtle">
                 {formatDateTime(item.createdAt)}
@@ -150,27 +168,24 @@ export default function ModerationDetailDialog({
             </div>
           </div>
 
-          {/* Trích dẫn nội dung kiểm duyệt nếu có (từ mock data hoặc khi BE cung cấp) */}
-          {(item.contentTitle || item.contentSnippet) && (
-            <div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-ink">Nội dung văn bản bị gắn cờ:</span>
-                {item.authorName && (
-                  <span className="text-[11px] text-subtle">
-                    Tác giả: <strong className="text-ink">{item.authorName}</strong>
-                  </span>
-                )}
-              </div>
-              <div className="mt-1.5 rounded-2xl border border-destructive/20 bg-destructive/5 p-3 text-xs leading-relaxed text-body">
-                {item.contentTitle && (
-                  <p className="font-semibold text-ink mb-1">{item.contentTitle}</p>
-                )}
-                {item.contentSnippet && (
-                  <p className="italic text-subtle">"{item.contentSnippet}"</p>
-                )}
-              </div>
+          {/* Nội dung văn bản bị gắn cờ */}
+          <div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-ink">Nội dung văn bản bị gắn cờ:</span>
+              {item.authorId != null && (
+                <span className="text-[11px] text-subtle">
+                  Tác giả: <strong className="font-mono text-ink">#{item.authorId}</strong>
+                </span>
+              )}
             </div>
-          )}
+            <div className="mt-1.5 max-h-48 overflow-y-auto whitespace-pre-wrap rounded-2xl border border-destructive/20 bg-destructive/5 p-3.5 text-xs leading-relaxed text-body selection:bg-destructive/20">
+              {item.content ? (
+                <p className="italic text-ink">"{item.content}"</p>
+              ) : (
+                <p className="italic text-subtle">Không có nội dung văn bản đính kèm.</p>
+              )}
+            </div>
+          </div>
 
           {/* Lý do từ AI */}
           <div>
@@ -180,33 +195,26 @@ export default function ModerationDetailDialog({
             </div>
           </div>
 
-          {/* Cảnh báo & Lưu ý về nội dung gốc */}
-          <div className="flex items-start gap-2.5 rounded-2xl bg-amber-500/10 p-3.5 text-xs text-amber-700 dark:text-amber-400">
-            <Info className="mt-0.5 size-4 shrink-0" />
-            <div className="space-y-1">
-              <p className="font-semibold">Lưu ý về xem trước nội dung gốc:</p>
-              <p className="leading-relaxed text-amber-800/90 dark:text-amber-300/90">
-                AI Service chỉ lưu và trả về kết quả phân tích kiểm duyệt. Các nội dung đang ở trạng thái
-                Chờ duyệt (PENDING) trên hệ thống hiện chưa được cấp phép truy cập công khai qua API người dùng.
-              </p>
-              {hasExternalId && isBlog && (
-                <div className="pt-1.5">
-                  <a
-                    href={`/blog/${item.externalContentId}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 font-semibold underline hover:opacity-80"
-                  >
-                    Thử mở bài viết #{item.externalContentId} trong tab mới
-                    <ExternalLink className="size-3" />
-                  </a>
-                  <p className="text-[11px] text-amber-700/80 dark:text-amber-400/80">
-                    (Nếu bài viết chưa được duyệt, trang có thể báo 404 không tìm thấy)
-                  </p>
-                </div>
-              )}
+          {/* Xem trước toàn bộ bài viết gốc (Admin có quyền xem bài chưa đăng) */}
+          {hasExternalId && isBlog && (
+            <div className="flex items-start justify-between gap-3 rounded-2xl border border-border bg-surface p-3.5 text-xs">
+              <div className="space-y-0.5">
+                <span className="font-semibold text-ink">Bài viết gốc #{item.externalContentId}:</span>
+                <p className="text-subtle">
+                  Quản trị viên có thể xem trực tiếp toàn bộ bài viết trên trang chi tiết (bao gồm cả bài viết chưa xuất bản).
+                </p>
+              </div>
+              <a
+                href={`/blog/${item.externalContentId}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 font-medium text-ink shadow-sm transition hover:bg-surface hover:text-brand"
+              >
+                <span>Mở bài viết</span>
+                <ExternalLink className="size-3.5 text-subtle" />
+              </a>
             </div>
-          </div>
+          )}
         </div>
 
         <DialogFooter className="gap-2 sm:gap-0">
