@@ -86,7 +86,7 @@ src/
 ├── lib/                     # tiện ích dùng chung: queryClient.js, schema.js, utils.js (cn)
 ├── shared/                  # dùng chung nhiều feature
 │   ├── api/apiClient.js     # axios instance duy nhất
-│   ├── components/          # Reveal, ThemeToggle ...
+│   ├── components/          # Reveal, ThemeToggle, ScrollToTop (đưa thanh cuộn về đầu trang khi đổi route, đặt trong App.jsx) ...
 │   └── store/themeStore.js  # zustand theme
 └── styles/globals.css       # Tailwind + design tokens (nguồn sự thật của màu/font)
 ```
