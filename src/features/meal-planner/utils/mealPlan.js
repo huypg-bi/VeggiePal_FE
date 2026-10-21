@@ -119,6 +119,120 @@ export function macroPercentages(totals) {
   return { carb: result[0], protein: result[1], fat: result[2] };
 }
 
+// Nhãn + đơn vị của từng chất trong `targetDeviations` mà BE gắn vào ngày không đạt mục tiêu.
+const TARGET_METRICS = [
+  { key: "calories", label: "Năng lượng", unit: "kcal" },
+  { key: "protein", label: "Đạm", unit: "g" },
+  { key: "carbohydrate", label: "Tinh bột", unit: "g" },
+  { key: "fat", label: "Chất béo", unit: "g" },
+];
+
+function formatAmount(value) {
+  return Number(value).toLocaleString("vi-VN", { maximumFractionDigits: 1 });
+}
+
+/** Khoảng mục tiêu dạng chữ: "1.500–1.800 kcal", "≥ 80 g" hoặc "≤ 60 g". */
+function describeRange(min, max, unit) {
+  const hasMin = min != null && Number.isFinite(Number(min));
+  const hasMax = max != null && Number.isFinite(Number(max));
+  if (hasMin && hasMax) return `${formatAmount(min)}–${formatAmount(max)} ${unit}`;
+  if (hasMin) return `≥ ${formatAmount(min)} ${unit}`;
+  if (hasMax) return `≤ ${formatAmount(max)} ${unit}`;
+  return "";
+}
+
+/**
+ * Các chất mà ngày này lệch khỏi mục tiêu (ngoài dung sai của BE), lấy từ `day.targetDeviations`.
+ * BE không từ chối thực đơn mà chỉ đánh dấu: `targetMet: false` + `targetDeviations: { protein: { actual, min?, max? } }`.
+ * Trả mảng { key, label, unit, actual, range } theo thứ tự năng lượng, đạm, tinh bột, béo; rỗng khi ngày đạt
+ * mục tiêu, không đặt mục tiêu hoặc thực đơn cũ chưa có hai trường này.
+ */
+export function dayTargetDeviations(day) {
+  const deviations = day?.targetDeviations;
+  if (day?.targetMet === true || !deviations || typeof deviations !== "object") return [];
+
+  return TARGET_METRICS.filter(({ key }) => deviations[key] && typeof deviations[key] === "object").map(
+    ({ key, label, unit }) => {
+      const { actual, min, max } = deviations[key];
+      return { key, label, unit, actual: Number(actual) || 0, range: describeRange(min, max, unit) };
+    },
+  );
+}
+
+/** Số ngày của thực đơn không đạt mục tiêu dinh dưỡng. */
+export function countMissedDays(plan) {
+  return sortedDays(plan).filter((day) => dayTargetDeviations(day).length > 0).length;
+}
+
+// Bốn chất hiển thị trong các bảng so sánh (key khớp `nutritionTotals` của BE).
+export const MACRO_ROWS = [
+  { key: "calories", label: "Năng lượng", unit: "kcal" },
+  { key: "protein", label: "Đạm", unit: "g" },
+  { key: "carbohydrate", label: "Tinh bột", unit: "g" },
+  { key: "fat", label: "Chất béo", unit: "g" },
+];
+
+// Các mức khẩu phần cho chọn khi sửa thủ công (BE chỉ cần > 0).
+export const SERVING_OPTIONS = [0.5, 0.75, 1, 1.25, 1.5, 2];
+
+/** 1.25 -> "×1,25"; 1 -> "×1". */
+export function formatServing(value) {
+  return `×${Number(value).toLocaleString("vi-VN", { maximumFractionDigits: 2 })}`;
+}
+
+/** Ngày có thứ `key` trong phần `plan` (có days[]), không phân biệt hoa thường. Không có thì null. */
+export function findDayByKey(planBody, key) {
+  const days = Array.isArray(planBody?.days) ? planBody.days : [];
+  return days.find((day) => normalizeDay(day.day) === normalizeDay(key)) ?? null;
+}
+
+/**
+ * Dựng `edits` gửi BE cho một bữa: đổi món thì REPLACE (kèm khẩu phần chọn, vì BE mặc định giữ khẩu phần cũ),
+ * chỉ đổi khẩu phần thì UPDATE_SERVING. Không đổi gì thì trả mảng rỗng.
+ */
+export function buildMealEdits({ day, mealType, currentRecipeId, currentMultiplier = 1, recipeId, multiplier }) {
+  if (recipeId !== currentRecipeId) {
+    return [{ day, mealType, action: "REPLACE", recipeId, servingMultiplier: multiplier }];
+  }
+  if (Math.abs(multiplier - currentMultiplier) > 0.001) {
+    return [{ day, mealType, action: "UPDATE_SERVING", servingMultiplier: multiplier }];
+  }
+  return [];
+}
+
+const TARGET_SUFFIX ={ calories: "Calories", protein: "Protein", carbohydrate: "Carbohydrate", fat: "Fat" };
+
+/**
+ * Các mốc mục tiêu (dailyNutritionTarget) thành dòng chữ cho từng chất, bỏ chất không đặt mốc nào.
+ * Trả mảng { key, label, unit, range }, ví dụ { label: "Đạm", range: "≥ 80 g" }.
+ */
+export function targetRangeLines(target) {
+  if (!target) return [];
+  return TARGET_METRICS.map(({ key, label, unit }) => ({
+    key,
+    label,
+    unit,
+    range: describeRange(target[`min${TARGET_SUFFIX[key]}`], target[`max${TARGET_SUFFIX[key]}`], unit),
+  })).filter((line) => line.range);
+}
+
+/**
+ * Năng lượng / đạm / tinh bột / béo trung bình mỗi ngày của phần `plan` (có days[].nutritionTotals),
+ * làm tròn số nguyên. Trả null khi chưa có ngày nào có nutritionTotals.
+ */
+export function averageDailyTotals(planBody) {
+  const days = Array.isArray(planBody?.days) ? planBody.days.filter((day) => day?.nutritionTotals) : [];
+  if (days.length === 0) return null;
+  const average = (key) =>
+    Math.round(days.reduce((sum, day) => sum + (Number(day.nutritionTotals[key]) || 0), 0) / days.length);
+  return {
+    calories: average("calories"),
+    protein: average("protein"),
+    carbohydrate: average("carbohydrate"),
+    fat: average("fat"),
+  };
+}
+
 // Các mốc mục tiêu dinh dưỡng mỗi ngày, đúng tên field của GenerateRequest.dailyNutritionTarget.
 export const TARGET_FIELDS = [
   "minCalories",
@@ -139,7 +253,7 @@ export function parseTargetNumber(text) {
 
 /**
  * Dựng dailyNutritionTarget từ các ô nhập (chuỗi). Ô trống bị bỏ qua; không có ô nào thì
- * trả undefined để KHÔNG gửi mục tiêu (tránh BE từ chối thực đơn vì khoảng quá hẹp).
+ * trả undefined để KHÔNG gửi mục tiêu (khỏi ràng buộc thực đơn không cần thiết).
  */
 export function buildNutritionTarget(values) {
   const target = {};
@@ -163,11 +277,51 @@ export function buildGeneratePayload({ name, healthGoal, preferences, ingredient
   return payload;
 }
 
-/** Tên gợi ý cho thực đơn mới, ví dụ "Thực đơn 16/10". */
-export function defaultPlanName(date = new Date()) {
+/** "dd/MM" của một ngày, ví dụ "07/10". */
+export function formatDayMonth(date) {
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
-  return `Thực đơn ${day}/${month}`;
+  return `${day}/${month}`;
+}
+
+/** Thứ Hai của tuần (T2 -> CN) chứa `date`, lúc 00:00 giờ máy người dùng. */
+export function weekStart(date = new Date()) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - ((date.getDay() + 6) % 7));
+}
+
+/**
+ * Tên gợi ý cho thực đơn mới: cả tuần T2 -> CN chứa ngày tạo, ví dụ tạo ngày 17/10 -> "Thực đơn 12/10 - 18/10".
+ * BE chỉ lưu thứ (MONDAY..SUNDAY) chứ không lưu ngày cụ thể, nên lấy tuần lịch là khớp nhất với dữ liệu.
+ */
+export function defaultPlanName(date = new Date()) {
+  const start = weekStart(date);
+  const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+  return `Thực đơn ${formatDayMonth(start)} - ${formatDayMonth(end)}`;
+}
+
+/**
+ * Ngày cụ thể của một thứ trong thực đơn, tính theo tuần chứa ngày tạo (`plan.createdAt`).
+ * Trả null khi thiếu createdAt / thứ lạ.
+ */
+export function planDayDate(plan, dayKey) {
+  const index = DAY_ORDER.indexOf(normalizeDay(dayKey));
+  const created = new Date(plan?.createdAt);
+  if (index === -1 || Number.isNaN(created.getTime())) return null;
+  const start = weekStart(created);
+  return new Date(start.getFullYear(), start.getMonth(), start.getDate() + index);
+}
+
+/** Hai ngày có cùng ngày-tháng-năm (bỏ qua giờ) không. */
+export function isSameDate(a, b) {
+  return (
+    a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+  );
+}
+
+/** Đặt cờ yêu thích của một thực đơn trong danh sách đã cache (theo id); thực đơn khác giữ nguyên. */
+export function setPlanFavorite(list, planId, favorite) {
+  if (!Array.isArray(list)) return list;
+  return list.map((plan) => (plan.id === planId ? { ...plan, isFavorite: favorite } : plan));
 }
 
 /** Thay một thực đơn trong danh sách đã cache bằng bản mới (theo id). */

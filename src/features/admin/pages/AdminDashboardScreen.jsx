@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Activity, ArrowRight, Eye, EyeOff, FolderTree, Leaf, Salad, TriangleAlert } from "lucide-react";
+import { Activity, ArrowRight, Eye, EyeOff, FolderTree, Leaf, Salad, ShieldAlert, TriangleAlert } from "lucide-react";
 
 import { useAuthStore } from "@/features/auth/store/authStore";
+import { usePendingModerationCases } from "@/features/admin/moderation/hooks/useModeration";
 import { useCategories } from "@/features/blog/hooks/useCategories";
 import { useIngredients } from "@/features/ingredient/hooks/useIngredients";
 import { cn } from "@/lib/utils";
@@ -15,10 +16,12 @@ export default function AdminDashboardScreen() {
   const allIngredients = useIngredients({ size: 1 });
   const veganIngredients = useIngredients({ vegan: true, size: 1 });
   const allergenIngredients = useIngredients({ allergen: true, size: 1 });
+  const pendingModerations = usePendingModerationCases();
 
   // Cây 2 cấp: đếm cả danh mục gốc lẫn con; đang ẩn = active false.
   const allCategories = (categories.data ?? []).flatMap((root) => [root, ...(root.children ?? [])]);
   const hiddenCount = allCategories.filter((c) => !c.active).length;
+  const pendingCount = pendingModerations.data?.length ?? 0;
 
   return (
     <div className="flex flex-col gap-8">
@@ -29,7 +32,7 @@ export default function AdminDashboardScreen() {
         </p>
       </div>
 
-      <section aria-label="Số liệu nhanh" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section aria-label="Số liệu nhanh" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <StatCard
           icon={FolderTree}
           label="Danh mục"
@@ -63,9 +66,25 @@ export default function AdminDashboardScreen() {
           error={allergenIngredients.isError}
           tone="chart-4"
         />
+        <StatCard
+          icon={ShieldAlert}
+          label="Chờ kiểm duyệt AI"
+          value={pendingModerations.isPending ? null : pendingCount}
+          loading={pendingModerations.isPending}
+          error={pendingModerations.isError}
+          note={pendingCount > 0 ? "Cần admin xử lý" : "Hàng đợi trống"}
+          noteIcon={ShieldAlert}
+          tone={pendingCount > 0 ? "warning" : "brand"}
+        />
       </section>
 
       <section aria-label="Lối tắt" className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <ShortcutCard
+          to="/admin/moderation"
+          icon={ShieldAlert}
+          title="Kiểm duyệt nội dung"
+          description="Xem xét và duyệt các bài viết, video, bình luận bị AI gắn cờ vi phạm."
+        />
         <ShortcutCard
           to="/admin/categories"
           icon={FolderTree}
@@ -87,7 +106,7 @@ export default function AdminDashboardScreen() {
       </section>
 
       <p className="rounded-2xl bg-surface px-4 py-3 text-sm text-subtle">
-        Kiểm duyệt bài viết và quản lý người dùng sẽ có khi hệ thống bổ sung API tương ứng.
+        Hệ thống kiểm duyệt nội dung tự động AI và giám sát hạn ngạch đã được tích hợp đầy đủ.
       </p>
     </div>
   );
@@ -95,6 +114,7 @@ export default function AdminDashboardScreen() {
 
 const TONE_CLASS = {
   brand: "bg-brand-soft text-brand",
+  warning: "bg-warning/15 text-warning",
   "chart-2": "bg-chart-2/15 text-chart-2",
   "chart-4": "bg-chart-4/15 text-chart-4",
   "chart-5": "bg-chart-5/15 text-chart-5",

@@ -1,9 +1,10 @@
 import { Link, useSearchParams } from "react-router-dom";
-import { BookOpen, ChefHat, Plus } from "lucide-react";
+import { BookOpen, ChefHat, Plus, Video as VideoIcon } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/variants/button-variants";
 import MyBlogList from "@/features/my-content/components/MyBlogList";
 import MyRecipeList from "@/features/my-content/components/MyRecipeList";
+import MyVideoList from "@/features/my-content/components/MyVideoList";
 import { cn } from "@/lib/utils";
 import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
@@ -11,15 +12,25 @@ import AppHeader from "@/shared/components/AppHeader";
 const TABS = [
   { id: "blogs", label: "Bài viết", icon: BookOpen },
   { id: "recipes", label: "Công thức", icon: ChefHat },
+  { id: "videos", label: "Video", icon: VideoIcon },
 ];
 
-// Trang "Bài viết của tôi" (route /my-content, cần đăng nhập): bài viết (GET /blogs/me)
-// và công thức (GET /recipes/me) của chính mình ở mọi trạng thái, kèm nút tạo mới / sửa / xóa.
-// Tab nằm trên URL (?tab=recipes) để form công thức quay về đúng tab.
+// Trang "Nội dung của tôi" (route /my-content, cần đăng nhập): bài viết (GET /blogs/me),
+// công thức (GET /recipes/me) và video (GET /videos/me) của chính mình ở mọi trạng thái,
+// kèm nút tạo mới / sửa / gửi duyệt / xóa.
+// Tab nằm trên URL (?tab=videos) để form quay về đúng tab.
 export default function MyContentScreen() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const tab = searchParams.get("tab") === "recipes" ? "recipes" : "blogs";
+  const currentTab = searchParams.get("tab");
+  const tab = currentTab === "recipes" || currentTab === "videos" ? currentTab : "blogs";
   const setTab = (id) => setSearchParams(id === "blogs" ? {} : { tab: id }, { replace: true });
+
+  const getCreateLink = () => {
+    if (tab === "videos") return { to: "/videos/new", label: "Đăng video" };
+    if (tab === "recipes") return { to: "/recipes/new", label: "Tạo công thức" };
+    return { to: "/blog/new", label: "Viết bài mới" };
+  };
+  const createLink = getCreateLink();
 
   return (
     <div className="min-h-dvh">
@@ -28,17 +39,17 @@ export default function MyContentScreen() {
       <main className="mx-auto flex w-full max-w-3xl flex-col gap-6 px-6 py-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h1 className="font-heading text-3xl font-bold text-ink">Bài viết của tôi</h1>
+            <h1 className="font-heading text-3xl font-bold text-ink">Nội dung của tôi</h1>
             <p className="mt-1 text-sm text-subtle">
-              Quản lý bài viết và công thức bạn đã tạo, kể cả bản nháp và nội dung đang chờ duyệt.
+              Quản lý bài viết, công thức và video bạn đã tạo, kể cả bản nháp và nội dung đang chờ duyệt.
             </p>
           </div>
           <Link
-            to={tab === "blogs" ? "/blog/new" : "/recipes/new"}
+            to={createLink.to}
             className={buttonVariants({ variant: "default", size: "md" })}
           >
             <Plus className="size-4" />
-            {tab === "blogs" ? "Viết bài mới" : "Tạo công thức"}
+            {createLink.label}
           </Link>
         </div>
 
@@ -63,7 +74,13 @@ export default function MyContentScreen() {
           ))}
         </div>
 
-        {tab === "blogs" ? <MyBlogList /> : <MyRecipeList />}
+        {tab === "blogs" ? (
+          <MyBlogList />
+        ) : tab === "recipes" ? (
+          <MyRecipeList />
+        ) : (
+          <MyVideoList />
+        )}
       </main>
 
       <AppFooter />

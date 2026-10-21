@@ -1,5 +1,5 @@
 // Dữ liệu mẫu còn lại của trang Thực đơn — chỉ cho những khối mà BE CHƯA có API:
-// thẻ Nước & Khoáng, thẻ Vận Động và Bữa Phụ (thực đơn AI chỉ có sáng / trưa / tối).
+// thẻ Nước & Khoáng và thẻ Vận Động.
 // Thực đơn, dinh dưỡng, BMI và biểu đồ macro đã lấy từ BE; khi BE bổ sung phần còn lại thì thay các hằng số này.
 
 export const mockStats = [
@@ -10,8 +10,6 @@ export const mockStats = [
     value: "1.8",
     unit: "/ 2.4 L",
     caption: "Đã uống 6/8 ly nước mát",
-    progress: 75,
-    barClass: "bg-chart-2",
   },
   {
     id: "activity",
@@ -20,8 +18,6 @@ export const mockStats = [
     value: "7,850",
     badge: "78% mục tiêu",
     caption: "Đã đạt 25 phút Yoga sáng",
-    progress: 78,
-    barClass: "bg-chart-3",
   },
 ];
 
@@ -41,20 +37,6 @@ export const healthGoalSuggestions = [
   "Duy trì cân nặng và vóc dáng",
   "Ăn đủ chất, dễ tiêu hoá",
 ];
-
-export const mockSnack = {
-  id: "snack",
-  meal: "Bữa Phụ",
-  time: "15:30",
-  title: "Tàu Hũ Nóng Hạt Sen",
-  description: "Vị thanh của gừng ấm xua tan buồn ngủ, tốt cho giấc ngủ về tối.",
-  image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80&auto=format&fit=crop",
-  prepMinutes: 5,
-  kcal: 190,
-  protein: 12,
-  carb: 28,
-  fat: 4,
-};
 
 export const macroLabels = {
   carb: "Tinh bột chậm",

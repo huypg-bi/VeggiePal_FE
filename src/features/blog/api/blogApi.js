@@ -6,7 +6,9 @@ import { chunk, joinIds, normalizeIds } from "@/shared/utils/ids";
  * Blog APIs (blog-service qua api-gateway).
  * Công khai (không cần token):
  *   GET /blogs?categoryId=&keyword=&sort=&page=&size=
- *   GET /blogs/:id           (mỗi lần gọi BE tính thêm 1 lượt xem -> chỉ gọi ở trang chi tiết)
+ *   GET /blogs/:id           (bài đã đăng; mỗi lần gọi BE tính thêm 1 lượt xem -> chỉ gọi ở trang chi tiết)
+ *     Kèm token hợp lệ thì chủ bài và ADMIN còn đọc được bài DRAFT/PENDING/REJECTED/BANNED (không tính
+ *     lượt xem); người khác nhận lỗi như bài không tồn tại. Token hỏng/hết hạn bị bỏ qua, không làm 401.
  *   GET /blogs/:id/related
  * Cần đăng nhập:
  *   POST   /blogs                body { title, content, categoryId, publish }
@@ -52,7 +54,7 @@ export async function getBlogs({ categoryId, keyword, sort, page = 0, size = 10 
   return unwrap(res, "Không lấy được danh sách bài viết") ?? EMPTY_PAGE;
 }
 
-/** GET /blogs/:id — chi tiết một bài đã duyệt (+1 lượt xem). */
+/** GET /blogs/:id — chi tiết một bài đã duyệt (+1 lượt xem); chủ bài / ADMIN đọc được cả bài chưa đăng. */
 export async function getBlog(id) {
   const res = await apiClient.get(`/blogs/${id}`);
   return unwrap(res, "Không lấy được bài viết");

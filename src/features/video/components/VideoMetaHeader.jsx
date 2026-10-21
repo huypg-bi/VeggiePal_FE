@@ -1,77 +1,145 @@
-import { CheckCircle2, ChevronDown, Sparkles, ThumbsDown, ThumbsUp } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle2, ChevronDown, ChevronUp, Sparkles, ThumbsDown, ThumbsUp } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
-import { currentVideo } from "@/features/video/data/mockVideo";
+import { formatCompactNumber, formatTimeAgo, getInitials } from "@/features/blog/utils/blogFormat";
+import FallbackImage from "@/shared/components/FallbackImage";
 
-export default function VideoMetaHeader() {
-  const { title, channel, views, uploadedAgo, approvedBadge, likes } = currentVideo;
+export default function VideoMetaHeader({ video, author }) {
+  const [descExpanded, setDescExpanded] = useState(false);
+
+  if (!video) {
+    return (
+      <div aria-hidden className="flex animate-pulse flex-col gap-4">
+        <div className="h-7 w-3/4 rounded-lg bg-surface" />
+        <div className="flex items-center gap-3">
+          <div className="size-11 rounded-full bg-surface" />
+          <div className="space-y-1.5">
+            <div className="h-4 w-32 rounded bg-surface" />
+            <div className="h-3 w-20 rounded bg-surface" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const authorName = author?.fullName ?? "Thành viên VeggiePal";
+
+  const handleVoteNotice = () => {
+    toast.info("Tính năng bình chọn video đang được phát triển.");
+  };
+
+  const handleScrollToAi = () => {
+    const el = document.getElementById("ai-summary-card");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <div className="flex flex-col gap-4">
-      <h1 className="text-xl font-bold leading-snug text-ink sm:text-2xl">{title}</h1>
+      <h1 className="text-xl font-bold leading-snug text-ink sm:text-2xl">
+        {video.title}
+      </h1>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
+        {/* Thông tin tác giả */}
         <div className="flex items-center gap-3">
-          <span
-            className={`grid size-11 shrink-0 place-items-center rounded-full text-sm font-bold text-white ${channel.avatarClass}`}
-          >
-            {channel.avatarText}
-          </span>
+          <FallbackImage
+            src={author?.avatarUrl}
+            alt={authorName}
+            className="size-11 shrink-0 rounded-full object-cover"
+            draggable={false}
+            fallback={
+              <span className="grid size-11 shrink-0 place-items-center rounded-full bg-brand-soft text-sm font-bold text-brand">
+                {getInitials(authorName)}
+              </span>
+            }
+          />
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="text-sm font-bold text-ink">{channel.name}</span>
-              {channel.verified && (
-                <CheckCircle2 className="h-4 w-4 fill-[#1D6C3D] text-white" />
-              )}
+              <span className="text-sm font-bold text-ink">{authorName}</span>
+              <CheckCircle2 className="size-4 fill-brand text-brand-foreground" />
             </div>
-            <p className="text-xs text-subtle">{channel.subscribers}</p>
+            <p className="text-xs text-subtle">
+              {video.categoryName ? `Chuyên mục: ${video.categoryName}` : "Thành viên cộng đồng"}
+            </p>
           </div>
 
           <Button
             type="button"
-            variant="outline"
             size="sm"
-            className="ml-2 gap-1 bg-transparent pl-3 pr-2 font-semibold"
+            onClick={handleScrollToAi}
+            className="ml-2 gap-1.5 shadow-sm"
           >
-            Đã đăng ký
-            <ChevronDown className="size-3.5" />
-          </Button>
-
-          <Button type="button" size="sm" className="px-4 shadow-sm">
             <Sparkles className="size-3.5" />
             Bóc tách công thức AI
           </Button>
         </div>
 
-        <div className="flex items-center gap-1 rounded-full border border-border">
+        {/* Nút thích / không thích tĩnh (BE chưa hỗ trợ targetType=VIDEO) */}
+        <div className="flex items-center rounded-full border border-border bg-card">
           <button
             type="button"
-            className="flex items-center gap-1.5 rounded-l-full px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface"
+            onClick={handleVoteNotice}
+            title="Bình chọn video (sắp có)"
+            className="flex items-center gap-1.5 rounded-l-full px-3.5 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface"
           >
-            <ThumbsUp className="h-3.5 w-3.5" />
-            {likes}
+            <ThumbsUp className="size-3.5" />
+            Thích
           </button>
           <div className="h-4 w-px bg-border" />
           <button
             type="button"
+            onClick={handleVoteNotice}
+            title="Bình chọn video (sắp có)"
             aria-label="Không thích"
             className="rounded-r-full px-3 py-1.5 text-ink transition hover:bg-surface"
           >
-            <ThumbsDown className="h-3.5 w-3.5" />
+            <ThumbsDown className="size-3.5" />
           </button>
         </div>
       </div>
 
+      {/* Thông số lượt xem và thời gian */}
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-subtle">
-        <span>{views}</span>
+        <span className="font-medium text-ink">
+          {formatCompactNumber(video.viewCount)} lượt xem
+        </span>
         <span>•</span>
-        <span>{uploadedAgo}</span>
+        <span>{formatTimeAgo(video.publishedAt ?? video.createdAt)}</span>
         <span>•</span>
-        <span className="flex items-center gap-1 font-medium text-brand">
-          <CheckCircle2 className="h-3.5 w-3.5" />
-          {approvedBadge}
+        <span className="rounded-full bg-brand-soft px-2 py-0.5 font-medium text-brand">
+          {video.sourceType === "YOUTUBE" ? "Nguồn YouTube" : "Video độc quyền"}
         </span>
       </div>
+
+      {/* Mô tả video */}
+      {video.description && (
+        <div className="rounded-2xl border border-border bg-surface p-4 text-sm text-body">
+          <p className={descExpanded ? "whitespace-pre-line" : "line-clamp-3 whitespace-pre-line"}>
+            {video.description}
+          </p>
+          {video.description.length > 180 && (
+            <button
+              type="button"
+              onClick={() => setDescExpanded((v) => !v)}
+              className="mt-2 flex items-center gap-1 text-xs font-semibold text-brand hover:underline"
+            >
+              {descExpanded ? (
+                <>
+                  Thu gọn <ChevronUp className="size-3" />
+                </>
+              ) : (
+                <>
+                  Xem thêm mô tả <ChevronDown className="size-3" />
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

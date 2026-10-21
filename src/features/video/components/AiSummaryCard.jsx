@@ -18,12 +18,17 @@ export default function AiSummaryCard({ videoId }) {
   const visibleSteps = showAll ? steps : steps.slice(0, COLLAPSED_STEPS);
 
   return (
-    <section className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
+    <section id="ai-summary-card" className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
       <div className="flex items-center gap-2.5">
         <img src={iconAiSummary} alt="" className="h-9 w-9 shrink-0" />
-        <h2 className="text-sm font-bold text-ink sm:text-base">
-          Tóm tắt công thức nấu ăn (AI Summary)
-        </h2>
+        <div>
+          <h2 className="text-sm font-bold text-ink sm:text-base">
+            Tóm tắt công thức nấu ăn (AI Summary)
+          </h2>
+          <span className="text-[11px] font-medium text-subtle">
+            (Dữ liệu mẫu tham khảo - tính năng bóc tách tự động đang được phát triển)
+          </span>
+        </div>
       </div>
 
       {isPending ? (

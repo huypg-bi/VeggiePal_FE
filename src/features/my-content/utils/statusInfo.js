@@ -1,4 +1,5 @@
-// Nhãn + màu + gợi ý cho trạng thái của bài viết (blog-service) và công thức (recipe-service).
+// Nhãn + màu + gợi ý cho trạng thái của bài viết (blog-service), công thức (recipe-service)
+// và video (blog-service).
 // tone ánh xạ sang class ở StatusBadge: success | warning | danger | muted.
 
 const BLOG_STATUS = {
@@ -15,10 +16,24 @@ const RECIPE_STATUS = {
   HIDDEN: { label: "Đang ẩn", tone: "danger", hint: "Công thức đang bị ẩn khỏi mọi người" },
 };
 
+const VIDEO_STATUS = {
+  DRAFT: { label: "Bản nháp", tone: "muted", hint: "Chưa gửi duyệt, chỉ mình bạn thấy" },
+  PENDING: { label: "Chờ duyệt", tone: "warning", hint: "Đang chờ kiểm duyệt" },
+  PUBLISHED: { label: "Đã đăng", tone: "success", hint: "" },
+  REJECTED: { label: "Bị từ chối", tone: "danger", hint: "Không vượt qua kiểm duyệt" },
+  BANNED: { label: "Đã bị gỡ", tone: "danger", hint: "Quản trị viên đã gỡ video này" },
+};
+
 // Bộ lọc ở tab bài viết: "" = tất cả (không gửi status lên BE).
 export const BLOG_STATUS_FILTERS = [
   { value: "", label: "Tất cả" },
   ...Object.entries(BLOG_STATUS).map(([value, { label }]) => ({ value, label })),
+];
+
+// Bộ lọc ở tab video: "" = tất cả.
+export const VIDEO_STATUS_FILTERS = [
+  { value: "", label: "Tất cả" },
+  ...Object.entries(VIDEO_STATUS).map(([value, { label }]) => ({ value, label })),
 ];
 
 const UNKNOWN = { label: "Không rõ", tone: "muted", hint: "" };
@@ -33,17 +48,28 @@ export function getRecipeStatusInfo(status) {
   return RECIPE_STATUS[status] ?? UNKNOWN;
 }
 
+/** Thông tin hiển thị của một trạng thái video. */
+export function getVideoStatusInfo(status) {
+  return VIDEO_STATUS[status] ?? UNKNOWN;
+}
+
 // Hành động nào hợp lệ ở trạng thái nào (khớp luật chuyển trạng thái của BE).
 
 /**
- * Sửa bài: BE cho sửa bài ở mọi trạng thái trừ BANNED, nhưng chưa có endpoint để chủ bài đọc lại
- * bài chưa đăng (GET /blogs/:id chỉ trả bài PUBLISHED), nên FE chỉ mở sửa được bài đã đăng.
- * Khi BE bổ sung endpoint đọc bài của chính mình thì nới điều kiện này.
+ * Sửa bài: BE cho sửa bài ở mọi trạng thái trừ BANNED (bài bị gỡ là cuối cùng, sửa sẽ bị từ chối).
+ * Chủ bài đọc lại được bài chưa đăng qua GET /blogs/:id (kèm token) nên form sửa nạp được cả
+ * bản nháp, chờ duyệt, bị từ chối.
  */
-export const canEditBlog = (status) => status === "PUBLISHED";
+export const canEditBlog = (status) => status !== "BANNED";
 
 /** Gửi duyệt: chỉ bản nháp (BE trả lỗi 3015 với trạng thái khác). */
 export const canSubmitBlog = (status) => status === "DRAFT";
 
-/** Đăng công thức: chỉ bản nháp. (BE còn cho đăng lại công thức HIDDEN, nhưng đó là quản trị ẩn nên không mở.) */
+/** Đăng công thức: chỉ bản nháp. (BE từ chối đăng công thức HIDDEN / ARCHIVED với lỗi 4108.) */
 export const canPublishRecipe = (status) => status === "DRAFT";
+
+/** Sửa video: BE cho sửa ở mọi trạng thái trừ BANNED. */
+export const canEditVideo = (status) => status !== "BANNED";
+
+/** Gửi duyệt video: chỉ bản nháp (BE trả lỗi 3068 với trạng thái khác). */
+export const canSubmitVideo = (status) => status === "DRAFT";

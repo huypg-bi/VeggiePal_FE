@@ -1,7 +1,7 @@
 import { useId } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ import {
   emptyCategoryForm,
   formValuesToCategoryPayload,
 } from "@/features/blog/utils/categoryForm";
+import SelectField from "@/shared/components/SelectField";
 
 const fieldClass =
   "h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
@@ -53,6 +54,7 @@ function CategoryForm({ target, onClose }) {
 
   const {
     register,
+    control,
     handleSubmit,
     setError,
     formState: { errors, isSubmitting },
@@ -120,13 +122,20 @@ function CategoryForm({ target, onClose }) {
           <label htmlFor={`${idPrefix}-type`} className={labelClass}>
             Loại
           </label>
-          <select id={`${idPrefix}-type`} className={fieldClass} {...register("type")}>
-            {CATEGORY_TYPE_OPTIONS.map(({ value, label }) => (
-              <option key={value} value={value}>
-                {label}
-              </option>
-            ))}
-          </select>
+          <Controller
+            name="type"
+            control={control}
+            render={({ field }) => (
+              <SelectField
+                id={`${idPrefix}-type`}
+                variant="field"
+                options={CATEGORY_TYPE_OPTIONS}
+                value={field.value}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+              />
+            )}
+          />
         </div>
       )}
       {isEdit && (
