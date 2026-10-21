@@ -2,7 +2,7 @@ import { useId, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
 } from "@/features/blog/hooks/useBlogMutations";
 import { BLOG_CONTENT_MIN, BLOG_TITLE_MAX, blogSchema } from "@/features/blog/schema";
 import { describeBlogOutcome } from "@/features/blog/utils/blogForm";
+import SelectField from "@/shared/components/SelectField";
 
 const fieldClass =
   "w-full rounded-xl border border-border bg-surface px-3.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
@@ -27,7 +28,8 @@ const notify = ({ tone, message }) =>
 /**
  * Form viết / sửa bài.
  * - Tạo mới (không có `blog`): "Lưu nháp" hoặc "Đăng bài" (kiểm duyệt ngay).
- * - Sửa (`blog` là BlogResponse đã đăng): "Lưu thay đổi", BE sẽ kiểm duyệt lại.
+ * - Sửa (`blog` là BlogResponse, mọi trạng thái trừ BANNED): "Lưu thay đổi". Bản nháp vẫn là nháp;
+ *   bài đã qua kiểm duyệt (đã đăng, chờ duyệt, bị từ chối) sẽ được BE kiểm duyệt lại.
  * `categories` là danh sách phẳng { id, name } của danh mục đang hoạt động.
  * Ảnh bìa tải lên bằng endpoint riêng sau khi bài đã có id.
  */
@@ -59,6 +61,7 @@ export default function BlogForm({ blog, categories }) {
 
   const titleLength = useWatch({ control, name: "title" }).length;
   const contentLength = useWatch({ control, name: "content" }).trim().length;
+  const categoryOptions = categories.map(({ id, name }) => ({ value: String(id), label: name }));
 
   // Trả true nếu tải ảnh thành công; lỗi thì báo nhưng không chặn, vì bài đã được lưu.
   const uploadThumbnailSafely = async (id) => {
@@ -120,9 +123,15 @@ export default function BlogForm({ blog, categories }) {
   return (
     <form onSubmit={(event) => event.preventDefault()} noValidate className="flex flex-col gap-5">
       <section className="flex flex-col gap-5 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
-        {isEdit ? (
+        {isEdit && blog.status === "DRAFT" ? (
+          <p className="rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand">
+            Đây là bản nháp, chỉ mình bạn thấy. Sửa xong bạn bấm “Gửi duyệt” ở trang Bài viết của tôi để đăng.
+          </p>
+        ) : isEdit ? (
           <p className="rounded-xl bg-warning/10 px-3 py-2 text-sm text-warning">
-            Bài đã đăng sẽ được kiểm duyệt lại sau khi sửa và có thể bị ẩn tạm thời cho tới khi được duyệt.
+            {blog.status === "PUBLISHED"
+              ? "Bài đã đăng sẽ được kiểm duyệt lại sau khi sửa và có thể bị ẩn tạm thời cho tới khi được duyệt."
+              : "Bài sẽ được kiểm duyệt lại ngay khi bạn lưu thay đổi."}
           </p>
         ) : (
           <p className="rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand">
@@ -156,19 +165,22 @@ export default function BlogForm({ blog, categories }) {
           <label htmlFor={`${idPrefix}-category`} className={labelClass}>
             Danh mục
           </label>
-          <select
-            id={`${idPrefix}-category`}
-            aria-invalid={Boolean(errors.categoryId)}
-            className={`${fieldClass} h-11`}
-            {...register("categoryId")}
-          >
-            <option value="">Chọn danh mục</option>
-            {categories.map(({ id, name }) => (
-              <option key={id} value={String(id)}>
-                {name}
-              </option>
-            ))}
-          </select>
+          <Controller
+            name="categoryId"
+            control={control}
+            render={({ field }) => (
+              <SelectField
+                id={`${idPrefix}-category`}
+                variant="field"
+                placeholder="Chọn danh mục"
+                options={categoryOptions}
+                value={field.value}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+                aria-invalid={Boolean(errors.categoryId)}
+              />
+            )}
+          />
           {errors.categoryId && <p className={errorClass}>{errors.categoryId.message}</p>}
         </div>
 

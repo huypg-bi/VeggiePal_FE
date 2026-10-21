@@ -2,7 +2,7 @@ import { useId } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import {
   formValuesToPayload,
   recipeToFormValues,
 } from "@/features/recipe/utils/recipeForm";
+import SelectField from "@/shared/components/SelectField";
 
 const fieldClass =
   "w-full rounded-xl border border-border bg-surface px-3.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
@@ -247,17 +248,21 @@ export default function RecipeForm({ recipe }) {
                       />
                     </div>
                     <div>
-                      <select
-                        aria-label={`Đơn vị ${field.ingredientName}`}
-                        className={`${inputClass} bg-card`}
-                        {...register(`ingredients.${index}.unit`)}
-                      >
-                        {UNIT_OPTIONS.map(({ value, label }) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
+                      <Controller
+                        name={`ingredients.${index}.unit`}
+                        control={control}
+                        render={({ field: unitField }) => (
+                          <SelectField
+                            aria-label={`Đơn vị ${field.ingredientName}`}
+                            variant="field"
+                            className="bg-card"
+                            options={UNIT_OPTIONS}
+                            value={unitField.value}
+                            onValueChange={unitField.onChange}
+                            onBlur={unitField.onBlur}
+                          />
+                        )}
+                      />
                     </div>
                     <div className="col-span-2 sm:col-span-1">
                       <input
