@@ -9,8 +9,8 @@ import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 
 // Trang viết bài mới (/blog/new) và sửa bài (/blog/:blogId/edit), cần đăng nhập.
-// BE chưa có endpoint cho chủ bài đọc lại bài chưa đăng, nên chế độ sửa nạp bài qua
-// GET /blogs/:id (chỉ bài đã đăng) — bản nháp/chờ duyệt/bị từ chối hiện chưa mở lại để sửa được.
+// Chế độ sửa nạp bài qua GET /blogs/:id: kèm token thì chủ bài / ADMIN đọc được cả bản nháp, chờ duyệt,
+// bị từ chối. Bài bị gỡ (BANNED) không sửa được vì BE từ chối.
 export default function BlogFormScreen() {
   const { blogId } = useParams();
   const isEdit = blogId !== undefined;
@@ -27,14 +27,19 @@ export default function BlogFormScreen() {
   if (isEdit && (id === null || blogError)) {
     body = (
       <Notice title="Không mở được bài viết này để sửa">
-        Hiện chỉ sửa được bài đã đăng. Bản nháp, bài đang chờ duyệt hoặc bị từ chối chưa thể mở lại
-        để chỉnh sửa.
+        Bài viết không tồn tại hoặc bạn không có quyền xem. Nếu bài của bạn, hãy đăng nhập lại rồi thử lại.
       </Notice>
     );
   } else if (isEdit && !blogPending && !canEdit) {
     body = (
       <Notice title="Bạn không có quyền sửa bài viết này">
         Chỉ tác giả hoặc quản trị viên mới sửa được bài viết.
+      </Notice>
+    );
+  } else if (isEdit && blog?.status === "BANNED") {
+    body = (
+      <Notice title="Bài viết này đã bị gỡ">
+        Quản trị viên đã gỡ bài viết nên không thể chỉnh sửa.
       </Notice>
     );
   } else if (categoriesError) {

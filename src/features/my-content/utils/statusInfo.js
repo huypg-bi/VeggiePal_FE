@@ -56,11 +56,11 @@ export function getVideoStatusInfo(status) {
 // Hành động nào hợp lệ ở trạng thái nào (khớp luật chuyển trạng thái của BE).
 
 /**
- * Sửa bài: BE cho sửa bài ở mọi trạng thái trừ BANNED, nhưng chưa có endpoint để chủ bài đọc lại
- * bài chưa đăng (GET /blogs/:id chỉ trả bài PUBLISHED), nên FE chỉ mở sửa được bài đã đăng.
- * Khi BE bổ sung endpoint đọc bài của chính mình thì nới điều kiện này.
+ * Sửa bài: BE cho sửa bài ở mọi trạng thái trừ BANNED (bài bị gỡ là cuối cùng, sửa sẽ bị từ chối).
+ * Chủ bài đọc lại được bài chưa đăng qua GET /blogs/:id (kèm token) nên form sửa nạp được cả
+ * bản nháp, chờ duyệt, bị từ chối.
  */
-export const canEditBlog = (status) => status === "PUBLISHED";
+export const canEditBlog = (status) => status !== "BANNED";
 
 /** Gửi duyệt: chỉ bản nháp (BE trả lỗi 3015 với trạng thái khác). */
 export const canSubmitBlog = (status) => status === "DRAFT";

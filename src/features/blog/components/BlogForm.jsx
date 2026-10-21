@@ -28,7 +28,8 @@ const notify = ({ tone, message }) =>
 /**
  * Form viết / sửa bài.
  * - Tạo mới (không có `blog`): "Lưu nháp" hoặc "Đăng bài" (kiểm duyệt ngay).
- * - Sửa (`blog` là BlogResponse đã đăng): "Lưu thay đổi", BE sẽ kiểm duyệt lại.
+ * - Sửa (`blog` là BlogResponse, mọi trạng thái trừ BANNED): "Lưu thay đổi". Bản nháp vẫn là nháp;
+ *   bài đã qua kiểm duyệt (đã đăng, chờ duyệt, bị từ chối) sẽ được BE kiểm duyệt lại.
  * `categories` là danh sách phẳng { id, name } của danh mục đang hoạt động.
  * Ảnh bìa tải lên bằng endpoint riêng sau khi bài đã có id.
  */
@@ -122,9 +123,15 @@ export default function BlogForm({ blog, categories }) {
   return (
     <form onSubmit={(event) => event.preventDefault()} noValidate className="flex flex-col gap-5">
       <section className="flex flex-col gap-5 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
-        {isEdit ? (
+        {isEdit && blog.status === "DRAFT" ? (
+          <p className="rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand">
+            Đây là bản nháp, chỉ mình bạn thấy. Sửa xong bạn bấm “Gửi duyệt” ở trang Bài viết của tôi để đăng.
+          </p>
+        ) : isEdit ? (
           <p className="rounded-xl bg-warning/10 px-3 py-2 text-sm text-warning">
-            Bài đã đăng sẽ được kiểm duyệt lại sau khi sửa và có thể bị ẩn tạm thời cho tới khi được duyệt.
+            {blog.status === "PUBLISHED"
+              ? "Bài đã đăng sẽ được kiểm duyệt lại sau khi sửa và có thể bị ẩn tạm thời cho tới khi được duyệt."
+              : "Bài sẽ được kiểm duyệt lại ngay khi bạn lưu thay đổi."}
           </p>
         ) : (
           <p className="rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand">
