@@ -6,8 +6,22 @@ import apiClient from "@/shared/api/apiClient";
  *   POST /ai/meal-plans              tạo thực đơn 7 ngày (gọi LLM nên chậm, có thể vài chục giây)
  *   GET  /ai/meal-plans              các thực đơn đã lưu (kèm đủ nội dung), mới nhất trước
  *   POST /ai/meal-plans/:id/replace  đổi một món, trả về cả thực đơn sau khi cập nhật
+ *   POST   /ai/meal-plans/:id/favorite  thêm cả thực đơn vào yêu thích (yêu thích theo thực đơn, không theo món)
+ *   DELETE /ai/meal-plans/:id/favorite  bỏ yêu thích
+ *   POST   /ai/meal-plans/:id/update-from-health  tính lại mục tiêu dinh dưỡng theo chỉ số sức khỏe mới nhất
+ *     rồi co giãn lại khẩu phần: confirm=false chỉ xem trước (không lưu), confirm=true lưu bản mới
+ *     (BE giữ bản cũ trong lịch sử phiên bản). Trả { confirmed, message, recalculatedTarget, currentPlan,
+ *     proposedPlan, updatedMealPlan }; currentPlan / proposedPlan là phần `plan` (có days[].nutritionTotals).
+ *   POST /ai/meal-plans/:id/preview-edit  xem trước chỉnh sửa thủ công (không lưu), trả { preview: true, plan }
+ *   POST /ai/meal-plans/:id/edit          lưu chỉnh sửa thủ công, trả { preview: false, plan, updatedMealPlan }
+ *     body { changeSummary?, edits: [{ day, mealType, action: "REPLACE" | "UPDATE_SERVING", recipeId?, servingMultiplier? }] }
+ *     BE tính lại dinh dưỡng từng bữa + tổng ngày + targetMet; chỉ nhận món chay, không chứa dị ứng của người dùng
+ *     (6018 / 6019). Bản trước được lưu vào lịch sử phiên bản.
+ *   GET /ai/meal-plans/:id/versions  các bản cũ đã được thay thế, mới nhất trước:
+ *     [{ id, mealPlanId, version, name, goal, plan, changeSummary, createdAt }]. Mỗi lần cập nhật theo sức khỏe hoặc
+ *     sửa thủ công, BE lưu bản trước đó ở đây (đổi món bằng AI `/replace` thì không tạo phiên bản). Chưa có API khôi phục.
  *
- * MealPlan: { id, name, goal, createdAt, updatedAt, plan: {
+ * MealPlan: { id, name, goal, createdAt, updatedAt, version, isFavorite, plan: {
  *   days: [{ day: "MONDAY", meals: [{ mealType: "BREAKFAST"|"LUNCH"|"DINNER", recipeId, note?,
  *     servingMultiplier?, nutrition: { calories, protein, carbohydrate, fat } }], nutritionTotals: { ... },
  *     targetMet?: boolean, targetDeviations?: { calories|protein|carbohydrate|fat: { actual, min?, max? } } }],
@@ -37,6 +51,11 @@ const VI_MESSAGES = {
   6007: "AI chưa xếp được thực đơn đạt yêu cầu, vui lòng thử lại",
   6010: "Bạn cần cập nhật chiều cao và cân nặng trong hồ sơ sức khỏe trước khi lên thực đơn",
   6011: "Không tìm thấy món chay nào phù hợp với dị ứng và yêu cầu dinh dưỡng của bạn",
+  6014: "Thực đơn này đã có trong danh sách yêu thích",
+  6015: "Thực đơn này chưa có trong danh sách yêu thích",
+  6016: "Bạn không có quyền với thực đơn này",
+  6018: "Món này không phải món thuần chay, bạn chọn món khác nhé",
+  6019: "Món này chứa thành phần gây dị ứng của bạn, bạn chọn món khác nhé",
 };
 
 // Lỗi 401/403 do Spring Security trả về có thể không kèm mã 60xx nên dựa thêm vào HTTP status.
@@ -84,6 +103,52 @@ export async function createMealPlan(payload) {
 export async function getMealPlans() {
   const res = await apiClient.get("/ai/meal-plans");
   return unwrap(res, "Không lấy được danh sách thực đơn") ?? [];
+}
+
+/**
+ * POST /ai/meal-plans/:id/favorite — thêm thực đơn vào yêu thích. Đã có sẵn (6014) coi như đã xong,
+ * vì ý người dùng là "thực đơn này đang được yêu thích".
+ */
+export async function favoriteMealPlan(id) {
+  const res = await apiClient.post(`/ai/meal-plans/${id}/favorite`);
+  if (res.data?.code === 6014) return;
+  unwrap(res, "Không thêm được vào danh sách yêu thích");
+}
+
+/** DELETE /ai/meal-plans/:id/favorite — bỏ yêu thích. Chưa có trong yêu thích (6015) coi như đã xong. */
+export async function unfavoriteMealPlan(id) {
+  const res = await apiClient.delete(`/ai/meal-plans/${id}/favorite`);
+  if (res.data?.code === 6015) return;
+  unwrap(res, "Không bỏ được khỏi danh sách yêu thích");
+}
+
+/**
+ * Chỉnh sửa thủ công thực đơn. `preview` = true chỉ xem trước (không lưu), false thì lưu.
+ * edits: [{ day, mealType, action: "REPLACE" | "UPDATE_SERVING", recipeId?, servingMultiplier? }]
+ */
+export async function editMealPlan(id, { edits, changeSummary, preview = false }) {
+  const res = await apiClient.post(`/ai/meal-plans/${id}/${preview ? "preview-edit" : "edit"}`, {
+    preview,
+    changeSummary: changeSummary || undefined,
+    edits,
+  });
+  return unwrap(res, preview ? "Không xem trước được thay đổi" : "Lưu thay đổi thất bại");
+}
+
+/** GET /ai/meal-plans/:id/versions — các phiên bản cũ của một thực đơn, mới nhất trước. */
+export async function getMealPlanVersions(id) {
+  const res = await apiClient.get(`/ai/meal-plans/${id}/versions`);
+  return unwrap(res, "Không lấy được lịch sử phiên bản") ?? [];
+}
+
+/**
+ * POST /ai/meal-plans/:id/update-from-health — cập nhật thực đơn theo chỉ số sức khỏe mới nhất.
+ * confirm=false: chỉ xem trước (không lưu gì). confirm=true: lưu, kết quả có `updatedMealPlan`.
+ * Chưa có hồ sơ sức khỏe thì BE báo 6010 (đã có bản dịch ở VI_MESSAGES).
+ */
+export async function updatePlanFromHealth(id, { confirm = false } = {}) {
+  const res = await apiClient.post(`/ai/meal-plans/${id}/update-from-health`, { confirm });
+  return unwrap(res, confirm ? "Cập nhật thực đơn thất bại" : "Không xem trước được thực đơn cập nhật");
 }
 
 /**

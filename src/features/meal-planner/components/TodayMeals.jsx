@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { CalendarX2, ChevronLeft, ChevronRight, Sparkles, TriangleAlert } from "lucide-react";
+import { CalendarX2, ChevronLeft, ChevronRight, Heart, Loader2, Sparkles, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import EditMealDialog from "@/features/meal-planner/components/EditMealDialog";
+import HealthUpdateButton from "@/features/meal-planner/components/HealthUpdateButton";
 import MealCard from "@/features/meal-planner/components/MealCard";
+import PlanVersionsButton from "@/features/meal-planner/components/PlanVersionsButton";
 import { useDayRecipes } from "@/features/meal-planner/hooks/useDayRecipes";
-import { useReplaceMeal } from "@/features/meal-planner/hooks/useMealPlanMutations";
+import { useReplaceMeal, useSetPlanFavorite } from "@/features/meal-planner/hooks/useMealPlanMutations";
 import {
   dayKeyOf,
   dayLabel,
@@ -22,6 +25,11 @@ import {
 import { cn } from "@/lib/utils";
 import Reveal from "@/shared/components/Reveal";
 import SelectField from "@/shared/components/SelectField";
+
+// Icon trái tim đã tô đỏ dùng làm `icon` của option trong SelectField (nhận className từ SelectField).
+function FavoriteHeart({ className }) {
+  return <Heart className={cn(className, "fill-danger text-danger")} />;
+}
 
 /**
  * Thực đơn theo ngày của thực đơn đang xem.
@@ -40,9 +48,11 @@ export default function TodayMeals({
   onSelectPlan,
   onSelectDay,
 }) {
-  const [likedMeals, setLikedMeals] = useState(() => new Set());
   const [replacingKey, setReplacingKey] = useState(null);
+  // Bữa đang tự chỉnh bằng hộp thoại (meal của plan), null khi không mở.
+  const [editingMeal, setEditingMeal] = useState(null);
   const replaceMeal = useReplaceMeal();
+  const setFavorite = useSetPlanFavorite();
 
   const meals = sortedMeals(activeDay);
   const recipes = useDayRecipes(meals.map((meal) => meal.recipeId));
@@ -50,7 +60,12 @@ export default function TodayMeals({
   const planIndex = plan ? plans.findIndex((item) => item.id === plan.id) : -1;
   const olderPlan = planIndex >= 0 ? plans[planIndex + 1] : undefined;
   const newerPlan = planIndex > 0 ? plans[planIndex - 1] : undefined;
-  const planOptions = plans.map((item) => ({ value: item.id, label: item.name }));
+  // Thực đơn yêu thích có trái tim (cùng icon với nút "Yêu thích") trước tên trong danh sách chọn.
+  const planOptions = plans.map((item) => ({
+    value: item.id,
+    label: item.name,
+    icon: item.isFavorite ? FavoriteHeart : undefined,
+  }));
 
   const activeKey = normalizeDay(activeDay?.day);
   // Ngày cụ thể của thứ đang chọn (theo tuần chứa ngày tạo thực đơn). "Hôm Nay" chỉ khi đúng là hôm nay,
@@ -61,13 +76,15 @@ export default function TodayMeals({
   const dayTitle = activeDate ? `${dayName} (${formatDayMonth(activeDate)})` : dayName;
   const missedTargets = dayTargetDeviations(activeDay);
 
-  const toggleLike = (id) => {
-    setLikedMeals((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  // Yêu thích theo cả thực đơn (BE: POST/DELETE /ai/meal-plans/:id/favorite), không theo từng món.
+  const handleToggleFavorite = async () => {
+    const next = !plan.isFavorite;
+    try {
+      await setFavorite.mutateAsync({ planId: plan.id, favorite: next });
+      toast.success(next ? "Đã thêm thực đơn vào yêu thích" : "Đã bỏ thực đơn khỏi yêu thích");
+    } catch (err) {
+      toast.error(err.message);
+    }
   };
 
   const handleReplace = async (meal) => {
@@ -127,9 +144,8 @@ export default function TodayMeals({
         <MealCard
           key={key}
           meal={toCardMeal(meal)}
-          liked={likedMeals.has(key)}
-          onToggleLike={() => toggleLike(key)}
           onReplace={() => handleReplace(meal)}
+          onEdit={() => setEditingMeal(meal)}
           replacing={replacingKey === key}
           replaceDisabled={replacingKey !== null}
         />
@@ -217,7 +233,24 @@ export default function TodayMeals({
             onValueChange={onSelectPlan}
             className="h-9 max-w-full px-3"
           />
-          {plan.goal && <span className="line-clamp-1 text-xs">Mục tiêu: {plan.goal}</span>}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            aria-pressed={Boolean(plan.isFavorite)}
+            disabled={setFavorite.isPending}
+            onClick={handleToggleFavorite}
+          >
+            {setFavorite.isPending ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Heart className={cn("size-4", plan.isFavorite && "fill-danger text-danger")} />
+            )}
+            {plan.isFavorite ? "Đã yêu thích" : "Yêu thích"}
+          </Button>
+          <HealthUpdateButton plan={plan} />
+          <PlanVersionsButton plan={plan} />
+          {plan.goal &&<span className="line-clamp-1 text-xs">Mục tiêu: {plan.goal}</span>}
         </div>
       )}
 
@@ -246,6 +279,22 @@ export default function TodayMeals({
       )}
 
       {renderBody()}
+
+      {editingMeal && plan && activeDay && (
+        <EditMealDialog
+          // key theo ngày + bữa để hộp thoại dựng lại với state mới mỗi lần mở.
+          key={`${plan.id}-${activeKey}-${normalizeDay(editingMeal.mealType)}`}
+          plan={plan}
+          day={activeDay}
+          meal={editingMeal}
+          current={{
+            title: toCardMeal(editingMeal).title,
+            image: toCardMeal(editingMeal).image,
+          }}
+          usedRecipeIds={meals.filter((m) => m !== editingMeal).map((m) => m.recipeId)}
+          onClose={() => setEditingMeal(null)}
+        />
+      )}
     </section>
   );
 }
