@@ -125,7 +125,7 @@ src/
 ├── components/ui/  # Component shadcn/ui (button, dialog, dropdown-menu, select ...)
 ├── features/       # auth, home, meal-planner, payment, profile, video, restaurant-map, chatbot
 ├── lib/            # queryClient, schema zod, cn
-├── shared/         # apiClient (axios), Reveal, ThemeToggle, SelectField (dropdown chọn giá trị), themeStore
+├── shared/         # apiClient (axios), Reveal, ThemeToggle, ScrollToTop (về đầu trang khi đổi route), SelectField (dropdown chọn giá trị), themeStore
 └── styles/         # globals.css (Tailwind + design token)
 docs/TECH_STACK.md  # Quy ước công nghệ & UI
 ```
