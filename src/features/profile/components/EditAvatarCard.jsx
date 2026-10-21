@@ -55,15 +55,12 @@ export default function EditAvatarCard({ profile, loading, error }) {
           ) : (
             <User className="h-7 w-7 text-brand" />
           )}
-          <span className="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-brand text-[10px] text-brand-foreground">
-            ✓
-          </span>
           <button
             type="button"
             onClick={() => !uploading && fileRef.current?.click()}
             disabled={uploading}
             aria-label="Đổi ảnh đại diện"
-            className="absolute -left-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-brand-foreground shadow hover:bg-brand/90 disabled:opacity-70 cursor-pointer"
+            className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand text-brand-foreground shadow hover:bg-brand/90 disabled:opacity-70 cursor-pointer"
           >
             {uploading ? (
               <Loader2 className="h-3 w-3 animate-spin" />

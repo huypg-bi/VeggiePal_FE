@@ -18,7 +18,7 @@ const personalSchema = updateProfileSchema
 export function usePersonalInfoForm() {
   const { profile, loading, error } = useProfile();
   const updateProfile = useUpdateProfile();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   // `values` giúp form tự đồng bộ lại mỗi khi hồ sơ trên server đổi (tải lần đầu / sau khi lưu).
   const serverValues = useMemo(
