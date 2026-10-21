@@ -38,6 +38,8 @@ export function useSetPlanFavorite() {
     mutationFn: ({ planId, favorite }) => (favorite ? favoriteMealPlan(planId) : unfavoriteMealPlan(planId)),
     onSuccess: (_data, { planId, favorite }) => {
       queryClient.setQueryData(mealPlanKeys.list, (old) => setPlanFavorite(old, planId, favorite));
+      // Danh sách yêu thích (hộp thoại "Yêu thích của tôi") đã đổi nên bỏ cache để lần mở sau lấy lại.
+      queryClient.invalidateQueries({ queryKey: mealPlanKeys.favoritesRoot });
     },
   });
 }

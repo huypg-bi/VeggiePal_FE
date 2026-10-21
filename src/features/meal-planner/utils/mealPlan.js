@@ -324,6 +324,19 @@ export function setPlanFavorite(list, planId, favorite) {
   return list.map((plan) => (plan.id === planId ? { ...plan, isFavorite: favorite } : plan));
 }
 
+/** "21/10/2026 15:06" từ chuỗi ISO của BE; chuỗi rỗng khi không đọc được. */
+export function formatDateTime(iso) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString("vi-VN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 /** Thay một thực đơn trong danh sách đã cache bằng bản mới (theo id). */
 export function replacePlanInList(list, updated) {
   if (!Array.isArray(list)) return list;

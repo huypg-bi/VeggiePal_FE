@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import EditMealDialog from "@/features/meal-planner/components/EditMealDialog";
+import FavoritePlansButton from "@/features/meal-planner/components/FavoritePlansButton";
 import HealthUpdateButton from "@/features/meal-planner/components/HealthUpdateButton";
 import MealCard from "@/features/meal-planner/components/MealCard";
 import PlanVersionsButton from "@/features/meal-planner/components/PlanVersionsButton";
@@ -248,6 +249,7 @@ export default function TodayMeals({
             )}
             {plan.isFavorite ? "Đã yêu thích" : "Yêu thích"}
           </Button>
+          <FavoritePlansButton plans={plans} onSelectPlan={onSelectPlan} />
           <HealthUpdateButton plan={plan} />
           <PlanVersionsButton plan={plan} />
           {plan.goal &&<span className="line-clamp-1 text-xs">Mục tiêu: {plan.goal}</span>}
