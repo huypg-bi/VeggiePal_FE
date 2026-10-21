@@ -1,12 +1,59 @@
 import { useEffect, useRef, useState } from "react";
-import { Search, X } from "lucide-react";
+import { ChevronDown, Search, X } from "lucide-react";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useCategories } from "@/features/blog/hooks/useCategories";
 import { SORT_OPTIONS, flattenCategories } from "@/features/blog/utils/feedFilters";
 import { cn } from "@/lib/utils";
-import SelectField from "@/shared/components/SelectField";
 
 const SEARCH_DEBOUNCE_MS = 400;
+
+// Giá trị rỗng/undefined ("Mới nhất", "Tất cả danh mục") cùng được coi là mặc định khi so sánh.
+const toKey = (value) => (value === "" || value == null ? "" : String(value));
+
+/**
+ * Ô chọn dạng dropdown cùng kiểu với ô tìm kiếm. `active` tô nhẹ nút khi đang lọc khác mặc định.
+ * options: [{ value, label }]; onSelect(value) nhận lại đúng `value` của option được bấm.
+ */
+function FilterDropdown({ label, options, value, onSelect, active = false, menuClassName }) {
+  const [open, setOpen] = useState(false);
+  const selected = options.find((o) => toKey(o.value) === toKey(value)) ?? options[0];
+
+  return (
+    <DropdownMenu open={open} onOpenChange={setOpen}>
+      <DropdownMenuTrigger
+        aria-label={label}
+        className={cn(
+          "flex h-11 min-w-0 items-center justify-between gap-2 rounded-full border px-4 text-sm font-medium outline-none transition focus-visible:ring-2 focus-visible:ring-brand/30",
+          active
+            ? "border-brand/40 bg-brand-soft text-brand"
+            : "border-border bg-surface text-ink hover:border-brand/40"
+        )}
+      >
+        <span className="truncate">{selected.label}</span>
+        <ChevronDown className={cn("size-4 shrink-0 transition-transform", open && "rotate-180")} />
+      </DropdownMenuTrigger>
+
+      {/* Menu rộng bằng nút (mặc định của DropdownMenuContent); mục đang chọn được tô sáng, không có dấu tick. */}
+      <DropdownMenuContent align="start" className={cn("rounded-2xl p-1.5", menuClassName)}>
+        {options.map((option) => (
+          <DropdownMenuItem
+            key={toKey(option.value)}
+            onClick={() => onSelect(option.value)}
+            className={toKey(option.value) === toKey(value) ? "bg-brand-soft font-semibold text-brand" : undefined}
+          >
+            {option.label}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 /**
  * Thanh tìm kiếm + hai dropdown sắp xếp / lọc danh mục của feed, cùng một hàng.
@@ -82,21 +129,22 @@ export default function BlogFilterBar({ filters, onChange }) {
           )}
         </form>
 
-        <SelectField
-          aria-label="Sắp xếp bài viết"
+        <FilterDropdown
+          label="Sắp xếp bài viết"
           options={SORT_OPTIONS}
           value={filters.sort}
-          onValueChange={(sort) => onChange({ sort })}
+          onSelect={(sort) => onChange({ sort })}
           active={Boolean(filters.sort)}
         />
 
         {categories.length > 0 && (
-          <SelectField
-            aria-label="Lọc theo danh mục"
+          <FilterDropdown
+            label="Lọc theo danh mục"
             options={categoryOptions}
             value={filters.categoryId}
-            onValueChange={(categoryId) => onChange({ categoryId })}
+            onSelect={(categoryId) => onChange({ categoryId })}
             active={Boolean(filters.categoryId)}
+            menuClassName="max-h-72"
           />
         )}
       </div>

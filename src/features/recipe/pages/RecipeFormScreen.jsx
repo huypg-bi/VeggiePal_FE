@@ -7,8 +7,7 @@ import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 
 // Trang tạo công thức (/recipes/new) và sửa công thức (/recipes/:recipeId/edit), cần đăng nhập.
-// GET /recipes/:id kèm token thì chủ công thức / ADMIN nạp được cả bản nháp để sửa; người khác nhận 404.
-// Công thức đã xóa (ARCHIVED) hoặc bị ẩn (HIDDEN) vẫn nạp được nhưng BE từ chối lưu (lỗi 4108).
+// GET /recipes/:id của BE không lọc trạng thái nên nạp được cả bản nháp để sửa.
 export default function RecipeFormScreen() {
   const { recipeId } = useParams();
   const isEdit = recipeId !== undefined;

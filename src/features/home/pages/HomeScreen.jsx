@@ -3,7 +3,6 @@ import AppHeader from "@/shared/components/AppHeader";
 import AppFooter from "@/shared/components/AppFooter";
 import HomeHero from "@/features/home/components/HomeHero";
 import TrendingRecipesSection from "@/features/home/components/TrendingRecipesSection";
-import AiRecommendationsSection from "@/features/home/components/AiRecommendationsSection";
 import NutritionLookupSection from "@/features/home/components/NutritionLookupSection";
 
 export default function HomeScreen() {
@@ -34,7 +33,6 @@ export default function HomeScreen() {
       </section>
 
       <TrendingRecipesSection />
-      <AiRecommendationsSection />
       <NutritionLookupSection />
       <AppFooter />
     </div>
