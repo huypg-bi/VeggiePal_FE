@@ -18,6 +18,8 @@ import {
   defaultPlanName,
   TARGET_FIELDS,
 } from "@/features/meal-planner/utils/mealPlan";
+import { useMySubscription } from "@/features/payment/hooks/useMySubscription";
+import { PLAN_DETAILS } from "@/features/payment/utils/paymentFormat";
 import { useLatestHealthRecord } from "@/features/profile/hooks/useHealthRecords";
 import IngredientPicker from "@/features/recipe/components/IngredientPicker";
 import { cn } from "@/lib/utils";
@@ -46,6 +48,10 @@ export default function AiMealSuggestion({ onCreated }) {
   // (đã tải xong, không lỗi); nếu không tải được thì vẫn cho thử, BE sẽ là bên quyết định.
   const healthRecord = useLatestHealthRecord();
   const missingHealthRecord = !healthRecord.isPending && !healthRecord.isError && healthRecord.data == null;
+  // Gói quy định số thực đơn được tạo mỗi tháng (BE báo lỗi 6003 khi hết). Chưa biết gói (đang tải / lỗi) thì
+  // không chặn, để BE quyết định; BE chưa có API số lượt đã dùng nên chỉ hiện được tổng lượt của gói.
+  const { subscription } = useMySubscription();
+  const noQuota = subscription?.mealPlansPerMonth === 0;
 
   const [ingredients, setIngredients] = useState([]);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -294,7 +300,22 @@ export default function AiMealSuggestion({ onCreated }) {
           </div>
         )}
 
-        <div className={cn("relative flex flex-col items-center gap-4 rounded-2xl bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6", missingHealthRecord ? "mt-3" : "mt-7")}>
+        {noQuota && (
+          <div
+            role="alert"
+            className="relative mt-7 flex flex-col items-start gap-3 rounded-2xl bg-warning/10 p-4 text-sm text-ink sm:flex-row sm:items-center sm:justify-between"
+          >
+            <p>Gói hiện tại của bạn chưa có lượt tạo thực đơn. Nâng cấp lên gói PLUS hoặc PRO để dùng tính năng này.</p>
+            <Link
+              to="/pricing"
+              className="shrink-0 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground transition hover:bg-brand/90"
+            >
+              Xem các gói thành viên
+            </Link>
+          </div>
+        )}
+
+        <div className={cn("relative flex flex-col items-center gap-4 rounded-2xl bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6", missingHealthRecord || noQuota ? "mt-3" : "mt-7")}>
           <p className="flex items-center gap-2 text-center text-xs text-subtle sm:text-left">
             <Wand2 className="h-4 w-4 shrink-0 text-brand" />
             {isCreating
@@ -304,7 +325,7 @@ export default function AiMealSuggestion({ onCreated }) {
           <Button
             type="submit"
             size="lg"
-            disabled={isCreating || missingHealthRecord}
+            disabled={isCreating || missingHealthRecord || noQuota}
             className="h-auto min-h-11 w-full whitespace-normal px-6 py-2.5 shadow-sm sm:w-auto"
           >
             {isCreating ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
@@ -312,6 +333,21 @@ export default function AiMealSuggestion({ onCreated }) {
             {!isCreating && <ArrowRight className="size-4" />}
           </Button>
         </div>
+
+        {subscription && !noQuota && (
+          <p className="relative mt-3 text-center text-xs text-subtle">
+            {PLAN_DETAILS[subscription.planCode]?.name ?? subscription.planCode}: tối đa {subscription.mealPlansPerMonth}{" "}
+            thực đơn mỗi tháng.
+            {subscription.planCode !== "PRO" && (
+              <>
+                {" "}
+                <Link to="/pricing" className="font-semibold text-brand underline underline-offset-2">
+                  Nâng cấp để tạo nhiều hơn
+                </Link>
+              </>
+            )}
+          </p>
+        )}
       </form>
     </section>
   );
