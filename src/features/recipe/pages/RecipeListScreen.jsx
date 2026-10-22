@@ -51,7 +51,7 @@ export default function RecipeListScreen() {
 
   const { recipes, total, isPending, isError, error, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useRecipeFeed({ keyword, size: PAGE_SIZE });
-  const { nutritionById, loading: nutritionLoading } = useRecipeNutrition(recipes);
+  const { nutritionById } = useRecipeNutrition(recipes);
   const { data: authors } = usePublicUsers(recipes.map((r) => r.userId));
 
   return (
@@ -132,7 +132,6 @@ export default function RecipeListScreen() {
                   <RecipeCard
                     recipe={recipe}
                     nutrition={nutritionById.get(recipe.id)}
-                    nutritionLoading={nutritionLoading}
                     author={authors?.get(recipe.userId)}
                   />
                 </Reveal>
