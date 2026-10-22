@@ -1,5 +1,6 @@
 // Dữ liệu mẫu tham khảo cho các tính năng chưa có endpoint backend riêng
 // (nutrition facts, kênh ẩm thực đề xuất, video gợi ý dự phòng khi DB chưa có nhiều video).
+// (nutrition facts, kênh ẩm thực đề xuất).
 
 export const nutritionFacts = {
   servingLabel: "1 bát tiêu chuẩn",
@@ -22,6 +23,7 @@ export const videoChannels = [
   { id: "sk", label: "Sống Khỏe Cùng Hạt", initials: "SK", avatarClass: "bg-[#E3A72D]" },
   { id: "gl", label: "GreenLife Vietnam", initials: "GL", avatarClass: "bg-[#1D8A6E]" },
 ];
+<<<<<<< Updated upstream
 
 export const suggestedVideos = [
   {
@@ -91,3 +93,5 @@ export const suggestedVideos = [
     emoji: "🥛",
   },
 ];
+=======
+>>>>>>> Stashed changes
