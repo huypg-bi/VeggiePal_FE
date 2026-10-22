@@ -1,5 +1,4 @@
 import { unwrapVideoResponse as unwrap } from "@/features/video/api/videoErrors";
-import { aiSummary } from "@/features/video/data/mockVideo";
 import apiClient from "@/shared/api/apiClient";
 
 const EMPTY_PAGE = { items: [], page: 0, size: 10, totalElements: 0, totalPages: 0 };
@@ -83,14 +82,4 @@ export async function submitVideo(id) {
 export async function deleteVideo(id) {
   const res = await apiClient.delete(`/videos/${id}`);
   unwrap(res, "Xóa video thất bại");
-}
-
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-/**
- * GET /videos/:videoId/ai-summary — tóm tắt công thức do AI bóc tách từ video (dữ liệu mẫu hỗ trợ).
- */
-export async function getAiSummary(videoId) {
-  await delay(400);
-  return { videoId, steps: [...aiSummary.steps], tip: aiSummary.tip };
 }
