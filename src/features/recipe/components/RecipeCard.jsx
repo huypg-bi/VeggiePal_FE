@@ -5,8 +5,8 @@ import { totalMinutes } from "@/features/recipe/utils/recipeNutrition";
 import FallbackImage from "@/shared/components/FallbackImage";
 
 // Thẻ công thức dùng chung (trang chủ, trang danh sách công thức).
-// `nutrition` là { kcal, protein } hoặc undefined; `author` là { fullName, avatarUrl } hoặc undefined.
-export default function RecipeCard({ recipe, nutrition, nutritionLoading, author }) {
+// `nutrition` là { kcal, protein, ... } hoặc null/undefined (chưa tính được); `author` là { fullName, avatarUrl } hoặc undefined.
+export default function RecipeCard({ recipe, nutrition, author }) {
   const minutes = totalMinutes(recipe);
 
   return (
@@ -46,9 +46,7 @@ export default function RecipeCard({ recipe, nutrition, nutritionLoading, author
           <Flame className="h-3.5 w-3.5 text-brand" />
           {nutrition
             ? `${nutrition.kcal} kcal • ${nutrition.protein}g Đạm`
-            : nutritionLoading
-              ? "Đang tính dinh dưỡng..."
-              : "Chưa có thông tin dinh dưỡng"}
+            : "Chưa có thông tin dinh dưỡng"}
         </span>
 
         <h3 className="mt-2 text-base font-semibold text-ink">
