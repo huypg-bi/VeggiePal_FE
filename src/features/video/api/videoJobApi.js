@@ -89,9 +89,9 @@ export async function processExistingVideo(videoId) {
 }
 
 /**
- * GET /ai/videos/by-video/:videoId — công thức AI dùng chung của một video đã đăng (cần đăng nhập, không tốn lượt).
+ * GET /ai/videos/by-video/:videoId — công thức AI dùng chung của một video đã đăng (công khai, không tốn lượt).
  * Trả { state, extraction? } với state: "ready" | "processing" | "failed" | "unsupported" | "none"
- * (xem recipeStateFromResponse); lỗi khác (mạng, 401, 5xx...) thì ném.
+ * (xem recipeStateFromResponse); lỗi khác (mạng, 5xx...) thì ném.
  */
 export async function getVideoRecipe(videoId) {
   let res;

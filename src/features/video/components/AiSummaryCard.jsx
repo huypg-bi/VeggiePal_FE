@@ -14,7 +14,7 @@ const COLLAPSED_STEPS = 2;
 const noteClass = "mt-4 text-sm text-subtle";
 
 // Thẻ "Tóm tắt công thức nấu ăn (AI Summary)" ở trang xem video: công thức AI bóc tách từ chính video này
-// (GET /ai/videos/by-video/:id, dùng chung cho mọi người nên xem không tốn lượt). Chưa có thì mời bóc tách
+// (GET /ai/videos/by-video/:id, công khai dùng chung cho mọi người nên xem không tốn lượt). Chưa có thì mời bóc tách
 // (POST /ai/videos/process-existing, trừ 1 lượt của gói). Nút ở tiêu đề (VideoMetaHeader) dùng chung trạng thái này.
 export default function AiSummaryCard({ video }) {
   const location = useLocation();
@@ -63,12 +63,19 @@ export default function AiSummaryCard({ video }) {
       )}
 
       {status === "login" && (
-        <p className={noteClass}>
-          <Link to="/login" state={{ from: location }} className="font-medium text-brand hover:underline">
-            Đăng nhập
-          </Link>{" "}
-          để xem hoặc bóc tách công thức từ video này.
-        </p>
+        <div className="mt-4 flex flex-col items-start gap-3">
+          <p className="text-sm text-subtle">
+            Video này chưa có công thức AI. Đăng nhập để yêu cầu AI bóc tách nguyên liệu và các bước nấu ăn từ video này.
+          </p>
+          <Link
+            to="/login"
+            state={{ from: location }}
+            className={buttonVariants({ variant: "default", size: "sm", className: "gap-1.5" })}
+          >
+            <Sparkles className="size-3.5" />
+            Đăng nhập để bóc tách
+          </Link>
+        </div>
       )}
 
       {status === "error" && (

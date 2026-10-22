@@ -14,7 +14,7 @@ import { recipeStateFromJob, VIDEO_JOB_POLL_MS } from "@/features/video/utils/vi
  * status:
  * - "loading"     đang tải video hoặc đang hỏi BE
  * - "unsupported" video YouTube (BE chỉ bóc tách video tải lên, mã 6021)
- * - "login"       chưa đăng nhập (BE yêu cầu đăng nhập để xem kết quả)
+ * - "login"       chưa đăng nhập (chỉ áp dụng khi video chưa có công thức và cần đăng nhập để bóc tách)
  * - "none"        chưa có kết quả, có thể bóc tách (trừ 1 lượt của gói)
  * - "processing"  AI đang bóc tách (kể cả đang gửi yêu cầu), tự hỏi lại mỗi vài giây
  * - "failed"      lần trước thất bại (lượt đã hoàn lại), có thể thử lại
@@ -30,7 +30,7 @@ export function useVideoRecipe(video) {
 
   const videoId = video?.id;
   const unsupported = Boolean(video) && video.sourceType !== "UPLOAD";
-  const enabled = Boolean(videoId) && isAuthenticated && !unsupported;
+  const enabled = Boolean(videoId) && !unsupported;
 
   const query = useQuery({
     queryKey: videoKeys.recipe(videoId),
@@ -58,11 +58,14 @@ export function useVideoRecipe(video) {
   let status;
   if (!video) status = "loading";
   else if (unsupported) status = "unsupported";
-  else if (!isAuthenticated) status = "login";
   else if (starting) status = "processing";
   else if (query.isPending) status = "loading";
   else if (query.isError) status = "error";
-  else status = query.data.state === "unsupported" ? "unsupported" : query.data.state;
+  else if (query.data.state === "ready") status = "ready";
+  else if (query.data.state === "processing") status = "processing";
+  else if (query.data.state === "unsupported") status = "unsupported";
+  else if (!isAuthenticated) status = "login";
+  else status = query.data.state;
 
   return {
     status,
