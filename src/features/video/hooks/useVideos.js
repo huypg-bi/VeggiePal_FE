@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 import { getVideo, getVideos } from "@/features/video/api/videoApi";
@@ -6,9 +7,10 @@ import { flattenPages, getNextPageNumber } from "@/shared/utils/paging";
 
 /**
  * Feed video đã xuất bản (GET /videos) có phân trang dạng "Xem thêm".
- * params: { categoryId, size }.
+ * params: { categoryId, size, enabled }.
  */
-export function useVideoFeed({ categoryId, size = 12 } = {}) {
+export function useVideoFeed({ categoryId, size = 12, enabled = true } = {}, options = {}) {
+  const isEnabled = options.enabled ?? enabled;
   const query = useInfiniteQuery({
     queryKey: videoKeys.feed({ categoryId, size }),
     queryFn: ({ pageParam }) =>
@@ -16,11 +18,14 @@ export function useVideoFeed({ categoryId, size = 12 } = {}) {
     initialPageParam: 0,
     getNextPageParam: getNextPageNumber,
     staleTime: 60 * 1000,
+    enabled: isEnabled,
   });
+
+  const videos = useMemo(() => flattenPages(query.data), [query.data]);
 
   return {
     ...query,
-    videos: flattenPages(query.data),
+    videos,
     total: query.data?.pages?.[0]?.totalElements ?? 0,
   };
 }
