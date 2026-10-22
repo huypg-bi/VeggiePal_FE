@@ -14,6 +14,8 @@ const PAYMENT_ERROR_MESSAGES = {
   6005: "Chữ ký thanh toán không hợp lệ",
   6006: "Số tiền thanh toán không khớp với đơn hàng",
   6007: "Thanh toán không thành công",
+  6008: "Đơn hàng này không thể huỷ",
+  6009: "Chưa huỷ được đơn, vui lòng thử lại",
 };
 
 function toPaymentMessage(res, fallbackMessage) {
@@ -91,6 +93,20 @@ export async function getOrder(id) {
     throw networkError(error, "Lấy thông tin đơn hàng quá thời gian chờ");
   }
   return unwrap(res, "Không tìm thấy đơn hàng");
+}
+
+/**
+ * POST /payments/orders/{id}/cancel (Yêu cầu đăng nhập)
+ * Huỷ đơn PENDING, trả về đơn với status "CANCELLED".
+ */
+export async function cancelOrder(id) {
+  let res;
+  try {
+    res = await apiClient.post(`/payments/orders/${id}/cancel`);
+  } catch (error) {
+    throw networkError(error, "Yêu cầu huỷ đơn quá thời gian chờ");
+  }
+  return unwrap(res, PAYMENT_ERROR_MESSAGES[6009]);
 }
 
 /**
