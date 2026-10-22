@@ -44,7 +44,7 @@
 - **📍 Bản đồ xanh (Map):** Tìm kiếm và xem danh sách các nhà hàng, quán ăn chay *(Mock Data)*.
 - **🤖 Trợ lý Bông Cải (AI Chatbot):** Giao diện hỏi đáp kiến thức dinh dưỡng chay, quản lý nhiều đoạn chat *(API thật: ai-service, có chế độ dùng thử cho khách)*.
 - **🎨 Giao diện & Trải nghiệm:** Landing page hiện đại, hỗ trợ chuyển đổi chế độ Sáng/Tối (Light/Dark Mode).
-- **💳 Gói thành viên & Thanh toán (Payment & Subscriptions):** Xem bảng giá các gói thành viên (FREE, PLUS, PRO), thanh toán qua cổng payOS VietQR, polling kiểm tra webhook kích hoạt gói tức thì, quản lý lịch sử thanh toán và thời hạn sử dụng *(API thật: payment-service)*.
+- **💳 Gói thành viên & Thanh toán (Payment & Subscriptions):** Xem bảng giá các gói thành viên (FREE, PLUS, PRO), thanh toán qua cổng payOS VietQR, polling kiểm tra webhook kích hoạt gói tức thì, quản lý lịch sử thanh toán và thời hạn sử dụng *(API thật: payment-service)*. Trang thanh toán tự dựng `/checkout/:orderId`: FE tự vẽ mã VietQR bằng `qrcode.react`, đếm ngược hết hạn, polling trạng thái đơn, huỷ/tạo lại đơn.
 
 ---
 
@@ -57,6 +57,7 @@
 - **State Management:** 
   - TanStack Query v5 *(Server State / Async Data)*
   - Zustand v5 *(Global Auth State, Theme State)*
+  - qrcode.react *(vẽ mã VietQR ở trang `/checkout/:orderId`)*
 - **Form & Validation:** React Hook Form + Zod Schema
 - **HTTP Client:** Axios
 - **Icons:** Lucide React
@@ -155,5 +156,6 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | GET | /payments/plans | Danh sách gói thành viên (công khai) |
 | POST | /payments/checkout | Tạo đơn thanh toán payOS (gói PLUS / PRO) |
 | GET | /payments/orders/:id | Chi tiết đơn thanh toán theo ID |
+| POST | /payments/orders/:id/cancel | Huỷ đơn thanh toán PENDING (`cancelOrder`), trả đơn với status CANCELLED |
 | GET | /payments/history | Lịch sử giao dịch của người dùng |
 | GET | /subscriptions/me | Thông tin gói thành viên hiện tại và hạn dùng |

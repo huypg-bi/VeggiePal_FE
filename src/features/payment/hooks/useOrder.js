@@ -14,8 +14,8 @@ export function useOrder(id, { poll = false, intervalMs = 2500 } = {}) {
     refetchInterval: (queryState) => {
       if (!poll) return false;
       const status = queryState?.state?.data?.status;
-      // Khi đã PAID hoặc FAILED thì dừng polling
-      if (status === "PAID" || status === "FAILED") {
+      // Khi đã PAID, FAILED hoặc CANCELLED thì dừng polling
+      if (status === "PAID" || status === "FAILED" || status === "CANCELLED") {
         return false;
       }
       return intervalMs;

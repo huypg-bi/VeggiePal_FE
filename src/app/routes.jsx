@@ -28,6 +28,7 @@ import RecipeDetailScreen from "@/features/recipe/pages/RecipeDetailScreen";
 import RecipeFormScreen from "@/features/recipe/pages/RecipeFormScreen";
 import MyContentScreen from "@/features/my-content/pages/MyContentScreen";
 import PricingScreen from "@/features/payment/pages/PricingScreen";
+import CheckoutScreen from "@/features/payment/pages/CheckoutScreen";
 import PaymentSuccessScreen from "@/features/payment/pages/PaymentSuccessScreen";
 import PaymentCancelScreen from "@/features/payment/pages/PaymentCancelScreen";
 import PaymentHistoryScreen from "@/features/payment/pages/PaymentHistoryScreen";
@@ -149,6 +150,14 @@ export default function AppRoutes() {
 
       {/* Gói thành viên & Thanh toán payOS */}
       <Route path="/pricing" element={<PricingScreen />} />
+      <Route
+        path="/checkout/:orderId"
+        element={
+          <ProtectedRoute>
+            <CheckoutScreen />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/payment/success"
         element={
