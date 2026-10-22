@@ -33,6 +33,9 @@ const VI_MESSAGES = {
   3037: "Bình luận quá dài (tối đa 5000 ký tự)",
   3040: "Giá trị bình chọn không hợp lệ",
   3041: "Bạn không thể bình chọn bài viết của chính mình",
+  3050: "Hệ thống kiểm duyệt tạm thời không khả dụng, vui lòng thử lại sau",
+  3051: "Kết quả kiểm duyệt không hợp lệ, vui lòng thử lại sau",
+  3052: "Dữ liệu kiểm duyệt không khớp tác giả",
 };
 
 /** Trả `res.data.result`, hoặc ném Error với thông báo tiếng Việt nếu status >= 400. */
