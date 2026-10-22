@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { Activity, ExternalLink, FolderTree, LayoutDashboard, LogOut, Salad, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Activity, CreditCard, ExternalLink, FolderTree, LayoutDashboard, LogOut, Salad, ShieldAlert, ShieldCheck } from "lucide-react";
 
 import logo from "@/assets/img/logo.png";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
   { to: "/admin/ingredients", label: "Nguyên liệu", icon: Salad },
   { to: "/admin/moderation", label: "Kiểm duyệt", icon: ShieldAlert },
   { to: "/admin/ai-monitoring", label: "Giám sát AI", icon: Activity },
+  { to: "/admin/payments", label: "Thanh toán", icon: CreditCard },
 ];
 
 const navClass = ({ isActive }) =>

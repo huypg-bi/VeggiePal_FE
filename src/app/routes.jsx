@@ -20,6 +20,7 @@ import AdminLayout from "@/features/admin/components/AdminLayout";
 import AdminCategoriesScreen from "@/features/admin/pages/AdminCategoriesScreen";
 import AdminDashboardScreen from "@/features/admin/pages/AdminDashboardScreen";
 import AdminAiMonitoringScreen from "@/features/admin/pages/AdminAiMonitoringScreen";
+import AdminPaymentsScreen from "@/features/admin/pages/AdminPaymentsScreen";
 import AdminModerationScreen from "@/features/admin/pages/AdminModerationScreen";
 import AdminIngredientsScreen from "@/features/admin/pages/AdminIngredientsScreen";
 import BlogFormScreen from "@/features/blog/pages/BlogFormScreen";
@@ -151,6 +152,7 @@ export default function AppRoutes() {
           <Route path="/admin/ingredients" element={<AdminIngredientsScreen />} />
           <Route path="/admin/moderation" element={<AdminModerationScreen />} />
           <Route path="/admin/ai-monitoring" element={<AdminAiMonitoringScreen />} />
+          <Route path="/admin/payments" element={<AdminPaymentsScreen />} />
         </Route>
       </Route>
 
