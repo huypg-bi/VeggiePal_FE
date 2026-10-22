@@ -74,3 +74,19 @@ export async function reviewModerationCase(id, { decision, reason }) {
   });
   return unwrap(res, "Không thể cập nhật quyết định kiểm duyệt");
 }
+
+/**
+ * DELETE /ai/admin/moderation/{id}?reason=
+ * Bỏ qua case: chỉ đưa case ra khỏi hàng đợi (decision = DISMISSED). Khác với từ chối (REJECTED),
+ * nội dung gốc KHÔNG bị đổi trạng thái. Case đã được xử lý trước đó sẽ trả lỗi 6013.
+ *
+ * @param {number} id - Mã case kiểm duyệt (caseId)
+ * @param {{ reason?: string }} [payload] - Lý do tùy chọn (gửi dạng query param `reason`)
+ * @returns {Promise<ModerationResponse>}
+ */
+export async function dismissModerationCase(id, { reason } = {}) {
+  const res = await apiClient.delete(`/ai/admin/moderation/${id}`, {
+    params: { reason: reason?.trim() || undefined },
+  });
+  return unwrap(res, "Không thể bỏ qua case kiểm duyệt");
+}

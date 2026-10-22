@@ -20,6 +20,7 @@ import AdminLayout from "@/features/admin/components/AdminLayout";
 import AdminCategoriesScreen from "@/features/admin/pages/AdminCategoriesScreen";
 import AdminDashboardScreen from "@/features/admin/pages/AdminDashboardScreen";
 import AdminAiMonitoringScreen from "@/features/admin/pages/AdminAiMonitoringScreen";
+import AdminPaymentsScreen from "@/features/admin/pages/AdminPaymentsScreen";
 import AdminModerationScreen from "@/features/admin/pages/AdminModerationScreen";
 import AdminIngredientsScreen from "@/features/admin/pages/AdminIngredientsScreen";
 import BlogFormScreen from "@/features/blog/pages/BlogFormScreen";
@@ -28,6 +29,7 @@ import RecipeDetailScreen from "@/features/recipe/pages/RecipeDetailScreen";
 import RecipeFormScreen from "@/features/recipe/pages/RecipeFormScreen";
 import MyContentScreen from "@/features/my-content/pages/MyContentScreen";
 import PricingScreen from "@/features/payment/pages/PricingScreen";
+import CheckoutScreen from "@/features/payment/pages/CheckoutScreen";
 import PaymentSuccessScreen from "@/features/payment/pages/PaymentSuccessScreen";
 import PaymentCancelScreen from "@/features/payment/pages/PaymentCancelScreen";
 import PaymentHistoryScreen from "@/features/payment/pages/PaymentHistoryScreen";
@@ -165,6 +167,14 @@ export default function AppRoutes() {
       {/* Gói thành viên & Thanh toán payOS */}
       <Route path="/pricing" element={<PricingScreen />} />
       <Route
+        path="/checkout/:orderId"
+        element={
+          <ProtectedRoute>
+            <CheckoutScreen />
+          </ProtectedRoute>
+        }
+      />
+      <Route
         path="/payment/success"
         element={
           <ProtectedRoute>
@@ -197,6 +207,7 @@ export default function AppRoutes() {
           <Route path="/admin/ingredients" element={<AdminIngredientsScreen />} />
           <Route path="/admin/moderation" element={<AdminModerationScreen />} />
           <Route path="/admin/ai-monitoring" element={<AdminAiMonitoringScreen />} />
+          <Route path="/admin/payments" element={<AdminPaymentsScreen />} />
         </Route>
       </Route>
 

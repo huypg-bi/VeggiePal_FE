@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import {
   AlertTriangle,
+  Ban,
   Check,
   CheckCircle2,
   Clock,
@@ -28,6 +29,7 @@ import ModerationDetailDialog from "@/features/admin/moderation/components/Moder
 import ReviewDecisionDialog from "@/features/admin/moderation/components/ReviewDecisionDialog";
 import { MOCK_MODERATION_CASES } from "@/features/admin/moderation/data/mockModerationData";
 import {
+  useDismissModeration,
   usePendingModerationCases,
   useReviewModeration,
 } from "@/features/admin/moderation/hooks/useModeration";
@@ -71,6 +73,7 @@ export default function AdminModerationScreen() {
   const queryClient = useQueryClient();
   const { data: realCases = [], isPending, isError, error, isFetching } = usePendingModerationCases();
   const reviewMutation = useReviewModeration();
+  const dismissMutation = useDismissModeration();
 
   // Kiểm tra BE đã trả về dữ liệu thật chưa
   const hasRealData = realCases.length > 0;
@@ -89,7 +92,7 @@ export default function AdminModerationScreen() {
   // Modal quyết định duyệt / từ chối
   const [activeModal, setActiveModal] = useState({
     item: null,
-    decision: null, // "APPROVED" | "REJECTED"
+    decision: null, // "APPROVED" | "REJECTED" | "DISMISSED"
   });
 
   // Modal xem chi tiết
@@ -103,21 +106,25 @@ export default function AdminModerationScreen() {
         toast.success(
           decision === "APPROVED"
             ? `[Demo Test] Đã duyệt thành công case #${id}${reason ? ` (Lý do: ${reason})` : ""}`
-            : `[Demo Test] Đã từ chối thành công case #${id}${reason ? ` (Lý do: ${reason})` : ""}`
+            : decision === "DISMISSED"
+              ? `[Demo Test] Đã bỏ qua case #${id}${reason ? ` (Lý do: ${reason})` : ""}`
+              : `[Demo Test] Đã từ chối thành công case #${id}${reason ? ` (Lý do: ${reason})` : ""}`
         );
         setActiveModal({ item: null, decision: null });
       }, 300);
       return;
     }
 
-    reviewMutation.mutate(
+    (decision === "DISMISSED" ? dismissMutation : reviewMutation).mutate(
       { id, decision, reason },
       {
         onSuccess: () => {
           toast.success(
             decision === "APPROVED"
               ? `Đã duyệt thành công case #${id}`
-              : `Đã từ chối thành công case #${id}`
+              : decision === "DISMISSED"
+                ? `Đã bỏ qua case #${id}, nội dung gốc không bị thay đổi`
+                : `Đã từ chối thành công case #${id}`
           );
           setActiveModal({ item: null, decision: null });
         },
@@ -530,6 +537,18 @@ export default function AdminModerationScreen() {
                           <Button
                             type="button"
                             size="sm"
+                            variant="outline"
+                            onClick={() => setActiveModal({ item: c, decision: "DISMISSED" })}
+                            className="h-8 gap-1 rounded-xl px-2.5 text-xs text-subtle hover:text-ink"
+                            title="Chỉ đưa ca ra khỏi hàng đợi, nội dung gốc không bị đổi trạng thái"
+                          >
+                            <Ban className="size-3.5" />
+                            Bỏ qua
+                          </Button>
+
+                          <Button
+                            type="button"
+                            size="sm"
                             variant="default"
                             onClick={() =>
                               setActiveModal({
@@ -576,6 +595,9 @@ export default function AdminModerationScreen() {
         onOpenChange={(open) => {
           if (!open) setDetailItem(null);
         }}
+        onDismiss={(item) => {
+          setActiveModal({ item, decision: "DISMISSED" });
+        }}
         onApprove={(item) => {
           setActiveModal({ item, decision: "APPROVED" });
         }}
@@ -589,7 +611,7 @@ export default function AdminModerationScreen() {
         open={Boolean(activeModal.item && activeModal.decision)}
         item={activeModal.item}
         decision={activeModal.decision}
-        loading={!isMockMode && reviewMutation.isPending}
+        loading={!isMockMode && (reviewMutation.isPending || dismissMutation.isPending)}
         onOpenChange={(open) => {
           if (!open) setActiveModal({ item: null, decision: null });
         }}

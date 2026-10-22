@@ -4,6 +4,7 @@ import {
   createHealthRecord,
   getHealthRecords,
   getLatestHealthRecord,
+  updateHealthRecord,
 } from "@/features/profile/api/profileApi";
 import { profileKeys } from "@/features/profile/queryKeys";
 
@@ -32,6 +33,20 @@ export function useCreateHealthRecord() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createHealthRecord,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: profileKeys.healthRecords }),
+  });
+}
+
+/**
+ * Sửa một bản ghi chỉ số cũ (PUT /nutrition/me/health-records/:id). Xong thì làm mới cả "latest" lẫn
+ * "history" (kèm biểu đồ BMI) bằng cùng tiền tố khóa, giống useCreateHealthRecord.
+ * mutate({ id, heightCm, weightKg })
+ */
+export function useUpdateHealthRecord() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, heightCm, weightKg }) => updateHealthRecord(id, { heightCm, weightKg }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: profileKeys.healthRecords }),
   });

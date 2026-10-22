@@ -1,3 +1,5 @@
+import { CookingPot, Leaf, Milk, Salad, Soup, Utensils } from "lucide-react";
+
 // Dữ liệu mẫu tham khảo cho các tính năng chưa có endpoint backend riêng
 // (nutrition facts, kênh ẩm thực đề xuất, video gợi ý dự phòng khi DB chưa có nhiều video).
 // (nutrition facts, kênh ẩm thực đề xuất).
@@ -35,7 +37,7 @@ export const suggestedVideos = [
     duration: "06:40",
     tag: "Đạm: 21g",
     thumbClass: "bg-gradient-to-br from-[#C4471F] to-[#3A1F0E]",
-    emoji: "🥢",
+    icon: Utensils,
   },
   {
     id: "ca-tim-nuong",
@@ -46,7 +48,7 @@ export const suggestedVideos = [
     duration: "08:15",
     tag: "Ít béo • Dễ làm",
     thumbClass: "bg-gradient-to-br from-[#3B2A6E] to-[#1A1030]",
-    emoji: "🍆",
+    icon: Leaf,
   },
   {
     id: "salad-quinoa",
@@ -57,7 +59,7 @@ export const suggestedVideos = [
     duration: "05:20",
     tag: "Giàu Xơ • Eat Clean",
     thumbClass: "bg-gradient-to-br from-[#1D6C3D] to-[#0C2818]",
-    emoji: "🥗",
+    icon: Salad,
   },
   {
     id: "canh-rong-bien",
@@ -68,7 +70,7 @@ export const suggestedVideos = [
     duration: "14:10",
     tag: "Ngủ ngon • An thần",
     thumbClass: "bg-gradient-to-br from-[#2A5FA0] to-[#0F1F38]",
-    emoji: "🥣",
+    icon: Soup,
   },
   {
     id: "tempeh-chien-gion",
@@ -79,7 +81,7 @@ export const suggestedVideos = [
     duration: "09:45",
     tag: "Đạm cao 24g",
     thumbClass: "bg-gradient-to-br from-[#B5651D] to-[#3A1F0E]",
-    emoji: "🍢",
+    icon: CookingPot,
   },
   {
     id: "sua-hat-sen-macca",
@@ -90,7 +92,7 @@ export const suggestedVideos = [
     duration: "07:30",
     tag: "Lành mạnh",
     thumbClass: "bg-gradient-to-br from-[#E3B23C] to-[#5A4116]",
-    emoji: "🥛",
+    icon: Milk,
   },
 ];
 =======

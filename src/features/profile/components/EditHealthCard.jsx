@@ -1,4 +1,4 @@
-import { Heart, Loader2 } from "lucide-react";
+import { Heart, Loader2, Sprout } from "lucide-react";
 
 import {
   useHealthRecordHistory,
@@ -36,7 +36,7 @@ export default function EditHealthCard() {
           </div>
         </div>
         <span className="flex items-center gap-1 rounded-full bg-brand-soft px-3 py-1 text-[11px] font-semibold text-brand border border-brand/30">
-          🌱 Cá nhân hóa
+          <Sprout className="size-3" /> Cá nhân hóa
         </span>
       </div>
 
