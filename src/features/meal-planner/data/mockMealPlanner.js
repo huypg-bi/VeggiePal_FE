@@ -2,6 +2,8 @@
 // thẻ Nước & Khoáng và thẻ Vận Động.
 // Thực đơn, dinh dưỡng, BMI và biểu đồ macro đã lấy từ BE; khi BE bổ sung phần còn lại thì thay các hằng số này.
 
+import { Flame, Pencil, Soup, Sparkles } from "lucide-react";
+
 export const mockStats = [
   {
     id: "water",
@@ -23,11 +25,11 @@ export const mockStats = [
 
 // Khẩu vị gợi ý gửi cho AI qua `preferences`. `label` là chuỗi gửi đi nên viết rõ nghĩa.
 export const flavorPreferences = [
-  { id: "light", label: "Thanh đạm vị ngọt nhẹ", icon: "✨", color: "#1D6C3D" },
-  { id: "sea", label: "Đậm đà Đông Nam Á", icon: "✏️", color: "#EAEAEA" },
-  { id: "low-oil", label: "Ít dầu mỡ & chiên xào", icon: "🔥", color: "#FBE1CE" },
-  { id: "no-sugar", label: "Không đường tinh luyện", icon: "✨", color: "#DCEBFB" },
-  { id: "soup", label: "Chuộng món súp ấm nóng", icon: "🍥", color: "#DCEBFB" },
+  { id: "light", label: "Thanh đạm vị ngọt nhẹ", icon: Sparkles, color: "#1D6C3D" },
+  { id: "sea", label: "Đậm đà Đông Nam Á", icon: Pencil, color: "#EAEAEA" },
+  { id: "low-oil", label: "Ít dầu mỡ & chiên xào", icon: Flame, color: "#FBE1CE" },
+  { id: "no-sugar", label: "Không đường tinh luyện", icon: Sparkles, color: "#DCEBFB" },
+  { id: "soup", label: "Chuộng món súp ấm nóng", icon: Soup, color: "#DCEBFB" },
 ];
 
 // Mục tiêu sức khỏe gợi ý nhanh, bấm để điền vào ô "Mục tiêu".

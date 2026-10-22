@@ -26,7 +26,7 @@ export function bmiInfo(bmi) {
   if (n < 23) {
     return {
       text: "Bình thường",
-      badge: "Lý tưởng ✓",
+      badge: "Lý tưởng",
       range: "18.5 - 22.9",
       valueClass: "text-emerald-700 dark:text-emerald-400",
       textClass: "text-emerald-600 dark:text-emerald-300",

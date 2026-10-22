@@ -218,7 +218,7 @@ export default function AiMealSuggestion({ onCreated }) {
                       )}
                       style={!active ? { background: pref.color } : undefined}
                     >
-                      {pref.icon}
+                      <pref.icon className="size-2.5" />
                     </span>
                     {pref.label}
                   </button>

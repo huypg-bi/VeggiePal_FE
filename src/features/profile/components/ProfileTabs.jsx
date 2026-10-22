@@ -22,7 +22,7 @@ export default function ProfileTabs({ activeTab, setActiveTab }) {
           className={tabClass(activeTab === 'posts')}
         >
           <FileText className="w-4 h-4 text-brand" />
-          Bài viết &amp; Video ({count})
+          Bài viết &amp; Video 
         </button>
 
         <button

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Wheat } from "lucide-react";
+import { ChevronDown, ChevronUp, Wheat, Ban } from "lucide-react";
 
 import {
   ALLERGY_CATEGORY_META,
@@ -57,7 +57,7 @@ export default function EditAllergyGroup({ category, items, selectedIds, onToggl
                       : "bg-surface text-body hover:bg-border/60 border border-transparent"
                   }`}
                 >
-                  {isSelected && <span>🚫</span>}
+                  {isSelected && <Ban className="size-3.5" />}
                   <span>{item.name}</span>
                 </button>
               );

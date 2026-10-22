@@ -92,7 +92,7 @@ export default function SuggestedVideoList({ currentVideoId, categoryId }) {
                   {video.duration}
                 </span>
                 <span className="grid size-full place-items-center text-2xl">
-                  {video.emoji}
+                  <video.icon className="size-7" />
                 </span>
               </div>
 
