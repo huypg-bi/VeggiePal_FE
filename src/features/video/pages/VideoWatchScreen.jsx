@@ -63,7 +63,7 @@ export default function VideoWatchScreen() {
               <VideoMetaHeader video={video} author={author} />
             </Reveal>
             <Reveal>
-              <AiSummaryCard videoId={videoId} />
+              <AiSummaryCard video={video} />
             </Reveal>
             <Reveal>
               <CommentsHeader />

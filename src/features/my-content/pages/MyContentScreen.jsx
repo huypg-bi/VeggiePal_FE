@@ -1,10 +1,14 @@
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { BookOpen, ChefHat, Plus, Video as VideoIcon } from "lucide-react";
+import { BookOpen, ChefHat, Plus, Sparkles, Video as VideoIcon } from "lucide-react";
 
+import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/variants/button-variants";
 import MyBlogList from "@/features/my-content/components/MyBlogList";
 import MyRecipeList from "@/features/my-content/components/MyRecipeList";
+import MyVideoJobList from "@/features/my-content/components/MyVideoJobList";
 import MyVideoList from "@/features/my-content/components/MyVideoList";
+import UploadVideoJobDialog from "@/features/video/components/UploadVideoJobDialog";
 import { cn } from "@/lib/utils";
 import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
@@ -13,16 +17,19 @@ const TABS = [
   { id: "blogs", label: "Bài viết", icon: BookOpen },
   { id: "recipes", label: "Công thức", icon: ChefHat },
   { id: "videos", label: "Video", icon: VideoIcon },
+  { id: "extractions", label: "Bóc tách", icon: Sparkles },
 ];
 
 // Trang "Nội dung của tôi" (route /my-content, cần đăng nhập): bài viết (GET /blogs/me),
 // công thức (GET /recipes/me) và video (GET /videos/me) của chính mình ở mọi trạng thái,
-// kèm nút tạo mới / sửa / gửi duyệt / xóa.
+// kèm nút tạo mới / sửa / gửi duyệt / xóa. Tab "Bóc tách" là lịch sử AI bóc tách công thức từ video
+// (GET /ai/videos), nút góc phải mở hộp thoại tải video lên thay vì chuyển trang.
 // Tab nằm trên URL (?tab=videos) để form quay về đúng tab.
 export default function MyContentScreen() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [uploadOpen, setUploadOpen] = useState(false);
   const currentTab = searchParams.get("tab");
-  const tab = currentTab === "recipes" || currentTab === "videos" ? currentTab : "blogs";
+  const tab = TABS.some(({ id }) => id === currentTab) ? currentTab : "blogs";
   const setTab = (id) => setSearchParams(id === "blogs" ? {} : { tab: id }, { replace: true });
 
   const getCreateLink = () => {
@@ -41,16 +48,24 @@ export default function MyContentScreen() {
           <div>
             <h1 className="font-heading text-3xl font-bold text-ink">Nội dung của tôi</h1>
             <p className="mt-1 text-sm text-subtle">
-              Quản lý bài viết, công thức và video bạn đã tạo, kể cả bản nháp và nội dung đang chờ duyệt.
+              Quản lý bài viết, công thức và video bạn đã tạo, kể cả bản nháp và nội dung đang chờ duyệt, cùng
+              lịch sử AI bóc tách công thức từ video.
             </p>
           </div>
-          <Link
-            to={createLink.to}
-            className={buttonVariants({ variant: "default", size: "md" })}
-          >
-            <Plus className="size-4" />
-            {createLink.label}
-          </Link>
+          {tab === "extractions" ? (
+            <Button type="button" size="md" onClick={() => setUploadOpen(true)}>
+              <Sparkles className="size-4" />
+              Bóc tách video
+            </Button>
+          ) : (
+            <Link
+              to={createLink.to}
+              className={buttonVariants({ variant: "default", size: "md" })}
+            >
+              <Plus className="size-4" />
+              {createLink.label}
+            </Link>
+          )}
         </div>
 
         <div role="tablist" className="flex items-center gap-2">
@@ -78,10 +93,14 @@ export default function MyContentScreen() {
           <MyBlogList />
         ) : tab === "recipes" ? (
           <MyRecipeList />
-        ) : (
+        ) : tab === "videos" ? (
           <MyVideoList />
+        ) : (
+          <MyVideoJobList />
         )}
       </main>
+
+      <UploadVideoJobDialog open={uploadOpen} onOpenChange={setUploadOpen} />
 
       <AppFooter />
     </div>

@@ -1,5 +1,5 @@
 // Dữ liệu mẫu tham khảo cho các tính năng chưa có endpoint backend riêng
-// (nutrition facts, tóm tắt AI, kênh ẩm thực đề xuất, video gợi ý dự phòng khi DB chưa có nhiều video).
+// (nutrition facts, kênh ẩm thực đề xuất, video gợi ý dự phòng khi DB chưa có nhiều video).
 
 export const nutritionFacts = {
   servingLabel: "1 bát tiêu chuẩn",
@@ -11,16 +11,6 @@ export const nutritionFacts = {
     { id: "nam", name: "Nấm hương tươi & Nấm đùi gà", amount: "180g" },
     { id: "thao-moc", name: "Thảo mộc: Hoa hồi, quế, thảo quả", amount: "1 gói nhỏ" },
   ],
-};
-
-export const aiSummary = {
-  steps: [
-    "Nướng thơm gừng non, boa-rô & hoa hồi trên chảo gang (~2 phút) để dậy mùi mộc mạc.",
-    "Hầm củ cải trắng & bắp Mỹ lấy nước dùng thanh ngọt tự nhiên liu riu 25 phút (nước trong veo, không nêm đường cát).",
-    "Áp chảo nấm hương tươi với xíu dầu lạc & tiêu sọ Phú Quốc cho xém cạnh, dậy vị thơm giòn.",
-    "Trụng bánh phở lứt, xếp nấm, đậu hũ non và chan nước dùng sôi sùng sục.",
-  ],
-  tip: "Thêm 1 lát chanh tươi và ớt hiểm cắt lát để kích thích enzyme tiêu hóa tốt nhất.",
 };
 
 export const videoChannels = [
