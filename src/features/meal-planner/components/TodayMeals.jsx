@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarX2, ChevronLeft, ChevronRight, Heart, Loader2, Sparkles, TriangleAlert } from "lucide-react";
+import { CalendarX2, ChevronLeft, ChevronRight, Heart, Loader2, Sparkles, TriangleAlert, Sprout } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -168,7 +168,9 @@ export default function TodayMeals({
     <section id="today-meals" className="scroll-mt-28">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold text-ink sm:text-2xl">Thực Đơn 3 Bữa {dayTitle} 🌱</h2>
+          <h2 className="flex items-center gap-2 text-xl font-bold text-ink sm:text-2xl">
+            Thực Đơn 3 Bữa {dayTitle} <Sprout className="size-5 text-brand" />
+          </h2>
           <p className="mt-1 text-sm text-subtle">Lên kế hoạch năng lượng từng bữa, cùng sống xanh mỗi ngày!</p>
         </div>
 
