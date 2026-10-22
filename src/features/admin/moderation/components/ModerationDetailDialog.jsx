@@ -1,4 +1,5 @@
 import {
+  Ban,
   Check,
   ExternalLink,
   FileText,
@@ -56,6 +57,7 @@ export default function ModerationDetailDialog({
   onOpenChange,
   onApprove,
   onReject,
+  onDismiss,
 }) {
   if (!item) return null;
 
@@ -217,6 +219,11 @@ export default function ModerationDetailDialog({
           )}
         </div>
 
+        <p className="text-[11px] leading-relaxed text-subtle">
+          <strong className="text-ink">Bỏ qua</strong>: chỉ đưa ca ra khỏi hàng đợi, nội dung gốc không bị đổi trạng thái
+          (khác với <strong className="text-ink">Từ chối</strong>).
+        </p>
+
         <DialogFooter className="gap-2 sm:gap-0">
           <Button
             type="button"
@@ -224,6 +231,20 @@ export default function ModerationDetailDialog({
             onClick={() => onOpenChange(false)}
           >
             Đóng
+          </Button>
+
+          <Button
+            type="button"
+            variant="outline"
+            title="Chỉ đưa ca ra khỏi hàng đợi, nội dung gốc không bị đổi trạng thái"
+            onClick={() => {
+              onOpenChange(false);
+              onDismiss(item);
+            }}
+            className="gap-1"
+          >
+            <Ban className="size-3.5" />
+            Bỏ qua
           </Button>
 
           <Button
