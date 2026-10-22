@@ -264,6 +264,25 @@ export function buildNutritionTarget(values) {
   return Object.keys(target).length > 0 ? target : undefined;
 }
 
+/** Hai mục tiêu (kết quả của buildNutritionTarget) có giống nhau không; undefined = không đặt mục tiêu riêng. */
+export function sameTarget(a, b) {
+  const left = a ?? {};
+  const right = b ?? {};
+  return TARGET_FIELDS.every((field) => left[field] === right[field]);
+}
+
+/**
+ * Body cho POST /ai/meal-plans/:id/update-from-health. `customTarget` (mục tiêu tự đặt, thay hẳn mục tiêu BE
+ * tính từ chỉ số sức khỏe) và `changeSummary` (ghi chú lưu vào lịch sử phiên bản) chỉ được gửi khi có.
+ */
+export function buildHealthUpdateBody({ confirm, customTarget, changeSummary }) {
+  const body = { confirm: Boolean(confirm) };
+  if (customTarget && Object.keys(customTarget).length > 0) body.customTarget = customTarget;
+  const summary = String(changeSummary ?? "").trim();
+  if (summary) body.changeSummary = summary;
+  return body;
+}
+
 /** Payload cho POST /ai/meal-plans từ giá trị form + nguyên liệu/khẩu vị đã chọn. */
 export function buildGeneratePayload({ name, healthGoal, preferences, ingredients, target }) {
   const payload = {

@@ -1,5 +1,7 @@
 import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { HeartPulse, Loader2 } from "lucide-react";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -11,45 +13,88 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import NutritionTargetFields from "@/features/meal-planner/components/NutritionTargetFields";
 import { useApplyHealthUpdate, usePreviewHealthUpdate } from "@/features/meal-planner/hooks/useMealPlanMutations";
+import { HEALTH_UPDATE_LIMITS, healthUpdateSchema } from "@/features/meal-planner/schema";
 import {
   averageDailyTotals,
+  buildNutritionTarget,
   countMissedDays,
   MACRO_ROWS,
+  sameTarget,
+  TARGET_FIELDS,
   targetRangeLines,
 } from "@/features/meal-planner/utils/mealPlan";
 
 const formatNumber = (value) => (value == null ? "—" : Number(value).toLocaleString("vi-VN"));
+
+const noteClass =
+  "h-10 w-full rounded-xl border border-border bg-card px-3 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
+
+function emptyValues() {
+  return { ...Object.fromEntries(TARGET_FIELDS.map((field) => [field, ""])), changeSummary: "" };
+}
 
 /**
  * Nút "Cập nhật theo chỉ số mới" + hộp thoại xem trước của một thực đơn.
  * Bấm nút: BE tính lại mục tiêu dinh dưỡng theo chỉ số sức khỏe mới nhất và co giãn lại khẩu phần, nhưng CHƯA lưu
  * (update-from-health với confirm=false). Người dùng xem so sánh rồi bấm "Áp dụng" mới lưu (confirm=true);
  * BE giữ bản cũ trong lịch sử phiên bản. `plan` là một MealPlan trong danh sách của useMealPlans.
+ *
+ * Tùy chọn: tự đặt mục tiêu dinh dưỡng riêng (BE dùng thay hẳn mục tiêu tính từ chỉ số sức khỏe) và ghi chú thay đổi.
+ * Bản lưu phải dùng đúng mục tiêu của bản xem trước người dùng vừa thấy, nên đổi ô nhập thì phải xem trước lại
+ * mới được áp dụng (`previewTarget` là mục tiêu của lần xem trước gần nhất).
  */
 export default function HealthUpdateButton({ plan }) {
   const [open, setOpen] = useState(false);
+  const [previewTarget, setPreviewTarget] = useState(undefined);
   const preview = usePreviewHealthUpdate();
   const apply = useApplyHealthUpdate();
 
+  const {
+    register,
+    handleSubmit,
+    reset,
+    getValues,
+    control,
+    formState: { errors },
+  } = useForm({ resolver: zodResolver(healthUpdateSchema), defaultValues: emptyValues() });
+  const typedTarget = buildNutritionTarget(useWatch({ control }));
+  const targetChanged = !sameTarget(typedTarget, previewTarget);
+
+  const requestPreview = (customTarget) => {
+    setPreviewTarget(customTarget);
+    preview.mutate({ planId: plan.id, customTarget });
+  };
+
+  const resetDialog = () => {
+    preview.reset();
+    reset(emptyValues());
+    setPreviewTarget(undefined);
+  };
+
   const openDialog = () => {
     setOpen(true);
-    preview.mutate(plan.id);
+    requestPreview(undefined);
   };
 
   const handleOpenChange = (next) => {
     // Đang lưu thì không cho đóng, tránh người dùng tưởng đã hủy.
     if (apply.isPending) return;
     setOpen(next);
-    if (!next) preview.reset();
+    if (!next) resetDialog();
   };
 
   const handleApply = async () => {
     try {
-      await apply.mutateAsync(plan.id);
+      await apply.mutateAsync({
+        planId: plan.id,
+        customTarget: previewTarget,
+        changeSummary: getValues("changeSummary"),
+      });
       toast.success("Đã cập nhật thực đơn theo chỉ số sức khỏe mới");
       setOpen(false);
-      preview.reset();
+      resetDialog();
     } catch (err) {
       toast.error(err.message);
     }
@@ -87,7 +132,7 @@ export default function HealthUpdateButton({ plan }) {
           {preview.isError && (
             <div className="flex flex-col items-start gap-3 rounded-2xl bg-destructive/10 px-4 py-3">
               <p className="text-sm text-destructive">{preview.error.message}</p>
-              <Button type="button" variant="outline" size="sm" onClick={() => preview.mutate(plan.id)}>
+              <Button type="button" variant="outline" size="sm" onClick={() => requestPreview(previewTarget)}>
                 Thử lại
               </Button>
             </div>
@@ -96,7 +141,9 @@ export default function HealthUpdateButton({ plan }) {
           {result && (
             <div className="flex flex-col gap-4 text-sm">
               <section>
-                <h3 className="font-semibold text-ink">Mục tiêu mỗi ngày sau khi cập nhật</h3>
+                <h3 className="font-semibold text-ink">
+                  {previewTarget ? "Mục tiêu riêng của bạn mỗi ngày" : "Mục tiêu mỗi ngày sau khi cập nhật"}
+                </h3>
                 {targetLines.length > 0 ? (
                   <ul className="mt-1 list-inside list-disc text-subtle">
                     {targetLines.map((line) => (
@@ -147,11 +194,60 @@ export default function HealthUpdateButton({ plan }) {
             </div>
           )}
 
+          <form
+            onSubmit={handleSubmit((values) => requestPreview(buildNutritionTarget(values)))}
+            noValidate
+            className="flex flex-col gap-3"
+          >
+            <p className="text-xs leading-relaxed text-subtle">
+              Mặc định mục tiêu được tính từ chỉ số sức khỏe của bạn. Muốn tự đặt mục tiêu riêng thì điền khoảng bên
+              dưới rồi xem trước lại. Mục tiêu riêng sẽ thay hoàn toàn mục tiêu tính tự động, chất nào bỏ trống thì
+              không bị giới hạn.
+            </p>
+            <NutritionTargetFields register={register} errors={errors} />
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <Button
+                type="submit"
+                variant="outline"
+                size="sm"
+                disabled={preview.isPending || apply.isPending}
+              >
+                Xem trước lại
+              </Button>
+              {targetChanged && (
+                <span className="text-xs text-warning">
+                  Bạn đã đổi mục tiêu, hãy xem trước lại trước khi áp dụng.
+                </span>
+              )}
+            </div>
+          </form>
+
+          <div>
+            <label htmlFor={`${plan.id}-health-note`} className="mb-1.5 block text-sm font-semibold text-ink">
+              Ghi chú thay đổi <span className="text-xs font-normal text-subtle">(không bắt buộc)</span>
+            </label>
+            <input
+              id={`${plan.id}-health-note`}
+              type="text"
+              maxLength={HEALTH_UPDATE_LIMITS.changeSummary}
+              placeholder="Ví dụ: giảm calo vì đã tăng cân"
+              aria-invalid={Boolean(errors.changeSummary)}
+              className={noteClass}
+              {...register("changeSummary")}
+            />
+            {errors.changeSummary && <p className="mt-1 text-xs text-destructive">{errors.changeSummary.message}</p>}
+            <p className="mt-1 text-xs text-subtle">Hiện trong mục Lịch sử, kèm phiên bản cũ được lưu lại.</p>
+          </div>
+
           <DialogFooter>
             <Button type="button" variant="ghost" disabled={apply.isPending} onClick={() => handleOpenChange(false)}>
               Hủy
             </Button>
-            <Button type="button" disabled={!result || apply.isPending} onClick={handleApply}>
+            <Button
+              type="button"
+              disabled={!result || preview.isPending || apply.isPending || targetChanged}
+              onClick={handleApply}
+            >
               {apply.isPending && <Loader2 className="size-4 animate-spin" />}
               Áp dụng
             </Button>

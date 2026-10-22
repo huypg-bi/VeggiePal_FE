@@ -44,17 +44,26 @@ export function useSetPlanFavorite() {
   });
 }
 
-/** Xem trước thực đơn sau khi cập nhật theo chỉ số sức khỏe (không lưu). mutate(planId) -> kết quả xem trước. */
+/**
+ * Xem trước thực đơn sau khi cập nhật theo chỉ số sức khỏe (không lưu).
+ * mutate({ planId, customTarget? }) -> kết quả xem trước. customTarget là mục tiêu tự đặt (bỏ trống = BE tự tính).
+ */
 export function usePreviewHealthUpdate() {
-  return useMutation({ mutationFn: (planId) => updatePlanFromHealth(planId, { confirm: false }) });
+  return useMutation({
+    mutationFn: ({ planId, customTarget }) => updatePlanFromHealth(planId, { confirm: false, customTarget }),
+  });
 }
 
-/** Lưu bản cập nhật theo chỉ số sức khỏe. mutate(planId); thành công thì thay thực đơn trong cache bằng bản mới. */
+/**
+ * Lưu bản cập nhật theo chỉ số sức khỏe. mutate({ planId, customTarget?, changeSummary? }); phải dùng cùng customTarget
+ * với bản xem trước người dùng vừa thấy. Thành công thì thay thực đơn trong cache bằng bản mới.
+ */
 export function useApplyHealthUpdate() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (planId) => updatePlanFromHealth(planId, { confirm: true }),
-    onSuccess: (result, planId) => {
+    mutationFn: ({ planId, customTarget, changeSummary }) =>
+      updatePlanFromHealth(planId, { confirm: true, customTarget, changeSummary }),
+    onSuccess: (result, { planId }) => {
       if (!result?.updatedMealPlan) return;
       queryClient.setQueryData(mealPlanKeys.list, (old) => replacePlanInList(old, result.updatedMealPlan));
       // Bản trước đó vừa được BE lưu vào lịch sử phiên bản.

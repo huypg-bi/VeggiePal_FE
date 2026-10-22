@@ -1,3 +1,4 @@
+import { buildHealthUpdateBody } from "@/features/meal-planner/utils/mealPlan";
 import apiClient from "@/shared/api/apiClient";
 
 /**
@@ -178,9 +179,15 @@ export async function getMealPlanVersions(id) {
  * POST /ai/meal-plans/:id/update-from-health — cập nhật thực đơn theo chỉ số sức khỏe mới nhất.
  * confirm=false: chỉ xem trước (không lưu gì). confirm=true: lưu, kết quả có `updatedMealPlan`.
  * Chưa có hồ sơ sức khỏe thì BE báo 6010 (đã có bản dịch ở VI_MESSAGES).
+ * customTarget (tùy chọn, cùng dạng dailyNutritionTarget): mục tiêu tự đặt, BE dùng thay hẳn mục tiêu tính từ chỉ số
+ * sức khỏe. changeSummary (tùy chọn, tối đa 500 ký tự): ghi chú lưu cùng phiên bản cũ, mặc định BE ghi
+ * "Cập nhật từ chỉ số sức khỏe". Bản xem trước và bản lưu phải dùng cùng customTarget thì kết quả mới giống nhau.
  */
-export async function updatePlanFromHealth(id, { confirm = false } = {}) {
-  const res = await apiClient.post(`/ai/meal-plans/${id}/update-from-health`, { confirm });
+export async function updatePlanFromHealth(id, { confirm = false, customTarget, changeSummary } = {}) {
+  const res = await apiClient.post(
+    `/ai/meal-plans/${id}/update-from-health`,
+    buildHealthUpdateBody({ confirm, customTarget, changeSummary }),
+  );
   return unwrap(res, confirm ? "Cập nhật thực đơn thất bại" : "Không xem trước được thực đơn cập nhật");
 }
 
