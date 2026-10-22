@@ -31,7 +31,7 @@ function syncAuthUser(p) {
  * Hồ sơ hiện tại (GET /users/me), đồng bộ user vào authStore.
  * Fallback nhẹ từ authStore nếu API lỗi.
  */
-export function useProfile() {
+export function useProfile({ enabled = true, staleTime } = {}) {
   const authUser = useAuthStore((s) => s.user);
 
   const query = useQuery({
@@ -41,6 +41,8 @@ export function useProfile() {
       syncAuthUser(data);
       return data;
     },
+    enabled,
+    staleTime,
   });
 
   // API lỗi mà vẫn còn user trong authStore -> dựng hồ sơ tối thiểu từ đó.
