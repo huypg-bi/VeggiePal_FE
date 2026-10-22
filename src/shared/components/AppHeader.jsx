@@ -35,8 +35,34 @@ import {
 import { useAuthStore, selectIsAuthenticated } from "@/features/auth/store/authStore";
 import { useMySubscription } from "@/features/payment/hooks/useMySubscription";
 import { formatDate } from "@/features/payment/utils/paymentFormat";
+import { useProfile } from "@/features/profile/hooks/useProfile";
+import FallbackImage from "@/shared/components/FallbackImage";
 import ThemeToggle from "@/shared/components/ThemeToggle";
 import { cn } from "@/lib/utils";
+
+// Đăng nhập (POST /auth/login) không trả avatarUrl nên header tự nạp hồ sơ một lần
+// rồi giữ trong cache; đổi avatar ở trang hồ sơ ghi thẳng vào cache này nên header đổi theo.
+const PROFILE_STALE_MS = 5 * 60 * 1000;
+
+// Avatar tròn: ảnh nếu có (hoặc ảnh lỗi) thì rơi về icon người trên nền brand.
+function UserAvatar({ src, name, className, iconClassName }) {
+  return (
+    <span
+      className={cn(
+        "grid shrink-0 place-items-center overflow-hidden rounded-full border border-border bg-surface text-ink",
+        className
+      )}
+    >
+      <FallbackImage
+        src={src}
+        alt={name || "Ảnh đại diện"}
+        className="size-full object-cover"
+        draggable={false}
+        fallback={<UserRound className={iconClassName} />}
+      />
+    </span>
+  );
+}
 
 const NAV_ITEMS = [
   { id: "home", label: "Trang Chủ", icon: Home, to: "/" },
@@ -60,13 +86,15 @@ export default function AppHeader() {
   const logout = useAuthStore((s) => s.logout);
   const location = useLocation();
   const { subscription } = useMySubscription();
+  const { profile } = useProfile({ enabled: isAuthenticated, staleTime: PROFILE_STALE_MS });
 
-  const displayName = user?.fullName?.trim();
-  const displayEmail = user?.email;
+  const displayName = (profile?.fullName ?? user?.fullName)?.trim();
+  const displayEmail = profile?.email ?? user?.email;
+  const avatarUrl = profile?.avatarUrl ?? user?.avatarUrl;
 
   return (
     <header className="sticky top-4 z-30 mb-4 px-6 sm:px-8">
-      <div className="mx-auto flex w-full max-w-[1560px] items-center justify-between gap-4 rounded-full border border-border bg-card/90 px-6 py-1 shadow-sm backdrop-blur lg:grid lg:grid-cols-[1fr_auto_1fr]">
+      <div className="mx-auto flex w-full max-w-[1560px] items-center justify-between gap-4 rounded-full border border-border bg-card/90 px-6 py-1 shadow-sm backdrop-blur lg:grid lg:grid-cols-[auto_1fr_auto]">
         <div className="flex items-center justify-start">
           <Link to="/" className="flex shrink-0 items-center gap-2">
             <img src={logo} alt="VeggiePal" className="h-12 w-auto mt-1 mb-1" />
@@ -107,19 +135,20 @@ export default function AppHeader() {
             </Button>
           )}
 
-          <ThemeToggle />
-
+          {/* Khách: icon gói dịch vụ + chữ Đăng nhập / Đăng ký. */}
           {!isAuthenticated && (
             <div className="flex shrink-0 items-center gap-2">
               <Link
                 to="/pricing"
-                className="hidden text-sm font-semibold text-brand transition hover:opacity-80 sm:block px-3 py-1.5 rounded-full bg-brand-soft"
+                aria-label="Gói dịch vụ"
+                title="Gói dịch vụ"
+                className="grid size-9 place-items-center rounded-full bg-amber-500/10 text-amber-600 transition hover:bg-amber-500/20 dark:text-amber-400"
               >
-                Gói Dịch Vụ
+                <Crown className="size-5" />
               </Link>
               <Link
                 to="/login"
-                className="hidden text-sm font-medium text-subtle transition hover:text-ink sm:block"
+                className="px-2 text-sm font-medium text-subtle transition hover:text-ink"
               >
                 Đăng Nhập
               </Link>
@@ -136,9 +165,14 @@ export default function AppHeader() {
             <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
               <DropdownMenuTrigger
                 aria-label="Menu tài khoản"
-                className="relative grid size-9 place-items-center rounded-full bg-brand text-brand-foreground outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-brand/50"
+                className="relative size-9 rounded-full outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-brand/50"
               >
-                <UserRound className="h-5 w-5" />
+                <UserAvatar
+                  src={avatarUrl}
+                  name={displayName}
+                  className="size-9"
+                  iconClassName="size-5"
+                />
                 <span className="absolute -bottom-0.5 -right-0.5 grid size-4 place-items-center rounded-full bg-card text-ink shadow ring-1 ring-border">
                   <ChevronDown
                     className={cn(
@@ -155,9 +189,12 @@ export default function AppHeader() {
                 className="w-80 rounded-2xl p-3 shadow-xl"
               >
                 <div className="flex items-center gap-3 px-1 py-1.5">
-                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-brand text-brand-foreground">
-                    <UserRound className="h-6 w-6" />
-                  </span>
+                  <UserAvatar
+                    src={avatarUrl}
+                    name={displayName}
+                    className="size-12"
+                    iconClassName="size-6"
+                  />
                   <div className="min-w-0">
                     <p className="truncate text-lg font-bold text-ink">
                       {displayName}
@@ -272,6 +309,8 @@ export default function AppHeader() {
           )}
         </div>
       </div>
+
+      <ThemeToggle className="fixed bottom-6 right-6 z-40 size-11 border border-border bg-card text-ink shadow-lg hover:bg-brand-soft" />
     </header>
   );
 }
