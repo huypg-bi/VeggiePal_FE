@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="src/assets/img/logo.png" alt="VeggiePal" width="260" />
+  <img src="src/assets/img/logo.png" alt="VeggiePal" width="150" />
 </p>
 
 > Nền tảng hỗ trợ người ăn chay theo dõi sức khỏe, lên thực đơn, khám phá video nấu ăn, tìm quán chay và trò chuyện cùng trợ lý AI **Bông Cải**.
