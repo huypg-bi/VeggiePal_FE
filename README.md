@@ -1,4 +1,6 @@
-# 🥬 VeggiePal — Client App
+<p align="center">
+  <img src="src/assets/img/logo.png" alt="VeggiePal" width="260" />
+</p>
 
 > Nền tảng hỗ trợ người ăn chay theo dõi sức khỏe, lên thực đơn, khám phá video nấu ăn, tìm quán chay và trò chuyện cùng trợ lý AI **Bông Cải**.
 
@@ -158,10 +160,9 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | `GET` | `/ai/meal-plans/:id` | Một thực đơn (lấy mới khi mở hộp thoại "Lịch sử") |
 | `GET` | `/ai/meal-plans/favorites`, `/ai/meal-plans/favorites/:id` | Danh sách thực đơn yêu thích (phân trang) / một thực đơn yêu thích |
 | `GET` | `/ai/meal-plans/:id/versions`, `/ai/meal-plans/:id/versions/:version` | Lịch sử phiên bản / nội dung một phiên bản cũ |
-
-| GET | /payments/plans | Danh sách gói thành viên (công khai) |
-| POST | /payments/checkout | Tạo đơn thanh toán payOS (gói PLUS / PRO) |
-| GET | /payments/orders/:id | Chi tiết đơn thanh toán theo ID |
-| POST | /payments/orders/:id/cancel | Huỷ đơn thanh toán PENDING (`cancelOrder`), trả đơn với status CANCELLED |
-| GET | /payments/history | Lịch sử giao dịch của người dùng |
-| GET | /subscriptions/me | Thông tin gói thành viên hiện tại và hạn dùng |
+| `GET` | `/payments/plans` | Danh sách gói thành viên (công khai) |
+| `POST` | `/payments/checkout` | Tạo đơn thanh toán payOS (gói PLUS / PRO) |
+| `GET` | `/payments/orders/:id` | Chi tiết đơn thanh toán theo ID |
+| `POST` | `/payments/orders/:id/cancel` | Huỷ đơn thanh toán PENDING (`cancelOrder`), trả đơn với status CANCELLED |
+| `GET` | `/payments/history` | Lịch sử giao dịch của người dùng |
+| `GET` | `/subscriptions/me` | Thông tin gói thành viên hiện tại và hạn dùng |
