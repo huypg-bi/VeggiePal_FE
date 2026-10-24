@@ -1,6 +1,7 @@
 // Khóa cache React Query của feature meal-planner.
 export const mealPlanKeys = {
   list: ["meal-plans", "list"],
+  nutritionTarget: (goalType) => ["meal-plans", "nutrition-target", goalType],
   detail: (planId) => ["meal-plans", "detail", planId],
   versions: (planId) => ["meal-plans", "versions", planId],
   version: (planId, version) => ["meal-plans", "version", planId, version],

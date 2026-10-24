@@ -25,19 +25,19 @@ export const mockStats = [
 
 // Khẩu vị gợi ý gửi cho AI qua `preferences`. `label` là chuỗi gửi đi nên viết rõ nghĩa.
 export const flavorPreferences = [
-  { id: "light", label: "Thanh đạm vị ngọt nhẹ", icon: Sparkles, color: "#1D6C3D" },
-  { id: "sea", label: "Đậm đà Đông Nam Á", icon: Pencil, color: "#EAEAEA" },
-  { id: "low-oil", label: "Ít dầu mỡ & chiên xào", icon: Flame, color: "#FBE1CE" },
-  { id: "no-sugar", label: "Không đường tinh luyện", icon: Sparkles, color: "#DCEBFB" },
-  { id: "soup", label: "Chuộng món súp ấm nóng", icon: Soup, color: "#DCEBFB" },
+  { id: "light", label: "Thanh đạm vị ngọt nhẹ", icon: Sparkles },
+  { id: "sea", label: "Đậm đà Đông Nam Á", icon: Pencil },
+  { id: "low-oil", label: "Ít dầu mỡ & chiên xào", icon: Flame },
+  { id: "no-sugar", label: "Không đường tinh luyện", icon: Sparkles },
+  { id: "soup", label: "Chuộng món súp ấm nóng", icon: Soup },
 ];
 
-// Mục tiêu sức khỏe gợi ý nhanh, bấm để điền vào ô "Mục tiêu".
+// Mô tả thêm gợi ý nhanh, bấm để điền vào ô "Mô tả thêm" (mục tiêu giảm / duy trì / tăng cân chọn riêng bằng nút).
 export const healthGoalSuggestions = [
-  "Giảm cân nhẹ, ăn thanh đạm",
+  "Ăn thanh đạm, dễ tiêu hoá",
   "Tăng cơ, nhiều đạm thực vật",
-  "Duy trì cân nặng và vóc dáng",
-  "Ăn đủ chất, dễ tiêu hoá",
+  "Ít dầu mỡ, hạn chế đồ chiên xào",
+  "Ăn đủ chất, nhiều rau xanh",
 ];
 
 export const macroLabels = {

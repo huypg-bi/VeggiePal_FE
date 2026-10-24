@@ -14,6 +14,21 @@ export const ALLERGY_CATEGORY_META = {
 };
 export const OTHER_CATEGORY_META = { name: "Khác", note: "Các thành phần khác cần tránh:" };
 
+// Giới tính và mức độ vận động (enum Gender / ActivityLevel của identity-service). BE dùng hai trường này cùng ngày
+// sinh để tính nhu cầu calo khi lên thực đơn.
+export const GENDER_OPTIONS = [
+  { value: "MALE", label: "Nam" },
+  { value: "FEMALE", label: "Nữ" },
+  { value: "OTHER", label: "Khác" },
+];
+export const ACTIVITY_LEVEL_OPTIONS = [
+  { value: "SEDENTARY", label: "Ít vận động (ngồi nhiều, hầu như không tập)" },
+  { value: "LIGHT", label: "Vận động nhẹ (tập 1–3 buổi/tuần)" },
+  { value: "MODERATE", label: "Vận động vừa (tập 3–5 buổi/tuần)" },
+  { value: "ACTIVE", label: "Vận động nhiều (tập 6–7 buổi/tuần)" },
+  { value: "VERY_ACTIVE", label: "Vận động rất nhiều (lao động nặng hoặc tập 2 lần/ngày)" },
+];
+
 // Ràng buộc ảnh đại diện (khớp BE: JPEG/PNG/WEBP, tối đa 2MB).
 export const AVATAR_ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const AVATAR_MAX_BYTES = 2 * 1024 * 1024;

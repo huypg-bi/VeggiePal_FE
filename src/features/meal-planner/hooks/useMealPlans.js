@@ -7,6 +7,7 @@ import {
   getMealPlanVersion,
   getMealPlans,
   getMealPlanVersions,
+  getNutritionTarget,
 } from "@/features/meal-planner/api/mealPlanApi";
 import { mealPlanKeys } from "@/features/meal-planner/queryKeys";
 
@@ -16,6 +17,21 @@ export function useMealPlans() {
     queryKey: mealPlanKeys.list,
     queryFn: getMealPlans,
     staleTime: 60 * 1000,
+  });
+}
+
+/**
+ * Mục tiêu calo / macro BE tính cho một `goalType` (GET /ai/meal-plans/nutrition-target). Chỉ tải khi `enabled`
+ * và có goalType. Không thử lại khi lỗi (lỗi 6010 / 6020 / 6021 là do hồ sơ, thử lại cũng không khác) và luôn lấy
+ * mới khi mở lại vì người dùng có thể vừa cập nhật hồ sơ.
+ */
+export function useNutritionTarget(goalType, enabled = true) {
+  return useQuery({
+    queryKey: mealPlanKeys.nutritionTarget(goalType),
+    queryFn: () => getNutritionTarget(goalType),
+    enabled: Boolean(enabled) && Boolean(goalType),
+    staleTime: 0,
+    retry: false,
   });
 }
 

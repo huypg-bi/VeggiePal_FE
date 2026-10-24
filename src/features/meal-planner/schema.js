@@ -1,11 +1,13 @@
 import { z } from "zod";
 
-import { TARGET_FIELDS, parseTargetNumber } from "@/features/meal-planner/utils/mealPlan";
+import { GOAL_OPTIONS, TARGET_FIELDS, parseTargetNumber } from "@/features/meal-planner/utils/mealPlan";
 
-// Giới hạn khớp GenerateRequest của ai-service.
+// Giới hạn khớp GenerateRequest của ai-service. `healthGoal` của BE tối đa 500 ký tự gồm cả nhãn mục tiêu
+// ("Tăng cân: ") nên mô tả thêm của người dùng (`healthNote`) giữ ngắn hơn.
 export const MEAL_PLAN_LIMITS = {
   name: 160,
   healthGoal: 500,
+  healthNote: 400,
   preferences: 20,
   preferenceLength: 100,
   ingredients: 30,
@@ -59,11 +61,16 @@ export const mealPlanSchema = z
       .trim()
       .min(1, "Vui lòng đặt tên cho thực đơn")
       .max(MEAL_PLAN_LIMITS.name, `Tên thực đơn tối đa ${MEAL_PLAN_LIMITS.name} ký tự`),
-    healthGoal: z
+    // Bắt buộc chọn một mục tiêu (BE yêu cầu goalType). Giá trị rỗng (chưa chọn) cũng rơi vào lỗi này.
+    goalType: z.enum(
+      GOAL_OPTIONS.map((option) => option.value),
+      { errorMap: () => ({ message: "Vui lòng chọn mục tiêu của thực đơn" }) },
+    ),
+    // Mô tả thêm cho AI (tùy chọn).
+    healthNote: z
       .string()
       .trim()
-      .min(1, "Vui lòng nhập mục tiêu sức khỏe (vd: giảm cân nhẹ, tăng cơ)")
-      .max(MEAL_PLAN_LIMITS.healthGoal, `Mục tiêu tối đa ${MEAL_PLAN_LIMITS.healthGoal} ký tự`),
+      .max(MEAL_PLAN_LIMITS.healthNote, `Mô tả tối đa ${MEAL_PLAN_LIMITS.healthNote} ký tự`),
     ...targetShape,
   })
   .superRefine(checkTargetRanges);

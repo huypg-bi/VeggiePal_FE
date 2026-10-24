@@ -28,6 +28,8 @@ export function usePersonalInfoForm() {
             fullName: profile.fullName || "",
             phone: profile.phone || "",
             birthDate: profile.dateOfBirth ? String(profile.dateOfBirth).slice(0, 10) : "",
+            gender: profile.gender || "",
+            activityLevel: profile.activityLevel || "",
           }
         : undefined,
     [profile]
@@ -35,16 +37,19 @@ export function usePersonalInfoForm() {
 
   const form = useForm({
     resolver: zodResolver(personalSchema),
-    defaultValues: { fullName: "", phone: "", birthDate: "" },
+    defaultValues: { fullName: "", phone: "", birthDate: "", gender: "", activityLevel: "" },
     values: serverValues,
   });
 
-  // Gửi lên API: đổi birthDate -> dateOfBirth; phone "" nghĩa là xóa số điện thoại.
+  // Gửi lên API: đổi birthDate -> dateOfBirth; phone "" nghĩa là xóa số điện thoại. gender / activityLevel chưa chọn
+  // thì không gửi (BE giữ nguyên giá trị cũ; chuỗi rỗng sẽ bị từ chối vì không phải giá trị của enum).
   const save = async (values) => {
     await updateProfile.mutateAsync({
       fullName: values.fullName.trim(),
       phone: values.phone?.trim() ?? "",
       dateOfBirth: values.birthDate || null,
+      ...(values.gender ? { gender: values.gender } : {}),
+      ...(values.activityLevel ? { activityLevel: values.activityLevel } : {}),
     });
   };
 

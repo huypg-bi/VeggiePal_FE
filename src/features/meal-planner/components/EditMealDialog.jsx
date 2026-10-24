@@ -15,6 +15,7 @@ import { usePreviewMealEdit, useSaveMealEdit } from "@/features/meal-planner/hoo
 import {
   buildMealEdits,
   dayLabel,
+  dayMacroNotes,
   dayTargetDeviations,
   findDayByKey,
   formatServing,
@@ -94,6 +95,7 @@ export default function EditMealDialog({ plan, day, meal, current, usedRecipeIds
   const newDay = findDayByKey(result?.plan, day.day);
   const newMeal = newDay?.meals?.find((m) => normalizeDay(m.mealType) === normalizeDay(meal.mealType));
   const deviations = dayTargetDeviations(newDay);
+  const macroNotes = dayMacroNotes(newDay);
 
   return (
     <Dialog open onOpenChange={(next) => !next && !save.isPending && onClose()}>
@@ -212,6 +214,15 @@ export default function EditMealDialog({ plan, day, meal, current, usedRecipeIds
                   .map((item) => `${item.label.toLowerCase()} ${formatNumber(item.actual)} ${item.unit}`)
                   .join(", ")}
                 .
+              </p>
+            )}
+            {macroNotes.length > 0 && (
+              <p className="text-xs text-subtle">
+                Calo cả ngày vẫn đạt, chỉ lưu ý:{" "}
+                {macroNotes
+                  .map((item) => `${item.label.toLowerCase()} ${formatNumber(item.actual)} ${item.unit}`)
+                  .join(", ")}{" "}
+                nằm ngoài khoảng mục tiêu.
               </p>
             )}
           </section>
