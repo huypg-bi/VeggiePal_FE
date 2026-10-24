@@ -57,6 +57,8 @@ export function useProfile({ enabled = true, staleTime } = {}) {
             phone: null,
             avatarUrl: authUser.avatarUrl || null,
             dateOfBirth: null,
+            gender: null,
+            activityLevel: null,
             emailVerified: false,
           }
         : null,
@@ -80,7 +82,7 @@ function useApplyProfile() {
   };
 }
 
-/** Sửa fullName / phone / dateOfBirth (PATCH /users/me). */
+/** Sửa fullName / phone / dateOfBirth / gender / activityLevel (PATCH /users/me). */
 export function useUpdateProfile() {
   const applyProfile = useApplyProfile();
   return useMutation({

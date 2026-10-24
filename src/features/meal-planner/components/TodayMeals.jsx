@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CalendarX2, ChevronLeft, ChevronRight, Heart, Loader2, Sparkles, TriangleAlert, Sprout } from "lucide-react";
+import { CalendarX2, ChevronLeft, ChevronRight, Heart, Info, Loader2, Sparkles, TriangleAlert, Sprout } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -13,13 +13,16 @@ import { useReplaceMeal, useSetPlanFavorite } from "@/features/meal-planner/hook
 import {
   dayKeyOf,
   dayLabel,
+  dayMacroNotes,
   dayTargetDeviations,
   formatDayMonth,
+  goalLabel,
   isSameDate,
   mealLabel,
   mealTime,
   normalizeDay,
   planDayDate,
+  planGoalNote,
   sortedMeals,
   toRounded,
 } from "@/features/meal-planner/utils/mealPlan";
@@ -76,6 +79,10 @@ export default function TodayMeals({
   const dayName = activeDay ? (isToday ? "Hôm Nay" : dayLabel(activeDay).long) : "Hôm Nay";
   const dayTitle = activeDate ? `${dayName} (${formatDayMonth(activeDate)})` : dayName;
   const missedTargets = dayTargetDeviations(activeDay);
+  // Calo đạt nhưng đạm / tinh bột / béo lệch: chỉ nhắc nhẹ, không tính là ngày lỡ mục tiêu.
+  const macroNotes = dayMacroNotes(activeDay);
+  const planGoal = goalLabel(plan?.goalType);
+  const planNote = plan ? planGoalNote(plan) : "";
 
   // Yêu thích theo cả thực đơn (BE: POST/DELETE /ai/meal-plans/:id/favorite), không theo từng món.
   const handleToggleFavorite = async () => {
@@ -254,7 +261,13 @@ export default function TodayMeals({
           <FavoritePlansButton plans={plans} onSelectPlan={onSelectPlan} />
           <HealthUpdateButton plan={plan} />
           <PlanVersionsButton plan={plan} />
-          {plan.goal &&<span className="line-clamp-1 text-xs">Mục tiêu: {plan.goal}</span>}
+          {/* Thực đơn có goalType: nhãn mục tiêu + mô tả thêm; thực đơn cũ chỉ có `goal` dạng chữ tự do. */}
+          {planGoal && (
+            <span className="rounded-full bg-brand-soft px-2.5 py-0.5 text-xs font-semibold text-brand">{planGoal}</span>
+          )}
+          {planNote && (
+            <span className="line-clamp-1 text-xs">{planGoal ? planNote : `Mục tiêu: ${planNote}`}</span>
+          )}
         </div>
       )}
 
@@ -279,6 +292,27 @@ export default function TodayMeals({
               thực đơn lại.
             </p>
           </div>
+        </div>
+      )}
+
+      {macroNotes.length > 0 && (
+        <div
+          role="status"
+          className="mt-4 flex items-start gap-3 rounded-2xl bg-surface px-4 py-3 text-sm text-body ring-1 ring-border"
+        >
+          <Info className="mt-0.5 size-4 shrink-0 text-subtle" />
+          <p className="text-subtle">
+            <span className="font-semibold text-ink">Calo ngày này đạt mục tiêu.</span> Lưu ý nhỏ:{" "}
+            {macroNotes
+              .map(
+                (item) =>
+                  `${item.label.toLowerCase()} ${item.actual.toLocaleString("vi-VN", { maximumFractionDigits: 1 })} ${item.unit}${
+                    item.range ? ` (mục tiêu ${item.range})` : ""
+                  }`,
+              )
+              .join(", ")}
+            .
+          </p>
         </div>
       )}
 

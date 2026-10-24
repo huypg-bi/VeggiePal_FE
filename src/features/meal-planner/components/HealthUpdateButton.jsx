@@ -2,6 +2,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { HeartPulse, Loader2 } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import {
   averageDailyTotals,
   buildNutritionTarget,
   countMissedDays,
+  goalLabel,
   MACRO_ROWS,
   sameTarget,
   TARGET_FIELDS,
@@ -37,9 +39,11 @@ function emptyValues() {
 
 /**
  * Nút "Cập nhật theo chỉ số mới" + hộp thoại xem trước của một thực đơn.
- * Bấm nút: BE tính lại mục tiêu dinh dưỡng theo chỉ số sức khỏe mới nhất và co giãn lại khẩu phần, nhưng CHƯA lưu
+ * Bấm nút: BE tính lại mục tiêu dinh dưỡng theo chỉ số sức khỏe mới nhất (và ngày sinh, giới tính, mức vận động trong
+ * hồ sơ, theo mục tiêu giảm / duy trì / tăng cân đã lưu của thực đơn) rồi co giãn lại khẩu phần, nhưng CHƯA lưu
  * (update-from-health với confirm=false). Người dùng xem so sánh rồi bấm "Áp dụng" mới lưu (confirm=true);
  * BE giữ bản cũ trong lịch sử phiên bản. `plan` là một MealPlan trong danh sách của useMealPlans.
+ * Hồ sơ thiếu thông tin thì BE báo 6020 (hiện liên kết sang hồ sơ); dưới 18 tuổi báo 6021 (gợi ý tự đặt mục tiêu riêng).
  *
  * Tùy chọn: tự đặt mục tiêu dinh dưỡng riêng (BE dùng thay hẳn mục tiêu tính từ chỉ số sức khỏe) và ghi chú thay đổi.
  * Bản lưu phải dùng đúng mục tiêu của bản xem trước người dùng vừa thấy, nên đổi ô nhập thì phải xem trước lại
@@ -118,7 +122,9 @@ export default function HealthUpdateButton({ plan }) {
           <DialogHeader>
             <DialogTitle>Cập nhật theo chỉ số sức khỏe</DialogTitle>
             <DialogDescription>
-              Tính lại mục tiêu dinh dưỡng theo chiều cao, cân nặng mới nhất của bạn rồi điều chỉnh khẩu phần các món.
+              Tính lại mục tiêu dinh dưỡng theo chiều cao, cân nặng mới nhất của bạn
+              {goalLabel(plan.goalType) && ` và mục tiêu "${goalLabel(plan.goalType)}" của thực đơn`} rồi điều chỉnh khẩu
+              phần các món.
             </DialogDescription>
           </DialogHeader>
 
@@ -132,6 +138,14 @@ export default function HealthUpdateButton({ plan }) {
           {preview.isError && (
             <div className="flex flex-col items-start gap-3 rounded-2xl bg-destructive/10 px-4 py-3">
               <p className="text-sm text-destructive">{preview.error.message}</p>
+              {[6010, 6020].includes(preview.error.code) && (
+                <Link
+                  to="/profile/edit"
+                  className="rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground transition hover:bg-brand/90"
+                >
+                  Cập nhật hồ sơ
+                </Link>
+              )}
               <Button type="button" variant="outline" size="sm" onClick={() => requestPreview(previewTarget)}>
                 Thử lại
               </Button>

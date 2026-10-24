@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import PlanDaysPreview from "@/features/meal-planner/components/PlanDaysPreview";
 import { useFavoriteMealPlan, useFavoriteMealPlans } from "@/features/meal-planner/hooks/useMealPlans";
-import { averageDailyTotals, formatDateTime } from "@/features/meal-planner/utils/mealPlan";
+import { averageDailyTotals, formatDateTime, planGoalSummary } from "@/features/meal-planner/utils/mealPlan";
 
 const PAGE_SIZE = 5;
 
@@ -149,7 +149,9 @@ function FavoriteItem({ item, expanded, canOpenOnPage, onToggle, onOpenOnPage })
         <span className="font-semibold text-ink">{item.name}</span>
         <span className="text-xs text-subtle">Tạo lúc {formatDateTime(item.createdAt)}</span>
       </div>
-      {item.goal && <p className="mt-1 line-clamp-1 text-xs text-subtle">Mục tiêu: {item.goal}</p>}
+      {planGoalSummary(item) && (
+        <p className="mt-1 line-clamp-1 text-xs text-subtle">Mục tiêu: {planGoalSummary(item)}</p>
+      )}
       {average && (
         <p className="mt-1 text-xs text-subtle">
           TB mỗi ngày: {formatNumber(average.calories)} kcal · đạm {formatNumber(average.protein)}g · tinh bột{" "}
