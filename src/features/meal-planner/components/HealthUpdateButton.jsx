@@ -17,12 +17,15 @@ import {
 import NutritionTargetFields from "@/features/meal-planner/components/NutritionTargetFields";
 import { useApplyHealthUpdate, usePreviewHealthUpdate } from "@/features/meal-planner/hooks/useMealPlanMutations";
 import { HEALTH_UPDATE_LIMITS, healthUpdateSchema } from "@/features/meal-planner/schema";
+import { useProfile } from "@/features/profile/hooks/useProfile";
 import {
   averageDailyTotals,
   buildNutritionTarget,
   countMissedDays,
   goalLabel,
   MACRO_ROWS,
+  missingProfileFields,
+  profileFixState,
   sameTarget,
   TARGET_FIELDS,
   targetRangeLines,
@@ -54,6 +57,8 @@ export default function HealthUpdateButton({ plan }) {
   const [previewTarget, setPreviewTarget] = useState(undefined);
   const preview = usePreviewHealthUpdate();
   const apply = useApplyHealthUpdate();
+  // Hồ sơ để biết trường nào đang thiếu khi BE báo 6020 (gắn vào liên kết sang trang hồ sơ).
+  const { profile, loading: profileLoading, error: profileError } = useProfile();
 
   const {
     register,
@@ -141,6 +146,7 @@ export default function HealthUpdateButton({ plan }) {
               {[6010, 6020].includes(preview.error.code) && (
                 <Link
                   to="/profile/edit"
+                  state={profileFixState(profileLoading || profileError ? [] : missingProfileFields(profile))}
                   className="rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground transition hover:bg-brand/90"
                 >
                   Cập nhật hồ sơ
@@ -204,6 +210,10 @@ export default function HealthUpdateButton({ plan }) {
               <p className="text-xs text-subtle">
                 Mục tiêu dinh dưỡng bạn đặt trước đó sẽ được thay bằng mục tiêu mới ở trên. Thực đơn hiện tại được lưu lại
                 thành phiên bản cũ.
+              </p>
+              <p className="rounded-xl bg-warning/10 px-3 py-2 text-xs text-warning">
+                Khẩu phần của mọi bữa được tính lại theo mục tiêu mới, nên khẩu phần bạn đã tự chỉnh (nếu có) sẽ bị đặt lại.
+                Bản cũ vẫn xem được trong mục Lịch sử.
               </p>
             </div>
           )}

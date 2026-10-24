@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import { Camera, Loader2, User, Check } from "lucide-react";
+import { Camera, Loader2, User } from "lucide-react";
 
 import { useUploadAvatar } from "@/features/profile/hooks/useProfile";
 import { validateAvatarFile } from "@/features/profile/utils/editProfileHelpers";
@@ -77,12 +77,9 @@ export default function EditAvatarCard({ profile, loading, error }) {
           />
         </div>
         <div className="min-w-0">
-          <div className="flex items-center gap-1.5">
-            <h3 className="truncate font-bold text-ink text-base">
-              {displayName}
-            </h3>
-            <Check className="size-3.5 text-brand" />
-          </div>
+          <h3 className="truncate font-bold text-ink text-base">
+            {displayName}
+          </h3>
           <p className="text-xs text-subtle">{roleText}</p>
         </div>
       </div>

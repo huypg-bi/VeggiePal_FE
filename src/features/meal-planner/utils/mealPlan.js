@@ -345,6 +345,23 @@ export function planGoalSummary(plan) {
 const ADULT_AGE = 18;
 
 /**
+ * Các trường hồ sơ BE cần để tự tính calo mà đang trống, theo tên field của `GET /users/me`
+ * ("dateOfBirth" | "gender" | "activityLevel"). Chưa có hồ sơ thì trả mảng rỗng (chưa kết luận được).
+ */
+export function missingProfileFields(profile) {
+  if (!profile) return [];
+  return ["dateOfBirth", "gender", "activityLevel"].filter((field) => !profile[field]);
+}
+
+/**
+ * `state` của liên kết sang `/profile/edit` khi hồ sơ thiếu thông tin cho thực đơn: trang hồ sơ dùng nó để mở sẵn và
+ * làm nổi các ô còn thiếu, rồi cho người dùng quay lại thực đơn sau khi lưu (xem profile/utils/profileFixState.js).
+ */
+export function profileFixState(missingFields = []) {
+  return { missingFields, returnTo: "/meal-planner", returnLabel: "Quay lại thực đơn" };
+}
+
+/**
  * Hồ sơ có đủ điều kiện để BE tự tính mục tiêu calo không (cùng điều kiện với lỗi 6020 / 6021 của BE):
  * "incomplete" khi thiếu ngày sinh / giới tính / mức vận động, "underage" khi dưới 18 tuổi, null khi ổn
  * (hoặc chưa có hồ sơ để kiểm tra: khi đó để BE quyết định). `profile.dateOfBirth` dạng "YYYY-MM-DD".

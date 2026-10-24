@@ -10,6 +10,8 @@ const RESULT_SIZE = 8;
  * Ô tìm và thêm nguyên liệu (GET /ingredients?keyword=). Bấm một kết quả để thêm vào công thức.
  * - selectedIds: id đã thêm, bị ẩn khỏi kết quả vì BE không cho trùng nguyên liệu trong 1 công thức
  * - onPick(ingredient): nhận Ingredient đầy đủ (id, name, caloriesPer100g...)
+ * Mỗi kết quả kèm `description` của nguyên liệu (nếu có) vì BE ghi ở đó nguyên liệu đang ở trạng thái nào
+ * (vd "Gạo thơm" là gạo sống 365 kcal/100g, "Cơm trắng" là cơm đã nấu 130 kcal/100g).
  */
 export default function IngredientPicker({ selectedIds, onPick }) {
   const [text, setText] = useState("");
@@ -74,6 +76,10 @@ export default function IngredientPicker({ selectedIds, onPick }) {
                     <span className="block text-xs text-subtle">
                       {Number(ingredient.caloriesPer100g)} kcal • {Number(ingredient.proteinPer100g)}g đạm / 100g
                     </span>
+                    {/* description ghi trạng thái nguyên liệu (sống / chín / khô / tươi): chọn nhầm thì calo lệch nhiều lần. */}
+                    {ingredient.description && (
+                      <span className="mt-0.5 block line-clamp-2 text-xs text-subtle/80">{ingredient.description}</span>
+                    )}
                   </span>
                   {ingredient.vegan && (
                     <span className="flex shrink-0 items-center gap-1 rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-medium text-brand">
