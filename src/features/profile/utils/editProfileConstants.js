@@ -21,12 +21,13 @@ export const GENDER_OPTIONS = [
   { value: "FEMALE", label: "Nữ" },
   { value: "OTHER", label: "Khác" },
 ];
+// Nhãn giữ ngắn (tối đa khoảng 34 ký tự) để hiện đủ trong ô chọn của form chỉ số sức khỏe mà không bị cắt.
 export const ACTIVITY_LEVEL_OPTIONS = [
-  { value: "SEDENTARY", label: "Ít vận động (ngồi nhiều, hầu như không tập)" },
-  { value: "LIGHT", label: "Vận động nhẹ (tập 1–3 buổi/tuần)" },
-  { value: "MODERATE", label: "Vận động vừa (tập 3–5 buổi/tuần)" },
-  { value: "ACTIVE", label: "Vận động nhiều (tập 6–7 buổi/tuần)" },
-  { value: "VERY_ACTIVE", label: "Vận động rất nhiều (lao động nặng hoặc tập 2 lần/ngày)" },
+  { value: "SEDENTARY", label: "Ít vận động (ngồi nhiều)" },
+  { value: "LIGHT", label: "Vận động nhẹ (1–3 buổi/tuần)" },
+  { value: "MODERATE", label: "Vận động vừa (3–5 buổi/tuần)" },
+  { value: "ACTIVE", label: "Vận động nhiều (6–7 buổi/tuần)" },
+  { value: "VERY_ACTIVE", label: "Vận động rất nhiều (lao động nặng)" },
 ];
 
 // Ràng buộc ảnh đại diện (khớp BE: JPEG/PNG/WEBP, tối đa 2MB).

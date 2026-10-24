@@ -32,6 +32,8 @@ import {
   countMissedDays,
   defaultPlanName,
   GOAL_OPTIONS,
+  missingProfileFields,
+  profileFixState,
   profileTargetIssue,
   TARGET_FIELDS,
 } from "@/features/meal-planner/utils/mealPlan";
@@ -104,6 +106,7 @@ export default function AiMealSuggestion({ onCreated }) {
   // (6020 / 6021): báo ngay, không gọi API. Hồ sơ chưa tải xong hoặc tải lỗi thì chưa kết luận, để BE quyết định.
   const { profile, loading: profileLoading, error: profileError } = useProfile();
   const profileIssue = profileLoading || profileError ? null : profileTargetIssue(profile);
+  const missingFields = profileLoading || profileError ? [] : missingProfileFields(profile);
 
   // Cùng khóa với thẻ NutritionTargetCard nên chỉ gọi API một lần.
   const autoTarget = useNutritionTarget(watched.goalType, !missingHealthRecord && !profileIssue);
@@ -385,6 +388,7 @@ export default function AiMealSuggestion({ onCreated }) {
                 goalType={watched.goalType}
                 enabled={!missingHealthRecord}
                 profileIssue={profileIssue}
+                missingFields={missingFields}
                 overridden={Boolean(customTarget)}
                 onUseTarget={fillCustomTarget}
                 onClearTarget={clearCustomTarget}
@@ -416,6 +420,7 @@ export default function AiMealSuggestion({ onCreated }) {
             </p>
             <Link
               to="/profile/edit"
+              state={profileFixState(missingFields)}
               className="shrink-0 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground transition hover:bg-brand/90"
             >
               Cập nhật hồ sơ

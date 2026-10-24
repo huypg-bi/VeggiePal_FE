@@ -3,7 +3,7 @@ import { Calculator, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useNutritionTarget } from "@/features/meal-planner/hooks/useMealPlans";
-import { goalLabel, targetRangeLines } from "@/features/meal-planner/utils/mealPlan";
+import { goalLabel, profileFixState, targetRangeLines } from "@/features/meal-planner/utils/mealPlan";
 
 const formatNumber = (value) => Number(value).toLocaleString("vi-VN");
 
@@ -26,6 +26,8 @@ const fixLinkClass =
  * - `goalType`: mục tiêu đang chọn (rỗng thì thẻ nhắc chọn mục tiêu).
  * - `enabled`: false khi biết chắc chưa có chỉ số sức khỏe (form đã có cảnh báo riêng cho trường hợp đó).
  * - `profileIssue`: "incomplete" | "underage" | null, kết quả của profileTargetIssue; có thì không gọi API.
+ * - `missingFields`: trường hồ sơ còn trống (missingProfileFields), gắn vào liên kết "Cập nhật hồ sơ" để trang hồ sơ
+ *   làm nổi đúng các ô đó và cho người dùng quay lại thực đơn sau khi lưu.
  * - `overridden`: người dùng đang tự đặt mục tiêu riêng nên thẻ này chỉ để tham khảo.
  * - `onUseTarget(target)`: điền mục tiêu gợi ý vào các ô "tự đặt riêng" để chỉnh tiếp (nút chỉ hiện khi có hàm này).
  * - `onClearTarget()`: xóa mục tiêu riêng để quay lại mục tiêu tự tính (nút chỉ hiện khi đang `overridden`).
@@ -36,6 +38,7 @@ export default function NutritionTargetCard({
   goalType,
   enabled = true,
   profileIssue = null,
+  missingFields = [],
   overridden = false,
   onUseTarget,
   onClearTarget,
@@ -59,7 +62,7 @@ export default function NutritionTargetCard({
         <div className="mt-2 flex flex-col items-start gap-2 text-xs text-destructive sm:flex-row sm:items-center sm:justify-between">
           <p>{PROFILE_ISSUE_MESSAGES[profileIssue]}</p>
           {profileIssue === "incomplete" && (
-            <Link to="/profile/edit" className={fixLinkClass}>
+            <Link to="/profile/edit" state={profileFixState(missingFields)} className={fixLinkClass}>
               Cập nhật hồ sơ
             </Link>
           )}
@@ -81,7 +84,7 @@ export default function NutritionTargetCard({
         <div className="mt-2 flex flex-col items-start gap-2 text-xs text-destructive sm:flex-row sm:items-center sm:justify-between">
           <p>{error.message}</p>
           {PROFILE_FIX_CODES.has(error.code) && (
-            <Link to="/profile/edit" className={fixLinkClass}>
+            <Link to="/profile/edit" state={profileFixState(missingFields)} className={fixLinkClass}>
               Cập nhật hồ sơ
             </Link>
           )}

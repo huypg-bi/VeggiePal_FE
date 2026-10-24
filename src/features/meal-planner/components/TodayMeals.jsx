@@ -1,7 +1,29 @@
 import { useState } from "react";
-import { CalendarX2, ChevronLeft, ChevronRight, Heart, Info, Loader2, Sparkles, TriangleAlert, Sprout } from "lucide-react";
+import {
+  CalendarX2,
+  ChevronLeft,
+  ChevronRight,
+  Heart,
+  Info,
+  Loader2,
+  RefreshCw,
+  Sparkles,
+  TriangleAlert,
+  Sprout,
+} from "lucide-react";
 import { toast } from "sonner";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import EditMealDialog from "@/features/meal-planner/components/EditMealDialog";
 import FavoritePlansButton from "@/features/meal-planner/components/FavoritePlansButton";
@@ -53,6 +75,8 @@ export default function TodayMeals({
   onSelectDay,
 }) {
   const [replacingKey, setReplacingKey] = useState(null);
+  // Bữa đang chờ người dùng xác nhận đổi món (xem requestReplace), null khi không hỏi.
+  const [confirmReplaceMeal, setConfirmReplaceMeal] = useState(null);
   // Bữa đang tự chỉnh bằng hộp thoại (meal của plan), null khi không mở.
   const [editingMeal, setEditingMeal] = useState(null);
   const replaceMeal = useReplaceMeal();
@@ -113,6 +137,14 @@ export default function TodayMeals({
     }
   };
 
+  // Đổi món làm BE tính lại khẩu phần của các bữa, nên khẩu phần đã chỉnh tay (UPDATE_SERVING) bị đặt lại. Thực đơn từ
+  // phiên bản 2 trở đi đã được sửa tay hoặc cập nhật theo chỉ số (đổi món bằng AI không tạo phiên bản), có thể đang
+  // mang khẩu phần chỉnh tay: hỏi trước. Thực đơn nguyên bản (phiên bản 1) không có gì để mất thì đổi luôn.
+  const requestReplace = (meal) => {
+    if ((plan?.version ?? 1) > 1) setConfirmReplaceMeal(meal);
+    else handleReplace(meal);
+  };
+
   const toCardMeal = (meal) => {
     const { recipe, isPending, isError } = recipes.get(meal.recipeId) ?? {};
     const totalMinutes = (Number(recipe?.prepTime) || 0) + (Number(recipe?.cookTime) || 0);
@@ -152,7 +184,7 @@ export default function TodayMeals({
         <MealCard
           key={key}
           meal={toCardMeal(meal)}
-          onReplace={() => handleReplace(meal)}
+          onReplace={() => requestReplace(meal)}
           onEdit={() => setEditingMeal(meal)}
           replacing={replacingKey === key}
           replaceDisabled={replacingKey !== null}
@@ -271,6 +303,23 @@ export default function TodayMeals({
         </div>
       )}
 
+      {/* Thực đơn tạo trước khi BE có goalType (goalType null) còn mang số calo của dữ liệu dinh dưỡng cũ. */}
+      {plan && !plan.goalType && (
+        <div
+          role="note"
+          className="mt-4 flex items-start gap-3 rounded-2xl bg-surface px-4 py-3 text-sm text-subtle ring-1 ring-border"
+        >
+          <Info className="mt-0.5 size-4 shrink-0" />
+          <p>
+            Thực đơn này được tạo trước khi dữ liệu dinh dưỡng món ăn được cập nhật nên số calo có thể chưa còn chính xác.{" "}
+            <a href="#ai-suggestion" className="font-semibold text-brand underline underline-offset-2">
+              Tạo thực đơn mới
+            </a>{" "}
+            để có số liệu đúng hơn.
+          </p>
+        </div>
+      )}
+
       {missedTargets.length > 0 && (
         <div
           role="status"
@@ -333,6 +382,33 @@ export default function TodayMeals({
           onClose={() => setEditingMeal(null)}
         />
       )}
+
+      <AlertDialog open={confirmReplaceMeal !== null} onOpenChange={(next) => !next && setConfirmReplaceMeal(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogMedia className="bg-warning/10 text-warning">
+              <RefreshCw />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Đổi món và tính lại khẩu phần?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Khi đổi món, Bé Bông Cải tính lại khẩu phần của các bữa để vẫn đạt mục tiêu calo. Khẩu phần bạn đã tự chỉnh
+              (nếu có) sẽ bị đặt lại.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const meal = confirmReplaceMeal;
+                setConfirmReplaceMeal(null);
+                if (meal) handleReplace(meal);
+              }}
+            >
+              Vẫn đổi món
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }

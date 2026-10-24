@@ -8,7 +8,8 @@ import FallbackImage from "@/shared/components/FallbackImage";
 /**
  * Thẻ một bữa ăn.
  * `meal`: { label, time, title, description, image, prepMinutes, kcal, protein, carb, fat, href?, servingMultiplier? }
- * - servingMultiplier: hệ số khẩu phần BE đã áp dụng (khác 1) -> hiện nhãn "Khẩu phần ×N"; kcal/macro đã nhân sẵn.
+ * - servingMultiplier: hệ số khẩu phần riêng của bữa này (BE chọn 0,75 - 2,0 để bữa chạm ngân sách calo; khác 1 thì hiện
+ *   nhãn "Khẩu phần ×N"); kcal/macro đã nhân sẵn.
  * - href: có thì tên món dẫn tới trang công thức.
  * - onReplace: có thì hiện nút "Đổi món"; `replacing` đang đổi bữa này, `replaceDisabled` khóa nút
  *   (đang đổi bữa khác hoặc bữa này không đổi được).
@@ -52,7 +53,7 @@ export default function MealCard({
         </span>
         {meal.servingMultiplier > 0 && meal.servingMultiplier !== 1 && (
           <span
-            title="Khẩu phần được điều chỉnh để tổng năng lượng trong ngày sát mục tiêu của bạn"
+            title="Khẩu phần được điều chỉnh để bữa này chạm ngân sách calo, giúp cả ngày đạt mục tiêu của bạn"
             className="absolute bottom-3 left-3 flex items-center gap-1 rounded-full bg-brand px-2 py-1 text-[11px] font-semibold text-brand-foreground shadow-sm"
           >
             <Scale className="h-3 w-3" />
