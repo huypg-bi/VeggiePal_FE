@@ -6,12 +6,8 @@ import { GOAL_OPTIONS, TARGET_FIELDS, parseTargetNumber } from "@/features/meal-
 // ("Tăng cân: ") nên mô tả thêm của người dùng (`healthNote`) giữ ngắn hơn.
 export const MEAL_PLAN_LIMITS = {
   name: 160,
-  healthGoal: 500,
   healthNote: 400,
-  preferences: 20,
-  preferenceLength: 100,
   ingredients: 30,
-  ingredientLength: 100,
 };
 
 // Mục tiêu dinh dưỡng là tùy chọn: ô trống hợp lệ; có nhập thì phải là số không âm.

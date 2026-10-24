@@ -282,7 +282,6 @@ export default function AiMealSuggestion({ onCreated }) {
                         "grid size-4 shrink-0 place-items-center rounded-full text-[10px] leading-none",
                         active && "bg-white/20",
                       )}
-                      style={!active ? { background: pref.color } : undefined}
                     >
                       <pref.icon className="size-2.5" />
                     </span>
