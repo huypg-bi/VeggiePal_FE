@@ -18,6 +18,22 @@ export const OTHER_CATEGORY_META = { name: "Khác", note: "Các thành phần kh
 export const AVATAR_ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 
+// Danh mục Giới tính (theo bảng 4.2 BE)
+export const GENDER_OPTIONS = [
+  { value: "MALE", label: "Nam" },
+  { value: "FEMALE", label: "Nữ" },
+  { value: "OTHER", label: "Khác / không muốn nói" },
+];
+
+// Danh mục Mức vận động (theo bảng 4.2 BE)
+export const ACTIVITY_LEVEL_OPTIONS = [
+  { value: "SEDENTARY", label: "Ít vận động, ngồi nhiều" },
+  { value: "LIGHT", label: "Nhẹ, 1–3 buổi/tuần" },
+  { value: "MODERATE", label: "Vừa, 3–5 buổi/tuần" },
+  { value: "ACTIVE", label: "Nhiều, 6–7 buổi/tuần" },
+  { value: "VERY_ACTIVE", label: "Rất nhiều, lao động nặng hoặc tập 2 buổi/ngày" },
+];
+
 // Số nhóm dị ứng mở sẵn khi vào trang (0: mặc định đóng toàn bộ).
 export const DEFAULT_OPEN_ALLERGY_GROUPS = 0;
 

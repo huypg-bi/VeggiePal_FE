@@ -2,7 +2,7 @@ import { useId, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, HeartPulse, Leaf, Loader2, Plus, Sparkles, Wand2, X } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,7 @@ function emptyTarget() {
  * `onCreated(plan)` được gọi khi tạo xong để trang chuyển sang xem thực đơn mới.
  */
 export default function AiMealSuggestion({ onCreated }) {
+  const navigate = useNavigate();
   const idPrefix = useId();
   const createPlan = useCreateMealPlan();
   // BE trả lỗi 6010 nếu chưa có bản ghi sức khỏe nên chặn sớm. Chỉ khóa khi chắc chắn là chưa có
@@ -104,6 +105,23 @@ export default function AiMealSuggestion({ onCreated }) {
       }
       onCreated?.(plan);
     } catch (error) {
+      if (
+        error?.code === 6020 ||
+        error?.data?.code === 6020 ||
+        error?.message?.includes("ngày sinh, giới tính hoặc mức vận động")
+      ) {
+        toast.warning(
+          "Hồ sơ của bạn chưa đủ ngày sinh, giới tính hoặc mức vận động. Đang chuyển tới trang hồ sơ...",
+          { duration: 5000 },
+        );
+        navigate("/profile/edit?from=6020");
+        return;
+      }
+      if (error?.code === 6010 || error?.data?.code === 6010) {
+        toast.warning("Bạn cần cập nhật chiều cao và cân nặng trong hồ sơ sức khỏe trước khi lên thực đơn");
+        navigate("/profile/edit");
+        return;
+      }
       toast.error(error.message);
     }
   };

@@ -21,6 +21,7 @@ export function usePersonalInfoForm() {
   const [open, setOpen] = useState(false);
 
   // `values` giúp form tự đồng bộ lại mỗi khi hồ sơ trên server đổi (tải lần đầu / sau khi lưu).
+  // Tài khoản cũ có gender và activityLevel là null -> hiển thị chuỗi rỗng "" (ô trống).
   const serverValues = useMemo(
     () =>
       profile
@@ -28,6 +29,8 @@ export function usePersonalInfoForm() {
             fullName: profile.fullName || "",
             phone: profile.phone || "",
             birthDate: profile.dateOfBirth ? String(profile.dateOfBirth).slice(0, 10) : "",
+            gender: profile.gender ?? "",
+            activityLevel: profile.activityLevel ?? "",
           }
         : undefined,
     [profile]
@@ -35,16 +38,26 @@ export function usePersonalInfoForm() {
 
   const form = useForm({
     resolver: zodResolver(personalSchema),
-    defaultValues: { fullName: "", phone: "", birthDate: "" },
+    defaultValues: {
+      fullName: "",
+      phone: "",
+      birthDate: "",
+      gender: "",
+      activityLevel: "",
+    },
     values: serverValues,
   });
 
-  // Gửi lên API: đổi birthDate -> dateOfBirth; phone "" nghĩa là xóa số điện thoại.
+  // Gửi lên API PATCH /users/me:
+  // - đổi birthDate -> dateOfBirth; phone "" nghĩa là xóa số điện thoại.
+  // - gender & activityLevel: gửi giá trị enum đã chọn hoặc null nếu chưa chọn.
   const save = async (values) => {
     await updateProfile.mutateAsync({
       fullName: values.fullName.trim(),
       phone: values.phone?.trim() ?? "",
       dateOfBirth: values.birthDate || null,
+      gender: values.gender || null,
+      activityLevel: values.activityLevel || null,
     });
   };
 

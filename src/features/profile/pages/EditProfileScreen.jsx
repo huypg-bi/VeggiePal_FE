@@ -1,3 +1,7 @@
+import { useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { toast } from "sonner";
+
 import AppHeader from "@/shared/components/AppHeader";
 import AppFooter from "@/shared/components/AppFooter";
 import Reveal from "@/shared/components/Reveal";
@@ -15,10 +19,32 @@ import { useAllergyDraft } from "@/features/profile/hooks/useAllergyDraft";
 import { useEditProfileActions } from "@/features/profile/hooks/useEditProfileActions";
 
 export default function EditProfileScreen() {
+  const [searchParams] = useSearchParams();
+  // Chuyển tới từ lỗi 6020 PROFILE_INCOMPLETE khi tạo thực đơn AI:
+  // URL dạng /profile/edit?from=6020 hoặc ?highlight=profile_incomplete
+  const isFromIncompleteProfile =
+    searchParams.get("from") === "6020" ||
+    searchParams.get("incomplete") === "1" ||
+    searchParams.get("highlight") === "profile_incomplete";
+
   // Form cá nhân + lựa chọn dị ứng nằm ở đây vì nút "Lưu thông tin" cuối trang lưu cả hai.
   const personal = usePersonalInfoForm();
   const allergy = useAllergyDraft();
   const actions = useEditProfileActions({ personal, allergy });
+
+  useEffect(() => {
+    if (isFromIncompleteProfile) {
+      personal.openSection();
+      const el = document.getElementById("personal-info-card");
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+      toast.warning(
+        "Hồ sơ của bạn chưa đủ ngày sinh, giới tính hoặc mức vận động để tính mục tiêu calo cho Thực đơn AI. Vui lòng bổ sung các trường được làm nổi bật bên dưới nhé!",
+        { id: "profile-incomplete-toast", duration: 7000 },
+      );
+    }
+  }, [isFromIncompleteProfile]);
 
   return (
     <div className="min-h-dvh bg-canvas transition-colors duration-200">
@@ -44,7 +70,12 @@ export default function EditProfileScreen() {
               Giới thiệu
             </span>
 
-            <Reveal><EditPersonalInfoCard personal={personal} /></Reveal>
+            <Reveal>
+              <EditPersonalInfoCard
+                personal={personal}
+                highlightMissing={isFromIncompleteProfile}
+              />
+            </Reveal>
             <Reveal><EditPasswordCard /></Reveal>
             <Reveal><EditQuoteCard /></Reveal>
           </div>

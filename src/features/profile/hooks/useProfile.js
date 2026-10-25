@@ -57,6 +57,8 @@ export function useProfile({ enabled = true, staleTime } = {}) {
             phone: null,
             avatarUrl: authUser.avatarUrl || null,
             dateOfBirth: null,
+            gender: null,
+            activityLevel: null,
             emailVerified: false,
           }
         : null,

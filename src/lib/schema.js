@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+export const GENDER_ENUM = ["MALE", "FEMALE", "OTHER"];
+export const ACTIVITY_LEVEL_ENUM = ["SEDENTARY", "LIGHT", "MODERATE", "ACTIVE", "VERY_ACTIVE"];
+
 export const updateProfileSchema = z.object({
   fullName: z.string().trim().min(1, "Vui lòng nhập họ và tên"),
   phone: z
@@ -20,6 +23,16 @@ export const updateProfileSchema = z.object({
       const d = new Date(v);
       return !Number.isNaN(d.getTime()) && d < new Date();
     }, "Ngày sinh không hợp lệ"),
+  gender: z
+    .enum(["MALE", "FEMALE", "OTHER"])
+    .nullable()
+    .optional()
+    .or(z.literal("")),
+  activityLevel: z
+    .enum(["SEDENTARY", "LIGHT", "MODERATE", "ACTIVE", "VERY_ACTIVE"])
+    .nullable()
+    .optional()
+    .or(z.literal("")),
 });
 
 export const changePasswordSchema = z
