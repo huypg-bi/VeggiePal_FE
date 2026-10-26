@@ -5,6 +5,7 @@ import { ChefHat, Loader2, Plus, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/variants/button-variants";
 import RecipeCard, { RecipeCardSkeleton } from "@/features/recipe/components/RecipeCard";
+import RecipeBanner from "@/features/recipe/components/RecipeBanner";
 import { useRecipeNutrition } from "@/features/recipe/hooks/useRecipeNutrition";
 import { useRecipeFeed } from "@/features/recipe/hooks/useRecipes";
 import AppFooter from "@/shared/components/AppFooter";
@@ -58,7 +59,10 @@ export default function RecipeListScreen() {
     <div className="min-h-dvh">
       <AppHeader />
 
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
+      <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-6 px-6 py-6">
+        <Reveal>
+          <RecipeBanner />
+        </Reveal>
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-brand">
