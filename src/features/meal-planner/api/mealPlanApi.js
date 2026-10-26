@@ -73,6 +73,8 @@ const VI_MESSAGES = {
   6017: "Không tìm thấy phiên bản này của thực đơn",
   6018: "Món này không phải món thuần chay, bạn chọn món khác nhé",
   6019: "Món này chứa thành phần gây dị ứng của bạn, bạn chọn món khác nhé",
+  6020: "Hồ sơ của bạn chưa đủ thông tin (ngày sinh, giới tính hoặc mức vận động) để tính calo cho thực đơn",
+  6021: "Tính năng tạo thực đơn AI hiện chỉ hỗ trợ người dùng từ 18 tuổi trở lên",
   6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
 };
 
@@ -97,9 +99,11 @@ function networkError(error, timeoutMessage) {
 // Lỗi mang theo `code` của BE để giao diện nhận ra lỗi cần xử lý riêng (vd 6020 -> dẫn tới trang hồ sơ).
 function unwrap(res, fallbackMessage) {
   if (res.status >= 400) {
-    const error = new Error(toMessage(res, fallbackMessage));
-    error.code = res.data?.code;
-    throw error;
+    const err = new Error(toMessage(res, fallbackMessage));
+    err.code = res.data?.code;
+    err.status = res.status;
+    err.data = res.data;
+    throw err;
   }
   return res.data?.result;
 }

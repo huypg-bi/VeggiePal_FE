@@ -19,6 +19,7 @@ export function usePersonalInfoForm() {
   const [open, setOpen] = useState(false);
 
   // `values` giúp form tự đồng bộ lại mỗi khi hồ sơ trên server đổi (tải lần đầu / sau khi lưu).
+  // Tài khoản cũ có gender và activityLevel là null -> hiển thị chuỗi rỗng "" (ô trống).
   const serverValues = useMemo(
     () =>
       profile
