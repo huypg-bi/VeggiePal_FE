@@ -38,8 +38,7 @@ export default function VideoMetaHeader({ video, author }) {
     toast.info("Tính năng bình chọn video đang được phát triển.");
   };
 
-  // Nút AI theo trạng thái công thức của video (xem useVideoRecipe): đã có kết quả thì cuộn tới thẻ AI,
-  // chưa có thì bóc tách (trừ 1 lượt), YouTube thì khóa, chưa đăng nhập thì mời đăng nhập.
+  // Nút AI theo trạng thái công thức của video (xem useVideoRecipe): đã có kết quả thì cuộn tới thẻ AI (khách và thành viên đều xem được), chưa có thì bóc tách (trừ 1 lượt của thành viên), YouTube thì khóa, khách thì mời đăng nhập để bóc tách.
   const aiStatus = recipe.status;
   const aiBusy = aiStatus === "processing";
   const aiDisabled = aiBusy || aiStatus === "loading" || aiStatus === "unsupported";

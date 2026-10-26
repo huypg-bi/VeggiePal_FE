@@ -5,8 +5,10 @@ import { useNavigate } from "react-router-dom";
  * Nút "Lưu thông tin" / "Hủy thay đổi" cuối trang.
  * Quyết định: chỉ lưu phần đã thay đổi (thông tin cá nhân + dị ứng). Mật khẩu và chỉ số
  * sức khỏe có nút riêng vì là thao tác tức thời (đổi mật khẩu / ghi nhận bản ghi mới).
+ * `returnTo`: nơi quay lại sau khi lưu / hủy (mặc định trang cá nhân); trang thực đơn đặt nó khi chuyển người dùng sang
+ * bổ sung hồ sơ để họ làm xong là về thẳng thực đơn.
  */
-export function useEditProfileActions({ personal, allergy }) {
+export function useEditProfileActions({ personal, allergy, returnTo = "/profile" }) {
   const navigate = useNavigate();
   const [status, setStatus] = useState({ type: "", message: "" });
   const [saving, setSaving] = useState(false);
@@ -14,7 +16,7 @@ export function useEditProfileActions({ personal, allergy }) {
   const saveAll = async () => {
     setStatus({ type: "", message: "" });
     if (!personal.dirty && !allergy.dirty) {
-      navigate("/profile");
+      navigate(returnTo);
       return;
     }
 
@@ -34,7 +36,7 @@ export function useEditProfileActions({ personal, allergy }) {
       setStatus({ type: "success", message: "Đã lưu thông tin thành công." });
       // Chờ một chút để user kịp thấy thông báo trước khi chuyển trang.
       await new Promise((resolve) => setTimeout(resolve, 800));
-      navigate("/profile");
+      navigate(returnTo);
     } catch (err) {
       setStatus({ type: "error", message: err.message || "Lưu thông tin thất bại" });
     } finally {
@@ -46,7 +48,7 @@ export function useEditProfileActions({ personal, allergy }) {
   const cancel = () => {
     personal.resetToServer();
     allergy.discard();
-    navigate("/profile");
+    navigate(returnTo);
   };
 
   return { status, saving, saveAll, cancel };

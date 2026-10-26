@@ -1,9 +1,6 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 
-import {
-  getIngredient,
-  getIngredients,
-} from "@/features/ingredient/api/ingredientApi";
+import { getIngredients } from "@/features/ingredient/api/ingredientApi";
 import { ingredientKeys } from "@/features/ingredient/queryKeys";
 
 /**
@@ -15,16 +12,6 @@ export function useIngredients(params = {}) {
     queryKey: ingredientKeys.list(params),
     queryFn: () => getIngredients(params),
     placeholderData: keepPreviousData,
-    staleTime: 5 * 60 * 1000,
-  });
-}
-
-/** Chi tiết nguyên liệu (GET /ingredients/:id). */
-export function useIngredient(id) {
-  return useQuery({
-    queryKey: ingredientKeys.detail(id),
-    queryFn: () => getIngredient(id),
-    enabled: id != null,
     staleTime: 5 * 60 * 1000,
   });
 }

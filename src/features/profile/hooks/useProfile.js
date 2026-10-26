@@ -82,7 +82,7 @@ function useApplyProfile() {
   };
 }
 
-/** Sửa fullName / phone / dateOfBirth (PATCH /users/me). */
+/** Sửa fullName / phone / dateOfBirth / gender / activityLevel (PATCH /users/me). */
 export function useUpdateProfile() {
   const applyProfile = useApplyProfile();
   return useMutation({

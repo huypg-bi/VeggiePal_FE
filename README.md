@@ -1,4 +1,6 @@
-# 🥬 VeggiePal — Client App
+<p align="center">
+  <img src="src/assets/img/logo.png" alt="VeggiePal" width="150" />
+</p>
 
 > Nền tảng hỗ trợ người ăn chay theo dõi sức khỏe, lên thực đơn, khám phá video nấu ăn, tìm quán chay và trò chuyện cùng trợ lý AI **Bông Cải**.
 
@@ -39,8 +41,8 @@
 - **🔐 Quản lý tài khoản (Authentication):** Đăng ký, đăng nhập xác thực JWT, bảo vệ đường dẫn riêng tư (Protected Routes).
 - **👤 Hồ sơ cá nhân (Profile):** Quản lý thông tin cá nhân, cập nhật ảnh đại diện và đổi mật khẩu.
 - **📊 Sức khỏe & Dị ứng (Nutrition):** Ghi nhận chiều cao/cân nặng, theo dõi lịch sử BMI, chọn danh mục thực phẩm dị ứng.
-- **🥗 Thực đơn dinh dưỡng (Meal Planner):** AI lên thực đơn 7 ngày × 3 bữa theo nguyên liệu sẵn có, khẩu vị và mục tiêu dinh dưỡng; xem theo ngày, đổi món, chuyển giữa các thực đơn đã lưu *(API thật; thẻ nước, vận động và bữa phụ vẫn là Mock Data)*.
-- **🎥 Khám phá video (Videos):** Xem và đăng tải video nấu món chay (tệp .mp4 hoặc liên kết YouTube), phân trang và lọc theo danh mục, quản lý video cá nhân kèm kiểm duyệt tự động *(API thật)*. Tab "Bóc tách" ở trang Nội dung của tôi cho AI bóc tách nguyên liệu và các bước làm từ một video nấu ăn (tệp ≤ 100MB, ≤ 30 phút, theo lượt của gói thành viên). Ở trang xem video, nút "Bóc tách công thức AI" và thẻ "AI Summary" hiện công thức AI của chính video đó (chỉ video tải lên, kết quả dùng chung cho mọi người xem) *(API thật)*.
+- **🥗 Thực đơn dinh dưỡng (Meal Planner):** AI lên thực đơn 7 ngày × 3 bữa theo mục tiêu giảm / duy trì / tăng cân (BE tự tính calo từ chỉ số sức khỏe, ngày sinh, giới tính, mức vận động, hoặc tự đặt mục tiêu riêng), nguyên liệu sẵn có và khẩu vị; xem theo ngày, đổi món, chuyển giữa các thực đơn đã lưu *(API thật; thẻ nước, vận động và bữa phụ vẫn là Mock Data)*.
+- **🎥 Khám phá video (Videos):** Xem và đăng tải video nấu món chay (tệp .mp4 hoặc liên kết YouTube), phân trang và lọc theo danh mục, quản lý video cá nhân kèm kiểm duyệt tự động *(API thật)*. Tab "Bóc tách" ở trang Nội dung của tôi cho AI bóc tách nguyên liệu và các bước làm từ video (tệp ≤ 100MB, ≤ 30 phút, lịch sử `GET /ai/videos` theo lượt của gói thành viên). Ở trang xem video, nút "Bóc tách công thức AI" ở `VideoMetaHeader` và thẻ `AiSummaryCard` hiển thị công thức AI dùng chung cho video tải lên (`POST /ai/videos/process-existing`, xem công khai qua `GET /ai/videos/by-video/:videoId`, khách chưa đăng nhập vẫn xem được kết quả có sẵn) *(API thật)*.
 - **📍 Bản đồ xanh (Map):** Tìm kiếm và xem danh sách các nhà hàng, quán ăn chay *(Mock Data)*.
 - **🤖 Trợ lý Bông Cải (AI Chatbot):** Giao diện hỏi đáp kiến thức dinh dưỡng chay, quản lý nhiều đoạn chat *(API thật: ai-service, có chế độ dùng thử cho khách)*.
 - **🎨 Giao diện & Trải nghiệm:** Landing page hiện đại, hỗ trợ chuyển đổi chế độ Sáng/Tối (Light/Dark Mode).
@@ -144,21 +146,24 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | `POST` | `/auth/login` | Đăng nhập |
 | `POST` | `/auth/register` | Đăng ký |
 | `POST` | `/auth/google` | Đăng nhập / đăng ký bằng Google (gửi `idToken`) |
-| `GET` / `PATCH` | `/users/me` | Xem / sửa hồ sơ |
+| `GET` / `PATCH` | `/users/me` | Xem / sửa hồ sơ (họ tên, số điện thoại, ngày sinh, giới tính, mức vận động) |
 | `PUT` | `/users/me/password` | Đổi mật khẩu |
 | `POST` | `/users/me/avatar` | Tải ảnh đại diện |
 | `GET` | `/nutrition/allergens` | Danh mục dị ứng |
 | `GET` / `PUT` | `/nutrition/me/allergies` | Xem / cập nhật dị ứng |
 | `GET` / `POST` | `/nutrition/me/health-records` | Lịch sử / ghi chỉ số sức khỏe |
 | `GET` | `/nutrition/me/health-records/latest` | Chỉ số sức khỏe mới nhất |
+| `PUT` | `/nutrition/me/health-records/:id` | Sửa một bản ghi chỉ số sức khỏe trong lịch sử |
 | `GET` | `/ai/admin/monitoring/summary`, `/logs/search`, `/models`, `/limits` | Giám sát AI (chỉ ADMIN): tổng hợp, nhật ký, model, giới hạn |
+| `GET` / `PUT` / `DELETE` | `/ai/admin/moderation`, `/ai/admin/moderation/:id` | Kiểm duyệt nội dung (chỉ ADMIN): hàng đợi / duyệt hoặc từ chối / bỏ qua ca (nội dung gốc không đổi trạng thái) |
+| `GET` | `/admin/payments/summary`, `/statistics`, `/revenue`, `/orders`, `/orders/:id` | Thống kê thanh toán (chỉ ADMIN): tổng quan, phân bố, doanh thu theo ngày / tháng, danh sách và chi tiết đơn hàng |
+| `GET` | `/ai/meal-plans/nutrition-target` | Mục tiêu calo / macro BE tính theo hồ sơ cho `goalType` (`LOSE` / `MAINTAIN` / `GAIN`), hiện ở form tạo thực đơn |
 | `GET` | `/ai/meal-plans/:id` | Một thực đơn (lấy mới khi mở hộp thoại "Lịch sử") |
 | `GET` | `/ai/meal-plans/favorites`, `/ai/meal-plans/favorites/:id` | Danh sách thực đơn yêu thích (phân trang) / một thực đơn yêu thích |
 | `GET` | `/ai/meal-plans/:id/versions`, `/ai/meal-plans/:id/versions/:version` | Lịch sử phiên bản / nội dung một phiên bản cũ |
-
-| GET | /payments/plans | Danh sách gói thành viên (công khai) |
-| POST | /payments/checkout | Tạo đơn thanh toán payOS (gói PLUS / PRO) |
-| GET | /payments/orders/:id | Chi tiết đơn thanh toán theo ID |
-| POST | /payments/orders/:id/cancel | Huỷ đơn thanh toán PENDING (`cancelOrder`), trả đơn với status CANCELLED |
-| GET | /payments/history | Lịch sử giao dịch của người dùng |
-| GET | /subscriptions/me | Thông tin gói thành viên hiện tại và hạn dùng |
+| `GET` | `/payments/plans` | Danh sách gói thành viên (công khai) |
+| `POST` | `/payments/checkout` | Tạo đơn thanh toán payOS (gói PLUS / PRO) |
+| `GET` | `/payments/orders/:id` | Chi tiết đơn thanh toán theo ID |
+| `POST` | `/payments/orders/:id/cancel` | Huỷ đơn thanh toán PENDING (`cancelOrder`), trả đơn với status CANCELLED |
+| `GET` | `/payments/history` | Lịch sử giao dịch của người dùng |
+| `GET` | `/subscriptions/me` | Thông tin gói thành viên hiện tại và hạn dùng |

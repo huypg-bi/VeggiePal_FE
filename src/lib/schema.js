@@ -1,7 +1,8 @@
 import { z } from "zod";
 
-export const GENDER_ENUM = ["MALE", "FEMALE", "OTHER"];
-export const ACTIVITY_LEVEL_ENUM = ["SEDENTARY", "LIGHT", "MODERATE", "ACTIVE", "VERY_ACTIVE"];
+// Giá trị khớp enum Gender / ActivityLevel của identity-service. Chuỗi rỗng = chưa chọn (BE giữ nguyên giá trị cũ).
+const GENDER_VALUES = ["MALE", "FEMALE", "OTHER"];
+const ACTIVITY_LEVEL_VALUES = ["SEDENTARY", "LIGHT", "MODERATE", "ACTIVE", "VERY_ACTIVE"];
 
 export const updateProfileSchema = z.object({
   fullName: z.string().trim().min(1, "Vui lòng nhập họ và tên"),
@@ -23,16 +24,8 @@ export const updateProfileSchema = z.object({
       const d = new Date(v);
       return !Number.isNaN(d.getTime()) && d < new Date();
     }, "Ngày sinh không hợp lệ"),
-  gender: z
-    .enum(["MALE", "FEMALE", "OTHER"])
-    .nullable()
-    .optional()
-    .or(z.literal("")),
-  activityLevel: z
-    .enum(["SEDENTARY", "LIGHT", "MODERATE", "ACTIVE", "VERY_ACTIVE"])
-    .nullable()
-    .optional()
-    .or(z.literal("")),
+  gender: z.enum(GENDER_VALUES).or(z.literal("")).optional(),
+  activityLevel: z.enum(ACTIVITY_LEVEL_VALUES).or(z.literal("")).optional(),
 });
 
 export const changePasswordSchema = z

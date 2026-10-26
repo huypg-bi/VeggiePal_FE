@@ -1,3 +1,4 @@
+import { buildHealthUpdateBody } from "@/features/meal-planner/utils/mealPlan";
 import apiClient from "@/shared/api/apiClient";
 
 /**
@@ -26,18 +27,24 @@ import apiClient from "@/shared/api/apiClient";
  *     [{ id, mealPlanId, version, name, goal, plan, changeSummary, createdAt }]. Mỗi lần cập nhật theo sức khỏe hoặc
  *     sửa thủ công, BE lưu bản trước đó ở đây (đổi món bằng AI `/replace` thì không tạo phiên bản). Chưa có API khôi phục.
  *
- * MealPlan: { id, name, goal, createdAt, updatedAt, version, isFavorite, plan: {
+ *   GET /ai/meal-plans/nutrition-target?goalType=  mục tiêu calo / macro BE tính từ hồ sơ (xem getNutritionTarget)
+ *
+ * MealPlan: { id, name, goal, goalType, createdAt, updatedAt, version, isFavorite, plan: {
  *   days: [{ day: "MONDAY", meals: [{ mealType: "BREAKFAST"|"LUNCH"|"DINNER", recipeId, note?,
  *     servingMultiplier?, nutrition: { calories, protein, carbohydrate, fat } }], nutritionTotals: { ... },
  *     targetMet?: boolean, targetDeviations?: { calories|protein|carbohydrate|fat: { actual, min?, max? } } }],
  *   constraints: { preferences, availableIngredients, allergies, healthRecord, dailyNutritionTarget } } }
  * nutrition do BE cộng từ nguyên liệu (không phải AI tự bịa) và ĐÃ nhân `servingMultiplier`.
- * servingMultiplier (0.75 - 1.5) chỉ có khi BE co giãn khẩu phần để tổng calo ngày gần mục tiêu.
+ * servingMultiplier (0.75 - 2.0) chỉ có khi BE co giãn khẩu phần để calo từng bữa chạm ngân sách của bữa đó.
+ * goalType ("LOSE" | "MAINTAIN" | "GAIN") là null với thực đơn tạo trước khi BE có trường này.
  * BE luôn trả đủ 7 ngày × 3 bữa; `day` là "MONDAY".."SUNDAY" (vẫn chuẩn hóa ở utils/mealPlan.js).
  * Nếu AI lỗi, BE tự lập thực đơn bằng thuật toán cố định nên FE không phân biệt được hai trường hợp.
- * Có đặt dailyNutritionTarget mà một ngày vẫn lệch (ngoài dung sai 15%) thì BE KHÔNG báo lỗi, vẫn trả thực đơn
- * và đánh dấu ngày đó bằng targetMet=false + targetDeviations (xem utils/mealPlan.js: dayTargetDeviations).
- * Lỗi cần xử lý riêng: 6010 (chưa có hồ sơ sức khỏe), 6011 (không còn món phù hợp).
+ * Mọi thực đơn mới đều có mục tiêu (FE gửi dailyNutritionTarget hoặc BE tự tính theo goalType). Một ngày có calo
+ * ngoài [minCalories, maxCalories] (không còn dung sai) thì BE KHÔNG báo lỗi, vẫn trả thực đơn và đánh dấu ngày
+ * đó bằng targetMet=false (targetMet chỉ xét calo); targetDeviations liệt kê mọi chất nằm ngoài khoảng, kể cả khi
+ * targetMet=true (xem utils/mealPlan.js: dayTargetDeviations).
+ * Lỗi cần xử lý riêng: 6010 (chưa có chỉ số sức khỏe), 6011 (không còn món phù hợp), 6020 (hồ sơ thiếu ngày sinh /
+ * giới tính / mức vận động) và 6021 (dưới 18 tuổi); hai lỗi sau chỉ có khi BE tự tính mục tiêu và không tốn lượt.
  * Meal chỉ có recipeId, tên/ảnh món lấy qua GET /recipes/:id.
  */
 
@@ -58,6 +65,8 @@ const VI_MESSAGES = {
   6007: "AI chưa xếp được thực đơn đạt yêu cầu, vui lòng thử lại",
   6010: "Bạn cần cập nhật chiều cao và cân nặng trong hồ sơ sức khỏe trước khi lên thực đơn",
   6011: "Không tìm thấy món chay nào phù hợp với dị ứng và yêu cầu dinh dưỡng của bạn",
+  6020: "Bạn cần cập nhật ngày sinh, giới tính và mức độ vận động trong hồ sơ để tính nhu cầu calo",
+  6021: "Mục tiêu calo tự tính hiện chỉ dành cho người từ 18 tuổi trở lên. Bạn có thể tự đặt mục tiêu dinh dưỡng riêng",
   6014: "Thực đơn này đã có trong danh sách yêu thích",
   6015: "Thực đơn này chưa có trong danh sách yêu thích",
   6016: "Bạn không có quyền với thực đơn này",
@@ -87,6 +96,7 @@ function networkError(error, timeoutMessage) {
   );
 }
 
+// Lỗi mang theo `code` của BE để giao diện nhận ra lỗi cần xử lý riêng (vd 6020 -> dẫn tới trang hồ sơ).
 function unwrap(res, fallbackMessage) {
   if (res.status >= 400) {
     const err = new Error(toMessage(res, fallbackMessage));
@@ -100,9 +110,12 @@ function unwrap(res, fallbackMessage) {
 
 /**
  * POST /ai/meal-plans
- * Body: { name, healthGoal, preferences?: string[], availableIngredients?: string[],
+ * Body: { name, healthGoal, goalType, preferences?: string[], availableIngredients?: string[],
  *   dailyNutritionTarget?: { minCalories, maxCalories, minProtein, maxProtein,
- *   minCarbohydrate, maxCarbohydrate, minFat, maxFat } } (mọi mốc đều tùy chọn)
+ *   minCarbohydrate, maxCarbohydrate, minFat, maxFat } }
+ * goalType ("LOSE" | "MAINTAIN" | "GAIN") bắt buộc (thiếu thì BE trả 400 / 6000). healthGoal chỉ là mô tả đưa vào
+ * prompt nhưng vẫn không được rỗng. Không gửi dailyNutritionTarget thì BE tự tính theo hồ sơ + goalType; có gửi
+ * thì BE dùng nguyên giá trị đó (mọi mốc đều tùy chọn) và không đọc hồ sơ.
  */
 export async function createMealPlan(payload) {
   let res;
@@ -118,6 +131,18 @@ export async function createMealPlan(payload) {
 export async function getMealPlans() {
   const res = await apiClient.get("/ai/meal-plans");
   return unwrap(res, "Không lấy được danh sách thực đơn") ?? [];
+}
+
+/**
+ * GET /ai/meal-plans/nutrition-target?goalType= — mục tiêu calo / macro BE tính từ chiều cao, cân nặng mới nhất
+ * và ngày sinh, giới tính, mức vận động trong hồ sơ (Mifflin-St Jeor).
+ * Trả { goalType, bmr, tdee, targetCalories, target: { minCalories, maxCalories, minProtein, ... } };
+ * `target` có thể gửi nguyên làm dailyNutritionTarget. Lỗi: 6010 (thiếu chỉ số sức khỏe), 6020 (hồ sơ thiếu thông
+ * tin), 6021 (dưới 18 tuổi), kèm `error.code`.
+ */
+export async function getNutritionTarget(goalType) {
+  const res = await apiClient.get("/ai/meal-plans/nutrition-target", { params: { goalType } });
+  return unwrap(res, "Không tính được mục tiêu dinh dưỡng");
 }
 
 /** GET /ai/meal-plans/:id — một thực đơn của tôi (dùng để lấy bản mới nhất từ server). */
@@ -184,9 +209,16 @@ export async function getMealPlanVersions(id) {
  * POST /ai/meal-plans/:id/update-from-health — cập nhật thực đơn theo chỉ số sức khỏe mới nhất.
  * confirm=false: chỉ xem trước (không lưu gì). confirm=true: lưu, kết quả có `updatedMealPlan`.
  * Chưa có hồ sơ sức khỏe thì BE báo 6010 (đã có bản dịch ở VI_MESSAGES).
+ * customTarget (tùy chọn, cùng dạng dailyNutritionTarget): mục tiêu tự đặt, BE dùng thay hẳn mục tiêu tự tính.
+ * Không gửi thì BE tính lại theo goalType đã lưu của thực đơn (thực đơn cũ chưa có goalType thì BE đoán từ `goal`)
+ * và có thể báo 6020 / 6021 giống getNutritionTarget. changeSummary (tùy chọn, tối đa 500 ký tự): ghi chú lưu cùng phiên bản cũ, mặc định BE ghi
+ * "Cập nhật từ chỉ số sức khỏe". Bản xem trước và bản lưu phải dùng cùng customTarget thì kết quả mới giống nhau.
  */
-export async function updatePlanFromHealth(id, { confirm = false } = {}) {
-  const res = await apiClient.post(`/ai/meal-plans/${id}/update-from-health`, { confirm });
+export async function updatePlanFromHealth(id, { confirm = false, customTarget, changeSummary } = {}) {
+  const res = await apiClient.post(
+    `/ai/meal-plans/${id}/update-from-health`,
+    buildHealthUpdateBody({ confirm, customTarget, changeSummary }),
+  );
   return unwrap(res, confirm ? "Cập nhật thực đơn thất bại" : "Không xem trước được thực đơn cập nhật");
 }
 

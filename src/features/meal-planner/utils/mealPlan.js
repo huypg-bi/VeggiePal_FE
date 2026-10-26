@@ -142,14 +142,30 @@ function describeRange(min, max, unit) {
 }
 
 /**
- * Các chất mà ngày này lệch khỏi mục tiêu (ngoài dung sai của BE), lấy từ `day.targetDeviations`.
+ * Các chất mà ngày này lệch khỏi mục tiêu, lấy từ `day.targetDeviations`.
  * BE không từ chối thực đơn mà chỉ đánh dấu: `targetMet: false` + `targetDeviations: { protein: { actual, min?, max? } }`.
+ * `targetMet` chỉ xét calo trong [minCalories, maxCalories] (không dung sai); `targetDeviations` liệt kê mọi chất nằm
+ * ngoài khoảng, kể cả khi `targetMet` là true. FE chỉ cảnh báo khi `targetMet` không phải true, nên đạm / tinh bột /
+ * béo lệch một mình (calo vẫn đạt) thì không bị coi là ngày lỡ mục tiêu.
  * Trả mảng { key, label, unit, actual, range } theo thứ tự năng lượng, đạm, tinh bột, béo; rỗng khi ngày đạt
- * mục tiêu, không đặt mục tiêu hoặc thực đơn cũ chưa có hai trường này.
+ * mục tiêu calo, không đặt mục tiêu hoặc thực đơn cũ chưa có hai trường này.
  */
 export function dayTargetDeviations(day) {
+  return day?.targetMet === true ? [] : listDeviations(day);
+}
+
+/**
+ * Ngược lại với dayTargetDeviations: các chất (đạm, tinh bột, béo) lệch khỏi khoảng mục tiêu trong khi calo của ngày
+ * vẫn đạt (`targetMet === true`). Chỉ là lưu ý nhẹ, không tính là ngày lỡ mục tiêu. Cùng dạng mảng với
+ * dayTargetDeviations; rỗng khi ngày không đạt calo (khi đó mọi chất lệch đã nằm trong cảnh báo chính) hoặc không lệch gì.
+ */
+export function dayMacroNotes(day) {
+  return day?.targetMet === true ? listDeviations(day) : [];
+}
+
+function listDeviations(day) {
   const deviations = day?.targetDeviations;
-  if (day?.targetMet === true || !deviations || typeof deviations !== "object") return [];
+  if (!deviations || typeof deviations !== "object") return [];
 
   return TARGET_METRICS.filter(({ key }) => deviations[key] && typeof deviations[key] === "object").map(
     ({ key, label, unit }) => {
@@ -245,15 +261,25 @@ export const TARGET_FIELDS = [
   "maxFat",
 ];
 
-/** "1,500" / "1500,5" / "1500.5" -> số. Chuỗi rỗng hoặc không phải số -> NaN. */
+// Số có dấu phân cách hàng nghìn: nhóm đúng 3 chữ số, nhóm đầu 1-3 chữ số không bắt đầu bằng 0 (nên "0,500" vẫn là 0,5).
+const EN_GROUPED_NUMBER = /^[1-9]\d{0,2}(,\d{3})+(\.\d+)?$/; // 1,500 / 1,500.5
+const VI_GROUPED_NUMBER = /^[1-9]\d{0,2}(\.\d{3})+(,\d+)?$/; // 1.500 / 1.500,5
+
+/**
+ * Chuỗi người dùng nhập -> số. Hiểu cả kiểu có dấu phân cách hàng nghìn ("1,500" / "1.500" -> 1500) lẫn dấu phẩy
+ * thập phân kiểu Việt ("1500,5" / "1500.5" -> 1500,5). Chuỗi rỗng hoặc không phải số -> NaN.
+ */
 export function parseTargetNumber(text) {
-  const clean = String(text ?? "").trim().replace(",", ".");
-  return clean === "" ? Number.NaN : Number(clean);
+  const clean = String(text ?? "").trim();
+  if (clean === "") return Number.NaN;
+  if (EN_GROUPED_NUMBER.test(clean)) return Number(clean.replaceAll(",", ""));
+  if (VI_GROUPED_NUMBER.test(clean)) return Number(clean.replaceAll(".", "").replace(",", "."));
+  return Number(clean.replace(",", "."));
 }
 
 /**
  * Dựng dailyNutritionTarget từ các ô nhập (chuỗi). Ô trống bị bỏ qua; không có ô nào thì
- * trả undefined để KHÔNG gửi mục tiêu (khỏi ràng buộc thực đơn không cần thiết).
+ * trả undefined để KHÔNG gửi mục tiêu riêng (BE tự tính theo hồ sơ khi tạo thực đơn).
  */
 export function buildNutritionTarget(values) {
   const target = {};
@@ -264,11 +290,114 @@ export function buildNutritionTarget(values) {
   return Object.keys(target).length > 0 ? target : undefined;
 }
 
-/** Payload cho POST /ai/meal-plans từ giá trị form + nguyên liệu/khẩu vị đã chọn. */
-export function buildGeneratePayload({ name, healthGoal, preferences, ingredients, target }) {
+/** Hai mục tiêu (kết quả của buildNutritionTarget) có giống nhau không; undefined = không đặt mục tiêu riêng. */
+export function sameTarget(a, b) {
+  const left = a ?? {};
+  const right = b ?? {};
+  return TARGET_FIELDS.every((field) => left[field] === right[field]);
+}
+
+/**
+ * Body cho POST /ai/meal-plans/:id/update-from-health. `customTarget` (mục tiêu tự đặt, thay hẳn mục tiêu BE
+ * tính từ chỉ số sức khỏe) và `changeSummary` (ghi chú lưu vào lịch sử phiên bản) chỉ được gửi khi có.
+ */
+export function buildHealthUpdateBody({ confirm, customTarget, changeSummary }) {
+  const body = { confirm: Boolean(confirm) };
+  if (customTarget && Object.keys(customTarget).length > 0) body.customTarget = customTarget;
+  const summary = String(changeSummary ?? "").trim();
+  if (summary) body.changeSummary = summary;
+  return body;
+}
+
+// Mục tiêu của thực đơn, giá trị khớp enum GoalType của BE. `label` cũng là mô tả mặc định gửi vào `healthGoal`.
+export const GOAL_OPTIONS = [
+  { value: "LOSE", label: "Giảm cân", hint: "Ăn ít hơn nhu cầu khoảng 15%" },
+  { value: "MAINTAIN", label: "Duy trì", hint: "Ăn đúng nhu cầu mỗi ngày" },
+  { value: "GAIN", label: "Tăng cân", hint: "Ăn nhiều hơn nhu cầu khoảng 15%" },
+];
+
+/** Nhãn tiếng Việt của goalType; thực đơn cũ chưa có goalType (null) hoặc giá trị lạ thì trả chuỗi rỗng. */
+export function goalLabel(goalType) {
+  return GOAL_OPTIONS.find((option) => option.value === goalType)?.label ?? "";
+}
+
+/**
+ * Mô tả thêm nằm trong `goal` của một thực đơn: "Giảm cân: ăn thanh đạm" -> "ăn thanh đạm". Thực đơn cũ chưa có
+ * goalType (hoặc `goal` không theo dạng trên) thì trả nguyên `goal`; rỗng khi không có mô tả thêm.
+ */
+export function planGoalNote(plan) {
+  const goal = String(plan?.goal ?? "").trim();
+  const label = goalLabel(plan?.goalType);
+  if (!label) return goal;
+  if (goal === label) return "";
+  return goal.startsWith(`${label}: `) ? goal.slice(label.length + 2) : goal;
+}
+
+/** Mục tiêu của thực đơn trên một dòng: "Giảm cân · ăn thanh đạm", "Duy trì", hoặc nguyên `goal` với thực đơn cũ. */
+export function planGoalSummary(plan) {
+  const label = goalLabel(plan?.goalType);
+  const note = planGoalNote(plan);
+  if (!label) return note;
+  return note ? `${label} · ${note}` : label;
+}
+
+// BE chỉ tự tính mục tiêu calo cho người từ 18 tuổi trở lên (lỗi 6021).
+const ADULT_AGE = 18;
+
+/**
+ * Các trường hồ sơ BE cần để tự tính calo mà đang trống, theo tên field của `GET /users/me`
+ * ("dateOfBirth" | "gender" | "activityLevel"). Chưa có hồ sơ thì trả mảng rỗng (chưa kết luận được).
+ */
+export function missingProfileFields(profile) {
+  if (!profile) return [];
+  return ["dateOfBirth", "gender", "activityLevel"].filter((field) => !profile[field]);
+}
+
+/**
+ * `state` của liên kết sang `/profile/edit` khi hồ sơ thiếu thông tin cho thực đơn: trang hồ sơ dùng nó để mở sẵn và
+ * làm nổi các ô còn thiếu, rồi cho người dùng quay lại thực đơn sau khi lưu (xem profile/utils/profileFixState.js).
+ */
+export function profileFixState(missingFields = []) {
+  return { missingFields, returnTo: "/meal-planner", returnLabel: "Quay lại thực đơn" };
+}
+
+/**
+ * Hồ sơ có đủ điều kiện để BE tự tính mục tiêu calo không (cùng điều kiện với lỗi 6020 / 6021 của BE):
+ * "incomplete" khi thiếu ngày sinh / giới tính / mức vận động, "underage" khi dưới 18 tuổi, null khi ổn
+ * (hoặc chưa có hồ sơ để kiểm tra: khi đó để BE quyết định). `profile.dateOfBirth` dạng "YYYY-MM-DD".
+ */
+export function profileTargetIssue(profile, today = new Date()) {
+  if (!profile) return null;
+  if (!profile.dateOfBirth || !profile.gender || !profile.activityLevel) return "incomplete";
+
+  const [year, month, day] = String(profile.dateOfBirth).slice(0, 10).split("-").map(Number);
+  if (![year, month, day].every(Number.isFinite)) return "incomplete";
+
+  const hadBirthday = today.getMonth() + 1 > month || (today.getMonth() + 1 === month && today.getDate() >= day);
+  const age = today.getFullYear() - year - (hadBirthday ? 0 : 1);
+  return age < ADULT_AGE ? "underage" : null;
+}
+
+/**
+ * `healthGoal` gửi BE (bắt buộc không rỗng): nhãn của mục tiêu, kèm mô tả thêm của người dùng nếu có,
+ * ví dụ "Giảm cân: ăn thanh đạm".
+ */
+export function buildHealthGoalText(goalType, note) {
+  const label = goalLabel(goalType);
+  const extra = String(note ?? "").trim();
+  return extra ? `${label}: ${extra}` : label;
+}
+
+/**
+ * Payload cho POST /ai/meal-plans từ giá trị form + nguyên liệu/khẩu vị đã chọn.
+ * `healthNote` là mô tả thêm (tùy chọn). Không có ô mục tiêu nào được điền thì không gửi dailyNutritionTarget,
+ * BE sẽ tự tính theo hồ sơ + goalType.
+ */
+export function buildGeneratePayload({ name, goalType, healthNote, preferences, ingredients, target }) {
   const payload = {
     name: name.trim(),
-    healthGoal: healthGoal.trim(),
+    goalType,
+    healthGoal: buildHealthGoalText(goalType, healthNote),
     preferences: preferences.map((p) => p.trim()).filter(Boolean),
     availableIngredients: ingredients.map((i) => i.trim()).filter(Boolean),
   };

@@ -1,6 +1,4 @@
-import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
-import { toast } from "sonner";
+import { useLocation } from "react-router-dom";
 
 import AppHeader from "@/shared/components/AppHeader";
 import AppFooter from "@/shared/components/AppFooter";
@@ -17,20 +15,19 @@ import EditActionBar from "@/features/profile/components/EditActionBar";
 import { usePersonalInfoForm } from "@/features/profile/hooks/usePersonalInfoForm";
 import { useAllergyDraft } from "@/features/profile/hooks/useAllergyDraft";
 import { useEditProfileActions } from "@/features/profile/hooks/useEditProfileActions";
+import { readProfileFixState } from "@/features/profile/utils/profileFixState";
 
 export default function EditProfileScreen() {
-  const [searchParams] = useSearchParams();
-  // Chuyển tới từ lỗi 6020 PROFILE_INCOMPLETE khi tạo thực đơn AI:
-  // URL dạng /profile/edit?from=6020 hoặc ?highlight=profile_incomplete
-  const isFromIncompleteProfile =
-    searchParams.get("from") === "6020" ||
-    searchParams.get("incomplete") === "1" ||
-    searchParams.get("highlight") === "profile_incomplete";
+  // Được chuyển từ trang thực đơn sang vì hồ sơ thiếu thông tin tính calo: thẻ chỉ số sức khỏe (nơi nhập ngày sinh,
+  // giới tính, mức vận động) cuộn tới và làm nổi các ô còn thiếu, và lưu / hủy xong thì quay lại nơi đã chuyển đi
+  // (xem readProfileFixState).
+  const { state } = useLocation();
+  const { missingFields, returnTo, returnLabel } = readProfileFixState(state);
 
   // Form cá nhân + lựa chọn dị ứng nằm ở đây vì nút "Lưu thông tin" cuối trang lưu cả hai.
   const personal = usePersonalInfoForm();
   const allergy = useAllergyDraft();
-  const actions = useEditProfileActions({ personal, allergy });
+  const actions = useEditProfileActions({ personal, allergy, returnTo: returnTo ?? undefined });
 
   useEffect(() => {
     if (isFromIncompleteProfile) {
@@ -82,7 +79,9 @@ export default function EditProfileScreen() {
 
           {/* Cột phải (8/12) */}
           <div className="lg:col-span-8 space-y-6">
-            <Reveal><EditHealthCard /></Reveal>
+            <Reveal>
+              <EditHealthCard highlightFields={missingFields} returnTo={returnTo} returnLabel={returnLabel} />
+            </Reveal>
             <Reveal><EditAllergyCard allergy={allergy} /></Reveal>
           </div>
         </div>

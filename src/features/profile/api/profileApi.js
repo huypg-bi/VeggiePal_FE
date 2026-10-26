@@ -77,9 +77,13 @@ export async function getProfile() {
 
 /**
  * PATCH /users/me
- * Body: { fullName?, phone?, dateOfBirth? }
+ * Body: { fullName?, phone?, dateOfBirth?, gender?, activityLevel? }
  * - null / bỏ field: giữ nguyên
  * - phone: "" để xóa số điện thoại
+ * - gender: "MALE" | "FEMALE" | "OTHER"; activityLevel: "SEDENTARY" | "LIGHT" | "MODERATE" | "ACTIVE" | "VERY_ACTIVE".
+ *   Giá trị lạ (kể cả "") bị BE từ chối (400 / 1018) và không có cách xóa về trống, nên chỉ gửi khi đã chọn.
+ *   Hai trường này cùng ngày sinh là dữ liệu BE dùng để tính nhu cầu calo của thực đơn.
+ * GET /users/me trả thêm gender, activityLevel (null khi chưa nhập).
  */
 export async function updateProfile(payload) {
   const res = await apiClient.patch("/users/me", payload);

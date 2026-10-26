@@ -14,28 +14,25 @@ export const ALLERGY_CATEGORY_META = {
 };
 export const OTHER_CATEGORY_META = { name: "Khác", note: "Các thành phần khác cần tránh:" };
 
-// Ràng buộc ảnh đại diện (khớp BE: JPEG/PNG/WEBP, tối đa 2MB).
-export const AVATAR_ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
-export const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
-
-// Danh mục Giới tính (theo bảng 4.2 BE)
+// Giới tính và mức độ vận động (enum Gender / ActivityLevel của identity-service). BE dùng hai trường này cùng ngày
+// sinh để tính nhu cầu calo khi lên thực đơn.
 export const GENDER_OPTIONS = [
   { value: "MALE", label: "Nam" },
   { value: "FEMALE", label: "Nữ" },
-  { value: "OTHER", label: "Khác / không muốn nói" },
+  { value: "OTHER", label: "Khác" },
 ];
-
-// Danh mục Mức vận động (theo bảng 4.2 BE)
+// Nhãn giữ ngắn (tối đa khoảng 34 ký tự) để hiện đủ trong ô chọn của form chỉ số sức khỏe mà không bị cắt.
 export const ACTIVITY_LEVEL_OPTIONS = [
-  { value: "SEDENTARY", label: "Ít vận động, ngồi nhiều" },
-  { value: "LIGHT", label: "Nhẹ, 1–3 buổi/tuần" },
-  { value: "MODERATE", label: "Vừa, 3–5 buổi/tuần" },
-  { value: "ACTIVE", label: "Nhiều, 6–7 buổi/tuần" },
-  { value: "VERY_ACTIVE", label: "Rất nhiều, lao động nặng hoặc tập 2 buổi/ngày" },
+  { value: "SEDENTARY", label: "Ít vận động (ngồi nhiều)" },
+  { value: "LIGHT", label: "Vận động nhẹ (1–3 buổi/tuần)" },
+  { value: "MODERATE", label: "Vận động vừa (3–5 buổi/tuần)" },
+  { value: "ACTIVE", label: "Vận động nhiều (6–7 buổi/tuần)" },
+  { value: "VERY_ACTIVE", label: "Vận động rất nhiều (lao động nặng)" },
 ];
 
-// Số nhóm dị ứng mở sẵn khi vào trang (0: mặc định đóng toàn bộ).
-export const DEFAULT_OPEN_ALLERGY_GROUPS = 0;
+// Ràng buộc ảnh đại diện (khớp BE: JPEG/PNG/WEBP, tối đa 2MB).
+export const AVATAR_ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
+export const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
 
 // Class dùng lặp lại (dùng token chuẩn của VeggiePal).
 export const cardClass =
