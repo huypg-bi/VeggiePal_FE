@@ -15,11 +15,6 @@ import { useConfirmMeal } from "@/features/meal-planner/hooks/useDiary";
 import { formatServing, SERVING_OPTIONS, toRounded } from "@/features/meal-planner/utils/mealPlan";
 import { cn } from "@/lib/utils";
 
-/**
- * Hỏi người dùng đã ăn bao nhiêu khẩu phần rồi ghi bữa vào nhật ký (PUT .../meals/:mealType).
- * Mặc định là khẩu phần thực đơn đã xếp cho bữa này. `meal` là bữa của thực đơn, `title` là tên món đang hiện.
- * Ghi rồi thì BE giữ bản đầu tiên, muốn đổi khẩu phần phải bỏ đánh dấu rồi ghi lại.
- */
 export default function ConfirmMealDialog({ planId, meal, mealLabel, title, date, onClose }) {
   const planned = Number(meal.servingMultiplier) || 1;
   const [servings, setServings] = useState(planned);

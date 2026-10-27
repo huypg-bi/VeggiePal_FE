@@ -1,25 +1,14 @@
 import apiClient from "@/shared/api/apiClient";
-
-// ai-service dùng dải mã 60xx. Message gốc của BE là tiếng Anh nên đổi sang tiếng Việt theo `code`.
-const VI_MESSAGES = {
-  6000: "Yêu cầu gợi ý chưa hợp lệ, vui lòng thử lại",
-  6001: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
-  6003: "Hạn mức AI hôm nay đã hết, vui lòng quay lại vào ngày mai",
-  6004: "AI đang tạm thời quá tải, vui lòng thử lại sau ít phút",
-  6005: "Tính năng AI chưa được cấu hình trên máy chủ",
-  6006: "Chưa lấy được dữ liệu bài viết và công thức, vui lòng thử lại sau",
-  6007: "AI chưa trả về kết quả hợp lệ, vui lòng thử lại",
-  6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
-};
+import { RECOMMENDATION_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
 // Lỗi 401/429/503 do Spring Security hoặc gateway trả về có thể không kèm mã 60xx nên dựa thêm vào HTTP status.
 function toMessage(res, fallbackMessage) {
-  const byCode = VI_MESSAGES[res.data?.code];
+  const byCode = RECOMMENDATION_ERROR_MESSAGES[res.data?.code];
   if (byCode) return byCode;
-  if (res.status === 401) return VI_MESSAGES[6001];
-  if (res.status === 429) return VI_MESSAGES[6003];
-  if (res.status === 503) return VI_MESSAGES[6004];
-  if (res.status >= 500) return VI_MESSAGES[6999];
+  if (res.status === 401) return RECOMMENDATION_ERROR_MESSAGES[6001];
+  if (res.status === 429) return RECOMMENDATION_ERROR_MESSAGES[6003];
+  if (res.status === 503) return RECOMMENDATION_ERROR_MESSAGES[6004];
+  if (res.status >= 500) return RECOMMENDATION_ERROR_MESSAGES[6999];
   return fallbackMessage;
 }
 

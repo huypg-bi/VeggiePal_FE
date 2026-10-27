@@ -1,16 +1,10 @@
 import apiClient from "@/shared/api/apiClient";
-
-// BE trả message tiếng Anh theo ErrorCode; đổi sang tiếng Việt theo `code`.
-const VI_MESSAGES = {
-  1018: "Dữ liệu tìm kiếm không hợp lệ",
-  5001: "Tọa độ không hợp lệ",
-  5002: "Bán kính tìm kiếm phải lớn hơn 0 và tối đa 10 km",
-};
+import { RESTAURANT_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
 function unwrap(res, fallbackMessage) {
   if (res.status >= 400) {
     throw new Error(
-      VI_MESSAGES[res.data?.code] ?? res.data?.message ?? fallbackMessage,
+      RESTAURANT_ERROR_MESSAGES[res.data?.code] ?? res.data?.message ?? fallbackMessage,
     );
   }
   return res.data?.result;

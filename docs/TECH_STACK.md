@@ -87,6 +87,7 @@ src/
 ├── lib/                     # tiện ích dùng chung: queryClient.js, schema.js, utils.js (cn)
 ├── shared/                  # dùng chung nhiều feature
 │   ├── api/apiClient.js     # axios instance duy nhất
+│   ├── api/errorMessages.js # bảng dịch mã lỗi BE -> tiếng Việt của mọi API (mỗi service một bảng)
 │   ├── components/          # Reveal, ThemeToggle, ScrollToTop (đưa thanh cuộn về đầu trang khi đổi route, đặt trong App.jsx) ...
 │   └── store/themeStore.js  # zustand theme
 └── styles/globals.css       # Tailwind + design tokens (nguồn sự thật của màu/font)
@@ -239,6 +240,7 @@ import { Button } from "@/components/ui/button";
   }
   ```
 - Hàm API chỉ gọi + chuẩn hóa dữ liệu, **không** chứa state/UI. Đường dẫn bỏ tiền tố `/api` (đã nằm trong baseURL).
+- **Bảng dịch mã lỗi BE sang tiếng Việt không viết trong file `*Api.js`.** Đặt trong `@/shared/api/errorMessages.js` (mỗi service BE một bảng đặt tên `XXX_ERROR_MESSAGES`, vì cùng số mã có thể khác nghĩa giữa các service), file API chỉ import và tra theo `res.data?.code`. API mới thì thêm bảng mới vào file đó.
 - Upload file: `FormData`, field `file`, header `multipart/form-data`.
 
 ### 5.2. Server state (React Query)

@@ -1,41 +1,19 @@
 import { buildHealthUpdateBody } from "@/features/meal-planner/utils/mealPlan";
 import apiClient from "@/shared/api/apiClient";
+import { MEAL_PLAN_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
 // Tạo thực đơn gọi LLM (đọc tối đa 45s, thử lại 2 lần) nên cho chờ lâu hơn mặc định.
 const CREATE_TIMEOUT_MS = 120_000;
 
 const EMPTY_PAGE = { items: [], page: 0, size: 0, totalElements: 0, totalPages: 0 };
 
-// ai-service dùng dải mã 60xx. Message gốc của BE là tiếng Anh nên đổi sang tiếng Việt theo `code`.
-const VI_MESSAGES = {
-  6000: "Thông tin chưa hợp lệ, vui lòng kiểm tra lại các mục đã nhập (ví dụ mục tiêu dinh dưỡng có mức tối thiểu lớn hơn tối đa)",
-  6001: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
-  6002: "Không tìm thấy thực đơn này",
-  6003: "Bạn đã dùng hết lượt tạo thực đơn trong tháng này. Bạn có thể nâng cấp gói tại /pricing để tiếp tục hoặc quay lại vào tháng sau",
-  6004: "AI đang tạm thời quá tải, vui lòng thử lại sau ít phút",
-  6005: "Tính năng AI chưa được cấu hình trên máy chủ",
-  6006: "Chưa lấy được dữ liệu công thức hoặc sức khỏe của bạn, vui lòng thử lại sau",
-  6007: "AI chưa xếp được thực đơn đạt yêu cầu, vui lòng thử lại",
-  6010: "Bạn cần cập nhật chiều cao và cân nặng trong hồ sơ sức khỏe trước khi lên thực đơn",
-  6011: "Không tìm thấy món chay nào phù hợp với dị ứng và yêu cầu dinh dưỡng của bạn",
-  6020: "Bạn cần cập nhật ngày sinh, giới tính và mức độ vận động trong hồ sơ để tính nhu cầu calo",
-  6021: "Mục tiêu calo tự tính hiện chỉ dành cho người từ 18 tuổi trở lên. Bạn có thể tự đặt mục tiêu dinh dưỡng riêng",
-  6014: "Thực đơn này đã có trong danh sách yêu thích",
-  6015: "Thực đơn này chưa có trong danh sách yêu thích",
-  6016: "Bạn không có quyền với thực đơn này",
-  6017: "Không tìm thấy phiên bản này của thực đơn",
-  6018: "Món này không phải món thuần chay, bạn chọn món khác nhé",
-  6019: "Món này chứa thành phần gây dị ứng của bạn, bạn chọn món khác nhé",
-  6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
-};
-
 // Lỗi 401/403 do Spring Security trả về có thể không kèm mã 60xx nên dựa thêm vào HTTP status.
 function toMessage(res, fallbackMessage) {
-  const byCode = VI_MESSAGES[res.data?.code];
+  const byCode = MEAL_PLAN_ERROR_MESSAGES[res.data?.code];
   if (byCode) return byCode;
-  if (res.status === 401) return VI_MESSAGES[6001];
-  if (res.status === 429) return VI_MESSAGES[6003];
-  if (res.status === 503) return VI_MESSAGES[6004];
+  if (res.status === 401) return MEAL_PLAN_ERROR_MESSAGES[6001];
+  if (res.status === 429) return MEAL_PLAN_ERROR_MESSAGES[6003];
+  if (res.status === 503) return MEAL_PLAN_ERROR_MESSAGES[6004];
   return res.data?.message || fallbackMessage;
 }
 

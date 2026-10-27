@@ -20,8 +20,6 @@ export function useDiary(date) {
   });
 }
 
-// Mọi thao tác ghi đều kèm `date` trong biến, thành công thì tải lại nhật ký của ngày đó.
-// Trả về promise của lần tải lại để nút còn trạng thái "đang xử lý" tới khi dữ liệu mới về.
 function useDiaryMutation(mutationFn) {
   const queryClient = useQueryClient();
   return useMutation({

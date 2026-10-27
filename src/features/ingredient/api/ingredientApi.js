@@ -1,4 +1,5 @@
 import apiClient from "@/shared/api/apiClient";
+import { INGREDIENT_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
 const EMPTY_PAGE = {
   content: [],
@@ -10,25 +11,9 @@ const EMPTY_PAGE = {
   last: true,
 };
 
-const VI_MESSAGES = {
-  1001: "Dữ liệu không hợp lệ, vui lòng kiểm tra lại các trường đã nhập",
-  1008: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
-  1009: "Bạn không có quyền thực hiện thao tác này",
-  4000: "Vui lòng nhập tên nguyên liệu",
-  4001: "Tên nguyên liệu tối đa 150 ký tự",
-  4002: "Mô tả tối đa 1000 ký tự",
-  4003: "Nguyên liệu không tồn tại",
-  4004: "Đã có nguyên liệu cùng tên",
-  4005: "Vui lòng nhập năng lượng",
-  4006: "Vui lòng nhập lượng đạm",
-  4007: "Vui lòng nhập lượng tinh bột",
-  4008: "Vui lòng nhập lượng béo",
-  4009: "Giá trị dinh dưỡng phải từ 0 trở lên",
-};
-
 function unwrap(res, fallbackMessage) {
   if (res.status >= 400) {
-    throw new Error(VI_MESSAGES[res.data?.code] ?? res.data?.message ?? fallbackMessage);
+    throw new Error(INGREDIENT_ERROR_MESSAGES[res.data?.code] ?? res.data?.message ?? fallbackMessage);
   }
   return res.data?.result;
 }
