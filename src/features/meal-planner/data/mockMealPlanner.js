@@ -1,24 +1,5 @@
 import { Flame, Pencil, Soup, Sparkles } from "lucide-react";
 
-export const mockStats = [
-  {
-    id: "water",
-    icon: "water",
-    label: "Nước & Khoáng",
-    value: "1.8",
-    unit: "/ 2.4 L",
-    caption: "Đã uống 6/8 ly nước mát",
-  },
-  {
-    id: "activity",
-    icon: "run",
-    label: "Vận Động",
-    value: "7,850",
-    badge: "78% mục tiêu",
-    caption: "Đã đạt 25 phút Yoga sáng",
-  },
-];
-
 // Khẩu vị gợi ý gửi cho AI qua `preferences`. `label` là chuỗi gửi đi nên viết rõ nghĩa.
 export const flavorPreferences = [
   { id: "light", label: "Thanh đạm vị ngọt nhẹ", icon: Sparkles },

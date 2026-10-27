@@ -43,7 +43,7 @@ export default function FavoritePlansButton({ plans, onSelectPlan }) {
     document.getElementById("today-meals")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const items = data?.content ?? [];
+  const items = data?.items ?? [];
   const loadedIds = new Set(plans.map((plan) => plan.id));
 
   return (
@@ -103,7 +103,7 @@ export default function FavoritePlansButton({ plans, onSelectPlan }) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                disabled={data.first || isFetching}
+                disabled={data.page <= 0 || isFetching}
                 onClick={() => goToPage(page - 1)}
               >
                 <ChevronLeft className="size-4" />
@@ -116,7 +116,7 @@ export default function FavoritePlansButton({ plans, onSelectPlan }) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                disabled={data.last || isFetching}
+                disabled={data.page + 1 >= data.totalPages || isFetching}
                 onClick={() => goToPage(page + 1)}
               >
                 Sau

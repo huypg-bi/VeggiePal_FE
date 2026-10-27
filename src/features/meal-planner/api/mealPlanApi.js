@@ -4,7 +4,7 @@ import apiClient from "@/shared/api/apiClient";
 // Tạo thực đơn gọi LLM (đọc tối đa 45s, thử lại 2 lần) nên cho chờ lâu hơn mặc định.
 const CREATE_TIMEOUT_MS = 120_000;
 
-const EMPTY_PAGE = { content: [], page: 0, size: 0, totalElements: 0, totalPages: 0, first: true, last: true };
+const EMPTY_PAGE = { items: [], page: 0, size: 0, totalElements: 0, totalPages: 0 };
 
 // ai-service dùng dải mã 60xx. Message gốc của BE là tiếng Anh nên đổi sang tiếng Việt theo `code`.
 const VI_MESSAGES = {
