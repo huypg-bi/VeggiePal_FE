@@ -1,20 +1,5 @@
 import apiClient from "@/shared/api/apiClient";
 
-/**
- * Ingredient APIs (recipe-service qua api-gateway).
- * GET công khai, không cần token (CHỈ trả nguyên liệu đang hoạt động, kể cả trang quản trị):
- *   GET /ingredients?keyword=&vegan=&allergen=&page=&size=
- *   GET /ingredients/:id
- * Chỉ ADMIN:
- *   POST   /ingredients       body IngredientRequest
- *   PUT    /ingredients/:id
- *   DELETE /ingredients/:id   (xóa hẳn)
- *
- * Ingredient: { id, name, description, caloriesPer100g, proteinPer100g, carbsPer100g,
- *   fatPer100g, fiberPer100g, vegan, allergen, imageUrl, active, createdAt, updatedAt }
- * Page: { content, page, size, totalElements, totalPages, first, last }
- */
-
 const EMPTY_PAGE = {
   content: [],
   page: 0,
@@ -25,8 +10,6 @@ const EMPTY_PAGE = {
   last: true,
 };
 
-// BE trả message tiếng Anh theo ErrorCode; các lỗi admin hay gặp khi lưu nguyên liệu được đổi
-// sang tiếng Việt theo `code`. Lỗi lạ dùng message của BE.
 const VI_MESSAGES = {
   1001: "Dữ liệu không hợp lệ, vui lòng kiểm tra lại các trường đã nhập",
   1008: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
@@ -50,11 +33,6 @@ function unwrap(res, fallbackMessage) {
   return res.data?.result;
 }
 
-/**
- * GET /ingredients — nguyên liệu đang hoạt động, có phân trang.
- * - keyword: tìm theo tên ("" coi như không lọc)
- * - vegan / allergen: true | false để lọc, undefined để bỏ qua
- */
 export async function getIngredients({
   keyword,
   vegan,
@@ -80,11 +58,6 @@ export async function getIngredient(id) {
   return unwrap(res, "Không lấy được thông tin nguyên liệu");
 }
 
-// ---- Quản trị nguyên liệu (chỉ ADMIN) --------------------------------------------------------
-// IngredientRequest: { name, description?, caloriesPer100g, proteinPer100g, carbsPer100g,
-//   fatPer100g, fiberPer100g?, vegan?, allergen?, active? }. Tên không được trùng (không phân biệt
-//   hoa thường và dấu). Cột giới hạn: tên 150, mô tả 1000 ký tự.
-
 /** POST /ingredients */
 export async function createIngredient(payload) {
   const res = await apiClient.post("/ingredients", payload);
@@ -97,10 +70,6 @@ export async function updateIngredient(id, payload) {
   return unwrap(res, "Cập nhật nguyên liệu thất bại");
 }
 
-/**
- * DELETE /ingredients/:id — xóa hẳn. Nguyên liệu đang nằm trong công thức nào đó sẽ bị ràng buộc
- * khóa ngoại và BE trả lỗi 500 chung chung, nên lỗi từ server được diễn giải lại cho admin.
- */
 export async function deleteIngredient(id) {
   const res = await apiClient.delete(`/ingredients/${id}`);
   if (res.status >= 500) {

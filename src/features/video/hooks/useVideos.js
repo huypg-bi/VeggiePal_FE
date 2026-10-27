@@ -5,10 +5,6 @@ import { getVideo, getVideos } from "@/features/video/api/videoApi";
 import { videoKeys } from "@/features/video/queryKeys";
 import { flattenPages, getNextPageNumber } from "@/shared/utils/paging";
 
-/**
- * Feed video đã xuất bản (GET /videos) có phân trang dạng "Xem thêm".
- * params: { categoryId, size, enabled }.
- */
 export function useVideoFeed({ categoryId, size = 12, enabled = true } = {}, options = {}) {
   const isEnabled = options.enabled ?? enabled;
   const query = useInfiniteQuery({
@@ -30,10 +26,6 @@ export function useVideoFeed({ categoryId, size = 12, enabled = true } = {}, opt
   };
 }
 
-/**
- * Chi tiết video đã xuất bản (GET /videos/:id).
- * BE tăng 1 lượt xem mỗi lần gọi, nên tắt refetch khi focus để không tăng lượt xem ảo.
- */
 export function useVideo(id) {
   return useQuery({
     queryKey: videoKeys.detail(id),

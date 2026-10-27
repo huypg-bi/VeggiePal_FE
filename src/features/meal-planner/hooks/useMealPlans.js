@@ -20,11 +20,6 @@ export function useMealPlans() {
   });
 }
 
-/**
- * Mục tiêu calo / macro BE tính cho một `goalType` (GET /ai/meal-plans/nutrition-target). Chỉ tải khi `enabled`
- * và có goalType. Không thử lại khi lỗi (lỗi 6010 / 6020 / 6021 là do hồ sơ, thử lại cũng không khác) và luôn lấy
- * mới khi mở lại vì người dùng có thể vừa cập nhật hồ sơ.
- */
 export function useNutritionTarget(goalType, enabled = true) {
   return useQuery({
     queryKey: mealPlanKeys.nutritionTarget(goalType),
@@ -35,10 +30,6 @@ export function useNutritionTarget(goalType, enabled = true) {
   });
 }
 
-/**
- * Các phiên bản cũ của một thực đơn (GET /ai/meal-plans/:id/versions). Chỉ tải khi `enabled`
- * (hộp thoại lịch sử đang mở) và luôn lấy mới khi mở lại, vì có thể vừa có bản cũ mới được lưu.
- */
 export function useMealPlanVersions(planId, enabled) {
   return useQuery({
     queryKey: mealPlanKeys.versions(planId),
@@ -48,10 +39,6 @@ export function useMealPlanVersions(planId, enabled) {
   });
 }
 
-/**
- * Một thực đơn lấy mới từ server (GET /ai/meal-plans/:id). Chỉ tải khi `enabled` và luôn lấy mới khi mở lại,
- * dùng để đối chiếu phiên bản hiện tại với các bản cũ trong hộp thoại lịch sử.
- */
 export function useMealPlan(planId, enabled) {
   return useQuery({
     queryKey: mealPlanKeys.detail(planId),
@@ -72,10 +59,6 @@ export function useMealPlanVersion(planId, version, enabled) {
   });
 }
 
-/**
- * Một trang thực đơn yêu thích (GET /ai/meal-plans/favorites). Chỉ tải khi `enabled` (hộp thoại đang mở),
- * luôn lấy mới khi mở lại vì người dùng có thể vừa bật / tắt yêu thích.
- */
 export function useFavoriteMealPlans(page, size, enabled) {
   return useQuery({
     queryKey: mealPlanKeys.favorites(page),

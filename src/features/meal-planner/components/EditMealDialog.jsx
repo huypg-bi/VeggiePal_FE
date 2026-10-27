@@ -32,17 +32,6 @@ import FallbackImage from "@/shared/components/FallbackImage";
 
 const formatNumber = (value) => (value == null ? "—" : Number(value).toLocaleString("vi-VN"));
 
-/**
- * Hộp thoại tự chỉnh một bữa của thực đơn: chọn món khác từ danh sách gợi ý (công thức đã đăng, bỏ các món đang
- * có trong ngày) và/hoặc đổi khẩu phần, bấm "Xem trước" để BE tính lại dinh dưỡng (chưa lưu), rồi "Lưu thay đổi".
- * Chỉ sửa món / khẩu phần của 3 bữa sẵn có, không thêm hay xóa bữa.
- *
- * Cha chỉ dựng component này khi đang sửa (nên `open` luôn true) và truyền:
- * - plan: MealPlan đang xem; day: ngày đang chọn; meal: bữa trong plan (mealType, recipeId, servingMultiplier?).
- * - current: { title, image } của món hiện tại (cha đã tải chi tiết công thức).
- * - usedRecipeIds: id các món khác đang có trong cùng ngày, để không gợi ý trùng.
- * - onClose: đóng hộp thoại.
- */
 export default function EditMealDialog({ plan, day, meal, current, usedRecipeIds, onClose }) {
   const currentMultiplier = Number(meal.servingMultiplier) || 1;
   const [selected, setSelected] = useState({ id: meal.recipeId, title: current.title });

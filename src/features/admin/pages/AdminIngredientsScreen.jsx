@@ -29,8 +29,6 @@ const toBool = (value) => (value === "" ? undefined : value === "true");
 
 const num = (value) => (value == null ? "—" : Number(value));
 
-// Trang quản lý nguyên liệu (/admin/ingredients): tìm kiếm, lọc, phân trang, thêm / sửa / xóa.
-// Lưu ý: BE chỉ trả nguyên liệu đang hoạt động nên danh sách này không có nguyên liệu đã tắt.
 export default function AdminIngredientsScreen() {
   const [text, setText] = useState("");
   const [keyword, setKeyword] = useState("");

@@ -1,9 +1,3 @@
-// BE không trả kcal / đạm của cả công thức, nhưng mỗi nguyên liệu trong `recipe.ingredients[]` đã kèm sẵn
-// dinh dưỡng trên 100g (caloriesPer100g, proteinPer100g, carbsPer100g, fatPer100g) -> FE chỉ cần cộng lại,
-// không phải gọi thêm GET /ingredients/:id cho từng nguyên liệu.
-
-// Hệ số quy đổi về gram. BE lưu đơn vị IN HOA và chỉ quy đổi được các đơn vị khối lượng; ml, muỗng, quả...
-// cần biết khối lượng riêng của nguyên liệu nên FE không tự suy ra được.
 const GRAMS_PER_UNIT = {
   G: 1,
   GR: 1,
@@ -55,12 +49,6 @@ function hasNutritionData(item) {
   );
 }
 
-/**
- * Dinh dưỡng MỖI KHẨU PHẦN của công thức: { kcal, protein, carbs, fat } (kcal làm tròn, còn lại 1 số lẻ).
- * Dữ liệu lấy từ chính `recipe.ingredients[]` do BE trả.
- * Trả null nếu có bất kỳ nguyên liệu nào chưa tính được (thiếu dữ liệu hoặc đơn vị không quy đổi được),
- * vì cộng thiếu sẽ ra con số thấp hơn thực tế và gây hiểu nhầm. Lý do xem `nutritionGapHint`.
- */
 export function calcRecipeNutrition(recipe) {
   const items = recipe?.ingredients ?? [];
   if (items.length === 0) return null;
@@ -89,10 +77,6 @@ export function calcRecipeNutrition(recipe) {
   };
 }
 
-/**
- * Lý do chưa tính được dinh dưỡng vì đơn vị: liệt kê các đơn vị không quy đổi được ra gram.
- * Trả null nếu mọi nguyên liệu đều quy đổi được (khi đó nếu vẫn không tính được là do thiếu dữ liệu khác).
- */
 export function nutritionGapHint(recipe) {
   const units = new Set();
   for (const item of recipe?.ingredients ?? []) {

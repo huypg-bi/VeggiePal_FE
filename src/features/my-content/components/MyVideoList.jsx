@@ -20,8 +20,6 @@ import { cn } from "@/lib/utils";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
 import FallbackImage from "@/shared/components/FallbackImage";
 
-// Tab "Video": lọc theo trạng thái (GET /videos/me?status=) + danh sách "Xem thêm",
-// mỗi dòng có Sửa / Gửi duyệt / Xóa tùy trạng thái.
 export default function MyVideoList() {
   const [status, setStatus] = useState("");
   const {

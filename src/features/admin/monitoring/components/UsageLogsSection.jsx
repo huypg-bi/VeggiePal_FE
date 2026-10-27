@@ -28,8 +28,6 @@ const STATUS_OPTIONS = toOptions(STATUS_LABELS, "Mọi trạng thái");
 const fieldClass =
   "h-10 rounded-full border border-border bg-surface px-3.5 text-sm text-ink outline-none transition focus:border-brand/40 focus:ring-2 focus:ring-brand/15";
 
-// Nhật ký từng lượt gọi AI, có lọc theo tác vụ / trạng thái / người dùng / khoảng ngày và phân trang
-// (GET /ai/admin/monitoring/logs/search).
 export default function UsageLogsSection() {
   const [feature, setFeature] = useState("");
   const [status, setStatus] = useState("");

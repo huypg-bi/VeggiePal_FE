@@ -5,14 +5,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { updateProfileSchema } from "@/lib/schema";
 import { useProfile, useUpdateProfile } from "@/features/profile/hooks/useProfile";
 
-// Thẻ này chỉ sửa họ tên và số điện thoại. Ngày sinh, giới tính, mức vận động nằm ở form chỉ số sức khỏe
-// (EditHealthForm) cùng chỗ với chiều cao, cân nặng vì BE dùng chúng chung để tính nhu cầu calo.
 const personalSchema = updateProfileSchema.pick({ fullName: true, phone: true });
 
-/**
- * Form thông tin cá nhân. Tách thành hook vì cả card lẫn nút "Lưu thông tin"
- * cuối trang đều cần dùng chung form + hàm lưu.
- */
 export function usePersonalInfoForm() {
   const { profile, loading, error } = useProfile();
   const updateProfile = useUpdateProfile();
@@ -36,8 +30,6 @@ export function usePersonalInfoForm() {
     values: serverValues,
   });
 
-  // Gửi lên API: phone "" nghĩa là xóa số điện thoại. Không gửi các trường khác nên BE giữ nguyên ngày sinh,
-  // giới tính, mức vận động.
   const save = async (values) => {
     await updateProfile.mutateAsync({
       fullName: values.fullName.trim(),

@@ -3,9 +3,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createComment, deleteComment, updateComment } from "@/features/blog/api/commentApi";
 import { blogKeys } from "@/features/blog/queryKeys";
 
-// Thêm / sửa / xóa comment đều làm mới toàn bộ cache comment (danh sách gốc lẫn reply),
-// vì replyCount của comment gốc và thứ tự hiển thị phụ thuộc vào dữ liệu server.
-// Không ghi tay vào cache: comment mới đi qua kiểm duyệt nên có thể không hiện ra.
 function useInvalidateComments() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: blogKeys.comments });

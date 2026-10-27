@@ -42,10 +42,6 @@ export function filterRestaurants(restaurants, keyword) {
 export const SORT_NEAREST = "nearest";
 export const SORT_RATING = "rating";
 
-/**
- * Sắp xếp bản sao của danh sách. BE đã xếp theo khoảng cách nên "nearest" chỉ giữ thứ tự;
- * "rating" xếp rating giảm dần (không có rating xuống cuối), bằng nhau thì gần hơn trước.
- */
 export function sortRestaurants(restaurants, sort) {
   const copy = [...restaurants];
   if (sort !== SORT_RATING) return copy;
@@ -68,10 +64,6 @@ export function buildTelUrl(phoneNumber) {
   return digits ? `tel:${digits}` : null;
 }
 
-/**
- * Danh sách quán → GeoJSON FeatureCollection cho Mapbox source.
- * Tọa độ GeoJSON là [kinh độ, vĩ độ] — ngược với latitude/longitude của BE.
- */
 export function toGeoJSON(restaurants) {
   return {
     type: "FeatureCollection",

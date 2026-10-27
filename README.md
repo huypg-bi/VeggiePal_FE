@@ -131,6 +131,7 @@ src/
 ├── shared/         # apiClient (axios), Reveal, ThemeToggle, ScrollToTop (về đầu trang khi đổi route), SelectField (dropdown chọn giá trị), themeStore
 └── styles/         # globals.css (Tailwind + design token)
 docs/TECH_STACK.md  # Quy ước công nghệ & UI
+docs/CODE_NOTES.md  # Giải thích chi tiết chức năng / cách hoạt động của code (comment dài đã chuyển ra đây)
 ```
 
 Alias import: `@/` trỏ tới `src/`.

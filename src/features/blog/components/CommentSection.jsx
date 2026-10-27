@@ -8,8 +8,6 @@ import CommentItem from "@/features/blog/components/CommentItem";
 import { useComments } from "@/features/blog/hooks/useComments";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-// Bình luận của một bài. `total` là số comment cấp 1 (không gồm reply).
-// Đã đăng nhập thì có ô viết bình luận; khách thấy lời mời đăng nhập.
 export default function CommentSection({ blogId }) {
   const { isAuthenticated } = useRequireLogin();
   const location = useLocation();

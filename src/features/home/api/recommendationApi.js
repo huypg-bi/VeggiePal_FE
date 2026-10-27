@@ -1,12 +1,5 @@
 import apiClient from "@/shared/api/apiClient";
 
-/**
- * AI Content Recommendation APIs (ai-service qua gateway).
- * GET /ai/recommendations?interest=&limit= (cần đăng nhập, limit 1-10, mặc định 6).
- * Trả về danh sách Recommendation:
- * [{ type: "BLOG" | "RECIPE", id: number, reason: string, content: JsonNode }]
- */
-
 // ai-service dùng dải mã 60xx. Message gốc của BE là tiếng Anh nên đổi sang tiếng Việt theo `code`.
 const VI_MESSAGES = {
   6000: "Yêu cầu gợi ý chưa hợp lệ, vui lòng thử lại",
@@ -37,12 +30,6 @@ function unwrap(res, fallbackMessage) {
   return res.data?.result;
 }
 
-/**
- * Lấy danh sách gợi ý nội dung từ AI.
- * @param {Object} params
- * @param {string} [params.interest] - Chủ đề / sở thích (mặc định BE dùng "ăn chay")
- * @param {number} [params.limit=6] - Số lượng gợi ý (1-10)
- */
 export async function getRecommendations({ interest, limit = 6 } = {}) {
   let res;
   try {

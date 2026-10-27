@@ -27,11 +27,6 @@ async function post(path, body) {
   }
 }
 
-/**
- * Đăng nhập bằng email + mật khẩu (khớp /auth/login của identity-service).
- * Trả về: { token, user: { id, email, fullName, role } }
- * Ném lỗi (throw) với thông báo tiếng Việt (dịch theo `code` của BE) nếu thất bại.
- */
 export async function login({ email, password }) {
   const res = await post("/auth/login", { email, password });
 
@@ -43,11 +38,6 @@ export async function login({ email, password }) {
   return toSession(res.data.result);
 }
 
-/**
- * Đăng nhập bằng Google (khớp POST /auth/google của identity-service).
- * `idToken` là `credential` của Google Identity Services; BE tự kiểm tra token và liên kết
- * tài khoản theo email (chưa có thì tạo mới). Kết quả giống `login`.
- */
 export async function loginWithGoogle(idToken) {
   const res = await post("/auth/google", { idToken });
 
@@ -59,11 +49,6 @@ export async function loginWithGoogle(idToken) {
   return toSession(res.data.result);
 }
 
-/**
- * Đăng ký tài khoản mới (khớp /auth/register của identity-service).
- * Backend không trả token khi đăng ký -> đăng ký xong phải đăng nhập lại.
- * Trả về: { id, email, fullName, phone, avatarUrl, role, status, emailVerified }
- */
 export async function register({ email, password, fullName, phone }) {
   const res = await post("/auth/register", {
     email,

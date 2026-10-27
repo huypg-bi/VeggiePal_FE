@@ -13,10 +13,6 @@ function useInvalidateVideos() {
   return () => queryClient.invalidateQueries({ queryKey: videoKeys.all });
 }
 
-/**
- * Đăng video mới (multipart).
- * mutate({ formData, onUploadProgress }) -> VideoResponse.
- */
 export function useCreateVideo() {
   const invalidate = useInvalidateVideos();
   return useMutation({
@@ -26,10 +22,6 @@ export function useCreateVideo() {
   });
 }
 
-/**
- * Cập nhật tiêu đề, mô tả, danh mục video.
- * mutate({ id, title, description, categoryId }) -> VideoResponse.
- */
 export function useUpdateVideo() {
   const invalidate = useInvalidateVideos();
   return useMutation({
@@ -38,10 +30,6 @@ export function useUpdateVideo() {
   });
 }
 
-/**
- * Gửi bản nháp đi kiểm duyệt.
- * mutate(id) -> VideoResponse.
- */
 export function useSubmitVideo() {
   const invalidate = useInvalidateVideos();
   return useMutation({
@@ -50,10 +38,6 @@ export function useSubmitVideo() {
   });
 }
 
-/**
- * Xóa video.
- * mutate(id).
- */
 export function useDeleteVideo() {
   const invalidate = useInvalidateVideos();
   return useMutation({

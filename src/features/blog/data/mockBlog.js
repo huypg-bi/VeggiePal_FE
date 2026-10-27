@@ -1,7 +1,3 @@
-// Dữ liệu demo cho các khối phụ của trang Cộng đồng (/blog) mà BE chưa có API:
-// số liệu cộng đồng, lời nhắn Bé Bông Cải, bảng vàng, chủ đề hot, thử thách.
-// Bài viết đã lấy từ API thật (useBlogFeed), không còn nằm ở đây.
-
 export const communityStats = [
   { id: "recipes", icon: "book", value: "12.4k", label: "Công thức chia sẻ" },
   { id: "safe", icon: "shield", value: "98.6%", label: "Duyệt AI an toàn Macro" },

@@ -61,13 +61,6 @@ function calorieStat(dayTotals, target, dayLong) {
   };
 }
 
-/**
- * Bốn thẻ chỉ số đầu trang.
- * - BMI: thật, từ nutrition-service (bản ghi sức khỏe mới nhất).
- * - Calo: thật, tổng calo của ngày đang xem trong thực đơn.
- * - Nước & Vận động: vẫn là dữ liệu mẫu, BE chưa có API theo dõi.
- * `dayTotals`: nutritionTotals của ngày đang xem; `target`: dailyNutritionTarget của thực đơn.
- */
 export default function StatsGrid({ dayTotals, target, dayLong = "hôm nay" }) {
   const { data: latestRecord, isPending } = useLatestHealthRecord();
   const stats = [bmiStat(latestRecord, isPending), calorieStat(dayTotals, target, dayLong), ...mockStats];

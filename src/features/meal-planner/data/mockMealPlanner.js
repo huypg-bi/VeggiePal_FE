@@ -1,7 +1,3 @@
-// Dữ liệu mẫu còn lại của trang Thực đơn — chỉ cho những khối mà BE CHƯA có API:
-// thẻ Nước & Khoáng và thẻ Vận Động.
-// Thực đơn, dinh dưỡng, BMI và biểu đồ macro đã lấy từ BE; khi BE bổ sung phần còn lại thì thay các hằng số này.
-
 import { Flame, Pencil, Soup, Sparkles } from "lucide-react";
 
 export const mockStats = [

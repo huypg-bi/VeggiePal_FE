@@ -15,8 +15,6 @@ import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 const PAGE_SIZE = 12;
 const SEARCH_DEBOUNCE_MS = 400;
 
-// Trang duyệt công thức (route /recipes), công khai: lưới công thức đã đăng, mới nhất trước,
-// tìm theo từ khóa (BE tìm trong tên và mô tả). Từ khóa nằm trên URL (?q=) để chia sẻ/quay lại được.
 export default function RecipeListScreen() {
   const [searchParams, setSearchParams] = useSearchParams();
   const keyword = (searchParams.get("q") ?? "").trim();

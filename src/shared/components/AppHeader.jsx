@@ -40,8 +40,6 @@ import FallbackImage from "@/shared/components/FallbackImage";
 import ThemeToggle from "@/shared/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 
-// Đăng nhập (POST /auth/login) không trả avatarUrl nên header tự nạp hồ sơ một lần
-// rồi giữ trong cache; đổi avatar ở trang hồ sơ ghi thẳng vào cache này nên header đổi theo.
 const PROFILE_STALE_MS = 5 * 60 * 1000;
 
 // Avatar tròn: ảnh nếu có (hoặc ảnh lỗi) thì rơi về icon người trên nền brand.

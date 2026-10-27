@@ -19,10 +19,6 @@ export function useUsageSummary(days) {
   });
 }
 
-/**
- * Nhật ký usage có lọc + phân trang. params: { feature, status, userId, from, to, page, size }.
- * `enabled = false` để tạm dừng khi bộ lọc chưa hợp lệ (vd. ngày bắt đầu sau ngày kết thúc).
- */
 export function useUsageLogs(params, { enabled = true } = {}) {
   return useQuery({
     queryKey: monitoringKeys.logs(params),

@@ -7,11 +7,6 @@ export const VIDEO_DESCRIPTION_MAX = 5000;
 const YOUTUBE_HOSTS = new Set(["youtube.com", "www.youtube.com", "m.youtube.com"]);
 const VIDEO_ID_REGEX = /^[A-Za-z0-9_-]{11}$/;
 
-/**
- * Trích xuất ID 11 ký tự của video YouTube từ link người dùng nhập.
- * Khớp hoàn toàn với bộ lọc của backend (YouTubeUrls.java).
- * Hỗ trợ: youtu.be/<id>, youtube.com/watch?v=<id>, /embed/<id>, /shorts/<id>.
- */
 export function extractYouTubeId(url) {
   if (!url || typeof url !== "string") return null;
   const trimmed = url.trim();
@@ -47,10 +42,6 @@ export function extractYouTubeId(url) {
   return null;
 }
 
-/**
- * Kiểm tra tệp video: bắt buộc .mp4 và dung lượng ≤ 30MB.
- * Trả về chuỗi lỗi tiếng Việt nếu không hợp lệ, hoặc null nếu hợp lệ.
- */
 export function validateVideoFile(file) {
   if (!file) return "Vui lòng chọn tệp video";
 
@@ -67,10 +58,6 @@ export function validateVideoFile(file) {
   return null;
 }
 
-/**
- * Diễn giải VideoResponse sau khi tạo / sửa / gửi duyệt thành thông báo toast cho người dùng.
- * Trả { tone: "success" | "info" | "error", message }.
- */
 export function describeVideoOutcome(video) {
   switch (video?.status) {
     case "PUBLISHED":

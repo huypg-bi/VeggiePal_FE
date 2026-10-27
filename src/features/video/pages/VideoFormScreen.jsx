@@ -22,8 +22,6 @@ export default function VideoFormScreen() {
     isError: categoriesError,
   } = useCategories();
 
-  // Nạp video để sửa: ưu tiên lấy từ router state (để sửa được cả bản nháp/bị từ chối từ My Content),
-  // nếu không có thì gọi GET /videos/:id (chỉ video đã đăng).
   const stateVideo = location.state?.video;
   const shouldFetch = isEdit && !stateVideo && id !== null;
   const {

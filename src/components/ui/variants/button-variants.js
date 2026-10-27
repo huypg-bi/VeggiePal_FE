@@ -1,11 +1,5 @@
 import { cva } from "class-variance-authority";
 
-// Tách khỏi button.jsx để file component chỉ export component (Fast Refresh),
-// đồng thời cho phép style <Link> giống nút: className={buttonVariants({ ... })}.
-//
-// Quy ước của app: nút mặc định bo tròn hẳn (rounded-full). Nút nào cần bo khác
-// (rounded-xl, rounded-2xl...) thì truyền qua className. Icon trong nút nên dùng
-// `size-*` thay vì `h-* w-*`, vì base ép icon không có `size-*` về size-4.
 export const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded-full border border-transparent bg-clip-padding whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {

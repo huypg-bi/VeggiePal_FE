@@ -22,13 +22,6 @@ export function categoryToFormValues(category) {
   };
 }
 
-/**
- * Giá trị form (đã qua categorySchema) -> CategoryRequest.
- * - tạo danh mục gốc: gửi `type` (BE bắt buộc); không gửi parentId
- * - tạo danh mục con: gửi parentId, không gửi type (con luôn kế thừa loại của cha)
- * - sửa: chỉ gửi name / displayOrder / active (BE không cho đổi cha và loại)
- * displayOrder để trống thì không gửi để BE giữ giá trị hiện tại (mặc định 0 khi tạo).
- */
 export function formValuesToCategoryPayload(values, { parentId, isEdit } = {}) {
   const payload = {
     name: values.name.trim(),

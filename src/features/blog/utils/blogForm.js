@@ -11,11 +11,6 @@ export function validateThumbnail(file) {
   return null;
 }
 
-/**
- * Diễn giải BlogResponse sau khi tạo / sửa / gửi duyệt thành thông báo cho người dùng.
- * Trả { tone: "success" | "info" | "error", message } để chọn toast.success / info / error.
- * BE kiểm duyệt ngay lúc lưu nên trạng thái trả về chính là kết quả kiểm duyệt.
- */
 export function describeBlogOutcome(blog) {
   switch (blog?.status) {
     case "PUBLISHED":

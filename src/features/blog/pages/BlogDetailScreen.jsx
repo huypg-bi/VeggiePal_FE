@@ -21,10 +21,6 @@ import AppHeader from "@/shared/components/AppHeader";
 import FallbackImage from "@/shared/components/FallbackImage";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-// Trang đọc một bài (route /blog/:blogId), công khai. Nội dung BE lưu là text thuần,
-// nên hiển thị bằng text (giữ xuống dòng) chứ không render HTML.
-// Chủ bài / ADMIN (kèm token) còn mở được bài chưa đăng: lúc đó hiện nhãn trạng thái và ẩn vote,
-// bình luận, bài liên quan vì những phần này chỉ dành cho bài đã đăng.
 export default function BlogDetailScreen() {
   const { blogId } = useParams();
   const navigate = useNavigate();
@@ -49,10 +45,6 @@ export default function BlogDetailScreen() {
     <div className="min-h-dvh">
       <AppHeader />
 
-      {/* 3 cột như trang Cộng đồng: trái là nút quay lại, bài chính ở giữa, bài liên quan bên phải.
-          Nút quay lại nằm ở cột trái nên khung bài chính và khung bài liên quan bắt đầu cùng một mức.
-          Hai cột bên rộng gần bằng nhau nên bài luôn nằm đúng giữa trang, kể cả khi chưa có bài
-          liên quan. Dưới lg chỉ còn 1 cột: nút quay lại, bài, rồi bài liên quan. */}
       <main className="mx-auto w-full max-w-[1280px] px-6 py-6">
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[250px_minmax(0,1fr)_300px]">
           <aside>
@@ -97,8 +89,6 @@ export default function BlogDetailScreen() {
                         {formatTimeAgo(blog.publishedAt ?? blog.createdAt)}
                       </p>
                     </div>
-                    {/* Bên phải: danh mục, và ngay dưới là tim + lượt xem cỡ nhỏ (không chen vào hàng tiêu đề,
-                        vì tiêu đề dài sẽ đẩy chúng xuống dòng). */}
                     <div className="ml-auto flex shrink-0 flex-col items-end gap-1.5">
                       {blog.categoryName && (
                         <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-medium text-brand">

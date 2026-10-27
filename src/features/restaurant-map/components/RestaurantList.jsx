@@ -57,12 +57,6 @@ function StateBox({ icon, title, description, children }) {
   );
 }
 
-/**
- * Danh sách quán bên trái bản đồ. Toàn bộ dữ liệu và state nằm ở RestaurantMapScreen.
- * - restaurants: quán đã lọc và sắp xếp, hiện 5 quán một lần ("Xem thêm" để mở rộng)
- * - resetKey: đổi giá trị này thì số quán đang hiện quay lại 5
- * - isRefreshing: đang tải lại (đổi bán kính) trong khi vẫn hiện kết quả cũ
- */
 export default function RestaurantList({
   restaurants,
   isLoading,
@@ -92,8 +86,6 @@ export default function RestaurantList({
   const limit = Math.max(baseLimit, selectedIndex + 1);
   const shown = restaurants.slice(0, limit);
 
-  // Chọn quán từ marker: cuộn danh sách tới thẻ. Chỉ làm ở màn rộng (2 cột), vì ở màn hẹp
-  // bản đồ nằm dưới danh sách và cuộn lên sẽ kéo người dùng rời khỏi bản đồ.
   useEffect(() => {
     if (selectedId == null) return;
     if (!window.matchMedia("(min-width: 1024px)").matches) return;

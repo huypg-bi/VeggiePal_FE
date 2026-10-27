@@ -5,17 +5,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import FallbackImage from "@/shared/components/FallbackImage";
 
-/**
- * Thẻ một bữa ăn.
- * `meal`: { label, time, title, description, image, prepMinutes, kcal, protein, carb, fat, href?, servingMultiplier? }
- * - servingMultiplier: hệ số khẩu phần riêng của bữa này (BE chọn 0,75 - 2,0 để bữa chạm ngân sách calo; khác 1 thì hiện
- *   nhãn "Khẩu phần ×N"); kcal/macro đã nhân sẵn.
- * - href: có thì tên món dẫn tới trang công thức.
- * - onReplace: có thì hiện nút "Đổi món"; `replacing` đang đổi bữa này, `replaceDisabled` khóa nút
- *   (đang đổi bữa khác hoặc bữa này không đổi được).
- * - onEdit: có thì hiện nút "Tự chọn món / khẩu phần" (mở hộp thoại chỉnh tay), khóa cùng điều kiện với "Đổi món".
- * (Yêu thích là theo cả thực đơn, nút nằm ở TodayMeals chứ không ở từng thẻ món.)
- */
 export default function MealCard({
   meal,
   onReplace,

@@ -10,13 +10,6 @@ import Reveal from "@/shared/components/Reveal";
 import { buttonVariants } from "@/components/ui/variants/button-variants";
 import { Button } from "@/components/ui/button";
 
-/**
- * Khối "Gợi ý dành riêng cho bạn" trên trang chủ:
- * Sử dụng GET /ai/recommendations của ai-service.
- * - Đã đăng nhập: lấy danh sách các món ăn & bài viết AI đề xuất kèm lý do.
- * - Chưa đăng nhập: hiển thị banner giới thiệu đăng nhập để cá nhân hóa nội dung.
- * - Có xử lý riêng biệt lỗi Server (isError) và trạng thái rỗng.
- */
 export default function AiRecommendationsSection() {
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
   const queryClient = useQueryClient();

@@ -14,8 +14,6 @@ import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-// Trang xem video chi tiết (route /videos/:videoId, công khai).
-// Nạp dữ liệu qua GET /videos/:id (BE tính 1 lượt xem mỗi lần xem).
 export default function VideoWatchScreen() {
   const { videoId } = useParams();
   const id = /^[1-9]\d*$/.test(videoId ?? "") ? Number(videoId) : null;

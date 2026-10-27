@@ -9,8 +9,6 @@ import {
 } from "@/features/blog/api/blogApi";
 import { blogKeys } from "@/features/blog/queryKeys";
 
-// Mọi thay đổi bài viết đều làm mới cache "blog/posts" (feed, chi tiết, bài của tôi, bài liên quan),
-// vì trạng thái bài phụ thuộc kết quả kiểm duyệt của server nên không ghi tay vào cache.
 function useInvalidateBlogs() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: blogKeys.blogs });

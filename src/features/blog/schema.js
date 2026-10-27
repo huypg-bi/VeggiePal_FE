@@ -18,8 +18,6 @@ export const commentSchema = z.object({
 export const BLOG_TITLE_MAX = 150;
 export const BLOG_CONTENT_MIN = 20;
 
-// Form viết / sửa bài, khớp BlogRequest: tiêu đề tối đa 150 ký tự, nội dung tối thiểu 20 ký tự,
-// bắt buộc chọn danh mục. categoryId giữ dạng chuỗi vì lấy từ dropdown, đổi sang số khi gửi.
 export const blogSchema = z.object({
   title: z
     .string()
@@ -36,8 +34,6 @@ export const blogSchema = z.object({
 
 export const CATEGORY_NAME_MAX = 100;
 
-// Form tạo / sửa danh mục của admin, khớp CategoryRequest: tên tối đa 100 ký tự, thứ tự hiển thị
-// là số nguyên không âm (BE dùng kiểu short nên tối đa 32767).
 export const categorySchema = z.object({
   name: z
     .string()

@@ -5,9 +5,6 @@ import iconNutrition from "@/assets/img/icon_video_page.png";
 import { Button } from "@/components/ui/button";
 import { nutritionFacts } from "@/features/video/data/mockVideo";
 
-// Thẻ giá trị dinh dưỡng của video.
-// Do BE hiện chưa có endpoint bóc tách dữ liệu dinh dưỡng thật cho video,
-// phần này được đánh dấu rõ ràng là dữ liệu mẫu tham khảo.
 export default function NutritionFactsCard() {
   const { servingLabel, kcal, protein, fiber, ingredients } = nutritionFacts;
 

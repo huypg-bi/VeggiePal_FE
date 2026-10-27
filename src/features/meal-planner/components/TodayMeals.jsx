@@ -57,12 +57,6 @@ function FavoriteHeart({ className }) {
   return <Heart className={cn(className, "fill-danger text-danger")} />;
 }
 
-/**
- * Thực đơn theo ngày của thực đơn đang xem.
- * - plans / plan: các thực đơn đã lưu (mới nhất trước) và cái đang xem.
- * - days: các ngày của thực đơn đang xem, đã sắp T2 -> CN; activeDay: ngày đang chọn.
- * Thực đơn AI chỉ có 3 bữa sáng / trưa / tối (BE không có bữa phụ).
- */
 export default function TodayMeals({
   plans,
   plan,
@@ -96,8 +90,6 @@ export default function TodayMeals({
   }));
 
   const activeKey = normalizeDay(activeDay?.day);
-  // Ngày cụ thể của thứ đang chọn (theo tuần chứa ngày tạo thực đơn). "Hôm Nay" chỉ khi đúng là hôm nay,
-  // tránh gọi nhầm thứ Năm của một thực đơn tuần trước. Thiếu ngày thì so theo tên thứ như trước.
   const activeDate = activeDay ? planDayDate(plan, activeDay.day) : null;
   const isToday = activeDate ? isSameDate(activeDate, new Date()) : activeKey === dayKeyOf();
   const dayName = activeDay ? (isToday ? "Hôm Nay" : dayLabel(activeDay).long) : "Hôm Nay";
@@ -137,9 +129,6 @@ export default function TodayMeals({
     }
   };
 
-  // Đổi món làm BE tính lại khẩu phần của các bữa, nên khẩu phần đã chỉnh tay (UPDATE_SERVING) bị đặt lại. Thực đơn từ
-  // phiên bản 2 trở đi đã được sửa tay hoặc cập nhật theo chỉ số (đổi món bằng AI không tạo phiên bản), có thể đang
-  // mang khẩu phần chỉnh tay: hỏi trước. Thực đơn nguyên bản (phiên bản 1) không có gì để mất thì đổi luôn.
   const requestReplace = (meal) => {
     if ((plan?.version ?? 1) > 1) setConfirmReplaceMeal(meal);
     else handleReplace(meal);

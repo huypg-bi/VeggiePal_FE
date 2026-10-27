@@ -2,8 +2,6 @@ import { z } from "zod";
 
 import { GOAL_OPTIONS, TARGET_FIELDS, parseTargetNumber } from "@/features/meal-planner/utils/mealPlan";
 
-// Giới hạn khớp GenerateRequest của ai-service. `healthGoal` của BE tối đa 500 ký tự gồm cả nhãn mục tiêu
-// ("Tăng cân: ") nên mô tả thêm của người dùng (`healthNote`) giữ ngắn hơn.
 export const MEAL_PLAN_LIMITS = {
   name: 160,
   healthNote: 400,

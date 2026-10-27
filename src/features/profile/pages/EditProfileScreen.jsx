@@ -18,9 +18,6 @@ import { useEditProfileActions } from "@/features/profile/hooks/useEditProfileAc
 import { readProfileFixState } from "@/features/profile/utils/profileFixState";
 
 export default function EditProfileScreen() {
-  // Được chuyển từ trang thực đơn sang vì hồ sơ thiếu thông tin tính calo: thẻ chỉ số sức khỏe (nơi nhập ngày sinh,
-  // giới tính, mức vận động) cuộn tới và làm nổi các ô còn thiếu, và lưu / hủy xong thì quay lại nơi đã chuyển đi
-  // (xem readProfileFixState).
   const { state } = useLocation();
   const { missingFields, returnTo, returnLabel } = readProfileFixState(state);
 

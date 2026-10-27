@@ -1,6 +1,3 @@
-// Bộ lọc của feed blog được lưu trên URL (?q=&sort=&category=) để bấm vào bài rồi
-// quay lại vẫn giữ nguyên bộ lọc, và có thể chia sẻ link đã lọc.
-
 // value gửi lên BE (GET /blogs?sort=); "" = mặc định của BE (mới đăng nhất).
 export const SORT_OPTIONS = [
   { value: "", label: "Mới nhất" },
@@ -37,10 +34,6 @@ export function hasActiveFilters({ keyword, sort, categoryId }) {
   return Boolean(keyword || sort || categoryId);
 }
 
-/**
- * Cây danh mục 2 cấp -> danh sách phẳng để làm chip lọc: cha rồi tới con của nó.
- * BE lọc theo đúng categoryId (không gồm danh mục con) nên mỗi cấp là một chip riêng.
- */
 export function flattenCategories(tree) {
   return (tree ?? []).flatMap((parent) => [
     { id: parent.id, name: parent.name },

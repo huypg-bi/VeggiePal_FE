@@ -1,7 +1,3 @@
-/**
- * Tiện ích chuẩn hoá và gộp danh sách bài viết + công thức cho RecipeFeedCard.
- */
-
 export function getStatusBadgeText(status) {
   switch (status) {
     case "PUBLISHED":
@@ -21,10 +17,6 @@ export function getStatusBadgeText(status) {
   }
 }
 
-/**
- * Gộp bài viết và công thức của người dùng thành 1 danh sách đồng nhất,
- * sắp xếp theo ngày tạo/ngày đăng mới nhất trước.
- */
 export function mergeAndSortContent(blogs = [], recipes = []) {
   const blogItems = (blogs ?? []).map((b) => ({
     id: `blog-${b.id}`,

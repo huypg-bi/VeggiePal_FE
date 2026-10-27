@@ -4,11 +4,6 @@ import { getMyBlogs } from "@/features/blog/api/blogApi";
 import { blogKeys } from "@/features/blog/queryKeys";
 import { flattenPages, getNextPageNumber } from "@/shared/utils/paging";
 
-/**
- * Bài viết của tôi ở mọi trạng thái (GET /blogs/me) dạng "Xem thêm".
- * status: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED" | "BANNED", bỏ trống = tất cả.
- * Trả về query của React Query + `posts` (mảng phẳng) + `total`.
- */
 export function useMyBlogs({ status, size = 10 } = {}) {
   const query = useInfiniteQuery({
     queryKey: blogKeys.mine(status, size),

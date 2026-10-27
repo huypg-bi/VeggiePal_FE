@@ -1,7 +1,5 @@
 import { MessageSquare } from "lucide-react";
 
-// BE từ chối targetType=VIDEO với mã lỗi UNSUPPORTED_TARGET_TYPE.
-// Vì vậy phần bình luận được hiển thị thông báo trạng thái tĩnh, không gọi API bình luận để tránh lỗi.
 export default function CommentsHeader() {
   return (
     <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-border p-4 text-center">
