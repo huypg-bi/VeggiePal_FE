@@ -4,7 +4,6 @@
 
 export const communityStats = [
   { id: "recipes", icon: "book", value: "12.4k", label: "Công thức chia sẻ" },
-  { id: "experts", icon: "check", value: "3.8k", label: "Bếp trưởng & Chuyên gia" },
   { id: "safe", icon: "shield", value: "98.6%", label: "Duyệt AI an toàn Macro" },
 ];
 

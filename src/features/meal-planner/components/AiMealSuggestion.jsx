@@ -72,7 +72,6 @@ const AUTO_TARGET_BLOCKING_CODES = new Set([6020, 6021]);
  * `onCreated(plan)` được gọi khi tạo xong để trang chuyển sang xem thực đơn mới.
  */
 export default function AiMealSuggestion({ onCreated }) {
-  const navigate = useNavigate();
   const idPrefix = useId();
   const createPlan = useCreateMealPlan();
   // BE trả lỗi 6010 nếu chưa có bản ghi sức khỏe nên chặn sớm. Chỉ khóa khi chắc chắn là chưa có
@@ -171,23 +170,6 @@ export default function AiMealSuggestion({ onCreated }) {
       }
       onCreated?.(plan);
     } catch (error) {
-      if (
-        error?.code === 6020 ||
-        error?.data?.code === 6020 ||
-        error?.message?.includes("ngày sinh, giới tính hoặc mức vận động")
-      ) {
-        toast.warning(
-          "Hồ sơ của bạn chưa đủ ngày sinh, giới tính hoặc mức vận động. Đang chuyển tới trang hồ sơ...",
-          { duration: 5000 },
-        );
-        navigate("/profile/edit?from=6020");
-        return;
-      }
-      if (error?.code === 6010 || error?.data?.code === 6010) {
-        toast.warning("Bạn cần cập nhật chiều cao và cân nặng trong hồ sơ sức khỏe trước khi lên thực đơn");
-        navigate("/profile/edit");
-        return;
-      }
       toast.error(error.message);
     }
   };
