@@ -4,10 +4,6 @@ import { isTokenExpired } from "../../../lib/jwt.js";
 const TOKEN_KEY = "token";
 const USER_KEY = "user";
 
-// "Ghi nhớ đăng nhập" = lưu phiên ở localStorage (còn sau khi đóng trình duyệt).
-// Không ghi nhớ = sessionStorage (mất khi đóng tab/trình duyệt, F5 vẫn còn).
-// Tham số storage truyền vào được để test; mặc định là storage của trình duyệt.
-
 function parseUser(raw) {
   try {
     return JSON.parse(raw ?? "null");

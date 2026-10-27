@@ -10,9 +10,6 @@ import {
 } from "@/features/blog/utils/blogFormat";
 import FallbackImage from "@/shared/components/FallbackImage";
 
-// `post` là BlogSummaryResponse của BE (GET /blogs); `author` là { fullName, avatarUrl }
-// từ usePublicUsers, có thể undefined (đang tải hoặc user không còn hiển thị công khai).
-// `myVote` là vote của tôi trên bài này (từ useMyVotes), undefined với khách.
 export default function BlogPostCard({ post, author, myVote }) {
   const authorName = author?.fullName ?? FALLBACK_AUTHOR_NAME;
   const detailPath = `/blog/${post.id}`;

@@ -29,12 +29,6 @@ const fieldClass =
   "h-11 w-full rounded-xl border border-border bg-surface px-3.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
 const labelClass = "mb-1.5 block text-sm font-semibold text-ink";
 
-/**
- * Hộp thoại tạo / sửa danh mục. `target` quyết định chế độ (null = đóng):
- * - { mode: "create-root" }                 tạo danh mục gốc, chọn loại
- * - { mode: "create-child", parent }        tạo danh mục con, tự kế thừa loại của cha
- * - { mode: "edit", category }              chỉ đổi tên / thứ tự / hiển thị (BE không cho đổi cha và loại)
- */
 export default function CategoryFormDialog({ target, onClose }) {
   return (
     <Dialog open={target !== null} onOpenChange={(open) => !open && onClose()}>

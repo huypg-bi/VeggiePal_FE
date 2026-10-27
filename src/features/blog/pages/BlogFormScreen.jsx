@@ -8,9 +8,6 @@ import { flattenCategories } from "@/features/blog/utils/feedFilters";
 import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 
-// Trang viết bài mới (/blog/new) và sửa bài (/blog/:blogId/edit), cần đăng nhập.
-// Chế độ sửa nạp bài qua GET /blogs/:id: kèm token thì chủ bài / ADMIN đọc được cả bản nháp, chờ duyệt,
-// bị từ chối. Bài bị gỡ (BANNED) không sửa được vì BE từ chối.
 export default function BlogFormScreen() {
   const { blogId } = useParams();
   const isEdit = blogId !== undefined;

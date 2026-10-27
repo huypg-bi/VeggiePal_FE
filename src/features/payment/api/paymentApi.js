@@ -1,9 +1,5 @@
 import apiClient from "@/shared/api/apiClient";
 
-/**
- * Bảng dịch lỗi dành riêng cho payment-service (mã 6000–6007 của payment-service,
- * không dùng chung với ai-service hay các service khác).
- */
 const PAYMENT_ERROR_MESSAGES = {
   1008: "Phiên đăng nhập hết hạn",
   6000: "Vui lòng chọn gói thành viên",
@@ -51,11 +47,6 @@ function unwrap(res, fallbackMessage) {
   return res.data?.result;
 }
 
-/**
- * GET /payments/plans (Công khai)
- * Danh sách các gói thành viên hiện có:
- * [{ id, code, price, durationDays, chatPerDay, mealPlansPerMonth, videosPerMonth }]
- */
 export async function getPlans() {
   let res;
   try {
@@ -66,11 +57,6 @@ export async function getPlans() {
   return unwrap(res, "Không lấy được danh sách gói thành viên") ?? [];
 }
 
-/**
- * POST /payments/checkout (Yêu cầu đăng nhập)
- * Body: { planCode: "PLUS" | "PRO" }
- * Trả về: { id, orderCode, planCode, amount, status, checkoutUrl, createdAt, paidAt }
- */
 export async function checkout(planCode) {
   let res;
   try {
@@ -81,10 +67,6 @@ export async function checkout(planCode) {
   return unwrap(res, "Tạo yêu cầu thanh toán thất bại");
 }
 
-/**
- * GET /payments/orders/{id} (Yêu cầu đăng nhập)
- * Lấy chi tiết đơn hàng theo internal ID (không phải orderCode payOS)
- */
 export async function getOrder(id) {
   let res;
   try {
@@ -95,10 +77,6 @@ export async function getOrder(id) {
   return unwrap(res, "Không tìm thấy đơn hàng");
 }
 
-/**
- * POST /payments/orders/{id}/cancel (Yêu cầu đăng nhập)
- * Huỷ đơn PENDING, trả về đơn với status "CANCELLED".
- */
 export async function cancelOrder(id) {
   let res;
   try {
@@ -109,10 +87,6 @@ export async function cancelOrder(id) {
   return unwrap(res, PAYMENT_ERROR_MESSAGES[6009]);
 }
 
-/**
- * GET /payments/history (Yêu cầu đăng nhập)
- * Lịch sử thanh toán của người dùng, mới nhất trước
- */
 export async function getHistory() {
   let res;
   try {
@@ -123,11 +97,6 @@ export async function getHistory() {
   return unwrap(res, "Không lấy được lịch sử thanh toán") ?? [];
 }
 
-/**
- * GET /subscriptions/me (Yêu cầu đăng nhập)
- * Gói thành viên hiện tại:
- * { planCode, startedAt, expiresAt, chatPerDay, mealPlansPerMonth, videosPerMonth }
- */
 export async function getMySubscription() {
   let res;
   try {

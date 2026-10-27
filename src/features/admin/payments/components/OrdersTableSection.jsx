@@ -79,8 +79,6 @@ function OrderDetailDialog({ orderId, onClose }) {
   );
 }
 
-// Bảng đơn hàng có lọc trạng thái, phân trang, xem chi tiết (GET /admin/payments/orders[/{id}]).
-// filters: { from, to, planCode } dùng chung với các khối khác của trang.
 export default function OrdersTableSection({ filters, enabled }) {
   const [status, setStatus] = useState("");
   const [page, setPage] = useState(0);

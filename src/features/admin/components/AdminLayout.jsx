@@ -23,8 +23,6 @@ const navClass = ({ isActive }) =>
     isActive ? "bg-brand-soft text-brand" : "text-subtle hover:bg-surface hover:text-ink"
   );
 
-// Khung trang quản trị: thanh trên (logo, về trang web, đổi theme, đăng xuất) + menu trái.
-// Dưới lg menu chuyển thành hàng nút cuộn ngang phía trên nội dung.
 export default function AdminLayout() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);

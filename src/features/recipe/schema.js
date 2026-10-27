@@ -30,8 +30,6 @@ const quantityField = z
     "Số lượng tối thiểu 0,01 và tối đa 2 số thập phân"
   );
 
-// Form tạo / sửa công thức. Số giữ dạng chuỗi vì lấy từ <input>, đổi sang số khi gửi
-// (xem formValuesToPayload ở utils/recipeForm.js).
 export const recipeSchema = z.object({
   title: z
     .string()

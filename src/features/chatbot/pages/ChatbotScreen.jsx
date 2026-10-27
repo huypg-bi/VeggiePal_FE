@@ -15,12 +15,6 @@ import ChatEmptyState from "@/features/chatbot/components/ChatEmptyState";
 import TypingIndicator from "@/features/chatbot/components/TypingIndicator";
 import ChatComposer from "@/features/chatbot/components/ChatComposer";
 
-/**
- * Trang chatbot dinh dưỡng (/chatbot).
- * Dùng ai-service thật qua @/features/chatbot/api/chatbotApi.js:
- * - Đã đăng nhập: lịch sử hội thoại lưu ở BE (sidebar, nhiều lượt).
- * - Chưa đăng nhập: chế độ dùng thử, không có sidebar, giới hạn số lượt hỏi.
- */
 export default function ChatbotScreen() {
   const {
     isAuthenticated,

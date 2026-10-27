@@ -12,14 +12,6 @@ const ROWS = [
   { key: "Fat", label: "Chất béo", unit: "g", placeholder: ["35", "90"] },
 ];
 
-/**
- * Mục tiêu dinh dưỡng MỖI NGÀY tự đặt (tùy chọn), nằm trong form react-hook-form của AiMealSuggestion.
- * Điền thì BE dùng đúng khoảng này thay hẳn mục tiêu tự tính; chất bỏ trống thì không bị giới hạn.
- * Nhập quá chặt thì BE vẫn lên thực đơn nhưng đánh dấu ngày calo không đạt (targetMet=false), TodayMeals sẽ cảnh báo.
- * `replacesAuto`: form này có mục tiêu tự tính ở trên (thẻ NutritionTargetCard) nên nhắc rằng điền ở đây là thay nó.
- * `open` / `onOpenChange`: tùy chọn, để form cha mở phần này (vd sau khi điền sẵn từ mục tiêu gợi ý); bỏ trống thì
- * tự mở / đóng như thẻ <details> bình thường.
- */
 export default function NutritionTargetFields({ register, errors, replacesAuto = false, open, onOpenChange }) {
   const idPrefix = useId();
 

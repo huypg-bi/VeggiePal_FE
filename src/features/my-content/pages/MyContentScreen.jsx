@@ -20,11 +20,6 @@ const TABS = [
   { id: "extractions", label: "Bóc tách", icon: Sparkles },
 ];
 
-// Trang "Nội dung của tôi" (route /my-content, cần đăng nhập): bài viết (GET /blogs/me),
-// công thức (GET /recipes/me) và video (GET /videos/me) của chính mình ở mọi trạng thái,
-// kèm nút tạo mới / sửa / gửi duyệt / xóa. Tab "Bóc tách" là lịch sử AI bóc tách công thức từ video
-// (GET /ai/videos), nút góc phải mở hộp thoại tải video lên thay vì chuyển trang.
-// Tab nằm trên URL (?tab=videos) để form quay về đúng tab.
 export default function MyContentScreen() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [uploadOpen, setUploadOpen] = useState(false);

@@ -25,10 +25,6 @@ export function useHealthRecordHistory({ size = 5 } = {}) {
   });
 }
 
-/**
- * Ghi nhận chỉ số mới. Xong thì làm mới cả "latest" lẫn "history"
- * (cùng tiền tố khóa); trả Promise nên mutation chờ refetch xong mới kết thúc.
- */
 export function useCreateHealthRecord() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -38,11 +34,6 @@ export function useCreateHealthRecord() {
   });
 }
 
-/**
- * Sửa một bản ghi chỉ số cũ (PUT /nutrition/me/health-records/:id). Xong thì làm mới cả "latest" lẫn
- * "history" (kèm biểu đồ BMI) bằng cùng tiền tố khóa, giống useCreateHealthRecord.
- * mutate({ id, heightCm, weightKg })
- */
 export function useUpdateHealthRecord() {
   const queryClient = useQueryClient();
   return useMutation({

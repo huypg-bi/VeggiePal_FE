@@ -8,13 +8,6 @@ import SelectField from "@/shared/components/SelectField";
 
 const SEARCH_DEBOUNCE_MS = 400;
 
-/**
- * Thanh tìm kiếm + hai dropdown sắp xếp / lọc danh mục của feed, cùng một hàng.
- * - filters: { keyword, sort, categoryId } (nguồn sự thật nằm ở URL, xem BlogScreen)
- * - onChange(patch): gộp patch vào bộ lọc hiện tại
- * Ô tìm kiếm giữ chữ đang gõ ở state cục bộ và chỉ báo lên sau khi ngừng gõ,
- * nên cha muốn xóa ô này phải remount component bằng `key`.
- */
 export default function BlogFilterBar({ filters, onChange }) {
   const [text, setText] = useState(filters.keyword);
   const timerRef = useRef(undefined);

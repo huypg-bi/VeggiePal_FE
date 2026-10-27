@@ -32,8 +32,6 @@ const LOCATION_FAILED_MESSAGES = {
     "Trình duyệt không hỗ trợ định vị. Đang dùng vị trí mặc định (Quận 1, TP.HCM).",
 };
 
-// Trang Bản đồ quán chay (location-service: GET /restaurants/nearby).
-// Màn hình giữ toàn bộ state; danh sách và bản đồ cùng đọc một mảng quán đã lọc.
 export default function RestaurantMapScreen() {
   const { location, isDefaultLocation, status, request, resetToDefault } =
     useUserLocation();

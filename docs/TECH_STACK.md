@@ -276,7 +276,7 @@ import { Button } from "@/components/ui/button";
 - CSS tùy chỉnh (keyframes, autofill...) chỉ thêm vào `src/styles/globals.css`, đúng `@layer`.
 - Component ở `components/ui/` là shadcn — file component chỉ export component; `cva` variants tách sang `*-variants.js` (để Fast Refresh hoạt động, ESLint `react-refresh` bắt lỗi này).
 - Ảnh/SVG/video: đặt trong `src/assets/`, `import` vào component. Favicon ở `public/favicon.png`.
-- Comment trong code viết bằng **tiếng Việt**, ngắn, giải thích "vì sao" (theo phong cách hiện có).
+- Comment trong code viết bằng **tiếng Việt**, **đúng 1 dòng**, chỉ để chú thích "vì sao" quan trọng. Không viết comment nhiều dòng trong code: giải thích dài về chức năng / cách hoạt động ghi vào `docs/CODE_NOTES.md` (nhóm theo thư mục và file, mỗi mục gắn với một dòng code qua dòng "Gắn với"). Sửa hành vi của đoạn code đã có mục ở đó thì sửa mục đó; xóa code thì xóa mục.
 
 ### 5.7. Test (test tạm — viết để kiểm tra, xong thì xóa)
 

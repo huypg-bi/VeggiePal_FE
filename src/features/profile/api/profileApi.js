@@ -1,25 +1,5 @@
 import apiClient from "@/shared/api/apiClient";
 
-/**
- * Profile + nutrition APIs (identity-service + nutrition-service qua api-gateway).
- * Base: VITE_VEGGIEPAL_API_BASE_URL = http://localhost:8080/api
- *
- * Identity:
- *   GET    /users/me
- *   PATCH  /users/me
- *   PUT    /users/me/password
- *   POST   /users/me/avatar  (multipart)
- *
- * Nutrition:
- *   GET    /nutrition/allergens
- *   GET    /nutrition/me/allergies
- *   PUT    /nutrition/me/allergies
- *   GET    /nutrition/me/health-records
- *   GET    /nutrition/me/health-records/latest
- *   POST   /nutrition/me/health-records
- *   PUT    /nutrition/me/health-records/:id
- */
-
 const INVALID_DATA = "Dữ liệu chưa hợp lệ, vui lòng kiểm tra lại";
 const HEIGHT_INVALID = "Chiều cao 50 đến 250 cm, tối đa 1 chữ số thập phân";
 const WEIGHT_INVALID = "Cân nặng 20 đến 300 kg, tối đa 1 chữ số thập phân";
@@ -75,16 +55,6 @@ export async function getProfile() {
   return unwrap(res, "Không lấy được thông tin hồ sơ");
 }
 
-/**
- * PATCH /users/me
- * Body: { fullName?, phone?, dateOfBirth?, gender?, activityLevel? }
- * - null / bỏ field: giữ nguyên
- * - phone: "" để xóa số điện thoại
- * - gender: "MALE" | "FEMALE" | "OTHER"; activityLevel: "SEDENTARY" | "LIGHT" | "MODERATE" | "ACTIVE" | "VERY_ACTIVE".
- *   Giá trị lạ (kể cả "") bị BE từ chối (400 / 1018) và không có cách xóa về trống, nên chỉ gửi khi đã chọn.
- *   Hai trường này cùng ngày sinh là dữ liệu BE dùng để tính nhu cầu calo của thực đơn.
- * GET /users/me trả thêm gender, activityLevel (null khi chưa nhập).
- */
 export async function updateProfile(payload) {
   const res = await apiClient.patch("/users/me", payload);
   return unwrap(res, "Cập nhật hồ sơ thất bại");

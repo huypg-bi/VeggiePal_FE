@@ -4,10 +4,6 @@ import { getBlog, getBlogs, getRelatedBlogs } from "@/features/blog/api/blogApi"
 import { blogKeys } from "@/features/blog/queryKeys";
 import { flattenPages, getNextPageNumber } from "@/shared/utils/paging";
 
-/**
- * Feed bài viết (GET /blogs) dạng "Tải thêm". params: { categoryId, keyword, sort, size }.
- * Trả về query của React Query + `posts` (mảng phẳng các bài đã tải).
- */
 export function useBlogFeed({ categoryId, keyword, sort, size = 10 } = {}) {
   const query = useInfiniteQuery({
     queryKey: blogKeys.feed({ categoryId, keyword, sort, size }),
@@ -21,10 +17,6 @@ export function useBlogFeed({ categoryId, keyword, sort, size = 10 } = {}) {
   return { ...query, posts: flattenPages(query.data) };
 }
 
-/**
- * Chi tiết một bài (GET /blogs/:id). BE tính 1 lượt xem mỗi lần gọi, nên tắt refetch
- * khi mount lại để không đếm xem trùng chỉ vì người dùng quay lại trang.
- */
 export function useBlog(id) {
   return useQuery({
     queryKey: blogKeys.detail(id),

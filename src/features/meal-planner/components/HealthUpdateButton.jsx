@@ -40,18 +40,6 @@ function emptyValues() {
   return { ...Object.fromEntries(TARGET_FIELDS.map((field) => [field, ""])), changeSummary: "" };
 }
 
-/**
- * Nút "Cập nhật theo chỉ số mới" + hộp thoại xem trước của một thực đơn.
- * Bấm nút: BE tính lại mục tiêu dinh dưỡng theo chỉ số sức khỏe mới nhất (và ngày sinh, giới tính, mức vận động trong
- * hồ sơ, theo mục tiêu giảm / duy trì / tăng cân đã lưu của thực đơn) rồi co giãn lại khẩu phần, nhưng CHƯA lưu
- * (update-from-health với confirm=false). Người dùng xem so sánh rồi bấm "Áp dụng" mới lưu (confirm=true);
- * BE giữ bản cũ trong lịch sử phiên bản. `plan` là một MealPlan trong danh sách của useMealPlans.
- * Hồ sơ thiếu thông tin thì BE báo 6020 (hiện liên kết sang hồ sơ); dưới 18 tuổi báo 6021 (gợi ý tự đặt mục tiêu riêng).
- *
- * Tùy chọn: tự đặt mục tiêu dinh dưỡng riêng (BE dùng thay hẳn mục tiêu tính từ chỉ số sức khỏe) và ghi chú thay đổi.
- * Bản lưu phải dùng đúng mục tiêu của bản xem trước người dùng vừa thấy, nên đổi ô nhập thì phải xem trước lại
- * mới được áp dụng (`previewTarget` là mục tiêu của lần xem trước gần nhất).
- */
 export default function HealthUpdateButton({ plan }) {
   const [open, setOpen] = useState(false);
   const [previewTarget, setPreviewTarget] = useState(undefined);

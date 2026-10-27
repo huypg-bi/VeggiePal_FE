@@ -4,10 +4,6 @@ import { BookOpen, ChefHat, Sparkles } from "lucide-react";
 import FallbackImage from "@/shared/components/FallbackImage";
 import { cn } from "@/lib/utils";
 
-/**
- * Card hiển thị một mục nội dung gợi ý từ AI (có thể là BLOG hoặc RECIPE).
- * Hiển thị hình ảnh, badge loại, lý do AI gợi ý (reason) và tiêu đề.
- */
 export default function RecommendationCard({ item }) {
   const isRecipe = item.type === "RECIPE";
   const content = item.content || {};

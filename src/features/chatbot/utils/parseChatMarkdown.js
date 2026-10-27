@@ -1,10 +1,3 @@
-/**
- * Phân tích markdown đơn giản mà AI trả về thành cấu trúc block để UI render
- * (không dùng thư viện markdown vì quy ước dự án không thêm dependency).
- * Hỗ trợ: tiêu đề (#), bảng (| a | b |), danh sách (-, *, •, 1.), đường kẻ (---),
- * đoạn văn; inline: **đậm**, *nghiêng*, `code`.
- */
-
 const TABLE_ROW = /^\s*\|.*\|\s*$/;
 const TABLE_SEPARATOR = /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/;
 const HEADING = /^\s{0,3}(#{1,6})\s+(.*)$/;

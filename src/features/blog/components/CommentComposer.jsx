@@ -11,13 +11,6 @@ import { commentSchema } from "@/features/blog/schema";
 const fieldClass =
   "w-full resize-y rounded-2xl border border-border bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
 
-/**
- * Ô viết bình luận. Ba chế độ:
- * - bình luận mới:  <CommentComposer blogId />
- * - phản hồi:       <CommentComposer blogId parentCommentId />
- * - sửa:            <CommentComposer blogId commentId initialContent />
- * `onDone` chạy sau khi gửi thành công, `onCancel` (nếu có) hiện nút Hủy.
- */
 export default function CommentComposer({
   blogId,
   parentCommentId,

@@ -1,5 +1,3 @@
-// Chuyển đổi giữa dữ liệu form nguyên liệu (toàn chuỗi) và IngredientRequest / IngredientResponse của BE.
-// Không import alias @/ để file test (node --test) chạy được.
 import { parseDecimal } from "../schema.js";
 
 export function emptyIngredientForm() {

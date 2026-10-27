@@ -22,9 +22,6 @@ import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-// Trang Cộng đồng (route /blog). Bài viết lấy từ API thật (GET /blogs); bảng vàng,
-// chủ đề, thử thách... BE chưa có API nên vẫn dùng mock trong features/blog/data/mockBlog.js.
-// Trên mobile bài viết lên trước, hai cột phụ xuống dưới (order-*); từ lg trở lên là 3 cột.
 export default function BlogScreen() {
   // Bộ lọc nằm trên URL (?q=&sort=&category=) để quay lại từ trang chi tiết vẫn giữ nguyên.
   const [searchParams, setSearchParams] = useSearchParams();

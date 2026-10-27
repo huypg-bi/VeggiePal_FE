@@ -30,12 +30,6 @@ const labelClass = "mb-1.5 block text-sm font-semibold text-ink";
 const errorClass = "mt-1.5 text-xs text-destructive";
 const cardClass = "flex flex-col gap-5 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6";
 
-/**
- * Form tạo / sửa công thức.
- * - Tạo mới (không có `recipe`): "Lưu nháp" hoặc "Lưu và đăng".
- * - Sửa (`recipe` là RecipeResponse): "Lưu thay đổi" (không đổi trạng thái);
- *   công thức chưa đăng có thêm "Lưu và đăng".
- */
 export default function RecipeForm({ recipe }) {
   const idPrefix = useId();
   const navigate = useNavigate();

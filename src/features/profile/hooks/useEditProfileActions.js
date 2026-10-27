@@ -1,13 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-/**
- * Nút "Lưu thông tin" / "Hủy thay đổi" cuối trang.
- * Quyết định: chỉ lưu phần đã thay đổi (thông tin cá nhân + dị ứng). Mật khẩu và chỉ số
- * sức khỏe có nút riêng vì là thao tác tức thời (đổi mật khẩu / ghi nhận bản ghi mới).
- * `returnTo`: nơi quay lại sau khi lưu / hủy (mặc định trang cá nhân); trang thực đơn đặt nó khi chuyển người dùng sang
- * bổ sung hồ sơ để họ làm xong là về thẳng thực đơn.
- */
 export function useEditProfileActions({ personal, allergy, returnTo = "/profile" }) {
   const navigate = useNavigate();
   const [status, setStatus] = useState({ type: "", message: "" });

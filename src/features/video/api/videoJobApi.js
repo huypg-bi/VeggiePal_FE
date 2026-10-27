@@ -51,10 +51,6 @@ function unwrap(res, fallbackMessage) {
   return res.data?.result;
 }
 
-/**
- * POST /ai/videos/process (multipart, field `file`, cần đăng nhập và còn lượt trong gói).
- * BE trả 202 kèm job { id, status: "PROCESSING", ... }; kết quả lấy bằng cách hỏi lại GET /ai/videos/:id.
- */
 export async function processVideo(file, { onUploadProgress } = {}) {
   const formData = new FormData();
   formData.append("file", file);
@@ -72,12 +68,6 @@ export async function processVideo(file, { onUploadProgress } = {}) {
   return unwrap(res, "Gửi video bóc tách thất bại");
 }
 
-/**
- * POST /ai/videos/process-existing { videoId } — bóc tách công thức của một video đã đăng (chỉ video UPLOAD,
- * đã xuất bản). BE trả 202 kèm job: đã có kết quả thì dùng lại (COMPLETED, không trừ lượt), đang chạy thì trả
- * job PROCESSING, còn lại tạo job mới và trừ 1 lượt (hoàn lại nếu thất bại).
- * Theo dõi bằng getVideoRecipe, không dùng GET /ai/videos/:id vì job có thể của người khác (BE trả 404).
- */
 export async function processExistingVideo(videoId) {
   let res;
   try {
@@ -88,11 +78,6 @@ export async function processExistingVideo(videoId) {
   return unwrap(res, "Gửi video bóc tách thất bại");
 }
 
-/**
- * GET /ai/videos/by-video/:videoId — công thức AI dùng chung của một video đã đăng (công khai, không tốn lượt).
- * Trả { state, extraction? } với state: "ready" | "processing" | "failed" | "unsupported" | "none"
- * (xem recipeStateFromResponse); lỗi khác (mạng, 5xx...) thì ném.
- */
 export async function getVideoRecipe(videoId) {
   let res;
   try {
@@ -105,13 +90,6 @@ export async function getVideoRecipe(videoId) {
   throw new Error(toMessage(res, "Không lấy được công thức AI của video"));
 }
 
-/**
- * GET /ai/videos — lịch sử bóc tách của tôi, mới nhất trước.
- * PageResponse { content, page, size, totalElements, totalPages, first, last } (size tối đa 100).
- * Mỗi job: { id, status: PROCESSING | COMPLETED | FAILED, filename, transcript,
- *   extraction: { title, ingredients: [{ name, quantity }], steps: [{ number, instruction }] },
- *   error, createdAt, updatedAt }.
- */
 export async function getVideoJobs({ page = 0, size = 10 } = {}) {
   let res;
   try {

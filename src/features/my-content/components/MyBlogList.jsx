@@ -20,8 +20,6 @@ import { cn } from "@/lib/utils";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
 import FallbackImage from "@/shared/components/FallbackImage";
 
-// Tab "Bài viết": lọc theo trạng thái (GET /blogs/me?status=) + danh sách "Xem thêm",
-// mỗi dòng có Sửa / Gửi duyệt / Xóa tùy trạng thái.
 export default function MyBlogList() {
   const [status, setStatus] = useState("");
   const { posts, total, isPending, isError, error, hasNextPage, fetchNextPage, isFetchingNextPage } =

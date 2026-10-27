@@ -18,11 +18,6 @@ const PAGE_SIZE = 5;
 
 const formatNumber = (value) => Number(value).toLocaleString("vi-VN");
 
-/**
- * Nút "Yêu thích của tôi" + hộp thoại liệt kê các thực đơn đã yêu thích (GET /ai/meal-plans/favorites, phân trang).
- * Mỗi mục bấm "Xem chi tiết" để mở 7 ngày của thực đơn (GET /ai/meal-plans/favorites/:id), hoặc "Mở trên trang" để
- * chuyển trang thực đơn sang thực đơn đó. `plans` là danh sách thực đơn đã tải của trang; `onSelectPlan(id)` chọn một cái.
- */
 export default function FavoritePlansButton({ plans, onSelectPlan }) {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);

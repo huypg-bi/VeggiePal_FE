@@ -10,14 +10,6 @@ import {
 const EMPTY_KEY = "__empty__";
 const toKey = (value) => (value === "" || value == null ? EMPTY_KEY : String(value));
 
-/**
- * Dropdown chọn một giá trị, thay cho <select> gốc.
- * options: [{ value, label }]; onValueChange(value) nhận lại đúng `value` gốc (số, chuỗi hay undefined)
- * của option được chọn. Giá trị không khớp option nào thì hiện `placeholder`.
- * variant: "pill" (thanh lọc) | "field" (ô trong form) | "compact" (ô trong form, thấp hơn và chữ nhỏ hơn "field").
- * `id` để <label htmlFor> trỏ tới.
- * `active` tô nhẹ nút khi đang lọc khác mặc định (chỉ dùng với variant pill).
- */
 export default function SelectField({
   options,
   value,
@@ -69,8 +61,6 @@ export default function SelectField({
         }
       >
         {variant === "pill" ? (
-          // Các nhãn ẩn xếp chồng cùng một ô lưới để nút luôn rộng bằng mục dài nhất,
-          // nhờ đó menu (rộng đúng bằng nút) và nút không bao giờ lệch nhau.
           <span className="grid min-w-0 flex-1 text-left">
             <span className="col-start-1 row-start-1 flex items-center gap-2 truncate">
               {SelectedIcon && <SelectedIcon className="size-4 shrink-0" />}

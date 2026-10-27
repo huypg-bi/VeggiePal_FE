@@ -17,11 +17,6 @@ function applyThemeClass(theme) {
 const initialTheme = getPreferredTheme();
 applyThemeClass(initialTheme);
 
-/**
- * Nguồn sự thật cho theme (light/dark) của toàn app.
- * - Đồng bộ với class `dark` trên <html> để Tailwind dark: hoạt động.
- * - Lưu lựa chọn vào localStorage để giữ theme khi F5 / mở tab mới.
- */
 export const useThemeStore = create((set, get) => ({
     theme: initialTheme,
 

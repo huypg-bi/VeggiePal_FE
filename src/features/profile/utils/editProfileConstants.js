@@ -1,6 +1,3 @@
-// Hằng số dùng chung cho các component của trang chỉnh sửa hồ sơ.
-// Gom vào một chỗ để component không phải chứa chuỗi/class lặp lại.
-
 // Nhãn + mô tả tiếng Việt cho từng nhóm `category` mà BE trả về (enum AllergenCategory).
 export const ALLERGY_CATEGORY_META = {
   GRAIN: { name: "Ngũ cốc & Tinh bột", note: "Chọn các loại ngũ cốc gây mẫn cảm hoặc dị ứng:" },
@@ -14,8 +11,6 @@ export const ALLERGY_CATEGORY_META = {
 };
 export const OTHER_CATEGORY_META = { name: "Khác", note: "Các thành phần khác cần tránh:" };
 
-// Giới tính và mức độ vận động (enum Gender / ActivityLevel của identity-service). BE dùng hai trường này cùng ngày
-// sinh để tính nhu cầu calo khi lên thực đơn.
 export const GENDER_OPTIONS = [
   { value: "MALE", label: "Nam" },
   { value: "FEMALE", label: "Nữ" },

@@ -1,5 +1,3 @@
-// BE trả message tiếng Anh theo ErrorCode. Với các lỗi người dùng có thể gặp khi thao tác
-// (vote, bình luận...) ta đổi sang tiếng Việt theo `code`; code lạ thì dùng message của BE.
 const VI_MESSAGES = {
   1002: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
   1008: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",

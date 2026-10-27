@@ -40,10 +40,6 @@ const NUTRITION_FIELDS = [
   ["fiberPer100g", "Chất xơ (không bắt buộc)", "g"],
 ];
 
-/**
- * Hộp thoại thêm / sửa nguyên liệu. `target`: null = đóng,
- * { mode: "create" } hoặc { mode: "edit", ingredient }.
- */
 export default function IngredientFormDialog({ target, onClose }) {
   return (
     <Dialog open={target !== null} onOpenChange={(open) => !open && onClose()}>

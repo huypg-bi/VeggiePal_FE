@@ -47,10 +47,6 @@ function formatDateTime(isoString) {
   }
 }
 
-/**
- * Modal hiển thị toàn bộ thông tin chi tiết của một case kiểm duyệt.
- * Hiển thị trực tiếp nội dung văn bản bị gắn cờ (content) và mã tác giả (authorId) từ AI-Service.
- */
 export default function ModerationDetailDialog({
   item,
   open,

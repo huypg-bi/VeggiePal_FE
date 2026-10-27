@@ -16,11 +16,6 @@ export const LOGIN_FAILED_MESSAGE = "Email hoặc mật khẩu không đúng";
 export const NETWORK_ERROR_MESSAGE = "Không kết nối được máy chủ, vui lòng thử lại";
 const SERVER_ERROR_MESSAGE = "Máy chủ đang gặp sự cố, vui lòng thử lại sau";
 
-/**
- * Thông báo tiếng Việt cho một phản hồi lỗi (status >= 400) của /auth/*.
- * `overrides` là bảng riêng của từng hàm (vd login dịch 1008 thành "sai email hoặc mật khẩu").
- * Mã lạ thì dùng `fallbackMessage`, không dùng message của BE vì nó là tiếng Anh.
- */
 export function toAuthMessage(res, fallbackMessage, overrides = {}) {
   const code = res?.data?.code;
   const byCode = overrides[code] ?? VI_MESSAGES[code];

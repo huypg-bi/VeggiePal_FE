@@ -25,14 +25,6 @@ const errorClass = "mt-1.5 text-xs text-destructive";
 const notify = ({ tone, message }) =>
   tone === "error" ? toast.error(message) : tone === "info" ? toast.info(message) : toast.success(message);
 
-/**
- * Form viết / sửa bài.
- * - Tạo mới (không có `blog`): "Lưu nháp" hoặc "Đăng bài" (kiểm duyệt ngay).
- * - Sửa (`blog` là BlogResponse, mọi trạng thái trừ BANNED): "Lưu thay đổi". Bản nháp vẫn là nháp;
- *   bài đã qua kiểm duyệt (đã đăng, chờ duyệt, bị từ chối) sẽ được BE kiểm duyệt lại.
- * `categories` là danh sách phẳng { id, name } của danh mục đang hoạt động.
- * Ảnh bìa tải lên bằng endpoint riêng sau khi bài đã có id.
- */
 export default function BlogForm({ blog, categories }) {
   const idPrefix = useId();
   const navigate = useNavigate();

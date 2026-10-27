@@ -1,5 +1,3 @@
-// Khóa cache React Query của feature blog (danh mục, bài viết, bình luận).
-// Khóa phân cấp: invalidateQueries({ queryKey: blogKeys.blogs }) làm mới cả feed lẫn chi tiết.
 export const blogKeys = {
   categories: ["blog", "categories"],
   categoryTree: (type, activeOnly) => [

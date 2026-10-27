@@ -1,8 +1,5 @@
 import { z } from "zod";
 
-// Luật kiểm tra dữ liệu form đăng nhập.
-// react-hook-form + zodResolver sẽ dùng schema này để validate và sinh message lỗi.
-// Backend (/auth/login) chỉ chấp nhận email, không hỗ trợ số điện thoại/username.
 export const loginSchema = z.object({
     email: z
         .string()

@@ -89,11 +89,6 @@ export function toRounded(value) {
   return Number.isFinite(n) && n > 0 ? Math.round(n) : 0;
 }
 
-/**
- * Tỉ lệ năng lượng (%) của tinh bột / đạm / béo trong một ngày, tổng đúng 100.
- * Quy đổi theo năng lượng: đạm 4 kcal/g, tinh bột 4 kcal/g, béo 9 kcal/g.
- * Trả null khi chưa có dữ liệu (tổng bằng 0).
- */
 export function macroPercentages(totals) {
   const energy = {
     carb: Math.max(0, Number(totals?.carbohydrate) || 0) * 4,
@@ -141,24 +136,10 @@ function describeRange(min, max, unit) {
   return "";
 }
 
-/**
- * Các chất mà ngày này lệch khỏi mục tiêu, lấy từ `day.targetDeviations`.
- * BE không từ chối thực đơn mà chỉ đánh dấu: `targetMet: false` + `targetDeviations: { protein: { actual, min?, max? } }`.
- * `targetMet` chỉ xét calo trong [minCalories, maxCalories] (không dung sai); `targetDeviations` liệt kê mọi chất nằm
- * ngoài khoảng, kể cả khi `targetMet` là true. FE chỉ cảnh báo khi `targetMet` không phải true, nên đạm / tinh bột /
- * béo lệch một mình (calo vẫn đạt) thì không bị coi là ngày lỡ mục tiêu.
- * Trả mảng { key, label, unit, actual, range } theo thứ tự năng lượng, đạm, tinh bột, béo; rỗng khi ngày đạt
- * mục tiêu calo, không đặt mục tiêu hoặc thực đơn cũ chưa có hai trường này.
- */
 export function dayTargetDeviations(day) {
   return day?.targetMet === true ? [] : listDeviations(day);
 }
 
-/**
- * Ngược lại với dayTargetDeviations: các chất (đạm, tinh bột, béo) lệch khỏi khoảng mục tiêu trong khi calo của ngày
- * vẫn đạt (`targetMet === true`). Chỉ là lưu ý nhẹ, không tính là ngày lỡ mục tiêu. Cùng dạng mảng với
- * dayTargetDeviations; rỗng khi ngày không đạt calo (khi đó mọi chất lệch đã nằm trong cảnh báo chính) hoặc không lệch gì.
- */
 export function dayMacroNotes(day) {
   return day?.targetMet === true ? listDeviations(day) : [];
 }
@@ -202,10 +183,6 @@ export function findDayByKey(planBody, key) {
   return days.find((day) => normalizeDay(day.day) === normalizeDay(key)) ?? null;
 }
 
-/**
- * Dựng `edits` gửi BE cho một bữa: đổi món thì REPLACE (kèm khẩu phần chọn, vì BE mặc định giữ khẩu phần cũ),
- * chỉ đổi khẩu phần thì UPDATE_SERVING. Không đổi gì thì trả mảng rỗng.
- */
 export function buildMealEdits({ day, mealType, currentRecipeId, currentMultiplier = 1, recipeId, multiplier }) {
   if (recipeId !== currentRecipeId) {
     return [{ day, mealType, action: "REPLACE", recipeId, servingMultiplier: multiplier }];
@@ -218,10 +195,6 @@ export function buildMealEdits({ day, mealType, currentRecipeId, currentMultipli
 
 const TARGET_SUFFIX ={ calories: "Calories", protein: "Protein", carbohydrate: "Carbohydrate", fat: "Fat" };
 
-/**
- * Các mốc mục tiêu (dailyNutritionTarget) thành dòng chữ cho từng chất, bỏ chất không đặt mốc nào.
- * Trả mảng { key, label, unit, range }, ví dụ { label: "Đạm", range: "≥ 80 g" }.
- */
 export function targetRangeLines(target) {
   if (!target) return [];
   return TARGET_METRICS.map(({ key, label, unit }) => ({
@@ -232,10 +205,6 @@ export function targetRangeLines(target) {
   })).filter((line) => line.range);
 }
 
-/**
- * Năng lượng / đạm / tinh bột / béo trung bình mỗi ngày của phần `plan` (có days[].nutritionTotals),
- * làm tròn số nguyên. Trả null khi chưa có ngày nào có nutritionTotals.
- */
 export function averageDailyTotals(planBody) {
   const days = Array.isArray(planBody?.days) ? planBody.days.filter((day) => day?.nutritionTotals) : [];
   if (days.length === 0) return null;
@@ -265,10 +234,6 @@ export const TARGET_FIELDS = [
 const EN_GROUPED_NUMBER = /^[1-9]\d{0,2}(,\d{3})+(\.\d+)?$/; // 1,500 / 1,500.5
 const VI_GROUPED_NUMBER = /^[1-9]\d{0,2}(\.\d{3})+(,\d+)?$/; // 1.500 / 1.500,5
 
-/**
- * Chuỗi người dùng nhập -> số. Hiểu cả kiểu có dấu phân cách hàng nghìn ("1,500" / "1.500" -> 1500) lẫn dấu phẩy
- * thập phân kiểu Việt ("1500,5" / "1500.5" -> 1500,5). Chuỗi rỗng hoặc không phải số -> NaN.
- */
 export function parseTargetNumber(text) {
   const clean = String(text ?? "").trim();
   if (clean === "") return Number.NaN;
@@ -277,10 +242,6 @@ export function parseTargetNumber(text) {
   return Number(clean.replace(",", "."));
 }
 
-/**
- * Dựng dailyNutritionTarget từ các ô nhập (chuỗi). Ô trống bị bỏ qua; không có ô nào thì
- * trả undefined để KHÔNG gửi mục tiêu riêng (BE tự tính theo hồ sơ khi tạo thực đơn).
- */
 export function buildNutritionTarget(values) {
   const target = {};
   for (const field of TARGET_FIELDS) {
@@ -297,10 +258,6 @@ export function sameTarget(a, b) {
   return TARGET_FIELDS.every((field) => left[field] === right[field]);
 }
 
-/**
- * Body cho POST /ai/meal-plans/:id/update-from-health. `customTarget` (mục tiêu tự đặt, thay hẳn mục tiêu BE
- * tính từ chỉ số sức khỏe) và `changeSummary` (ghi chú lưu vào lịch sử phiên bản) chỉ được gửi khi có.
- */
 export function buildHealthUpdateBody({ confirm, customTarget, changeSummary }) {
   const body = { confirm: Boolean(confirm) };
   if (customTarget && Object.keys(customTarget).length > 0) body.customTarget = customTarget;
@@ -321,10 +278,6 @@ export function goalLabel(goalType) {
   return GOAL_OPTIONS.find((option) => option.value === goalType)?.label ?? "";
 }
 
-/**
- * Mô tả thêm nằm trong `goal` của một thực đơn: "Giảm cân: ăn thanh đạm" -> "ăn thanh đạm". Thực đơn cũ chưa có
- * goalType (hoặc `goal` không theo dạng trên) thì trả nguyên `goal`; rỗng khi không có mô tả thêm.
- */
 export function planGoalNote(plan) {
   const goal = String(plan?.goal ?? "").trim();
   const label = goalLabel(plan?.goalType);
@@ -344,28 +297,15 @@ export function planGoalSummary(plan) {
 // BE chỉ tự tính mục tiêu calo cho người từ 18 tuổi trở lên (lỗi 6021).
 const ADULT_AGE = 18;
 
-/**
- * Các trường hồ sơ BE cần để tự tính calo mà đang trống, theo tên field của `GET /users/me`
- * ("dateOfBirth" | "gender" | "activityLevel"). Chưa có hồ sơ thì trả mảng rỗng (chưa kết luận được).
- */
 export function missingProfileFields(profile) {
   if (!profile) return [];
   return ["dateOfBirth", "gender", "activityLevel"].filter((field) => !profile[field]);
 }
 
-/**
- * `state` của liên kết sang `/profile/edit` khi hồ sơ thiếu thông tin cho thực đơn: trang hồ sơ dùng nó để mở sẵn và
- * làm nổi các ô còn thiếu, rồi cho người dùng quay lại thực đơn sau khi lưu (xem profile/utils/profileFixState.js).
- */
 export function profileFixState(missingFields = []) {
   return { missingFields, returnTo: "/meal-planner", returnLabel: "Quay lại thực đơn" };
 }
 
-/**
- * Hồ sơ có đủ điều kiện để BE tự tính mục tiêu calo không (cùng điều kiện với lỗi 6020 / 6021 của BE):
- * "incomplete" khi thiếu ngày sinh / giới tính / mức vận động, "underage" khi dưới 18 tuổi, null khi ổn
- * (hoặc chưa có hồ sơ để kiểm tra: khi đó để BE quyết định). `profile.dateOfBirth` dạng "YYYY-MM-DD".
- */
 export function profileTargetIssue(profile, today = new Date()) {
   if (!profile) return null;
   if (!profile.dateOfBirth || !profile.gender || !profile.activityLevel) return "incomplete";
@@ -378,21 +318,12 @@ export function profileTargetIssue(profile, today = new Date()) {
   return age < ADULT_AGE ? "underage" : null;
 }
 
-/**
- * `healthGoal` gửi BE (bắt buộc không rỗng): nhãn của mục tiêu, kèm mô tả thêm của người dùng nếu có,
- * ví dụ "Giảm cân: ăn thanh đạm".
- */
 export function buildHealthGoalText(goalType, note) {
   const label = goalLabel(goalType);
   const extra = String(note ?? "").trim();
   return extra ? `${label}: ${extra}` : label;
 }
 
-/**
- * Payload cho POST /ai/meal-plans từ giá trị form + nguyên liệu/khẩu vị đã chọn.
- * `healthNote` là mô tả thêm (tùy chọn). Không có ô mục tiêu nào được điền thì không gửi dailyNutritionTarget,
- * BE sẽ tự tính theo hồ sơ + goalType.
- */
 export function buildGeneratePayload({ name, goalType, healthNote, preferences, ingredients, target }) {
   const payload = {
     name: name.trim(),
@@ -418,20 +349,12 @@ export function weekStart(date = new Date()) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() - ((date.getDay() + 6) % 7));
 }
 
-/**
- * Tên gợi ý cho thực đơn mới: cả tuần T2 -> CN chứa ngày tạo, ví dụ tạo ngày 17/10 -> "Thực đơn 12/10 - 18/10".
- * BE chỉ lưu thứ (MONDAY..SUNDAY) chứ không lưu ngày cụ thể, nên lấy tuần lịch là khớp nhất với dữ liệu.
- */
 export function defaultPlanName(date = new Date()) {
   const start = weekStart(date);
   const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
   return `Thực đơn ${formatDayMonth(start)} - ${formatDayMonth(end)}`;
 }
 
-/**
- * Ngày cụ thể của một thứ trong thực đơn, tính theo tuần chứa ngày tạo (`plan.createdAt`).
- * Trả null khi thiếu createdAt / thứ lạ.
- */
 export function planDayDate(plan, dayKey) {
   const index = DAY_ORDER.indexOf(normalizeDay(dayKey));
   const created = new Date(plan?.createdAt);
