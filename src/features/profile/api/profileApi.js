@@ -1,38 +1,9 @@
 import apiClient from "@/shared/api/apiClient";
-
-const INVALID_DATA = "Dữ liệu chưa hợp lệ, vui lòng kiểm tra lại";
-const HEIGHT_INVALID = "Chiều cao 50 đến 250 cm, tối đa 1 chữ số thập phân";
-const WEIGHT_INVALID = "Cân nặng 20 đến 300 kg, tối đa 1 chữ số thập phân";
-const ALLERGY_INVALID = "Danh sách dị ứng không hợp lệ";
-
-// Mã lỗi BE (identity 10xx, nutrition 20xx) -> tiếng Việt. Dịch ở API để mọi màn hình tự hiện đúng tiếng Việt.
-const VI_MESSAGES = {
-  1001: INVALID_DATA,
-  1018: INVALID_DATA,
-  1003: "Mật khẩu tối thiểu 6 ký tự",
-  1006: "Vui lòng nhập họ tên",
-  1007: "Không tìm thấy tài khoản",
-  1008: "Phiên đăng nhập đã hết hạn",
-  1009: "Bạn không có quyền thực hiện",
-  1010: "Vui lòng nhập mật khẩu",
-  1011: "Mật khẩu hiện tại không đúng",
-  1012: "Mật khẩu mới phải khác mật khẩu hiện tại",
-  1013: "Ngày sinh phải ở quá khứ",
-  1014: "Vui lòng chọn ảnh đại diện",
-  1015: "Ảnh phải là JPEG, PNG hoặc WEBP",
-  1016: "Ảnh không được vượt quá 2MB",
-  1017: "Không tải được ảnh lên, vui lòng thử lại sau",
-  2001: HEIGHT_INVALID,
-  2002: HEIGHT_INVALID,
-  2003: WEIGHT_INVALID,
-  2004: WEIGHT_INVALID,
-  2006: ALLERGY_INVALID,
-  2007: ALLERGY_INVALID,
-};
+import { PROFILE_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
 // Ưu tiên mã lỗi BE; nếu không có mã (Spring Security / gateway trả thẳng) thì dịch theo HTTP status.
 function toMessage(res, fallbackMessage) {
-  const byCode = VI_MESSAGES[res.data?.code];
+  const byCode = PROFILE_ERROR_MESSAGES[res.data?.code];
   if (byCode) return byCode;
   if (res.status === 401) return "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại";
   if (res.status === 403) return "Bạn không có quyền thực hiện";

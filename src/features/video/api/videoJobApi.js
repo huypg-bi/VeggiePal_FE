@@ -1,5 +1,6 @@
 import { recipeStateFromResponse } from "@/features/video/utils/videoJob";
 import apiClient from "@/shared/api/apiClient";
+import { VIDEO_JOB_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
 // Upload tối đa 100MB nên cho chờ lâu hơn mặc định; BE trả 202 ngay sau khi kiểm tra file bằng ffprobe.
 const UPLOAD_TIMEOUT_MS = 600_000;
@@ -8,33 +9,14 @@ const PROCESS_EXISTING_TIMEOUT_MS = 120_000;
 
 const EMPTY_PAGE = { content: [], page: 0, size: 0, totalElements: 0, totalPages: 0, first: true, last: true };
 
-// ai-service dùng dải mã 60xx. Message gốc của BE là tiếng Anh nên đổi sang tiếng Việt theo `code`.
-const VI_MESSAGES = {
-  6000: "Tệp không phải video hợp lệ, vui lòng chọn tệp video khác",
-  6001: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
-  6002: "Không tìm thấy lượt bóc tách này",
-  6003: "Bạn đã dùng hết lượt bóc tách video trong tháng này. Bạn có thể nâng cấp gói tại /pricing để tiếp tục hoặc quay lại vào tháng sau",
-  6004: "AI đang tạm thời quá tải, vui lòng thử lại sau ít phút",
-  6005: "Tính năng AI chưa được cấu hình trên máy chủ",
-  6007: "AI chưa bóc tách được công thức từ video này, vui lòng thử lại",
-  6008: "Không xử lý được video này: tệp bị lỗi hoặc dài hơn 30 phút",
-  6009: "Tệp video vượt quá dung lượng cho phép (tối đa 100MB)",
-  6020: "Hệ thống đang bận xử lý nhiều video, vui lòng thử lại sau ít phút",
-  6021: "Chưa hỗ trợ bóc tách video YouTube, chỉ bóc tách được video tải lên trực tiếp",
-  6022: "Video này đang được bóc tách, vui lòng chờ trong giây lát",
-  6023: "Lần bóc tách trước của video này chưa thành công",
-  6024: "Video không có đủ thông tin công thức (nguyên liệu kèm số lượng và các bước) để AI bóc tách",
-  6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
-};
-
 // Lỗi 401/413/429/503 do Spring Security hoặc multipart trả về có thể không kèm mã 60xx nên dựa thêm vào HTTP status.
 function toMessage(res, fallbackMessage) {
-  const byCode = VI_MESSAGES[res.data?.code];
+  const byCode = VIDEO_JOB_ERROR_MESSAGES[res.data?.code];
   if (byCode) return byCode;
-  if (res.status === 401) return VI_MESSAGES[6001];
-  if (res.status === 413) return VI_MESSAGES[6009];
-  if (res.status === 429) return VI_MESSAGES[6003];
-  if (res.status === 503) return VI_MESSAGES[6004];
+  if (res.status === 401) return VIDEO_JOB_ERROR_MESSAGES[6001];
+  if (res.status === 413) return VIDEO_JOB_ERROR_MESSAGES[6009];
+  if (res.status === 429) return VIDEO_JOB_ERROR_MESSAGES[6003];
+  if (res.status === 503) return VIDEO_JOB_ERROR_MESSAGES[6004];
   return res.data?.message || fallbackMessage;
 }
 

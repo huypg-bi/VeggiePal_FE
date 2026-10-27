@@ -9,7 +9,7 @@ File này gom các comment dài (từ 2 dòng trở lên) đã được chuyển
 - Khi viết thêm giải thích dài cho code mới hoặc sửa hành vi của đoạn code đã có mục ở đây, thêm hoặc sửa mục trong file này thay vì viết comment nhiều dòng trong code. Nếu đoạn code bị xóa thì xóa mục tương ứng.
 - Các mục theo thứ tự thư mục, trong mỗi file theo thứ tự xuất hiện trong code. Nội dung chép nguyên văn từ comment cũ, chưa viết lại, nên có thể nhắc tới code ở thời điểm viết.
 
-Tổng cộng 330 mục từ 197 file.
+Tổng cộng 334 mục từ 200 file.
 
 ## Mục lục
 
@@ -416,7 +416,7 @@ Tổng cộng 330 mục từ 197 file.
 
 ### features/blog/api/blogApi.js
 
-**Gắn với:** `// BE giới hạn 100 id mỗi lần gọi GET /blogs/me/votes.`
+**Gắn với:** `const MAX_VOTE_IDS_PER_REQUEST = 100;`
 
 > Blog APIs (blog-service qua api-gateway).
 > Công khai (không cần token):
@@ -466,7 +466,7 @@ Tổng cộng 330 mục từ 197 file.
 > GET /blogs/me — bài của tôi ở mọi trạng thái, có phân trang.
 > status: bỏ trống để lấy tất cả.
 
-**Gắn với:** `/**`
+**Gắn với:** `export async function createBlog({ title, content, categoryId, publish = false }) {`
 
 > ---- Tạo / sửa / xóa bài (chủ bài hoặc ADMIN) ------------------------------------------------
 > Các hàm tạo/sửa/gửi duyệt trả BlogResponse có `status` và `moderationReason` để báo kết quả
@@ -482,16 +482,9 @@ Tổng cộng 330 mục từ 197 file.
 > PUT /blogs/:id — sửa bài. Bài đã qua kiểm duyệt (đã đăng, chờ duyệt, bị từ chối) sẽ bị kiểm duyệt
 > lại khi sửa; bản nháp thì không. Bài đã bị gỡ (BANNED) không sửa được.
 
-### features/blog/api/blogErrors.js
-
-**Gắn với:** `const VI_MESSAGES = {`
-
-> BE trả message tiếng Anh theo ErrorCode. Với các lỗi người dùng có thể gặp khi thao tác
-> (vote, bình luận...) ta đổi sang tiếng Việt theo `code`; code lạ thì dùng message của BE.
-
 ### features/blog/api/categoryApi.js
 
-**Gắn với:** `/**`
+**Gắn với:** `export async function getCategories({ type, activeOnly = true } = {}) {`
 
 > Category APIs (blog-service qua api-gateway).
 > GET công khai, không cần token:
@@ -511,7 +504,7 @@ Tổng cộng 330 mục từ 197 file.
 > - type: lọc theo loại, bỏ trống để lấy tất cả  
 > - activeOnly: mặc định true (chỉ danh mục đang hiển thị); trang quản trị truyền false
 
-**Gắn với:** `/** POST /categories */`
+**Gắn với:** `export async function createCategory(payload) {`
 
 > ---- Quản trị danh mục (chỉ ADMIN) -----------------------------------------------------------
 > Cây tối đa 2 cấp. Danh mục gốc bắt buộc có `type`; danh mục con gửi parentId và tự kế thừa loại.
@@ -801,7 +794,7 @@ Tổng cộng 330 mục từ 197 file.
 
 ### features/blog/utils/feedFilters.js
 
-**Gắn với:** `// value gửi lên BE (GET /blogs?sort=); "" = mặc định của BE (mới đăng nhất).`
+**Gắn với:** `export const SORT_OPTIONS = [`
 
 > Bộ lọc của feed blog được lưu trên URL (?q=&sort=&category=) để bấm vào bài rồi
 > quay lại vẫn giữ nguyên bộ lọc, và có thể chia sẻ link đã lọc.
@@ -813,7 +806,7 @@ Tổng cộng 330 mục từ 197 file.
 
 ### features/blog/utils/voteCache.js
 
-**Gắn với:** `/** Cache "vote của tôi" (mảng { blogId, myVote }): ghi đè phần tử của blog đó, thêm nếu chưa có. */`
+**Gắn với:** `export function applyVoteToMyVotes(list, vote) {`
 
 > Cập nhật cache React Query sau khi vote, để không phải tải lại cả feed.
 > `vote` là VoteResponse của BE: { blogId, myVote: 1 | -1 | null, voteScore }.
@@ -822,7 +815,7 @@ Tổng cộng 330 mục từ 197 file.
 
 ### features/chatbot/api/chatbotApi.js
 
-**Gắn với:** `// Gắn status + code vào Error để UI dịch sang tiếng Việt (BE trả message tiếng Anh).`
+**Gắn với:** `function unwrap(res, fallbackMessage) {`
 
 > API chatbot — ai-service qua gateway (baseURL đã có /api nên đường dẫn bắt
 > đầu từ /ai/...). Response envelope: { code, message, result }.
@@ -915,7 +908,7 @@ Tổng cộng 330 mục từ 197 file.
 
 ### features/home/api/recommendationApi.js
 
-**Gắn với:** `// ai-service dùng dải mã 60xx. Message gốc của BE là tiếng Anh nên đổi sang tiếng Việt theo 'code'.`
+**Gắn với:** `export async function getRecommendations({ interest, limit = 6 } = {}) {`
 
 > AI Content Recommendation APIs (ai-service qua gateway).
 > GET /ai/recommendations?interest=&limit= (cần đăng nhập, limit 1-10, mặc định 6).
@@ -972,18 +965,13 @@ Tổng cộng 330 mục từ 197 file.
 >  fatPer100g, fiberPer100g, vegan, allergen, imageUrl, active, createdAt, updatedAt }
 > Page: { content, page, size, totalElements, totalPages, first, last }
 
-**Gắn với:** `const VI_MESSAGES = {`
-
-> BE trả message tiếng Anh theo ErrorCode; các lỗi admin hay gặp khi lưu nguyên liệu được đổi
-> sang tiếng Việt theo `code`. Lỗi lạ dùng message của BE.
-
 **Gắn với:** `export async function getIngredients({`
 
 > GET /ingredients — nguyên liệu đang hoạt động, có phân trang.  
 > - keyword: tìm theo tên ("" coi như không lọc)  
 > - vegan / allergen: true | false để lọc, undefined để bỏ qua
 
-**Gắn với:** `/** POST /ingredients */`
+**Gắn với:** `export async function createIngredient(payload) {`
 
 > ---- Quản trị nguyên liệu (chỉ ADMIN) --------------------------------------------------------
 > IngredientRequest: { name, description?, caloriesPer100g, proteinPer100g, carbsPer100g,  
@@ -1025,9 +1013,26 @@ Tổng cộng 330 mục từ 197 file.
 
 ## features/meal-planner
 
+### features/meal-planner/api/diaryApi.js
+
+**Gắn với:** `export async function getDiary(date) {`
+
+> Nhật ký ăn uống (nutrition-service qua api-gateway, cần đăng nhập). Ngày tính theo múi giờ Asia/Ho_Chi_Minh,
+> gửi dạng "YYYY-MM-DD" (BE để trống thì lấy hôm nay).
+>  GET    /nutrition/me/diary?date=                              tổng kết một ngày
+>  PUT    /nutrition/me/diary/meal-plans/:planId/meals/:mealType xác nhận đã ăn { date, servings? }
+>  DELETE /nutrition/me/diary/meal-plans/:planId/meals/:mealType?date=  bỏ xác nhận
+>  POST   /nutrition/me/diary/water                               { date, milliliters }
+>  DELETE /nutrition/me/diary/water/:id
+>  POST   /nutrition/me/diary/activities                          { date, activityType, minutes }
+>  DELETE /nutrition/me/diary/activities/:id
+> DailySummary: { date, timezone, meals, nutrition, water, totalWaterMl, activities, totalActivityMinutes }
+> MealEntry: { id, date, source, mealPlanId, mealType, recipeId, title, servings,
+>  nutrition: { calories, protein, carbohydrate, fat }, recordedAt }
+
 ### features/meal-planner/api/mealPlanApi.js
 
-**Gắn với:** `// Tạo thực đơn gọi LLM (đọc tối đa 45s, thử lại 2 lần) nên cho chờ lâu hơn mặc định.`
+**Gắn với:** `const CREATE_TIMEOUT_MS = 120_000;`
 
 > Meal plan APIs (ai-service qua api-gateway). Tất cả cần đăng nhập.
 > FE gọi `/ai/...` vì baseURL đã là `.../api` (gateway có route /api/ai/** -> /ai/**).
@@ -1151,6 +1156,14 @@ Tổng cộng 330 mục từ 197 file.
 
 > Hồ sơ thiếu ngày sinh / giới tính / mức vận động hoặc dưới 18 tuổi thì BE chắc chắn từ chối mục tiêu tự tính
 > (6020 / 6021): báo ngay, không gọi API. Hồ sơ chưa tải xong hoặc tải lỗi thì chưa kết luận, để BE quyết định.
+
+### features/meal-planner/components/ConfirmMealDialog.jsx
+
+**Gắn với:** `export default function ConfirmMealDialog({ planId, meal, mealLabel, title, date, onClose }) {`
+
+> Hỏi người dùng đã ăn bao nhiêu khẩu phần rồi ghi bữa vào nhật ký (PUT .../meals/:mealType).
+> Mặc định là khẩu phần thực đơn đã xếp cho bữa này. `meal` là bữa của thực đơn, `title` là tên món đang hiện.
+> Ghi rồi thì BE giữ bản đầu tiên, muốn đổi khẩu phần phải bỏ đánh dấu rồi ghi lại.
 
 ### features/meal-planner/components/EditMealDialog.jsx
 
@@ -1309,6 +1322,13 @@ Tổng cộng 330 mục từ 197 file.
 > Chi tiết các công thức của những món trong một ngày (GET /recipes/:id), dùng chung cache với
 > trang công thức. Meal của thực đơn chỉ có recipeId nên tên, ảnh, thời gian nấu phải lấy ở đây.
 > Trả về Map\<recipeId, { recipe, isPending, isError }>.
+
+### features/meal-planner/hooks/useDiary.js
+
+**Gắn với:** `function useDiaryMutation(mutationFn) {`
+
+> Mọi thao tác ghi đều kèm `date` trong biến, thành công thì tải lại nhật ký của ngày đó.
+> Trả về promise của lần tải lại để nút còn trạng thái "đang xử lý" tới khi dữ liệu mới về.
 
 ### features/meal-planner/hooks/useMealPlanMutations.js
 
@@ -1516,11 +1536,6 @@ Tổng cộng 330 mục từ 197 file.
 ## features/payment
 
 ### features/payment/api/paymentApi.js
-
-**Gắn với:** `const PAYMENT_ERROR_MESSAGES = {`
-
-> Bảng dịch lỗi dành riêng cho payment-service (mã 6000–6007 của payment-service,
-> không dùng chung với ai-service hay các service khác).
 
 **Gắn với:** `export async function getPlans() {`
 
@@ -1818,7 +1833,7 @@ Tổng cộng 330 mục từ 197 file.
 
 ### features/profile/utils/editProfileConstants.js
 
-**Gắn với:** `// Nhãn + mô tả tiếng Việt cho từng nhóm 'category' mà BE trả về (enum AllergenCategory).`
+**Gắn với:** `export const ALLERGY_CATEGORY_META = {`
 
 > Hằng số dùng chung cho các component của trang chỉnh sửa hồ sơ.
 > Gom vào một chỗ để component không phải chứa chuỗi/class lặp lại.
@@ -1841,7 +1856,7 @@ Tổng cộng 330 mục từ 197 file.
 
 ### features/profile/utils/profileFixState.js
 
-**Gắn với:** `// Các trường hồ sơ được làm nổi (tên field của GET /users/me).`
+**Gắn với:** `export const HIGHLIGHTABLE_PROFILE_FIELDS = ["dateOfBirth", "gender", "activityLevel"];`
 
 > Đọc `state` mà nơi khác (vd trang thực đơn) gắn vào liên kết sang `/profile/edit` khi cần người dùng bổ sung hồ sơ.
 > Chỉ nhận giá trị hợp lệ vì `location.state` có thể bị sửa tay trong lịch sử trình duyệt.
@@ -1878,17 +1893,12 @@ Tổng cộng 330 mục từ 197 file.
 > Page: { content, page, size, totalElements, totalPages, first, last }
 > userId là id tác giả -> lấy tên qua usePublicUsers (GET /users/batch).
 
-**Gắn với:** `const VI_MESSAGES = {`
-
-> BE trả message tiếng Anh theo ErrorCode; các lỗi người dùng hay gặp khi lưu công thức được đổi
-> sang tiếng Việt theo `code`. Lỗi lạ dùng message của BE.
-
 **Gắn với:** `export async function getMyRecipes({ page = 0, size = 10 } = {}) {`
 
 > GET /recipes/me — công thức của tôi ở mọi trạng thái (DRAFT/PUBLISHED/HIDDEN). Cần đăng nhập.
 > Page cùng dạng với getRecipes: { content, page, size, totalElements, totalPages, ... }
 
-**Gắn với:** `/** POST /recipes — tạo công thức ở trạng thái DRAFT. */`
+**Gắn với:** `export async function createRecipe(payload) {`
 
 > ---- Tạo / sửa / đăng / xóa công thức --------------------------------------------------------
 > RecipeRequest: { title, description?, imageUrl?, servings, prepTime?, cookTime?,  
@@ -2018,7 +2028,7 @@ Tổng cộng 330 mục từ 197 file.
 
 ### features/recipe/utils/recipeNutrition.js
 
-**Gắn với:** `// Hệ số quy đổi về gram. BE lưu đơn vị IN HOA và chỉ quy đổi được các đơn vị khối lượng; ml, muỗ…`
+**Gắn với:** `const GRAMS_PER_UNIT = {`
 
 > BE không trả kcal / đạm của cả công thức, nhưng mỗi nguyên liệu trong `recipe.ingredients[]` đã kèm sẵn
 > dinh dưỡng trên 100g (caloriesPer100g, proteinPer100g, carbsPer100g, fatPer100g) -> FE chỉ cần cộng lại,
@@ -2043,7 +2053,7 @@ Tổng cộng 330 mục từ 197 file.
 
 ### features/recipe/utils/recipeSafety.js
 
-**Gắn với:** `/** Nguyên liệu này có được đánh dấu dễ gây dị ứng không. */`
+**Gắn với:** `export function isAllergenIngredient(item) {`
 
 > BE gửi kèm cờ `allergen` (nguyên liệu thuộc nhóm dễ gây dị ứng) và `vegan` cho từng nguyên liệu của công thức.
 > `allergen` chỉ là cờ chung, không nói đó là dị ứng gì, nên FE chỉ cảnh báo chung chứ không so với dị ứng
@@ -2053,7 +2063,7 @@ Tổng cộng 330 mục từ 197 file.
 
 ### features/restaurant-map/api/restaurantApi.js
 
-**Gắn với:** `// BE trả message tiếng Anh theo ErrorCode; đổi sang tiếng Việt theo 'code'.`
+**Gắn với:** `export async function getNearbyRestaurants({`
 
 > Restaurant APIs (location-service qua api-gateway). Công khai, không cần token.
 >  GET /restaurants/nearby?lat=&lng=[&radiusKm=5][&veganOnly=false]  
@@ -2437,7 +2447,7 @@ Tổng cộng 330 mục từ 197 file.
 
 ### lib/jwt.js
 
-**Gắn với:** `/** Trả về thời điểm hết hạn (ms, kiểu Date.now()) hoặc null nếu không đọc được. */`
+**Gắn với:** `export function getTokenExpiryMs(token) {`
 
 > Đọc thời điểm hết hạn (claim "exp") từ JWT ở phía client. Chỉ để UI biết khi nào
 > nên tự đăng xuất — KHÔNG thay cho việc server kiểm tra token.
@@ -2468,6 +2478,34 @@ Tổng cộng 330 mục từ 197 file.
 
 > Lấy token từ store (không đọc thẳng localStorage, vì token có thể nằm ở
 > sessionStorage khi người dùng không tick "Ghi nhớ đăng nhập").
+
+### shared/api/errorMessages.js
+
+**Gắn với:** `export const AUTH_ERROR_MESSAGES = {`
+
+> Mã lỗi (`code`) của BE -> thông báo tiếng Việt. Message gốc của BE là tiếng Anh nên mỗi file *Api.js dịch theo `code`.
+> Mỗi service BE dùng dải mã riêng và cùng một số có thể mang nghĩa khác nhau giữa các service (vd 6020, 6021),
+> nên mỗi API có một bảng riêng, đừng gộp chung.
+
+**Gắn với:** `export const BLOG_ERROR_MESSAGES = {`
+
+> BE trả message tiếng Anh theo ErrorCode. Với các lỗi người dùng có thể gặp khi thao tác
+> (vote, bình luận...) ta đổi sang tiếng Việt theo `code`; code lạ thì dùng message của BE.
+
+**Gắn với:** `export const INGREDIENT_ERROR_MESSAGES = {`
+
+> BE trả message tiếng Anh theo ErrorCode; các lỗi admin hay gặp khi lưu nguyên liệu được đổi
+> sang tiếng Việt theo `code`. Lỗi lạ dùng message của BE.
+
+**Gắn với:** `export const PAYMENT_ERROR_MESSAGES = {`
+
+> Bảng dịch lỗi dành riêng cho payment-service (mã 6000–6007 của payment-service,
+> không dùng chung với ai-service hay các service khác).
+
+**Gắn với:** `export const RECIPE_ERROR_MESSAGES = {`
+
+> BE trả message tiếng Anh theo ErrorCode; các lỗi người dùng hay gặp khi lưu công thức được đổi
+> sang tiếng Việt theo `code`. Lỗi lạ dùng message của BE.
 
 ### shared/api/publicUserApi.js
 
@@ -2558,7 +2596,7 @@ Tổng cộng 330 mục từ 197 file.
 
 ### shared/utils/ids.js
 
-**Gắn với:** `/** Chuẩn hóa danh sách id: ép số, bỏ giá trị lỗi/trùng, sắp xếp tăng dần. */`
+**Gắn với:** `export function normalizeIds(ids) {`
 
 > BE (Spring) nhận list id dạng "1,2,3". axios mặc định serialize mảng thành
 > "ids[]=1&ids[]=2" nên BE không đọc được -> luôn nối chuỗi thủ công.

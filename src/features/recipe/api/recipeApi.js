@@ -1,4 +1,5 @@
 import apiClient from "@/shared/api/apiClient";
+import { RECIPE_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
 const EMPTY_PAGE = {
   content: [],
@@ -10,25 +11,9 @@ const EMPTY_PAGE = {
   last: true,
 };
 
-const VI_MESSAGES = {
-  1001: "Dữ liệu không hợp lệ, vui lòng kiểm tra lại các trường đã nhập",
-  1008: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
-  1009: "Bạn không có quyền thực hiện thao tác này",
-  4003: "Có nguyên liệu không tồn tại",
-  4100: "Công thức không tồn tại",
-  4101: "Vui lòng nhập tên công thức",
-  4102: "Bạn không thể chỉnh sửa công thức này",
-  4103: "Công thức này đã được đăng rồi",
-  4104: "Có nguyên liệu đã ngừng sử dụng, vui lòng chọn nguyên liệu khác",
-  4105: "Có nguyên liệu bị chọn trùng, mỗi nguyên liệu chỉ được thêm một lần",
-  4106: "Các bước thực hiện bị trùng số thứ tự, vui lòng thử lại",
-  4107: "Có đơn vị nguyên liệu chưa được hỗ trợ, vui lòng chọn lại đơn vị",
-  4108: "Công thức đã bị xóa hoặc đang bị ẩn nên không thể thực hiện thao tác này",
-};
-
 function unwrap(res, fallbackMessage) {
   if (res.status >= 400) {
-    throw new Error(VI_MESSAGES[res.data?.code] ?? res.data?.message ?? fallbackMessage);
+    throw new Error(RECIPE_ERROR_MESSAGES[res.data?.code] ?? res.data?.message ?? fallbackMessage);
   }
   return res.data?.result;
 }

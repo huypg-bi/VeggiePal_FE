@@ -1,18 +1,5 @@
 import apiClient from "@/shared/api/apiClient";
-
-const PAYMENT_ERROR_MESSAGES = {
-  1008: "Phiên đăng nhập hết hạn",
-  6000: "Vui lòng chọn gói thành viên",
-  6001: "Gói không tồn tại",
-  6002: "Gói này không thể mua",
-  6003: "Không tìm thấy đơn hàng",
-  6004: "Cổng thanh toán đang bận, thử lại sau",
-  6005: "Chữ ký thanh toán không hợp lệ",
-  6006: "Số tiền thanh toán không khớp với đơn hàng",
-  6007: "Thanh toán không thành công",
-  6008: "Đơn hàng này không thể huỷ",
-  6009: "Chưa huỷ được đơn, vui lòng thử lại",
-};
+import { PAYMENT_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
 function toPaymentMessage(res, fallbackMessage) {
   const code = res.data?.code;
