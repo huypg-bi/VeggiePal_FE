@@ -21,7 +21,7 @@ export default function RecipeBanner() {
           <img
             src={tag}
             alt="Đồng hành cùng bạn"
-            className="h-12 w-auto select-none sm:h-14 lg:h-16"
+            className="h-16 w-auto select-none sm:h-20"
             draggable={false}
           />
 

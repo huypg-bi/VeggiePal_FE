@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Play, Plus } from "lucide-react";
 
-import videoIllustration from "@/assets/img/icon_video_page_2.png";
+import videoIllustration from "@/assets/img/icon_video_banner.png";
 import tag from "@/assets/img/tag.png";
 
 export default function VideoBanner() {
@@ -21,13 +21,12 @@ export default function VideoBanner() {
           <img
             src={tag}
             alt="Đồng hành cùng bạn"
-            className="h-12 w-auto select-none sm:h-14 lg:h-16"
+            className="h-16 w-auto select-none sm:h-20"
             draggable={false}
           />
 
           <h1 className="text-2xl font-bold leading-tight text-ink sm:text-3xl lg:text-4xl">
-            Khám phá video ẩm thực chay cùng{" "}
-            <span className="text-brand">Bé Bông Cải</span> nhé!
+            Khám phá video ẩm thực chay
           </h1>
 
           <p className="max-w-lg text-xs leading-relaxed text-subtle sm:text-sm">
@@ -57,7 +56,7 @@ export default function VideoBanner() {
           <img
             src={videoIllustration}
             alt="Bé Bông Cải xem video ẩm thực"
-            className="-scale-x-100 h-56 w-auto shrink-0 select-none drop-shadow-md sm:h-64 md:h-72 lg:h-[290px] xl:h-[310px] object-contain"
+            className="h-56 w-auto shrink-0 select-none drop-shadow-md sm:h-64 md:h-72 lg:h-[290px] xl:h-[310px] object-contain"
             draggable={false}
           />
         </div>

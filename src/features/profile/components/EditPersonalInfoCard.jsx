@@ -1,10 +1,7 @@
-import { AlertCircle, ChevronDown, ChevronUp, Loader2, Save, User } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2, Save, User } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import {
-  ACTIVITY_LEVEL_OPTIONS,
-  GENDER_OPTIONS,
   accordionBodyClass,
   accordionHeaderClass,
   cardClass,
@@ -21,29 +18,11 @@ export default function EditPersonalInfoCard({ personal }) {
   const { form, profile, updateProfile, open, toggleOpen, saving, profileLoading } = personal;
   const { errors, isDirty } = form.formState;
 
-  const [birthDate, gender, activityLevel] = form.watch([
-    "birthDate",
-    "gender",
-    "activityLevel",
-  ]);
-
-  const missingBirthDate = highlightMissing && !birthDate;
-  const missingGender = highlightMissing && !gender;
-  const missingActivity = highlightMissing && !activityLevel;
-  const hasMissingMealPlanFields = missingBirthDate || missingGender || missingActivity;
-
   return (
-    <div
-      id="personal-info-card"
-      className={cn(
-        cardClass,
-        "overflow-hidden transition-all scroll-mt-24",
-        highlightMissing && hasMissingMealPlanFields && "ring-2 ring-warning/60 border-warning/50 shadow-md",
-      )}
-    >
+    <div className={`${cardClass} overflow-hidden transition-all`}>
       <button type="button" onClick={toggleOpen} className={accordionHeaderClass}>
         <div className="flex items-center gap-3">
-          <div className={cn(iconBoxClass, highlightMissing && hasMissingMealPlanFields && "bg-warning/15 text-warning")}>
+          <div className={iconBoxClass}>
             <User className="h-4 w-4" />
           </div>
           <div>
@@ -62,21 +41,6 @@ export default function EditPersonalInfoCard({ personal }) {
 
       {open && (
         <form onSubmit={form.handleSubmit(personal.onSubmit)} className={accordionBodyClass}>
-          {highlightMissing && hasMissingMealPlanFields && (
-            <div className="flex items-start gap-2.5 rounded-2xl border border-warning/40 bg-warning/10 p-3.5 text-xs text-ink">
-              <AlertCircle className="mt-0.5 size-4 shrink-0 text-warning" />
-              <div>
-                <p className="font-semibold text-warning">
-                  Hồ sơ chưa đủ thông tin cho Thực đơn AI
-                </p>
-                <p className="mt-0.5 text-[11px] leading-relaxed text-subtle">
-                  Bé Bông Cải cần ngày sinh, giới tính và mức vận động để tính chính xác nhu cầu calo (TDEE).
-                  Vui lòng điền các mục được đánh dấu viền vàng bên dưới rồi bấm <b>Lưu thay đổi</b>.
-                </p>
-              </div>
-            </div>
-          )}
-
           <div>
             <label htmlFor="edit-fullName" className={labelClass}>
               Họ và tên
@@ -108,7 +72,6 @@ export default function EditPersonalInfoCard({ personal }) {
             {errors.phone && <span className={errorTextClass}>{errors.phone.message}</span>}
           </div>
 
-          {/* Ngày sinh */}
           <div>
             <label htmlFor="edit-email" className={labelClass}>
               Email
@@ -128,7 +91,7 @@ export default function EditPersonalInfoCard({ personal }) {
 
           {errors.root && <p className={errorBoxClass}>{errors.root.message}</p>}
           {updateProfile.isSuccess && !errors.root && !isDirty && (
-            <p className={successBoxClass}>Đã cập nhật thông tin cá nhân thành công.</p>
+            <p className={successBoxClass}>Đã cập nhật thông tin cá nhân.</p>
           )}
 
           <Button

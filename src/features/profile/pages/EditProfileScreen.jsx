@@ -29,20 +29,6 @@ export default function EditProfileScreen() {
   const allergy = useAllergyDraft();
   const actions = useEditProfileActions({ personal, allergy, returnTo: returnTo ?? undefined });
 
-  useEffect(() => {
-    if (isFromIncompleteProfile) {
-      personal.openSection();
-      const el = document.getElementById("personal-info-card");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-      toast.warning(
-        "Hồ sơ của bạn chưa đủ ngày sinh, giới tính hoặc mức vận động để tính mục tiêu calo cho Thực đơn AI. Vui lòng bổ sung các trường được làm nổi bật bên dưới nhé!",
-        { id: "profile-incomplete-toast", duration: 7000 },
-      );
-    }
-  }, [isFromIncompleteProfile]);
-
   return (
     <div className="min-h-dvh bg-canvas transition-colors duration-200">
       <AppHeader />
@@ -67,12 +53,7 @@ export default function EditProfileScreen() {
               Giới thiệu
             </span>
 
-            <Reveal>
-              <EditPersonalInfoCard
-                personal={personal}
-                highlightMissing={isFromIncompleteProfile}
-              />
-            </Reveal>
+            <Reveal><EditPersonalInfoCard personal={personal} /></Reveal>
             <Reveal><EditPasswordCard /></Reveal>
             <Reveal><EditQuoteCard /></Reveal>
           </div>
