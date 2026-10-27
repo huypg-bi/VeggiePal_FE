@@ -394,3 +394,35 @@ export function replacePlanInList(list, updated) {
   if (!Array.isArray(list)) return list;
   return list.map((plan) => (plan.id === updated.id ? updated : plan));
 }
+
+/** "YYYY-MM-DD" theo giờ máy người dùng (không dùng toISOString vì nó đổi sang UTC và có thể lệch ngày). */
+export function toDateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/** `date` có nằm sau hôm nay không (so theo ngày, bỏ qua giờ). BE chưa chặn ngày tương lai (task B02) nên FE tự chặn. */
+export function isFutureDate(date, now = new Date()) {
+  const day = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return day.getTime() > today.getTime();
+}
+
+/** Bản ghi "đã ăn" của một bữa trong thực đơn `planId` ở nhật ký đã tải; không có thì undefined. */
+export function findMealEntry(diary, planId, mealType) {
+  const entries = Array.isArray(diary?.meals) ? diary.meals : [];
+  return entries.find(
+    (entry) => entry.mealPlanId === planId && normalizeDay(entry.mealType) === normalizeDay(mealType),
+  );
+}
+
+// Nhật ký chưa có mục tiêu nước từ BE; lấy theo lời khuyên 2 - 2,5 L/ngày ở AdviceCard.
+export const WATER_GOAL_ML = 2000;
+export const WATER_QUICK_AMOUNTS = [250, 500];
+
+/** 1750 -> "1,75" (lít). */
+export function formatLiters(ml) {
+  return (Number(ml) / 1000).toLocaleString("vi-VN", { maximumFractionDigits: 2 });
+}

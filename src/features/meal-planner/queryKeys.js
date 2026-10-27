@@ -10,3 +10,8 @@ export const mealPlanKeys = {
   favorites: (page) => ["meal-plans", "favorites", "page", page],
   favorite: (planId) => ["meal-plans", "favorites", "detail", planId],
 };
+
+// Nhật ký ăn uống theo ngày ("YYYY-MM-DD").
+export const diaryKeys = {
+  day: (date) => ["nutrition", "diary", date],
+};

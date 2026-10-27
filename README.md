@@ -41,7 +41,7 @@
 - **🔐 Quản lý tài khoản (Authentication):** Đăng ký, đăng nhập xác thực JWT, bảo vệ đường dẫn riêng tư (Protected Routes).
 - **👤 Hồ sơ cá nhân (Profile):** Quản lý thông tin cá nhân, cập nhật ảnh đại diện và đổi mật khẩu.
 - **📊 Sức khỏe & Dị ứng (Nutrition):** Ghi nhận chiều cao/cân nặng, theo dõi lịch sử BMI, chọn danh mục thực phẩm dị ứng.
-- **🥗 Thực đơn dinh dưỡng (Meal Planner):** AI lên thực đơn 7 ngày × 3 bữa theo mục tiêu giảm / duy trì / tăng cân (BE tự tính calo từ chỉ số sức khỏe, ngày sinh, giới tính, mức vận động, hoặc tự đặt mục tiêu riêng), nguyên liệu sẵn có và khẩu vị; xem theo ngày, đổi món, chuyển giữa các thực đơn đã lưu *(API thật; thẻ nước, vận động và bữa phụ vẫn là Mock Data)*.
+- **🥗 Thực đơn dinh dưỡng (Meal Planner):** AI lên thực đơn 7 ngày × 3 bữa theo mục tiêu giảm / duy trì / tăng cân (BE tự tính calo từ chỉ số sức khỏe, ngày sinh, giới tính, mức vận động, hoặc tự đặt mục tiêu riêng), nguyên liệu sẵn có và khẩu vị; xem theo ngày, đổi món, chuyển giữa các thực đơn đã lưu; đánh dấu bữa đã ăn, ghi nước uống và vận động vào nhật ký ăn uống, thẻ calo trong ngày tính theo bữa đã ăn *(API thật; bữa phụ chưa có, lời khuyên hằng ngày vẫn là Mock Data)*.
 - **🎥 Khám phá video (Videos):** Xem và đăng tải video nấu món chay (tệp .mp4 hoặc liên kết YouTube), phân trang và lọc theo danh mục, quản lý video cá nhân kèm kiểm duyệt tự động *(API thật)*. Tab "Bóc tách" ở trang Nội dung của tôi cho AI bóc tách nguyên liệu và các bước làm từ video (tệp ≤ 100MB, ≤ 30 phút, lịch sử `GET /ai/videos` theo lượt của gói thành viên). Ở trang xem video, nút "Bóc tách công thức AI" ở `VideoMetaHeader` và thẻ `AiSummaryCard` hiển thị công thức AI dùng chung cho video tải lên (`POST /ai/videos/process-existing`, xem công khai qua `GET /ai/videos/by-video/:videoId`, khách chưa đăng nhập vẫn xem được kết quả có sẵn) *(API thật)*.
 - **📍 Bản đồ xanh (Map):** Tìm kiếm và xem danh sách các nhà hàng, quán ăn chay *(Mock Data)*.
 - **🤖 Trợ lý Bông Cải (AI Chatbot):** Giao diện hỏi đáp kiến thức dinh dưỡng chay, quản lý nhiều đoạn chat *(API thật: ai-service, có chế độ dùng thử cho khách)*.
@@ -160,6 +160,10 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | `GET` | `/admin/payments/summary`, `/statistics`, `/revenue`, `/orders`, `/orders/:id` | Thống kê thanh toán (chỉ ADMIN): tổng quan, phân bố, doanh thu theo ngày / tháng, danh sách và chi tiết đơn hàng |
 | `GET` | `/ai/meal-plans/nutrition-target` | Mục tiêu calo / macro BE tính theo hồ sơ cho `goalType` (`LOSE` / `MAINTAIN` / `GAIN`), hiện ở form tạo thực đơn |
 | `GET` | `/ai/meal-plans/:id` | Một thực đơn (lấy mới khi mở hộp thoại "Lịch sử") |
+| `GET` | `/nutrition/me/diary?date=` | Nhật ký một ngày: bữa đã ăn, tổng dinh dưỡng, nước, vận động |
+| `PUT` / `DELETE` | `/nutrition/me/diary/meal-plans/:planId/meals/:mealType` | Đánh dấu / bỏ đánh dấu một bữa của thực đơn là đã ăn (`{date, servings?}`) |
+| `POST` / `DELETE` | `/nutrition/me/diary/water`, `/nutrition/me/diary/water/:id` | Ghi / xóa một lần uống nước (`{date, milliliters}`) |
+| `POST` / `DELETE` | `/nutrition/me/diary/activities`, `/nutrition/me/diary/activities/:id` | Ghi / xóa một hoạt động (`{date, activityType, minutes}`) |
 | `GET` | `/ai/meal-plans/favorites`, `/ai/meal-plans/favorites/:id` | Danh sách thực đơn yêu thích (phân trang) / một thực đơn yêu thích |
 | `GET` | `/ai/meal-plans/:id/versions`, `/ai/meal-plans/:id/versions/:version` | Lịch sử phiên bản / nội dung một phiên bản cũ |
 | `GET` | `/payments/plans` | Danh sách gói thành viên (công khai) |

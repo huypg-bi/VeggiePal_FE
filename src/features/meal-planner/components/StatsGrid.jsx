@@ -3,9 +3,7 @@ import { Link } from "react-router-dom";
 
 import iconBmi from "@/assets/img/icon_bmi.png";
 import iconFire from "@/assets/img/icon_fire.png";
-import iconRun from "@/assets/img/icon_run.png";
-import iconWater from "@/assets/img/icon_water.png";
-import { mockStats } from "@/features/meal-planner/data/mockMealPlanner";
+import { ActivityCard, WaterCard } from "@/features/meal-planner/components/DiaryStatCards";
 import { toRounded } from "@/features/meal-planner/utils/mealPlan";
 import { useLatestHealthRecord } from "@/features/profile/hooks/useHealthRecords";
 import { bmiInfo } from "@/features/profile/utils/editProfileHelpers";
@@ -14,8 +12,6 @@ import Reveal from "@/shared/components/Reveal";
 const ICONS = {
   bmi: iconBmi,
   fire: iconFire,
-  water: iconWater,
-  run: iconRun,
 };
 
 function bmiStat(record, isPending) {
@@ -37,12 +33,37 @@ function bmiStat(record, isPending) {
   };
 }
 
-function calorieStat(dayTotals, target, dayLong) {
-  const calories = toRounded(dayTotals?.calories);
+function calorieStat(dayTotals, target, dayLong, diary) {
   const max = Number(target?.maxCalories);
   const min = Number(target?.minCalories);
   const hasMax = Number.isFinite(max) && max > 0;
   const hasMin = Number.isFinite(min) && min > 0;
+  const planned = dayTotals ? toRounded(dayTotals.calories) : null;
+  const mealCount = diary?.meals?.length ?? 0;
+
+  // Có thực đơn (hoặc đã ghi bữa) và nhật ký đã tải: hiện calo thực ăn ghi trong nhật ký, đặt cạnh thực đơn / mục tiêu.
+  if (diary && (dayTotals || mealCount > 0)) {
+    const eaten = toRounded(diary.nutrition?.calories);
+    let caption = `Thực đơn ${dayLong} ${(planned ?? 0).toLocaleString("en-US")} kcal • chưa đánh dấu bữa nào`;
+    if (mealCount > 0) {
+      const goal = hasMin && hasMax
+        ? `mục tiêu ${min.toLocaleString("en-US")} - ${max.toLocaleString("en-US")} kcal`
+        : hasMax
+          ? `mục tiêu tối đa ${max.toLocaleString("en-US")} kcal`
+          : planned != null
+            ? `thực đơn ${planned.toLocaleString("en-US")} kcal`
+            : "";
+      caption = `Đã ăn ${mealCount} bữa${goal ? ` • ${goal}` : ""}`;
+    }
+    return {
+      id: "calo",
+      icon: "fire",
+      label: "Calo Trong Ngày",
+      value: eaten.toLocaleString("en-US"),
+      unit: hasMax ? `/ ${max.toLocaleString("en-US")} kcal` : "kcal",
+      caption,
+    };
+  }
 
   let caption = "Chưa có thực đơn, hãy nhờ Bé Bông Cải lên thực đơn nhé";
   if (dayTotals) {
@@ -55,15 +76,15 @@ function calorieStat(dayTotals, target, dayLong) {
     id: "calo",
     icon: "fire",
     label: "Calo Trong Ngày",
-    value: dayTotals ? calories.toLocaleString("en-US") : "—",
+    value: dayTotals ? planned.toLocaleString("en-US") : "—",
     unit: hasMax && dayTotals ? `/ ${max.toLocaleString("en-US")} kcal` : dayTotals ? "kcal" : undefined,
     caption,
   };
 }
 
-export default function StatsGrid({ dayTotals, target, dayLong = "hôm nay" }) {
+export default function StatsGrid({ dayTotals, target, dayLong = "hôm nay", diary, diaryDate, isFutureDay }) {
   const { data: latestRecord, isPending } = useLatestHealthRecord();
-  const stats = [bmiStat(latestRecord, isPending), calorieStat(dayTotals, target, dayLong), ...mockStats];
+  const stats = [bmiStat(latestRecord, isPending), calorieStat(dayTotals, target, dayLong, diary)];
 
   return (
     <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -87,6 +108,12 @@ export default function StatsGrid({ dayTotals, target, dayLong = "hôm nay" }) {
           </article>
         </Reveal>
       ))}
+      <Reveal delay={stats.length * 80}>
+        <WaterCard diary={diary} date={diaryDate} isFutureDay={isFutureDay} />
+      </Reveal>
+      <Reveal delay={(stats.length + 1) * 80}>
+        <ActivityCard diary={diary} date={diaryDate} isFutureDay={isFutureDay} />
+      </Reveal>
     </section>
   );
 }
