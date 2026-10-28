@@ -44,7 +44,7 @@ function calorieStat(dayTotals, target, dayLong, diary) {
   // Có thực đơn (hoặc đã ghi bữa) và nhật ký đã tải: hiện calo thực ăn ghi trong nhật ký, đặt cạnh thực đơn / mục tiêu.
   if (diary && (dayTotals || mealCount > 0)) {
     const eaten = toRounded(diary.nutrition?.calories);
-    let caption = `Thực đơn ${dayLong} ${(planned ?? 0).toLocaleString("en-US")} kcal • chưa đánh dấu bữa nào`;
+    let caption = `Thực đơn ${dayLong} ${(planned ?? 0).toLocaleString("en-US")} kcal`;
     if (mealCount > 0) {
       const goal = hasMin && hasMax
         ? `mục tiêu ${min.toLocaleString("en-US")} - ${max.toLocaleString("en-US")} kcal`
@@ -89,8 +89,8 @@ export default function StatsGrid({ dayTotals, target, dayLong = "hôm nay", dia
   return (
     <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, index) => (
-        <Reveal key={stat.id} delay={index * 80}>
-          <article className="relative flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-md transition hover:shadow-lg">
+        <Reveal key={stat.id} delay={index * 80} className="h-full">
+          <article className="relative flex h-full flex-col gap-3 rounded-2xl bg-card p-5 shadow-md transition hover:shadow-lg">
             {stat.badge && (
               <span className="absolute right-4 top-4 rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand">
                 {stat.badge}
@@ -104,14 +104,14 @@ export default function StatsGrid({ dayTotals, target, dayLong = "hôm nay", dia
               {stat.unit && <span className="text-sm font-medium text-subtle">{stat.unit}</span>}
             </div>
 
-            <p className="text-xs leading-snug text-subtle">{stat.caption}</p>
+            <p className="mt-auto text-xs leading-snug text-subtle">{stat.caption}</p>
           </article>
         </Reveal>
       ))}
-      <Reveal delay={stats.length * 80}>
+      <Reveal delay={stats.length * 80} className="h-full">
         <WaterCard diary={diary} date={diaryDate} isFutureDay={isFutureDay} />
       </Reveal>
-      <Reveal delay={(stats.length + 1) * 80}>
+      <Reveal delay={(stats.length + 1) * 80} className="h-full">
         <ActivityCard diary={diary} date={diaryDate} isFutureDay={isFutureDay} />
       </Reveal>
     </section>
