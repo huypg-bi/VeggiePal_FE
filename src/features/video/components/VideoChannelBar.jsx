@@ -3,8 +3,6 @@ import { useRef } from "react";
 import iconChannels from "@/assets/img/icon_video_page_2.png";
 import { videoChannels } from "@/features/video/data/mockVideo";
 
-// Thanh kênh gợi ý phía trên trang video chính.
-// BE chưa có endpoint kênh / người sáng tạo riêng, nên các kênh ở đây được đánh dấu là dữ liệu mẫu.
 export default function VideoChannelBar() {
   const scrollerRef = useRef(null);
 

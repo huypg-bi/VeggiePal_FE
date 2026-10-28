@@ -12,27 +12,28 @@ const ROWS = [
   { key: "Fat", label: "Chất béo", unit: "g", placeholder: ["35", "90"] },
 ];
 
-/**
- * Mục tiêu dinh dưỡng MỖI NGÀY (tùy chọn), nằm trong form react-hook-form của AiMealSuggestion.
- * Để trống = không ràng buộc. Nhập quá chặt thì BE vẫn lên thực đơn nhưng đánh dấu ngày không đạt
- * (targetMet=false), TodayMeals sẽ cảnh báo.
- */
-export default function NutritionTargetFields({ register, errors }) {
+export default function NutritionTargetFields({ register, errors, replacesAuto = false, open, onOpenChange }) {
   const idPrefix = useId();
 
   return (
-    <details className="group rounded-2xl bg-card ring-1 ring-border">
+    <details
+      className="group rounded-2xl bg-card ring-1 ring-border"
+      open={open}
+      onToggle={onOpenChange ? (event) => onOpenChange(event.currentTarget.open) : undefined}
+    >
       <summary className="flex cursor-pointer list-none items-center gap-2 px-4 py-3 text-sm font-semibold text-ink [&::-webkit-details-marker]:hidden">
         <Target className="size-4 text-brand" />
-        Mục tiêu dinh dưỡng mỗi ngày
+        {replacesAuto ? "Tự đặt mục tiêu dinh dưỡng riêng" : "Mục tiêu dinh dưỡng mỗi ngày"}
         <span className="text-xs font-normal text-subtle">(không bắt buộc)</span>
         <ChevronDown className="ml-auto size-4 text-subtle transition group-open:rotate-180" />
       </summary>
 
       <div className="flex flex-col gap-3 border-t border-border px-4 pb-4 pt-3">
         <p className="text-xs leading-relaxed text-subtle">
-          Điền khoảng bạn muốn, mỗi ngày trong thực đơn sẽ nằm trong khoảng đó (cho phép lệch tối đa khoảng
-          15%). Bỏ trống ô nào thì ô đó không bị giới hạn. Nếu khoảng quá chặt so với các món hiện có, ngày nào không đạt sẽ được báo lại ngay trên thực đơn.
+          {replacesAuto && "Điền bất kỳ ô nào thì mục tiêu bạn đặt sẽ thay hẳn mục tiêu tự tính ở trên. "}
+          Điền khoảng bạn muốn, thực đơn sẽ chọn món và khẩu phần để mỗi ngày nằm trong khoảng đó. Bỏ trống ô nào thì
+          ô đó không bị giới hạn. Nếu khoảng quá chặt so với các món hiện có, ngày nào không đạt calo sẽ được báo lại
+          ngay trên thực đơn.
         </p>
 
         {ROWS.map((row) => {

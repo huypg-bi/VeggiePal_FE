@@ -10,8 +10,6 @@ import VideoJobResultDialog from "@/features/video/components/VideoJobResultDial
 import { useVideoJobs } from "@/features/video/hooks/useVideoJobs";
 import { describeJobError, isJobResultExpired, jobSourceLabel } from "@/features/video/utils/videoJob";
 
-// Tab "Bóc tách": lịch sử bóc tách công thức từ video (GET /ai/videos), mới nhất trước, "Xem thêm".
-// Job đang xử lý tự cập nhật; BE không có sửa / xóa job nên mỗi dòng chỉ có "Xem kết quả".
 export default function MyVideoJobList() {
   const [viewing, setViewing] = useState(null);
   const {

@@ -4,8 +4,6 @@ import { Bookmark, ChefHat, ChevronRight, Clock, Flame, User } from "lucide-reac
 import { totalMinutes } from "@/features/recipe/utils/recipeNutrition";
 import FallbackImage from "@/shared/components/FallbackImage";
 
-// Thẻ công thức dùng chung (trang chủ, trang danh sách công thức).
-// `nutrition` là { kcal, protein, ... } hoặc null/undefined (chưa tính được); `author` là { fullName, avatarUrl } hoặc undefined.
 export default function RecipeCard({ recipe, nutrition, author }) {
   const minutes = totalMinutes(recipe);
 

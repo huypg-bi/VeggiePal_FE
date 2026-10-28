@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Heart, ShieldAlert } from "lucide-react";
 
 import AppHeader from "@/shared/components/AppHeader";
-import AppFooter from "@/shared/components/AppFooter";
 import Reveal from "@/shared/components/Reveal";
 import { useProfile } from "@/features/profile/hooks/useProfile";
 
@@ -80,8 +79,6 @@ export default function ProfileScreen() {
           </div>
         </div>
       </main>
-
-      <AppFooter />
     </div>
   );
 }

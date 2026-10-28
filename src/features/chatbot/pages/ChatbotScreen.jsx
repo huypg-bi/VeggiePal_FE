@@ -4,7 +4,6 @@ import { Info, Loader2, TriangleAlert, X } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/variants/button-variants";
 import AppHeader from "@/shared/components/AppHeader";
-import AppFooter from "@/shared/components/AppFooter";
 import { useChatbot } from "@/features/chatbot/hooks/useChatbot";
 import { useMySubscription } from "@/features/payment/hooks/useMySubscription";
 import { PLAN_DETAILS } from "@/features/payment/utils/paymentFormat";
@@ -15,12 +14,6 @@ import ChatEmptyState from "@/features/chatbot/components/ChatEmptyState";
 import TypingIndicator from "@/features/chatbot/components/TypingIndicator";
 import ChatComposer from "@/features/chatbot/components/ChatComposer";
 
-/**
- * Trang chatbot dinh dưỡng (/chatbot).
- * Dùng ai-service thật qua @/features/chatbot/api/chatbotApi.js:
- * - Đã đăng nhập: lịch sử hội thoại lưu ở BE (sidebar, nhiều lượt).
- * - Chưa đăng nhập: chế độ dùng thử, không có sidebar, giới hạn số lượt hỏi.
- */
 export default function ChatbotScreen() {
   const {
     isAuthenticated,
@@ -183,8 +176,6 @@ export default function ChatbotScreen() {
           </div>
         </div>
       </main>
-
-      <AppFooter />
     </div>
   );
 }

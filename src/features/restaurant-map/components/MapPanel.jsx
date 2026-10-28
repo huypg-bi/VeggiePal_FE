@@ -56,13 +56,6 @@ function MapNotice({ title, description }) {
   );
 }
 
-/**
- * Bản đồ Mapbox của trang quán chay.
- * - restaurants: quán đang hiện trong danh sách (đã lọc), vẽ thành chấm; > 50 quán thì gom cụm
- * - location / isDefaultLocation / radiusKm: tâm tìm kiếm (chấm xanh là vị trí thật) và vòng bán kính
- * - selectedId / onSelect(id | null): quán đang chọn (có ghim lớn và popup), đồng bộ với danh sách
- * - onLocate / locating: nút "Vị trí của tôi" xin định vị lại
- */
 export default function MapPanel({
   restaurants,
   location,

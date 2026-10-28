@@ -17,14 +17,10 @@ import {
   isAllergenIngredient,
   isNonVeganIngredient,
 } from "@/features/recipe/utils/recipeSafety";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import FallbackImage from "@/shared/components/FallbackImage";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-// Trang đọc một công thức (route /recipes/:recipeId), công khai với công thức đã đăng.
-// BE chỉ trả bản nháp/đang ẩn cho tác giả hoặc ADMIN (kèm token), người khác nhận 404. FE vẫn kiểm tra
-// thêm ở đây để chắc chắn không hiện nhầm (vd. công thức ARCHIVED, BE trả cho mọi người vì thực đơn cũ cần).
 export default function RecipeDetailScreen() {
   const { recipeId } = useParams();
   const navigate = useNavigate();
@@ -75,8 +71,6 @@ export default function RecipeDetailScreen() {
         </div>
         {body}
       </main>
-
-      <AppFooter />
     </div>
   );
 }

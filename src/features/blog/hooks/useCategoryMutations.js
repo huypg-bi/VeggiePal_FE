@@ -3,8 +3,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createCategory, deleteCategory, updateCategory } from "@/features/blog/api/categoryApi";
 import { blogKeys } from "@/features/blog/queryKeys";
 
-// Mọi thay đổi danh mục làm mới toàn bộ cache "blog/categories" (cây ở trang quản trị, chip lọc
-// của feed, dropdown trong form viết bài).
 function useInvalidateCategories() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: blogKeys.categories });

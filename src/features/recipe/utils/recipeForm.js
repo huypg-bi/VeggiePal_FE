@@ -1,9 +1,5 @@
-// Chuyển đổi giữa dữ liệu form công thức (toàn chuỗi, theo <input>) và payload / RecipeResponse của BE.
-// Không import alias @/ để file test (node --test) chạy được.
 import { parseQuantity } from "../schema.js";
 
-// Đơn vị cho chọn. BE lưu chuỗi tự do và tự IN HOA. Chỉ GRAM / G / KG quy đổi được ra gram
-// để tính kcal (xem recipeNutrition.js), các đơn vị còn lại thì công thức sẽ không có kcal.
 export const UNIT_OPTIONS = [
   { value: "GRAM", label: "gram" },
   { value: "KG", label: "kg" },
@@ -50,11 +46,6 @@ export function recipeToFormValues(recipe) {
   };
 }
 
-/**
- * Giá trị form (đã qua recipeSchema) -> RecipeRequest gửi lên BE.
- * - thứ tự bước = vị trí trong danh sách (stepNumber bắt đầu từ 1)
- * - thời gian để trống -> null; quantity đổi dấu phẩy thành dấu chấm rồi ép số
- */
 export function formValuesToPayload(values) {
   return {
     title: values.title.trim(),

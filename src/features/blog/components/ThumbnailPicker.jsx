@@ -5,12 +5,6 @@ import { Button } from "@/components/ui/button";
 import { THUMBNAIL_TYPES, validateThumbnail } from "@/features/blog/utils/blogForm";
 import FallbackImage from "@/shared/components/FallbackImage";
 
-/**
- * Chọn ảnh bìa (JPEG/PNG/WEBP ≤ 5MB). Chỉ giữ file trong bộ nhớ; việc tải lên do form cha làm
- * sau khi bài đã được tạo (BE tải ảnh qua endpoint riêng cần blogId).
- * - currentUrl: ảnh bìa hiện có của bài (chế độ sửa), hiện khi chưa chọn ảnh mới
- * - onChange(file | null): file đã qua kiểm tra, hoặc null khi bỏ chọn
- */
 export default function ThumbnailPicker({ currentUrl, onChange }) {
   const inputRef = useRef(null);
   const previewRef = useRef(null);

@@ -63,12 +63,6 @@ function formatDateTime(isoString) {
   }
 }
 
-/**
- * Trang kiểm duyệt nội dung của Admin (/admin/moderation):
- * - Hàng đợi các case cần duyệt (REVIEW_REQUIRED, cũ nhất trước).
- * - Hiển thị: caseId, loại nội dung (BLOG, VIDEO, COMMENT), externalContentId, authorId, content (nội dung bị gắn cờ), categories, reason, confidence.
- * - Hỗ trợ chế độ Mock Data để test giao diện và luồng duyệt/từ chối ngay cả khi BE chưa có dữ liệu.
- */
 export default function AdminModerationScreen() {
   const queryClient = useQueryClient();
   const { data: realCases = [], isPending, isError, error, isFetching } = usePendingModerationCases();

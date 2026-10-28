@@ -7,10 +7,6 @@ import {
 } from "@/features/profile/hooks/useAllergies";
 import { groupAllergens } from "@/features/profile/utils/editProfileHelpers";
 
-/**
- * Lựa chọn dị ứng đang chỉnh. draft = null nghĩa là user chưa chỉnh gì
- * -> hiển thị đúng dữ liệu server. Là hook riêng vì nút lưu cuối trang cũng cần dùng.
- */
 export function useAllergyDraft() {
   const allergensQuery = useAllergens();
   const myQuery = useMyAllergies();

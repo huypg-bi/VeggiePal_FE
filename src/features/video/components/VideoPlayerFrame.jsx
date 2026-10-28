@@ -3,11 +3,6 @@ import { toast } from "sonner";
 
 import { extractYouTubeId } from "@/features/video/utils/videoForm";
 
-/**
- * Trình phát video:
- * - sourceType === "YOUTUBE": dùng <iframe> với videoUrl là embed URL do BE trả về.
- * - sourceType === "UPLOAD": dùng thẻ <video> HTML5 với videoUrl là tệp .mp4.
- */
 export default function VideoPlayerFrame({ video }) {
   if (!video) {
     return (

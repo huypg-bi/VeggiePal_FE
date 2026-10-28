@@ -1,6 +1,3 @@
-// Hằng số dùng chung cho các component của trang chỉnh sửa hồ sơ.
-// Gom vào một chỗ để component không phải chứa chuỗi/class lặp lại.
-
 // Nhãn + mô tả tiếng Việt cho từng nhóm `category` mà BE trả về (enum AllergenCategory).
 export const ALLERGY_CATEGORY_META = {
   GRAIN: { name: "Ngũ cốc & Tinh bột", note: "Chọn các loại ngũ cốc gây mẫn cảm hoặc dị ứng:" },
@@ -14,12 +11,23 @@ export const ALLERGY_CATEGORY_META = {
 };
 export const OTHER_CATEGORY_META = { name: "Khác", note: "Các thành phần khác cần tránh:" };
 
+export const GENDER_OPTIONS = [
+  { value: "MALE", label: "Nam" },
+  { value: "FEMALE", label: "Nữ" },
+  { value: "OTHER", label: "Khác" },
+];
+// Nhãn giữ ngắn (tối đa khoảng 34 ký tự) để hiện đủ trong ô chọn của form chỉ số sức khỏe mà không bị cắt.
+export const ACTIVITY_LEVEL_OPTIONS = [
+  { value: "SEDENTARY", label: "Ít vận động (ngồi nhiều)" },
+  { value: "LIGHT", label: "Vận động nhẹ (1–3 buổi/tuần)" },
+  { value: "MODERATE", label: "Vận động vừa (3–5 buổi/tuần)" },
+  { value: "ACTIVE", label: "Vận động nhiều (6–7 buổi/tuần)" },
+  { value: "VERY_ACTIVE", label: "Vận động rất nhiều (lao động nặng)" },
+];
+
 // Ràng buộc ảnh đại diện (khớp BE: JPEG/PNG/WEBP, tối đa 2MB).
 export const AVATAR_ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 export const AVATAR_MAX_BYTES = 2 * 1024 * 1024;
-
-// Số nhóm dị ứng mở sẵn khi vào trang (0: mặc định đóng toàn bộ).
-export const DEFAULT_OPEN_ALLERGY_GROUPS = 0;
 
 // Class dùng lặp lại (dùng token chuẩn của VeggiePal).
 export const cardClass =

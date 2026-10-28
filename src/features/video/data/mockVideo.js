@@ -1,8 +1,5 @@
-
 // Dữ liệu mẫu tham khảo cho các tính năng chưa có endpoint backend riêng
-// (nutrition facts, kênh ẩm thực đề xuất, video gợi ý dự phòng khi DB chưa có nhiều video).
 // (nutrition facts, kênh ẩm thực đề xuất).
-
 export const nutritionFacts = {
   servingLabel: "1 bát tiêu chuẩn",
   kcal: 315,

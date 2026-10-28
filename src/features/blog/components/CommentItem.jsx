@@ -25,13 +25,6 @@ import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
 const actionClass = "text-xs font-medium text-subtle transition hover:text-ink";
 
-/**
- * Một comment (cấp 1 hoặc reply). `author` là { fullName, avatarUrl } hoặc undefined.
- * - Comment cấp 1 có replyCount > 0 sẽ có nút mở danh sách reply (chỉ gọi API khi bấm).
- * - Comment đã xóa: BE trả deleted = true, content = null -> hiện dòng mờ, giữ nguyên thread.
- * - Hành động: Phản hồi (chỉ comment gốc), Sửa (chỉ chủ comment), Xóa (chủ comment hoặc ADMIN).
- *   Khách bấm Phản hồi sẽ được đá sang /login.
- */
 export default function CommentItem({ comment, author, isReply = false }) {
   const [showReplies, setShowReplies] = useState(false);
   const [replying, setReplying] = useState(false);

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { HeartPulse, Loader2 } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -16,11 +17,15 @@ import {
 import NutritionTargetFields from "@/features/meal-planner/components/NutritionTargetFields";
 import { useApplyHealthUpdate, usePreviewHealthUpdate } from "@/features/meal-planner/hooks/useMealPlanMutations";
 import { HEALTH_UPDATE_LIMITS, healthUpdateSchema } from "@/features/meal-planner/schema";
+import { useProfile } from "@/features/profile/hooks/useProfile";
 import {
   averageDailyTotals,
   buildNutritionTarget,
   countMissedDays,
+  goalLabel,
   MACRO_ROWS,
+  missingProfileFields,
+  profileFixState,
   sameTarget,
   TARGET_FIELDS,
   targetRangeLines,
@@ -35,21 +40,13 @@ function emptyValues() {
   return { ...Object.fromEntries(TARGET_FIELDS.map((field) => [field, ""])), changeSummary: "" };
 }
 
-/**
- * Nút "Cập nhật theo chỉ số mới" + hộp thoại xem trước của một thực đơn.
- * Bấm nút: BE tính lại mục tiêu dinh dưỡng theo chỉ số sức khỏe mới nhất và co giãn lại khẩu phần, nhưng CHƯA lưu
- * (update-from-health với confirm=false). Người dùng xem so sánh rồi bấm "Áp dụng" mới lưu (confirm=true);
- * BE giữ bản cũ trong lịch sử phiên bản. `plan` là một MealPlan trong danh sách của useMealPlans.
- *
- * Tùy chọn: tự đặt mục tiêu dinh dưỡng riêng (BE dùng thay hẳn mục tiêu tính từ chỉ số sức khỏe) và ghi chú thay đổi.
- * Bản lưu phải dùng đúng mục tiêu của bản xem trước người dùng vừa thấy, nên đổi ô nhập thì phải xem trước lại
- * mới được áp dụng (`previewTarget` là mục tiêu của lần xem trước gần nhất).
- */
 export default function HealthUpdateButton({ plan }) {
   const [open, setOpen] = useState(false);
   const [previewTarget, setPreviewTarget] = useState(undefined);
   const preview = usePreviewHealthUpdate();
   const apply = useApplyHealthUpdate();
+  // Hồ sơ để biết trường nào đang thiếu khi BE báo 6020 (gắn vào liên kết sang trang hồ sơ).
+  const { profile, loading: profileLoading, error: profileError } = useProfile();
 
   const {
     register,
@@ -118,7 +115,9 @@ export default function HealthUpdateButton({ plan }) {
           <DialogHeader>
             <DialogTitle>Cập nhật theo chỉ số sức khỏe</DialogTitle>
             <DialogDescription>
-              Tính lại mục tiêu dinh dưỡng theo chiều cao, cân nặng mới nhất của bạn rồi điều chỉnh khẩu phần các món.
+              Tính lại mục tiêu dinh dưỡng theo chiều cao, cân nặng mới nhất của bạn
+              {goalLabel(plan.goalType) && ` và mục tiêu "${goalLabel(plan.goalType)}" của thực đơn`} rồi điều chỉnh khẩu
+              phần các món.
             </DialogDescription>
           </DialogHeader>
 
@@ -132,6 +131,15 @@ export default function HealthUpdateButton({ plan }) {
           {preview.isError && (
             <div className="flex flex-col items-start gap-3 rounded-2xl bg-destructive/10 px-4 py-3">
               <p className="text-sm text-destructive">{preview.error.message}</p>
+              {[6010, 6020].includes(preview.error.code) && (
+                <Link
+                  to="/profile/edit"
+                  state={profileFixState(profileLoading || profileError ? [] : missingProfileFields(profile))}
+                  className="rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground transition hover:bg-brand/90"
+                >
+                  Cập nhật hồ sơ
+                </Link>
+              )}
               <Button type="button" variant="outline" size="sm" onClick={() => requestPreview(previewTarget)}>
                 Thử lại
               </Button>
@@ -190,6 +198,10 @@ export default function HealthUpdateButton({ plan }) {
               <p className="text-xs text-subtle">
                 Mục tiêu dinh dưỡng bạn đặt trước đó sẽ được thay bằng mục tiêu mới ở trên. Thực đơn hiện tại được lưu lại
                 thành phiên bản cũ.
+              </p>
+              <p className="rounded-xl bg-warning/10 px-3 py-2 text-xs text-warning">
+                Khẩu phần của mọi bữa được tính lại theo mục tiêu mới, nên khẩu phần bạn đã tự chỉnh (nếu có) sẽ bị đặt lại.
+                Bản cũ vẫn xem được trong mục Lịch sử.
               </p>
             </div>
           )}

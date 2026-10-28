@@ -38,10 +38,6 @@ export function useReviewModeration() {
   });
 }
 
-/**
- * Mutation bỏ qua case kiểm duyệt: case rời khỏi hàng đợi nhưng nội dung gốc không đổi trạng thái.
- * Làm mới hàng đợi (và badge ở sidebar, dùng chung moderationKeys.pending) sau khi thành công.
- */
 export function useDismissModeration() {
   const queryClient = useQueryClient();
 

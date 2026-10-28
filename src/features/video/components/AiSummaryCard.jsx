@@ -13,9 +13,6 @@ const COLLAPSED_STEPS = 2;
 
 const noteClass = "mt-4 text-sm text-subtle";
 
-// Thẻ "Tóm tắt công thức nấu ăn (AI Summary)" ở trang xem video: công thức AI bóc tách từ chính video này
-// (GET /ai/videos/by-video/:id, công khai dùng chung cho mọi người nên xem không tốn lượt). Chưa có thì mời bóc tách
-// (POST /ai/videos/process-existing, trừ 1 lượt của gói). Nút ở tiêu đề (VideoMetaHeader) dùng chung trạng thái này.
 export default function AiSummaryCard({ video }) {
   const location = useLocation();
   const recipe = useVideoRecipe(video);
@@ -93,13 +90,10 @@ export default function AiSummaryCard({ video }) {
         (noQuota ? (
           upgradeHint
         ) : (
-          <>
-            <p className={noteClass}>
-              Video này chưa có công thức AI. Bóc tách sẽ dùng 1 lượt trong tháng của gói thành viên (lượt được hoàn
-              lại nếu không thành công) và kết quả được dùng chung cho mọi người xem video.
-            </p>
-            {runButton("Bóc tách công thức")}
-          </>
+          <p className={noteClass}>
+            Video này chưa có công thức AI. Bóc tách sẽ dùng 1 lượt trong tháng của gói thành viên (lượt được hoàn
+            lại nếu không thành công) và kết quả được dùng chung cho mọi người xem video.
+          </p>
         ))}
 
       {status === "processing" && (

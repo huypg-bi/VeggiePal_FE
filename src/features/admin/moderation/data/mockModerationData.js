@@ -1,8 +1,3 @@
-/**
- * Mock data dùng để kiểm thử giao diện và chức năng Admin Kiểm duyệt nội dung (AI Moderation).
- * Cấu trúc tương thích 100% với ModerationResponse từ AI-Service:
- * { caseId, contentType, externalContentId, authorId, content, decision, categories, reason, confidence, createdAt }
- */
 export const MOCK_MODERATION_CASES = [
   {
     caseId: 101,

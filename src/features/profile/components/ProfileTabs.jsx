@@ -1,6 +1,5 @@
 import { FileText, ShieldAlert, Heart } from 'lucide-react';
 
-
 const tabClass = (active) =>
   `flex items-center gap-2 px-5 py-2 rounded-full text-xs md:text-sm font-semibold transition-all cursor-pointer ${
     active

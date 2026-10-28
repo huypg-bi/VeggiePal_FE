@@ -10,8 +10,6 @@ import {
 } from "@/features/profile/api/profileApi";
 import { profileKeys } from "@/features/profile/queryKeys";
 
-// Giữ token, cập nhật user trong store (fullName / avatar hiển thị ở header).
-// Đọc store trực tiếp qua getState() nên không phụ thuộc closure/hook.
 function syncAuthUser(p) {
   const { token, setAuth } = useAuthStore.getState();
   if (!p || !token) return;
@@ -27,10 +25,6 @@ function syncAuthUser(p) {
   });
 }
 
-/**
- * Hồ sơ hiện tại (GET /users/me), đồng bộ user vào authStore.
- * Fallback nhẹ từ authStore nếu API lỗi.
- */
 export function useProfile({ enabled = true, staleTime } = {}) {
   const authUser = useAuthStore((s) => s.user);
 
@@ -57,6 +51,8 @@ export function useProfile({ enabled = true, staleTime } = {}) {
             phone: null,
             avatarUrl: authUser.avatarUrl || null,
             dateOfBirth: null,
+            gender: null,
+            activityLevel: null,
             emailVerified: false,
           }
         : null,
@@ -70,8 +66,6 @@ export function useProfile({ enabled = true, staleTime } = {}) {
   };
 }
 
-// Hồ sơ mới từ server -> ghi vào cache (mọi nơi đang đọc useProfile tự cập nhật)
-// và đồng bộ tên/avatar vào authStore để header đổi theo.
 function useApplyProfile() {
   const queryClient = useQueryClient();
   return (updated) => {
@@ -80,7 +74,7 @@ function useApplyProfile() {
   };
 }
 
-/** Sửa fullName / phone / dateOfBirth (PATCH /users/me). */
+/** Sửa fullName / phone / dateOfBirth / gender / activityLevel (PATCH /users/me). */
 export function useUpdateProfile() {
   const applyProfile = useApplyProfile();
   return useMutation({

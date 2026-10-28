@@ -1,20 +1,11 @@
-import { Clock, Loader2, Pencil, RefreshCw, Scale, Timer, Utensils } from "lucide-react";
+import { CircleCheck, Clock, Loader2, Pencil, RefreshCw, Scale, Timer, Utensils } from "lucide-react";
 import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
+import { formatServing, toRounded } from "@/features/meal-planner/utils/mealPlan";
 import { cn } from "@/lib/utils";
 import FallbackImage from "@/shared/components/FallbackImage";
 
-/**
- * Thẻ một bữa ăn.
- * `meal`: { label, time, title, description, image, prepMinutes, kcal, protein, carb, fat, href?, servingMultiplier? }
- * - servingMultiplier: hệ số khẩu phần BE đã áp dụng (khác 1) -> hiện nhãn "Khẩu phần ×N"; kcal/macro đã nhân sẵn.
- * - href: có thì tên món dẫn tới trang công thức.
- * - onReplace: có thì hiện nút "Đổi món"; `replacing` đang đổi bữa này, `replaceDisabled` khóa nút
- *   (đang đổi bữa khác hoặc bữa này không đổi được).
- * - onEdit: có thì hiện nút "Tự chọn món / khẩu phần" (mở hộp thoại chỉnh tay), khóa cùng điều kiện với "Đổi món".
- * (Yêu thích là theo cả thực đơn, nút nằm ở TodayMeals chứ không ở từng thẻ món.)
- */
 export default function MealCard({
   meal,
   onReplace,
@@ -22,6 +13,12 @@ export default function MealCard({
   replacing = false,
   replaceDisabled = false,
   replaceHint,
+  eaten,
+  onEat,
+  onUndoEat,
+  eatBusy = false,
+  eatDisabled = false,
+  eatHint,
 }) {
   const title = meal.href ? (
     <Link to={meal.href} className="transition hover:text-brand">
@@ -50,9 +47,15 @@ export default function MealCard({
           {meal.label}
           {meal.time ? ` • ${meal.time}` : ""}
         </span>
+        {eaten && (
+          <span className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-brand px-2.5 py-1 text-[11px] font-semibold text-brand-foreground shadow-sm">
+            <CircleCheck className="h-3 w-3" />
+            Đã ăn
+          </span>
+        )}
         {meal.servingMultiplier > 0 && meal.servingMultiplier !== 1 && (
           <span
-            title="Khẩu phần được điều chỉnh để tổng năng lượng trong ngày sát mục tiêu của bạn"
+            title="Khẩu phần được điều chỉnh để bữa này chạm ngân sách calo, giúp cả ngày đạt mục tiêu của bạn"
             className="absolute bottom-3 left-3 flex items-center gap-1 rounded-full bg-brand px-2 py-1 text-[11px] font-semibold text-brand-foreground shadow-sm"
           >
             <Scale className="h-3 w-3" />
@@ -78,8 +81,28 @@ export default function MealCard({
           <MacroStat value={`${meal.fat}g`} unit="Béo" valueClass="text-chart-4" />
         </div>
 
-        {(onReplace || onEdit) && (
+        {eaten && (
+          <p className="text-xs text-subtle">
+            Đã ghi {toRounded(eaten.nutrition?.calories).toLocaleString("vi-VN")} kcal ·{" "}
+            {formatServing(eaten.servings)} khẩu phần
+          </p>
+        )}
+
+        {(onEat || onReplace || onEdit) && (
           <div className="mt-3 flex flex-col gap-2">
+            {onEat && (
+              <Button
+                type="button"
+                variant={eaten ? "outline" : "default"}
+                className="text-xs"
+                disabled={eatDisabled || eatBusy}
+                title={eatHint}
+                onClick={eaten ? onUndoEat : onEat}
+              >
+                {eatBusy ? <Loader2 className="size-3.5 animate-spin" /> : <CircleCheck className="size-3.5" />}
+                {eaten ? "Bỏ đánh dấu đã ăn" : "Đánh dấu đã ăn"}
+              </Button>
+            )}
             {onReplace && (
               <Button
                 type="button"

@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 
 import AppHeader from "@/shared/components/AppHeader";
-import AppFooter from "@/shared/components/AppFooter";
 import Reveal from "@/shared/components/Reveal";
 import { Button } from "@/components/ui/button";
 import { usePaymentHistory } from "@/features/payment/hooks/usePaymentHistory";
@@ -198,8 +197,6 @@ export default function PaymentHistoryScreen() {
           )}
         </div>
       </main>
-
-      <AppFooter />
     </div>
   );
 }

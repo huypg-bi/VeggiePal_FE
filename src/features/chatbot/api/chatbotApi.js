@@ -4,11 +4,6 @@ import {
   toSessionItem,
 } from "@/features/chatbot/utils/chatUtils";
 
-/**
- * API chatbot — ai-service qua gateway (baseURL đã có /api nên đường dẫn bắt
- * đầu từ /ai/...). Response envelope: { code, message, result }.
- */
-
 // Gắn status + code vào Error để UI dịch sang tiếng Việt (BE trả message tiếng Anh).
 function unwrap(res, fallbackMessage) {
   if (res.status >= 400) {
@@ -32,10 +27,6 @@ export async function sendGuestMessage({ guestSession, message }) {
   return unwrap(res, "Không gửi được câu hỏi");
 }
 
-/**
- * POST /ai/chat — hỏi AI khi đã đăng nhập. `conversationId` rỗng = BE tự tạo
- * hội thoại mới, có giá trị = nối tiếp hội thoại cũ (nhiều lượt).
- */
 export async function sendChatMessage({ conversationId, message }) {
   const body = conversationId ? { conversationId, message } : { message };
   const res = await apiClient.post("/ai/chat", body);
