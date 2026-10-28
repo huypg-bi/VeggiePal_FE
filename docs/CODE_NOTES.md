@@ -554,9 +554,10 @@ Tổng cộng 334 mục từ 200 file.
 **Gắn với:** `export default function BlogForm({ blog, categories }) {`
 
 > Form viết / sửa bài.  
-> - Tạo mới (không có `blog`): "Lưu nháp" hoặc "Đăng bài" (kiểm duyệt ngay).  
+> - Tạo mới (không có `blog`): "Lưu nháp" hoặc "Đăng bài" (gửi AI kiểm duyệt nền, bài hiện công khai sau khi được duyệt).  
 > - Sửa (`blog` là BlogResponse, mọi trạng thái trừ BANNED): "Lưu thay đổi". Bản nháp vẫn là nháp;  
->  bài đã qua kiểm duyệt (đã đăng, chờ duyệt, bị từ chối) sẽ được BE kiểm duyệt lại.
+>  bài đã qua kiểm duyệt (đã đăng, chờ duyệt, bị từ chối) sẽ về PENDING và bị ẩn tới khi AI duyệt lại.
+> Sau khi lưu: bản nháp về /my-content, bài đã gửi duyệt mở /blog/:id để xem AI xét xong.
 > `categories` là danh sách phẳng { id, name } của danh mục đang hoạt động.
 > Ảnh bìa tải lên bằng endpoint riêng sau khi bài đã có id.
 
@@ -639,6 +640,8 @@ Tổng cộng 334 mục từ 200 file.
 
 > Chi tiết một bài (GET /blogs/:id). BE tính 1 lượt xem mỗi lần gọi, nên tắt refetch
 > khi mount lại để không đếm xem trùng chỉ vì người dùng quay lại trang.
+> Bài PENDING (BE cho AI duyệt nền) thì staleTime = 0 và poll mỗi 3 giây khi `aiReviewInProgress` (tối đa 3 phút);
+> poll không làm tăng lượt xem vì BE chỉ cộng view cho bài PUBLISHED.
 
 ### features/blog/hooks/useBlogVotes.js
 
@@ -701,6 +704,20 @@ Tổng cộng 334 mục từ 200 file.
 > Bài viết của tôi ở mọi trạng thái (GET /blogs/me) dạng "Xem thêm".
 > status: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED" | "BANNED", bỏ trống = tất cả.
 > Trả về query của React Query + `posts` (mảng phẳng) + `total`.
+> Danh sách (BlogSummaryResponse) không có `aiReviewInProgress`, nên cứ còn bài PENDING thì tự làm mới
+> mỗi 3 giây (tối đa 3 phút) để bài đang chờ AI tự đổi trạng thái.
+
+### features/blog/hooks/useReviewPolling.js
+
+**Gắn với:** `export function useReviewPollInterval() {`
+
+> Trả hàm (active) -> `refetchInterval` cho React Query. Mốc giờ bắt đầu lưu trong ref, đặt lại khi hết active,
+> nên mỗi đợt chờ AI mới có đủ REVIEW_POLL_MAX_MS; quá hạn thì dừng poll (bài vẫn PENDING, BE tự thử lại).
+
+**Gắn với:** `export function useReviewResultToast(blog) {`
+
+> Báo toast đúng một lần khi bài chuyển từ "AI đang xét" sang kết quả (đã đăng / bị từ chối / chờ admin).
+> Mở trang khi bài đã có kết quả sẵn thì không báo, vì chưa từng thấy trạng thái đang xét.
 
 ### features/blog/pages/BlogDetailScreen.jsx
 
@@ -710,6 +727,7 @@ Tổng cộng 334 mục từ 200 file.
 > nên hiển thị bằng text (giữ xuống dòng) chứ không render HTML.
 > Chủ bài / ADMIN (kèm token) còn mở được bài chưa đăng: lúc đó hiện nhãn trạng thái và ẩn vote,
 > bình luận, bài liên quan vì những phần này chỉ dành cho bài đã đăng.
+> Bài đang chờ AI: banner có vòng xoay và `getBlogReviewNote`, trang tự cập nhật nhờ polling trong `useBlog`.
 
 **Trong:** `BlogDetailScreen` · **Gắn với:** `<main className="mx-auto w-full max-w-[1280px] px-6 py-6">`
 
@@ -764,7 +782,24 @@ Tổng cộng 334 mục từ 200 file.
 
 > Diễn giải BlogResponse sau khi tạo / sửa / gửi duyệt thành thông báo cho người dùng.
 > Trả { tone: "success" | "info" | "error", message } để chọn toast.success / info / error.
-> BE kiểm duyệt ngay lúc lưu nên trạng thái trả về chính là kết quả kiểm duyệt.
+> BE kiểm duyệt nền: đăng / sửa / gửi duyệt trả PENDING + `aiReviewInProgress=true` (thông báo "AI đang kiểm duyệt");
+> PENDING với `aiReviewInProgress=false` là chờ admin. `edited: true` đổi lời nhắn thành "bài tạm ẩn".
+> Kết quả cuối (PUBLISHED / REJECTED) chỉ có sau khi poll, xem `useReviewResultToast`.
+
+### features/blog/utils/blogModeration.js
+
+**Gắn với:** `export const isAiReviewing = (blog) => blog?.status === "PENDING" && blog.aiReviewInProgress === true;`
+
+> Chỉ BlogResponse chi tiết mới có cờ `aiReviewInProgress`; danh sách thì không nên không dùng được hàm này.
+
+**Gắn với:** `export function nextReviewPollInterval(active, since, now) {`
+
+> Hàm thuần quyết định poll tiếp hay dừng: trả REVIEW_POLL_INTERVAL_MS khi còn trong REVIEW_POLL_MAX_MS
+> kể từ `since`, ngược lại false. Giới hạn 3 phút vì khi AI sập BE thử lại mỗi 2 phút không hẹn ngày xong.
+
+**Gắn với:** `export function getBlogReviewNote(blog) {`
+
+> Dòng ghi chú cho chủ bài ở banner trang chi tiết: AI đang xét, chờ admin, hoặc bị từ chối, kèm `moderationReason` nếu có.
 
 ### features/blog/utils/categoryForm.js
 

@@ -11,12 +11,20 @@ export function validateThumbnail(file) {
   return null;
 }
 
-export function describeBlogOutcome(blog) {
+export function describeBlogOutcome(blog, { edited = false } = {}) {
   switch (blog?.status) {
     case "PUBLISHED":
       return { tone: "success", message: "Bài viết đã được đăng" };
     case "PENDING":
-      return { tone: "info", message: "Bài viết đang chờ kiểm duyệt, bạn sẽ thấy nó khi được duyệt" };
+      if (blog.aiReviewInProgress) {
+        return {
+          tone: "info",
+          message: edited
+            ? "Đã lưu thay đổi. Bài tạm ẩn cho tới khi AI kiểm duyệt xong"
+            : "Đã gửi bài, AI đang kiểm duyệt. Bài sẽ hiện công khai sau khi được duyệt",
+        };
+      }
+      return { tone: "info", message: "Bài viết cần quản trị viên xem xét thêm, bạn sẽ thấy nó khi được duyệt" };
     case "REJECTED":
       return {
         tone: "error",

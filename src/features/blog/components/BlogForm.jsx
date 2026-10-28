@@ -67,9 +67,10 @@ export default function BlogForm({ blog, categories }) {
     }
   };
 
-  const finish = (result, message) => {
-    notify(message ?? describeBlogOutcome(result));
-    navigate(result.status === "PUBLISHED" ? `/blog/${result.id}` : "/my-content");
+  // Bản nháp về danh sách; bài đã gửi duyệt mở trang chi tiết để xem AI xét xong (trang tự cập nhật).
+  const finish = (result, options) => {
+    notify(describeBlogOutcome(result, options));
+    navigate(result.status === "DRAFT" ? "/my-content" : `/blog/${result.id}`);
   };
 
   const save = (publish) =>
@@ -84,12 +85,7 @@ export default function BlogForm({ blog, categories }) {
         if (isEdit) {
           const updated = await updateBlog.mutateAsync({ id: blog.id, ...payload });
           if (thumbnailFile) await uploadThumbnailSafely(blog.id);
-          finish(
-            updated,
-            updated.status === "PUBLISHED"
-              ? { tone: "success", message: "Đã cập nhật bài viết" }
-              : undefined
-          );
+          finish(updated, { edited: true });
           return;
         }
 
@@ -123,12 +119,12 @@ export default function BlogForm({ blog, categories }) {
         ) : isEdit ? (
           <p className="rounded-xl bg-warning/10 px-3 py-2 text-sm text-warning">
             {blog.status === "PUBLISHED"
-              ? "Bài đã đăng sẽ được kiểm duyệt lại sau khi sửa và có thể bị ẩn tạm thời cho tới khi được duyệt."
+              ? "Sau khi lưu, bài sẽ bị ẩn khỏi trang công khai và chỉ hiện lại khi AI kiểm duyệt xong (thường vài giây)."
               : "Bài sẽ được kiểm duyệt lại ngay khi bạn lưu thay đổi."}
           </p>
         ) : (
           <p className="rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand">
-            “Lưu nháp” chỉ lưu cho riêng bạn. “Đăng bài” sẽ gửi đi kiểm duyệt ngay.
+            “Lưu nháp” chỉ lưu cho riêng bạn. “Đăng bài” sẽ gửi cho AI kiểm duyệt, bài hiện công khai sau khi được duyệt.
           </p>
         )}
 
