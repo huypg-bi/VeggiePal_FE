@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2, ChevronDown, ChevronUp, Loader2, Sparkles, ThumbsDown, ThumbsUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2, Sparkles, ThumbsDown, ThumbsUp } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -75,10 +75,7 @@ export default function VideoMetaHeader({ video, author }) {
             }
           />
           <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm font-bold text-ink">{authorName}</span>
-              <CheckCircle2 className="size-4 fill-brand text-brand-foreground" />
-            </div>
+            <span className="text-sm font-bold text-ink">{authorName}</span>
             <p className="text-xs text-subtle">
               {video.categoryName ? `Chuyên mục: ${video.categoryName}` : "Thành viên cộng đồng"}
             </p>

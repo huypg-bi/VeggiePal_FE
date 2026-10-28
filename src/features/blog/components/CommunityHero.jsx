@@ -24,17 +24,16 @@ export default function CommunityHero() {
           <img
             src={tag}
             alt="Đồng hành cùng bạn"
-            className="h-12 w-auto select-none sm:h-14 lg:h-16"
+            className="h-16 w-auto select-none sm:h-20"
             draggable={false}
           />
 
           <h1 className="text-2xl font-bold leading-tight text-ink sm:text-3xl lg:text-4xl">
-            Cộng đồng Bếp Xanh cùng{" "}
-            <span className="text-brand">Bé Bông Cải</span> nhé!
+            Cộng đồng Bếp Xanh
           </h1>
 
           <p className="max-w-lg text-xs leading-relaxed text-subtle sm:text-sm">
-            Nơi hơn 45.000 tín đồ thuần chay cùng sẻ chia dinh dưỡng, lan toả lối sống
+            Nơi các tín đồ thuần chay cùng sẻ chia dinh dưỡng, lan toả lối sống
             xanh lành và cùng nhau thắp sáng tình yêu thương qua từng bữa ăn!
           </p>
 

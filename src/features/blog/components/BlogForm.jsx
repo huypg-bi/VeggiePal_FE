@@ -13,7 +13,8 @@ import {
   useUpdateBlog,
   useUploadBlogThumbnail,
 } from "@/features/blog/hooks/useBlogMutations";
-import { BLOG_CONTENT_MIN, BLOG_TITLE_MAX, blogSchema } from "@/features/blog/schema";
+import { BLOG_CONTENT_MAX, BLOG_CONTENT_MIN, BLOG_TITLE_MAX, blogSchema } from "@/features/blog/schema";
+import { countCodePoints } from "@/features/blog/utils/textLength";
 import { describeBlogOutcome } from "@/features/blog/utils/blogForm";
 import SelectField from "@/shared/components/SelectField";
 
@@ -25,14 +26,6 @@ const errorClass = "mt-1.5 text-xs text-destructive";
 const notify = ({ tone, message }) =>
   tone === "error" ? toast.error(message) : tone === "info" ? toast.info(message) : toast.success(message);
 
-/**
- * Form viết / sửa bài.
- * - Tạo mới (không có `blog`): "Lưu nháp" hoặc "Đăng bài" (kiểm duyệt ngay).
- * - Sửa (`blog` là BlogResponse, mọi trạng thái trừ BANNED): "Lưu thay đổi". Bản nháp vẫn là nháp;
- *   bài đã qua kiểm duyệt (đã đăng, chờ duyệt, bị từ chối) sẽ được BE kiểm duyệt lại.
- * `categories` là danh sách phẳng { id, name } của danh mục đang hoạt động.
- * Ảnh bìa tải lên bằng endpoint riêng sau khi bài đã có id.
- */
 export default function BlogForm({ blog, categories }) {
   const idPrefix = useId();
   const navigate = useNavigate();
@@ -60,7 +53,7 @@ export default function BlogForm({ blog, categories }) {
   });
 
   const titleLength = useWatch({ control, name: "title" }).length;
-  const contentLength = useWatch({ control, name: "content" }).trim().length;
+  const contentLength = countCodePoints(useWatch({ control, name: "content" }).trim());
   const categoryOptions = categories.map(({ id, name }) => ({ value: String(id), label: name }));
 
   // Trả true nếu tải ảnh thành công; lỗi thì báo nhưng không chặn, vì bài đã được lưu.
@@ -74,9 +67,10 @@ export default function BlogForm({ blog, categories }) {
     }
   };
 
-  const finish = (result, message) => {
-    notify(message ?? describeBlogOutcome(result));
-    navigate(result.status === "PUBLISHED" ? `/blog/${result.id}` : "/my-content");
+  // Bản nháp về danh sách; bài đã gửi duyệt mở trang chi tiết để xem AI xét xong (trang tự cập nhật).
+  const finish = (result, options) => {
+    notify(describeBlogOutcome(result, options));
+    navigate(result.status === "DRAFT" ? "/my-content" : `/blog/${result.id}`);
   };
 
   const save = (publish) =>
@@ -91,12 +85,7 @@ export default function BlogForm({ blog, categories }) {
         if (isEdit) {
           const updated = await updateBlog.mutateAsync({ id: blog.id, ...payload });
           if (thumbnailFile) await uploadThumbnailSafely(blog.id);
-          finish(
-            updated,
-            updated.status === "PUBLISHED"
-              ? { tone: "success", message: "Đã cập nhật bài viết" }
-              : undefined
-          );
+          finish(updated, { edited: true });
           return;
         }
 
@@ -130,12 +119,12 @@ export default function BlogForm({ blog, categories }) {
         ) : isEdit ? (
           <p className="rounded-xl bg-warning/10 px-3 py-2 text-sm text-warning">
             {blog.status === "PUBLISHED"
-              ? "Bài đã đăng sẽ được kiểm duyệt lại sau khi sửa và có thể bị ẩn tạm thời cho tới khi được duyệt."
+              ? "Sau khi lưu, bài sẽ bị ẩn khỏi trang công khai và chỉ hiện lại khi AI kiểm duyệt xong (thường vài giây)."
               : "Bài sẽ được kiểm duyệt lại ngay khi bạn lưu thay đổi."}
           </p>
         ) : (
           <p className="rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand">
-            “Lưu nháp” chỉ lưu cho riêng bạn. “Đăng bài” sẽ gửi đi kiểm duyệt ngay.
+            “Lưu nháp” chỉ lưu cho riêng bạn. “Đăng bài” sẽ gửi cho AI kiểm duyệt, bài hiện công khai sau khi được duyệt.
           </p>
         )}
 
@@ -205,8 +194,9 @@ export default function BlogForm({ blog, categories }) {
             <p className={errors.content ? "text-xs text-destructive" : "text-xs text-transparent"}>
               {errors.content?.message ?? "."}
             </p>
-            <span className="text-xs text-subtle">
-              {contentLength} ký tự (tối thiểu {BLOG_CONTENT_MIN})
+            <span className={contentLength > BLOG_CONTENT_MAX ? "text-xs text-destructive" : "text-xs text-subtle"}>
+              {contentLength.toLocaleString("vi-VN")}/{BLOG_CONTENT_MAX.toLocaleString("vi-VN")} ký tự (tối thiểu{" "}
+              {BLOG_CONTENT_MIN})
             </span>
           </div>
         </div>

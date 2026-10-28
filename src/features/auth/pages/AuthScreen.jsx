@@ -14,8 +14,6 @@ const MODE_BY_PATH = {
   "/verify-otp": "otp",
 };
 
-// 4 mode (login/register/quên mật khẩu/otp) dùng chung 1 khung ảnh+card,
-// URL quyết định mode nào hiển thị — không còn tách thành page riêng nữa.
 export default function AuthScreen() {
   const location = useLocation();
   const navigate = useNavigate();

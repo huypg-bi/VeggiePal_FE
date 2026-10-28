@@ -1,20 +1,15 @@
-import { Link, useSearchParams } from "react-router-dom";
-import { Plus } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 
-import { buttonVariants } from "@/components/ui/variants/button-variants";
 import { useCategories } from "@/features/blog/hooks/useCategories";
 import { flattenCategories } from "@/features/blog/utils/feedFilters";
 import TrendingVideoGrid from "@/features/video/components/TrendingVideoGrid";
 import VideoBanner from "@/features/video/components/VideoBanner";
 import VideoChannelBar from "@/features/video/components/VideoChannelBar";
 import { useVideoFeed } from "@/features/video/hooks/useVideos";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-// Trang video chính (route /videos, công khai): danh sách video đã duyệt (GET /videos),
-// hỗ trợ lọc theo danh mục trên URL (?category=) và phân trang "Xem thêm".
 export default function VideoHomeScreen() {
   const [searchParams, setSearchParams] = useSearchParams();
   const categoryParam = searchParams.get("category");
@@ -75,8 +70,6 @@ export default function VideoHomeScreen() {
           onCategoryChange={setCategory}
         />
       </main>
-
-      <AppFooter />
     </div>
   );
 }

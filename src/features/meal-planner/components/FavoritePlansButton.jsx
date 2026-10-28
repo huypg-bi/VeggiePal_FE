@@ -18,11 +18,6 @@ const PAGE_SIZE = 5;
 
 const formatNumber = (value) => Number(value).toLocaleString("vi-VN");
 
-/**
- * Nút "Yêu thích của tôi" + hộp thoại liệt kê các thực đơn đã yêu thích (GET /ai/meal-plans/favorites, phân trang).
- * Mỗi mục bấm "Xem chi tiết" để mở 7 ngày của thực đơn (GET /ai/meal-plans/favorites/:id), hoặc "Mở trên trang" để
- * chuyển trang thực đơn sang thực đơn đó. `plans` là danh sách thực đơn đã tải của trang; `onSelectPlan(id)` chọn một cái.
- */
 export default function FavoritePlansButton({ plans, onSelectPlan }) {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
@@ -48,7 +43,7 @@ export default function FavoritePlansButton({ plans, onSelectPlan }) {
     document.getElementById("today-meals")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const items = data?.content ?? [];
+  const items = data?.items ?? [];
   const loadedIds = new Set(plans.map((plan) => plan.id));
 
   return (
@@ -108,7 +103,7 @@ export default function FavoritePlansButton({ plans, onSelectPlan }) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                disabled={data.first || isFetching}
+                disabled={data.page <= 0 || isFetching}
                 onClick={() => goToPage(page - 1)}
               >
                 <ChevronLeft className="size-4" />
@@ -121,7 +116,7 @@ export default function FavoritePlansButton({ plans, onSelectPlan }) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                disabled={data.last || isFetching}
+                disabled={data.page + 1 >= data.totalPages || isFetching}
                 onClick={() => goToPage(page + 1)}
               >
                 Sau

@@ -9,15 +9,6 @@ import { cn } from "@/lib/utils";
 const fieldClass =
   "w-full resize-y rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
 
-/**
- * Danh sách các bước của công thức: thêm, xóa, đổi thứ tự.
- * - Kéo thả bằng số thứ tự bên trái (HTML5 drag & drop; chỉ phần này kéo được để vẫn bôi đen
- *   chữ trong ô nhập bình thường).
- * - Nút lên/xuống là cách đổi thứ tự dự phòng cho bàn phím và điện thoại, vì kéo thả HTML5
- *   không chạy trên màn hình cảm ứng.
- * Số thứ tự hiển thị theo vị trí; khi gửi lên BE, stepNumber cũng lấy theo vị trí
- * (xem formValuesToPayload). `control`, `register`, `errors` lấy từ useForm của RecipeForm.
- */
 export default function RecipeStepsEditor({ control, register, errors }) {
   const { fields, append, remove, move } = useFieldArray({ control, name: "steps" });
   const [dragIndex, setDragIndex] = useState(null);

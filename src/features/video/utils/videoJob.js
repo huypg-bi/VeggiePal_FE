@@ -6,10 +6,6 @@ export const VIDEO_JOB_MAX_MINUTES = 30;
 /** Khoảng thời gian hỏi lại BE khi còn job đang xử lý. */
 export const VIDEO_JOB_POLL_MS = 4000;
 
-/**
- * Kiểm tra tệp trước khi gửi: phải là video và ≤ 100MB (BE kiểm lại bằng ffprobe, kể cả thời lượng ≤ 30 phút).
- * Trả chuỗi lỗi tiếng Việt nếu không hợp lệ, hoặc null nếu hợp lệ.
- */
 export function validateJobFile(file) {
   if (!file) return "Vui lòng chọn tệp video";
   if (!file.type?.toLowerCase().startsWith("video/")) return "Tệp phải là video (ví dụ .mp4, .mov, .webm)";
@@ -45,20 +41,10 @@ export function describeJobError(error) {
   return JOB_ERROR_MESSAGES[error] ?? "Xử lý video thất bại, bạn thử lại sau nhé";
 }
 
-/**
- * Tên hiển thị của nguồn một job: job tạo từ video đã đăng có filename do BE tự đặt ("blog-video-8.mp4")
- * nên không đưa cho người dùng, thay bằng số video.
- */
 export function jobSourceLabel(job) {
   return job.sourceVideoId ? `Video đã đăng #${job.sourceVideoId}` : job.filename;
 }
 
-/**
- * Trạng thái công thức AI của một video đã đăng, suy ra từ phản hồi của GET /ai/videos/by-video/:id:
- * "ready" (có kết quả) | "processing" (409, mã 6022) | "failed" (mã 6023) | "unsupported" (mã 6021)
- * | "none" (404, chưa từng bóc tách hoặc kết quả đã hết hạn).
- * Trả null với lỗi khác để nơi gọi ném lỗi.
- */
 export function recipeStateFromResponse(res) {
   const code = res.data?.code;
   if (res.status < 400) {
@@ -67,7 +53,7 @@ export function recipeStateFromResponse(res) {
   }
   if (code === 6022 || res.status === 409) return { state: "processing" };
   if (code === 6023) return { state: "failed" };
-  if (code === 6021) return { state: "unsupported" };
+  if (code === 6026) return { state: "unsupported" };
   if (res.status === 404) return { state: "none" };
   return null;
 }

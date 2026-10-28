@@ -7,8 +7,6 @@ const GEO_OPTIONS = { enableHighAccuracy: false, timeout: 10000, maximumAge: 600
 const isSupported = () =>
   typeof navigator !== "undefined" && "geolocation" in navigator;
 
-// Gọi định vị và báo kết quả qua `update`. Lỗi giữ lại vị trí cũ (nếu có) để lần thử lại
-// thất bại không đẩy người dùng về tâm mặc định.
 function readPosition(update) {
   navigator.geolocation.getCurrentPosition(
     (pos) =>
@@ -25,15 +23,6 @@ function readPosition(update) {
   );
 }
 
-/**
- * Vị trí người dùng từ `navigator.geolocation`, tự xin quyền khi trang mở.
- * Trả về:
- * - location: { lat, lng } — luôn có giá trị, là tâm TP.HCM khi chưa có vị trí thật
- * - isDefaultLocation: true khi đang dùng tâm mặc định
- * - status: "loading" | "granted" | "denied" | "unavailable" | "unsupported"
- * - request(): xin định vị lại (nút "Vị trí của tôi")
- * - resetToDefault(): quay về tâm mặc định
- */
 export function useUserLocation() {
   const [state, setState] = useState(() => ({
     status: isSupported() ? "loading" : "unsupported",

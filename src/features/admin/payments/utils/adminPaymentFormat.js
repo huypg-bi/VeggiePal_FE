@@ -37,10 +37,6 @@ export const toOptions = (labels, allLabel) => [
   ...Object.entries(labels).map(([value, label]) => ({ value, label })),
 ];
 
-/**
- * Chuyển giá trị <input type="date"> ("2026-10-22") thành Instant ISO (UTC) theo giờ địa phương.
- * endOfDay = true -> 23:59:59.999 cuối ngày để bao trọn ngày kết thúc.
- */
 export function toInstant(dateValue, endOfDay = false) {
   if (!dateValue) return undefined;
   const [y, m, d] = dateValue.split("-").map(Number);

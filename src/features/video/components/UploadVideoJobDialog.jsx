@@ -22,11 +22,6 @@ import {
 } from "@/features/video/utils/videoJob";
 import { cn } from "@/lib/utils";
 
-/**
- * Hộp thoại chọn tệp video để AI bóc tách công thức (POST /ai/videos/process).
- * Gửi xong BE trả 202 ngay, kết quả hiện dần trong danh sách (tab "Bóc tách") nên hộp thoại đóng luôn.
- * Gói không có lượt bóc tách (videosPerMonth = 0, vd FREE) thì chặn sớm và mời nâng cấp.
- */
 export default function UploadVideoJobDialog({ open, onOpenChange }) {
   const inputId = useId();
   const [file, setFile] = useState(null);

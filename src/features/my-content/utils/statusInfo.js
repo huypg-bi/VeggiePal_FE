@@ -1,10 +1,6 @@
-// Nhãn + màu + gợi ý cho trạng thái của bài viết (blog-service), công thức (recipe-service),
-// video (blog-service) và job bóc tách video (ai-service).
-// tone ánh xạ sang class ở StatusBadge: success | warning | danger | muted.
-
 const BLOG_STATUS = {
   DRAFT: { label: "Bản nháp", tone: "muted", hint: "Chưa gửi duyệt, chỉ mình bạn thấy" },
-  PENDING: { label: "Chờ duyệt", tone: "warning", hint: "Đang chờ kiểm duyệt" },
+  PENDING: { label: "Chờ duyệt", tone: "warning", hint: "AI hoặc quản trị viên đang kiểm duyệt, bài tạm ẩn" },
   PUBLISHED: { label: "Đã đăng", tone: "success", hint: "" },
   REJECTED: { label: "Bị từ chối", tone: "danger", hint: "Không vượt qua kiểm duyệt" },
   BANNED: { label: "Đã bị gỡ", tone: "danger", hint: "Quản trị viên đã gỡ bài này" },
@@ -67,11 +63,6 @@ export function getVideoJobStatusInfo(status) {
 
 // Hành động nào hợp lệ ở trạng thái nào (khớp luật chuyển trạng thái của BE).
 
-/**
- * Sửa bài: BE cho sửa bài ở mọi trạng thái trừ BANNED (bài bị gỡ là cuối cùng, sửa sẽ bị từ chối).
- * Chủ bài đọc lại được bài chưa đăng qua GET /blogs/:id (kèm token) nên form sửa nạp được cả
- * bản nháp, chờ duyệt, bị từ chối.
- */
 export const canEditBlog = (status) => status !== "BANNED";
 
 /** Gửi duyệt: chỉ bản nháp (BE trả lỗi 3015 với trạng thái khác). */

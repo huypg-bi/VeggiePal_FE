@@ -10,17 +10,9 @@ import EditHealthForm from "@/features/profile/components/EditHealthForm";
 import EditHealthHistory from "@/features/profile/components/EditHealthHistory";
 import { errorBoxClass } from "@/features/profile/utils/editProfileConstants";
 
-/**
- * Box "Chỉ số sức khỏe": tải dữ liệu rồi ghép summary + form + lịch sử.
- * `highlightFields` / `returnTo` / `returnLabel` chuyển thẳng cho EditHealthForm (trường hồ sơ cần bổ sung và nơi quay lại
- * khi người dùng được chuyển từ trang thực đơn sang). Có `highlightFields` thì cả box cuộn tới giữa màn hình khi vào trang.
- * Nút "Ghi nhận" của form hiện ở đầu box, cạnh nhãn "Cá nhân hóa" (qua `submitSlot`).
- */
 export default function EditHealthCard({ highlightFields, returnTo, returnLabel }) {
   const hasHighlight = Boolean(highlightFields?.length);
   const cardRef = useRef(null);
-  // Chỗ ở đầu thẻ (cạnh nhãn "Cá nhân hóa") để EditHealthForm đặt nút "Ghi nhận" vào; dùng state để form nhận được
-  // phần tử ngay khi nó được gắn vào DOM.
   const [submitSlot, setSubmitSlot] = useState(null);
   useEffect(() => {
     if (hasHighlight) cardRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });

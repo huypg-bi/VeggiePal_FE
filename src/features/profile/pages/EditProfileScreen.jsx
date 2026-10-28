@@ -1,7 +1,6 @@
 import { useLocation } from "react-router-dom";
 
 import AppHeader from "@/shared/components/AppHeader";
-import AppFooter from "@/shared/components/AppFooter";
 import Reveal from "@/shared/components/Reveal";
 
 import EditProfileHeader from "@/features/profile/components/EditProfileHeader";
@@ -18,9 +17,6 @@ import { useEditProfileActions } from "@/features/profile/hooks/useEditProfileAc
 import { readProfileFixState } from "@/features/profile/utils/profileFixState";
 
 export default function EditProfileScreen() {
-  // Được chuyển từ trang thực đơn sang vì hồ sơ thiếu thông tin tính calo: thẻ chỉ số sức khỏe (nơi nhập ngày sinh,
-  // giới tính, mức vận động) cuộn tới và làm nổi các ô còn thiếu, và lưu / hủy xong thì quay lại nơi đã chuyển đi
-  // (xem readProfileFixState).
   const { state } = useLocation();
   const { missingFields, returnTo, returnLabel } = readProfileFixState(state);
 
@@ -28,20 +24,6 @@ export default function EditProfileScreen() {
   const personal = usePersonalInfoForm();
   const allergy = useAllergyDraft();
   const actions = useEditProfileActions({ personal, allergy, returnTo: returnTo ?? undefined });
-
-  useEffect(() => {
-    if (isFromIncompleteProfile) {
-      personal.openSection();
-      const el = document.getElementById("personal-info-card");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
-      toast.warning(
-        "Hồ sơ của bạn chưa đủ ngày sinh, giới tính hoặc mức vận động để tính mục tiêu calo cho Thực đơn AI. Vui lòng bổ sung các trường được làm nổi bật bên dưới nhé!",
-        { id: "profile-incomplete-toast", duration: 7000 },
-      );
-    }
-  }, [isFromIncompleteProfile]);
 
   return (
     <div className="min-h-dvh bg-canvas transition-colors duration-200">
@@ -67,12 +49,7 @@ export default function EditProfileScreen() {
               Giới thiệu
             </span>
 
-            <Reveal>
-              <EditPersonalInfoCard
-                personal={personal}
-                highlightMissing={isFromIncompleteProfile}
-              />
-            </Reveal>
+            <Reveal><EditPersonalInfoCard personal={personal} /></Reveal>
             <Reveal><EditPasswordCard /></Reveal>
             <Reveal><EditQuoteCard /></Reveal>
           </div>
@@ -95,8 +72,6 @@ export default function EditProfileScreen() {
           />
         </Reveal>
       </main>
-
-      <AppFooter />
     </div>
   );
 }

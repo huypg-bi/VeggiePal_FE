@@ -1,10 +1,5 @@
 import { cva } from "class-variance-authority";
 
-// Tách khỏi input.jsx cho cùng kiểu với button.jsx / button-variants.js.
-//
-// - default: ô nhập trên nền sáng/tối của app (trang Profile).
-// - auth: ô chỉ có đường kẻ chân, chữ trắng trên nền kính mờ (các form đăng nhập/đăng ký).
-//   Chỉnh riêng từng ô (chiều cao, màu viền...) qua className.
 export const inputVariants = cva("w-full outline-none transition", {
   variants: {
     variant: {

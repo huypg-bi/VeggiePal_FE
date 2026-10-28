@@ -9,10 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { jobSourceLabel } from "@/features/video/utils/videoJob";
 
-/**
- * Xem kết quả bóc tách của một job COMPLETED: tên món, nguyên liệu kèm số lượng, các bước và bản chép lời.
- * `job` rỗng thì đóng; extraction { title, ingredients: [{ name, quantity }], steps: [{ number, instruction }] }.
- */
 export default function VideoJobResultDialog({ job, onClose }) {
   const extraction = job?.extraction;
 

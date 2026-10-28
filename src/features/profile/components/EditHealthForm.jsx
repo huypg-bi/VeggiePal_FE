@@ -19,8 +19,6 @@ import {
 
 const labelClass = "block text-xs font-semibold text-body mb-1";
 
-// Mọi ô của form (chiều cao, cân nặng, ngày sinh, giới tính, mức vận động) cùng cao h-10 cho đồng nhất; ô chọn dùng
-// variant "compact" của SelectField có cùng chiều cao.
 const fieldInputClass = `${healthInputClass} h-10`;
 
 // Nút "Ghi nhận" có thể đặt ở nơi khác trong thẻ (xem `submitSlot`) nên liên kết với form bằng id thay vì lồng bên trong.
@@ -33,17 +31,6 @@ const healthFormSchema = healthRecordSchema.extend({
   activityLevel: updateProfileSchema.shape.activityLevel,
 });
 
-/**
- * Form ghi nhận chiều cao / cân nặng mới (POST /nutrition/me/health-records), kèm ngày sinh, giới tính và mức vận động.
- * Ba trường sau không thuộc bản ghi sức khỏe: BE đọc chúng từ hồ sơ (PATCH /users/me) để tính nhu cầu calo, nên
- * form lưu chúng vào hồ sơ khi người dùng đổi, cùng nguồn với thẻ "Thông tin cá nhân".
- * - Chỉ đổi ngày sinh / giới tính / mức vận động mà chiều cao, cân nặng giữ nguyên thì chỉ cập nhật hồ sơ, không tạo
- *   thêm bản ghi trùng trong lịch sử. Không đổi gì cả thì vẫn ghi nhận một bản ghi mới như trước.
- * - highlightFields: trường hồ sơ BE báo thiếu (xem profileFixState); returnTo / returnLabel: nơi người dùng đến từ
- *   đó, hiện liên kết quay lại sau khi lưu xong.
- * - submitSlot: phần tử DOM (ở đầu thẻ) để đặt nút "Ghi nhận"; nút vẫn thuộc form này (gắn bằng thuộc tính `form`)
- *   nên trạng thái "Đang ghi…" vẫn đúng. Không truyền thì nút nằm ngay cuối form.
- */
 export default function EditHealthForm({
   latest,
   highlightFields = [],

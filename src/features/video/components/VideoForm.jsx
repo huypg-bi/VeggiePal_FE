@@ -26,12 +26,6 @@ const fieldClass =
 const labelClass = "mb-1.5 block text-sm font-semibold text-ink";
 const errorClass = "mt-1.5 text-xs text-destructive";
 
-/**
- * Form đăng / sửa video.
- * - Đăng mới: hỗ trợ tệp .mp4 (≤ 30MB) có thanh tiến trình upload, hoặc liên kết YouTube.
- *   Lựa chọn "Lưu nháp" hoặc "Đăng video" (gửi kiểm duyệt ngay).
- * - Sửa: cập nhật tiêu đề, danh mục, mô tả (nguồn video giữ nguyên theo luật BE).
- */
 export default function VideoForm({ video, categories = [] }) {
   const idPrefix = useId();
   const navigate = useNavigate();

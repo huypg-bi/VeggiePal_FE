@@ -6,13 +6,6 @@ import { useIngredients } from "@/features/ingredient/hooks/useIngredients";
 const SEARCH_DEBOUNCE_MS = 300;
 const RESULT_SIZE = 8;
 
-/**
- * Ô tìm và thêm nguyên liệu (GET /ingredients?keyword=). Bấm một kết quả để thêm vào công thức.
- * - selectedIds: id đã thêm, bị ẩn khỏi kết quả vì BE không cho trùng nguyên liệu trong 1 công thức
- * - onPick(ingredient): nhận Ingredient đầy đủ (id, name, caloriesPer100g...)
- * Mỗi kết quả kèm `description` của nguyên liệu (nếu có) vì BE ghi ở đó nguyên liệu đang ở trạng thái nào
- * (vd "Gạo thơm" là gạo sống 365 kcal/100g, "Cơm trắng" là cơm đã nấu 130 kcal/100g).
- */
 export default function IngredientPicker({ selectedIds, onPick }) {
   const [text, setText] = useState("");
   const [keyword, setKeyword] = useState("");
@@ -34,7 +27,7 @@ export default function IngredientPicker({ selectedIds, onPick }) {
   };
 
   const selected = new Set(selectedIds);
-  const results = (data?.content ?? []).filter((i) => !selected.has(i.id)).slice(0, RESULT_SIZE);
+  const results = (data?.items ?? []).filter((i) => !selected.has(i.id)).slice(0, RESULT_SIZE);
 
   return (
     <div>

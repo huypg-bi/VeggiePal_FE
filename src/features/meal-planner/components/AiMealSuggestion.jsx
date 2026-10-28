@@ -55,32 +55,13 @@ function emptyTarget() {
 
 const GOAL_ICONS = { LOSE: TrendingDown, MAINTAIN: Scale, GAIN: TrendingUp };
 
-// BE từ chối chắc chắn (hồ sơ thiếu thông tin / dưới 18 tuổi) khi phải tự tính mục tiêu: khóa nút thay vì để người
-// dùng bấm rồi mới thấy lỗi (mã này là lỗi BE trả về khi hồ sơ đã đổi sau lần kiểm tra ở FE). Có mục tiêu tự đặt
-// thì BE không đọc hồ sơ nên không bị chặn.
 const AUTO_TARGET_BLOCKING_CODES = new Set([6020, 6021]);
 
-/**
- * Form nhờ AI lên thực đơn 7 ngày (POST /ai/meal-plans).
- * - Mục tiêu (giảm / duy trì / tăng cân) là `goalType` bắt buộc; ô "Mô tả thêm" là tùy chọn và được ghép vào `healthGoal`.
- * - Mục tiêu dinh dưỡng mỗi ngày: mặc định BE tự tính từ hồ sơ (thẻ NutritionTargetCard cho xem trước); điền các ô
- *   "Tự đặt mục tiêu riêng" thì gửi `dailyNutritionTarget` thay thế.
- * - Nguyên liệu có sẵn: chọn từ danh mục nguyên liệu; BE chỉ ưu tiên các món dùng chúng (không loại món khác).
- * - Cần có chỉ số sức khỏe (chiều cao, cân nặng) mới tạo được thực đơn: thiếu thì khóa nút và dẫn tới hồ sơ.
- * - Khẩu vị: gửi nhãn các lựa chọn đang bật qua `preferences`.
- * - Tên, mục tiêu, mô tả, mục tiêu dinh dưỡng: react-hook-form + zod.
- * `onCreated(plan)` được gọi khi tạo xong để trang chuyển sang xem thực đơn mới.
- */
 export default function AiMealSuggestion({ onCreated }) {
-  const navigate = useNavigate();
   const idPrefix = useId();
   const createPlan = useCreateMealPlan();
-  // BE trả lỗi 6010 nếu chưa có bản ghi sức khỏe nên chặn sớm. Chỉ khóa khi chắc chắn là chưa có
-  // (đã tải xong, không lỗi); nếu không tải được thì vẫn cho thử, BE sẽ là bên quyết định.
   const healthRecord = useLatestHealthRecord();
   const missingHealthRecord = !healthRecord.isPending && !healthRecord.isError && healthRecord.data == null;
-  // Gói quy định số thực đơn được tạo mỗi tháng (BE báo lỗi 6003 khi hết). Chưa biết gói (đang tải / lỗi) thì
-  // không chặn, để BE quyết định; BE chưa có API số lượt đã dùng nên chỉ hiện được tổng lượt của gói.
   const { subscription } = useMySubscription();
   const noQuota = subscription?.mealPlansPerMonth === 0;
 
@@ -103,8 +84,6 @@ export default function AiMealSuggestion({ onCreated }) {
   const watched = useWatch({ control });
   const customTarget = buildNutritionTarget(watched);
 
-  // Hồ sơ thiếu ngày sinh / giới tính / mức vận động hoặc dưới 18 tuổi thì BE chắc chắn từ chối mục tiêu tự tính
-  // (6020 / 6021): báo ngay, không gọi API. Hồ sơ chưa tải xong hoặc tải lỗi thì chưa kết luận, để BE quyết định.
   const { profile, loading: profileLoading, error: profileError } = useProfile();
   const profileIssue = profileLoading || profileError ? null : profileTargetIssue(profile);
   const missingFields = profileLoading || profileError ? [] : missingProfileFields(profile);
@@ -171,23 +150,6 @@ export default function AiMealSuggestion({ onCreated }) {
       }
       onCreated?.(plan);
     } catch (error) {
-      if (
-        error?.code === 6020 ||
-        error?.data?.code === 6020 ||
-        error?.message?.includes("ngày sinh, giới tính hoặc mức vận động")
-      ) {
-        toast.warning(
-          "Hồ sơ của bạn chưa đủ ngày sinh, giới tính hoặc mức vận động. Đang chuyển tới trang hồ sơ...",
-          { duration: 5000 },
-        );
-        navigate("/profile/edit?from=6020");
-        return;
-      }
-      if (error?.code === 6010 || error?.data?.code === 6010) {
-        toast.warning("Bạn cần cập nhật chiều cao và cân nặng trong hồ sơ sức khỏe trước khi lên thực đơn");
-        navigate("/profile/edit");
-        return;
-      }
       toast.error(error.message);
     }
   };

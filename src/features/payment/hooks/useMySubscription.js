@@ -4,9 +4,6 @@ import { useAuthStore, selectIsAuthenticated } from "@/features/auth/store/authS
 import { getMySubscription } from "@/features/payment/api/paymentApi";
 import { paymentKeys } from "@/features/payment/queryKeys";
 
-/**
- * Lấy gói thành viên hiện tại của người dùng (chỉ gọi khi đã đăng nhập).
- */
 export function useMySubscription() {
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
 

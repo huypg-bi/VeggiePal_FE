@@ -11,10 +11,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-/**
- * Dialog xác nhận quyết định duyệt (APPROVED) hoặc từ chối (REJECTED) case kiểm duyệt.
- * Yêu cầu/cho phép admin nhập lý do quyết định trước khi gửi request PUT /ai/admin/moderation/{id}.
- */
 export default function ReviewDecisionDialog({
   item,
   decision, // "APPROVED" | "REJECTED" | "DISMISSED"

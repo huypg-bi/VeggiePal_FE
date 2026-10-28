@@ -19,21 +19,6 @@ const PROFILE_ISSUE_MESSAGES = {
 const fixLinkClass =
   "shrink-0 rounded-full bg-brand px-3.5 py-1.5 text-xs font-semibold text-brand-foreground transition hover:bg-brand/90";
 
-/**
- * Thẻ "Mục tiêu dinh dưỡng gợi ý" theo mục tiêu đã chọn (GET /ai/meal-plans/nutrition-target): nhu cầu cơ bản (BMR),
- * tiêu hao mỗi ngày (TDEE), calo mục tiêu và khoảng đạm / tinh bột / béo. BE tự tính từ chỉ số sức khỏe + ngày sinh,
- * giới tính, mức vận động nên không cần FE tính lại.
- * - `goalType`: mục tiêu đang chọn (rỗng thì thẻ nhắc chọn mục tiêu).
- * - `enabled`: false khi biết chắc chưa có chỉ số sức khỏe (form đã có cảnh báo riêng cho trường hợp đó).
- * - `profileIssue`: "incomplete" | "underage" | null, kết quả của profileTargetIssue; có thì không gọi API.
- * - `missingFields`: trường hồ sơ còn trống (missingProfileFields), gắn vào liên kết "Cập nhật hồ sơ" để trang hồ sơ
- *   làm nổi đúng các ô đó và cho người dùng quay lại thực đơn sau khi lưu.
- * - `overridden`: người dùng đang tự đặt mục tiêu riêng nên thẻ này chỉ để tham khảo.
- * - `onUseTarget(target)`: điền mục tiêu gợi ý vào các ô "tự đặt riêng" để chỉnh tiếp (nút chỉ hiện khi có hàm này).
- * - `onClearTarget()`: xóa mục tiêu riêng để quay lại mục tiêu tự tính (nút chỉ hiện khi đang `overridden`).
- * Form cha cũng gọi `useNutritionTarget` cùng khóa để biết khi nào BE chắc chắn từ chối; React Query dùng chung một
- * lần gọi API cho cả hai nơi.
- */
 export default function NutritionTargetCard({
   goalType,
   enabled = true,

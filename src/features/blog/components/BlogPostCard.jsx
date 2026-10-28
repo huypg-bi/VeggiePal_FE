@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Eye, ImageOff } from "lucide-react";
 
 import AuthorAvatar from "@/features/blog/components/AuthorAvatar";
+import FollowButton from "@/features/blog/components/FollowButton";
 import VoteButton from "@/features/blog/components/VoteButton";
 import {
   FALLBACK_AUTHOR_NAME,
@@ -10,9 +11,6 @@ import {
 } from "@/features/blog/utils/blogFormat";
 import FallbackImage from "@/shared/components/FallbackImage";
 
-// `post` là BlogSummaryResponse của BE (GET /blogs); `author` là { fullName, avatarUrl }
-// từ usePublicUsers, có thể undefined (đang tải hoặc user không còn hiển thị công khai).
-// `myVote` là vote của tôi trên bài này (từ useMyVotes), undefined với khách.
 export default function BlogPostCard({ post, author, myVote }) {
   const authorName = author?.fullName ?? FALLBACK_AUTHOR_NAME;
   const detailPath = `/blog/${post.id}`;
@@ -22,7 +20,11 @@ export default function BlogPostCard({ post, author, myVote }) {
       <header className="flex items-center gap-3">
         <AuthorAvatar author={author} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-ink">{authorName}</p>
+          <div className="flex items-center gap-2">
+            <p className="truncate text-sm font-semibold text-ink">{authorName}</p>
+            {/* Tác giả không resolve được (tài khoản không hoạt động) thì BE không cho theo dõi nên ẩn nút. */}
+            {author && <FollowButton userId={post.authorId} className="shrink-0" />}
+          </div>
           <p className="text-xs text-subtle">
             {formatTimeAgo(post.publishedAt ?? post.createdAt)}
           </p>

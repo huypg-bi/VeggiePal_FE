@@ -9,16 +9,6 @@ import SelectField from "@/shared/components/SelectField";
 
 const needClass = "mt-1 block text-[11px] text-warning";
 
-/**
- * Ba trường hồ sơ BE dùng để tính nhu cầu calo của thực đơn: ngày sinh, giới tính, mức độ vận động.
- * Nằm trong form chỉ số sức khỏe (EditHealthForm) cùng chiều cao, cân nặng vì BE dùng chung cả năm giá trị để tính
- * nhu cầu calo; form cần có field `birthDate` / `gender` / `activityLevel`.
- * - form: đối tượng của useForm (register, control, formState.errors).
- * - idPrefix: tiền tố id của các ô (id = `${idPrefix}-birthDate`...).
- * - highlightFields: trường (tên field của GET /users/me: "dateOfBirth" | "gender" | "activityLevel") cần làm nổi vì
- *   BE báo thiếu; mỗi trường chỉ nổi khi còn trống và hết nổi ngay khi người dùng điền.
- * - inputClass / labelClass / className: giữ kiểu của form chứa nó.
- */
 export default function CalorieProfileFields({
   form,
   idPrefix,

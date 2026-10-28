@@ -31,8 +31,6 @@ function SelectValue({
   )
 }
 
-// pill: thanh lọc (bo tròn hẳn); field: ô chọn trong form (cùng dáng với ô input bo rounded-xl);
-// compact: ô chọn thấp, chữ nhỏ, bo rounded-2xl (cùng dáng với ô input của form chỉ số sức khỏe, cao h-10).
 const TRIGGER_VARIANTS = {
   pill:
     "h-11 max-w-[min(20rem,100%)] rounded-full px-4 font-medium hover:border-brand/40 focus-visible:ring-2 focus-visible:ring-brand/30",

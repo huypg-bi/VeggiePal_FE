@@ -1,6 +1,3 @@
-// BE (Spring) nhận list id dạng "1,2,3". axios mặc định serialize mảng thành
-// "ids[]=1&ids[]=2" nên BE không đọc được -> luôn nối chuỗi thủ công.
-
 /** Chuẩn hóa danh sách id: ép số, bỏ giá trị lỗi/trùng, sắp xếp tăng dần. */
 export function normalizeIds(ids) {
   const valid = (ids ?? [])

@@ -1,9 +1,6 @@
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 import { cn } from "cn"
 
-// Hộp thoại (modal) dựng trên @base-ui/react, cùng cấu trúc với alert-dialog.jsx.
-// Khác AlertDialog: có thể đóng bằng bấm ra ngoài, nội dung cuộn được khi dài (form nhiều trường).
-
 function Dialog({
   ...props
 }) {

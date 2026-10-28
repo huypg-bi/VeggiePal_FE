@@ -1,14 +1,12 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { ChefHat, Loader2, Plus, Search, X } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { Loader2, Search, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { buttonVariants } from "@/components/ui/variants/button-variants";
 import RecipeCard, { RecipeCardSkeleton } from "@/features/recipe/components/RecipeCard";
 import RecipeBanner from "@/features/recipe/components/RecipeBanner";
 import { useRecipeNutrition } from "@/features/recipe/hooks/useRecipeNutrition";
 import { useRecipeFeed } from "@/features/recipe/hooks/useRecipes";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
@@ -16,8 +14,6 @@ import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 const PAGE_SIZE = 12;
 const SEARCH_DEBOUNCE_MS = 400;
 
-// Trang duyệt công thức (route /recipes), công khai: lưới công thức đã đăng, mới nhất trước,
-// tìm theo từ khóa (BE tìm trong tên và mô tả). Từ khóa nằm trên URL (?q=) để chia sẻ/quay lại được.
 export default function RecipeListScreen() {
   const [searchParams, setSearchParams] = useSearchParams();
   const keyword = (searchParams.get("q") ?? "").trim();
@@ -50,7 +46,7 @@ export default function RecipeListScreen() {
     pushKeyword("");
   };
 
-  const { recipes, total, isPending, isError, error, hasNextPage, fetchNextPage, isFetchingNextPage } =
+  const { recipes, isPending, isError, error, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useRecipeFeed({ keyword, size: PAGE_SIZE });
   const { nutritionById } = useRecipeNutrition(recipes);
   const { data: authors } = usePublicUsers(recipes.map((r) => r.userId));
@@ -63,26 +59,6 @@ export default function RecipeListScreen() {
         <Reveal>
           <RecipeBanner />
         </Reveal>
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-brand">
-              <ChefHat className="size-3.5" />
-              Công thức
-            </p>
-            <h1 className="mt-1 font-heading text-3xl font-bold text-ink">Công Thức Món Chay</h1>
-            {!isPending && !isError && (
-              <p className="mt-1 text-sm text-subtle">
-                {keyword ? `${total} kết quả cho “${keyword}”` : `${total} công thức đã đăng`}
-              </p>
-            )}
-          </div>
-          {/* /recipes/new cần đăng nhập: khách bấm sẽ được đưa sang trang đăng nhập rồi quay lại. */}
-          <Link to="/recipes/new" className={buttonVariants({ variant: "default", size: "md" })}>
-            <Plus className="size-4" />
-            Chia sẻ công thức
-          </Link>
-        </div>
-
         <form onSubmit={handleSubmit} role="search" className="relative">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-subtle" />
           <input
@@ -163,8 +139,6 @@ export default function RecipeListScreen() {
           </>
         )}
       </main>
-
-      <AppFooter />
     </div>
   );
 }

@@ -1,36 +1,39 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Loader2 } from "lucide-react";
+import { ListChecks, Loader2, Rss, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { selectIsAuthenticated, useAuthStore } from "@/features/auth/store/authStore";
 import AskBroccoliCard from "@/features/blog/components/AskBroccoliCard";
 import BlogFilterBar from "@/features/blog/components/BlogFilterBar";
 import BlogPostCard from "@/features/blog/components/BlogPostCard";
 import CommunityHero from "@/features/blog/components/CommunityHero";
+import FollowListDialog from "@/features/blog/components/FollowListDialog";
 import LeaderboardCard from "@/features/blog/components/LeaderboardCard";
 import TrendingTopicsCard from "@/features/blog/components/TrendingTopicsCard";
 import WeeklyChallengeCard from "@/features/blog/components/WeeklyChallengeCard";
 import { useMyVotes } from "@/features/blog/hooks/useBlogVotes";
-import { useBlogFeed } from "@/features/blog/hooks/useBlogs";
+import { useBlogFeed, useFollowingFeed } from "@/features/blog/hooks/useBlogs";
 import {
   hasActiveFilters,
   parseFeedFilters,
   toFeedSearchParams,
 } from "@/features/blog/utils/feedFilters";
-import AppFooter from "@/shared/components/AppFooter";
+import { cn } from "@/lib/utils";
 import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-// Trang Cộng đồng (route /blog). Bài viết lấy từ API thật (GET /blogs); bảng vàng,
-// chủ đề, thử thách... BE chưa có API nên vẫn dùng mock trong features/blog/data/mockBlog.js.
-// Trên mobile bài viết lên trước, hai cột phụ xuống dưới (order-*); từ lg trở lên là 3 cột.
 export default function BlogScreen() {
   // Bộ lọc nằm trên URL (?q=&sort=&category=) để quay lại từ trang chi tiết vẫn giữ nguyên.
+  // Tab "Đang theo dõi" là ?tab=following (chỉ khi đã đăng nhập, BE bắt đăng nhập) và không có bộ lọc.
   const [searchParams, setSearchParams] = useSearchParams();
+  const isAuthenticated = useAuthStore(selectIsAuthenticated);
+  const isFollowingTab = isAuthenticated && searchParams.get("tab") === "following";
   const filters = parseFeedFilters(searchParams);
   // Tăng khi xóa bộ lọc để remount thanh lọc, xóa luôn chữ đang gõ trong ô tìm kiếm.
   const [filterBarKey, setFilterBarKey] = useState(0);
+  const [showFollowList, setShowFollowList] = useState(false);
 
   const updateFilters = (patch) =>
     setSearchParams(
@@ -38,11 +41,16 @@ export default function BlogScreen() {
       { replace: true }
     );
 
+  const showFollowingTab = (following) =>
+    setSearchParams(following ? { tab: "following" } : {}, { replace: true });
+
   const clearFilters = () => {
     setSearchParams({}, { replace: true });
     setFilterBarKey((k) => k + 1);
   };
 
+  const allFeed = useBlogFeed({ ...filters, size: 10, enabled: !isFollowingTab });
+  const followingFeed = useFollowingFeed({ size: 10, enabled: isFollowingTab });
   const {
     posts,
     isPending,
@@ -51,7 +59,7 @@ export default function BlogScreen() {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useBlogFeed({ ...filters, size: 10 });
+  } = isFollowingTab ? followingFeed : allFeed;
 
   // BE chỉ trả authorId -> gom id của mọi bài đang hiển thị rồi lấy tên + avatar một lượt.
   const { data: authors } = usePublicUsers(posts.map((p) => p.authorId));
@@ -74,7 +82,47 @@ export default function BlogScreen() {
           </aside>
 
           <div className="order-1 flex flex-col gap-6 lg:order-2">
-            <BlogFilterBar key={filterBarKey} filters={filters} onChange={updateFilters} />
+            {isAuthenticated && (
+              <div className="flex items-center gap-2">
+                <div role="tablist" className="flex items-center gap-2">
+                  {[
+                    { following: false, label: "Tất cả", icon: Rss },
+                    { following: true, label: "Đang theo dõi", icon: Users },
+                  ].map(({ following, label, icon: Icon }) => (
+                    <button
+                      key={label}
+                      type="button"
+                      role="tab"
+                      aria-selected={isFollowingTab === following}
+                      onClick={() => showFollowingTab(following)}
+                      className={cn(
+                        "flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition",
+                        isFollowingTab === following
+                          ? "bg-brand text-brand-foreground"
+                          : "bg-surface text-subtle hover:text-ink"
+                      )}
+                    >
+                      <Icon className="size-4" />
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="ml-auto"
+                  onClick={() => setShowFollowList(true)}
+                >
+                  <ListChecks className="size-4" />
+                  Danh sách theo dõi
+                </Button>
+              </div>
+            )}
+
+            {!isFollowingTab && (
+              <BlogFilterBar key={filterBarKey} filters={filters} onChange={updateFilters} />
+            )}
 
             {isError ? (
               <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">
@@ -87,7 +135,23 @@ export default function BlogScreen() {
               </>
             ) : posts.length === 0 ? (
               <div className="rounded-3xl border border-border bg-card p-6 text-sm text-subtle">
-                {hasActiveFilters(filters) ? (
+                {isFollowingTab ? (
+                  <>
+                    <p>
+                      Chưa có bài viết nào từ những người bạn theo dõi. Bấm “Theo dõi” cạnh tên tác giả
+                      bạn thích ở tab Tất cả để thấy bài của họ ở đây.
+                    </p>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="mt-3"
+                      onClick={() => showFollowingTab(false)}
+                    >
+                      Xem tất cả bài viết
+                    </Button>
+                  </>
+                ) : hasActiveFilters(filters) ? (
                   <>
                     <p>Không tìm thấy bài viết phù hợp với bộ lọc hiện tại.</p>
                     <Button
@@ -107,13 +171,12 @@ export default function BlogScreen() {
             ) : (
               <>
                 {posts.map((post) => (
-                  <Reveal key={post.id}>
-                    <BlogPostCard
-                      post={post}
-                      author={authors?.get(post.authorId)}
-                      myVote={myVotes?.get(post.id)}
-                    />
-                  </Reveal>
+                  <BlogPostCard
+                    key={post.id}
+                    post={post}
+                    author={authors?.get(post.authorId)}
+                    myVote={myVotes?.get(post.id)}
+                  />
                 ))}
 
                 {hasNextPage && (
@@ -145,7 +208,7 @@ export default function BlogScreen() {
         </div>
       </main>
 
-      <AppFooter />
+      {showFollowList && <FollowListDialog onClose={() => setShowFollowList(false)} />}
     </div>
   );
 }

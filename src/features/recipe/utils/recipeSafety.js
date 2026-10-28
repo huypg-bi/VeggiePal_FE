@@ -1,7 +1,3 @@
-// BE gửi kèm cờ `allergen` (nguyên liệu thuộc nhóm dễ gây dị ứng) và `vegan` cho từng nguyên liệu của công thức.
-// `allergen` chỉ là cờ chung, không nói đó là dị ứng gì, nên FE chỉ cảnh báo chung chứ không so với dị ứng
-// cụ thể người dùng đã khai.
-
 /** Nguyên liệu này có được đánh dấu dễ gây dị ứng không. */
 export function isAllergenIngredient(item) {
   return item?.allergen === true;
