@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+  dismissModerationCase,
   getPendingModerationCases,
   reviewModerationCase,
 } from "@/features/admin/moderation/api/moderationApi";
@@ -30,6 +31,23 @@ export function useReviewModeration() {
     },
     onError: (error) => {
       // Khi gặp lỗi 6013 (Case đã được xử lý): tự động tải lại hàng đợi kiểm duyệt
+      if (error?.code === 6013) {
+        queryClient.invalidateQueries({ queryKey: moderationKeys.all });
+      }
+    },
+  });
+}
+
+export function useDismissModeration() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, reason }) => dismissModerationCase(id, { reason }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: moderationKeys.all });
+    },
+    onError: (error) => {
+      // 6013: case đã được xử lý -> tải lại hàng đợi để case biến mất khỏi danh sách
       if (error?.code === 6013) {
         queryClient.invalidateQueries({ queryKey: moderationKeys.all });
       }

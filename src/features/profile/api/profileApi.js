@@ -1,28 +1,21 @@
 import apiClient from "@/shared/api/apiClient";
+import { PROFILE_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
-/**
- * Profile + nutrition APIs (identity-service + nutrition-service qua api-gateway).
- * Base: VITE_VEGGIEPAL_API_BASE_URL = http://localhost:8080/api
- *
- * Identity:
- *   GET    /users/me
- *   PATCH  /users/me
- *   PUT    /users/me/password
- *   POST   /users/me/avatar  (multipart)
- *
- * Nutrition:
- *   GET    /nutrition/allergens
- *   GET    /nutrition/me/allergies
- *   PUT    /nutrition/me/allergies
- *   GET    /nutrition/me/health-records
- *   GET    /nutrition/me/health-records/latest
- *   POST   /nutrition/me/health-records
- *   PUT    /nutrition/me/health-records/:id
- */
+// Ưu tiên mã lỗi BE; nếu không có mã (Spring Security / gateway trả thẳng) thì dịch theo HTTP status.
+function toMessage(res, fallbackMessage) {
+  const byCode = PROFILE_ERROR_MESSAGES[res.data?.code];
+  if (byCode) return byCode;
+  if (res.status === 401) return "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại";
+  if (res.status === 403) return "Bạn không có quyền thực hiện";
+  if (res.status === 413) return "Ảnh không được vượt quá 2MB";
+  if (res.status === 429) return "Bạn thao tác quá nhanh, vui lòng thử lại sau";
+  if (res.status === 503) return "Hệ thống đang bận, vui lòng thử lại sau";
+  return fallbackMessage;
+}
 
 function unwrap(res, fallbackMessage) {
   if (res.status >= 400) {
-    throw new Error(res.data?.message || fallbackMessage);
+    throw new Error(toMessage(res, fallbackMessage));
   }
   return res.data?.result;
 }
@@ -33,12 +26,6 @@ export async function getProfile() {
   return unwrap(res, "Không lấy được thông tin hồ sơ");
 }
 
-/**
- * PATCH /users/me
- * Body: { fullName?, phone?, dateOfBirth? }
- * - null / bỏ field: giữ nguyên
- * - phone: "" để xóa số điện thoại
- */
 export async function updateProfile(payload) {
   const res = await apiClient.patch("/users/me", payload);
   return unwrap(res, "Cập nhật hồ sơ thất bại");
@@ -85,13 +72,13 @@ export async function replaceMyAllergies(allergenIds) {
 export async function getLatestHealthRecord() {
   const res = await apiClient.get("/nutrition/me/health-records/latest");
   // BE có thể trả 404 / null nếu chưa có bản ghi
-  if (res.status === 404 || res.data?.code === 1004) {
+  if (res.status === 404 || res.data?.code === 2005) {
     return null;
   }
   if (res.status >= 400) {
     // Một số implement trả 200 + result null
     if (res.data?.result == null) return null;
-    throw new Error(res.data?.message || "Không lấy được chỉ số sức khỏe");
+    throw new Error(toMessage(res, "Không lấy được chỉ số sức khỏe"));
   }
   return res.data?.result ?? null;
 }

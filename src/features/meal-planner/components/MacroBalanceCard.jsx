@@ -12,10 +12,6 @@ const SEGMENT_COLORS = {
 
 const SEGMENT_ORDER = ["carb", "protein", "fat"];
 
-/**
- * Tỉ lệ năng lượng tinh bột / đạm / béo của ngày đang xem.
- * `totals`: nutritionTotals của ngày (calories, protein, carbohydrate, fat) hoặc null khi chưa có thực đơn.
- */
 export default function MacroBalanceCard({ totals }) {
   const percents = macroPercentages(totals);
   const segments = SEGMENT_ORDER.map((id) => ({ id, label: macroLabels[id], value: percents?.[id] ?? 0 }));

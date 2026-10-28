@@ -1,27 +1,6 @@
 import { unwrapBlogResponse as unwrap } from "@/features/blog/api/blogErrors";
 import apiClient from "@/shared/api/apiClient";
 
-/**
- * Comment APIs (blog-service qua api-gateway).
- * Công khai (không cần token):
- *   GET /comments?targetType=BLOG&targetId=&page=&size=   (comment cấp 1, cũ nhất trước)
- *   GET /comments/:id/replies?page=&size=                  (reply của một comment, cũ nhất trước)
- * Cần đăng nhập:
- *   POST   /comments        body { targetType, targetId, parentCommentId?, content }
- *   PUT    /comments/:id    body { targetType, targetId, content } (chỉ chủ comment)
- *   DELETE /comments/:id    (chủ comment hoặc ADMIN)
- *
- * Comment: { id, authorId, targetType, targetId, parentCommentId,
- *   content, deleted, replyCount, createdAt, updatedAt }
- * - Comment đã xóa: `deleted = true`, `content = null` (vẫn giữ dòng để reply không mất ngữ cảnh)
- *   -> UI hiện "Bình luận đã bị xóa".
- * - Reply chỉ sâu 1 cấp: replyCount của reply luôn = 0.
- * - Comment mới/sửa đi qua kiểm duyệt: có thể bị ẩn hoặc chờ duyệt mà response vẫn trả bình thường
- *   (không có field status) -> UI không được giả định comment vừa gửi sẽ hiện ngay trong danh sách.
- * - Nội dung tối đa 500 từ và 5000 ký tự.
- * Page: { items, page, size, totalElements, totalPages }
- */
-
 const EMPTY_PAGE = { items: [], page: 0, size: 20, totalElements: 0, totalPages: 0 };
 
 /** GET /comments — comment cấp 1 của một nội dung (hiện chỉ hỗ trợ BLOG). */

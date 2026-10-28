@@ -2,7 +2,7 @@ import { useId, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,10 @@ import {
   useUpdateBlog,
   useUploadBlogThumbnail,
 } from "@/features/blog/hooks/useBlogMutations";
-import { BLOG_CONTENT_MIN, BLOG_TITLE_MAX, blogSchema } from "@/features/blog/schema";
+import { BLOG_CONTENT_MAX, BLOG_CONTENT_MIN, BLOG_TITLE_MAX, blogSchema } from "@/features/blog/schema";
+import { countCodePoints } from "@/features/blog/utils/textLength";
 import { describeBlogOutcome } from "@/features/blog/utils/blogForm";
+import SelectField from "@/shared/components/SelectField";
 
 const fieldClass =
   "w-full rounded-xl border border-border bg-surface px-3.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
@@ -24,13 +26,6 @@ const errorClass = "mt-1.5 text-xs text-destructive";
 const notify = ({ tone, message }) =>
   tone === "error" ? toast.error(message) : tone === "info" ? toast.info(message) : toast.success(message);
 
-/**
- * Form viết / sửa bài.
- * - Tạo mới (không có `blog`): "Lưu nháp" hoặc "Đăng bài" (kiểm duyệt ngay).
- * - Sửa (`blog` là BlogResponse đã đăng): "Lưu thay đổi", BE sẽ kiểm duyệt lại.
- * `categories` là danh sách phẳng { id, name } của danh mục đang hoạt động.
- * Ảnh bìa tải lên bằng endpoint riêng sau khi bài đã có id.
- */
 export default function BlogForm({ blog, categories }) {
   const idPrefix = useId();
   const navigate = useNavigate();
@@ -58,7 +53,8 @@ export default function BlogForm({ blog, categories }) {
   });
 
   const titleLength = useWatch({ control, name: "title" }).length;
-  const contentLength = useWatch({ control, name: "content" }).trim().length;
+  const contentLength = countCodePoints(useWatch({ control, name: "content" }).trim());
+  const categoryOptions = categories.map(({ id, name }) => ({ value: String(id), label: name }));
 
   // Trả true nếu tải ảnh thành công; lỗi thì báo nhưng không chặn, vì bài đã được lưu.
   const uploadThumbnailSafely = async (id) => {
@@ -71,9 +67,10 @@ export default function BlogForm({ blog, categories }) {
     }
   };
 
-  const finish = (result, message) => {
-    notify(message ?? describeBlogOutcome(result));
-    navigate(result.status === "PUBLISHED" ? `/blog/${result.id}` : "/my-content");
+  // Bản nháp về danh sách; bài đã gửi duyệt mở trang chi tiết để xem AI xét xong (trang tự cập nhật).
+  const finish = (result, options) => {
+    notify(describeBlogOutcome(result, options));
+    navigate(result.status === "DRAFT" ? "/my-content" : `/blog/${result.id}`);
   };
 
   const save = (publish) =>
@@ -88,12 +85,7 @@ export default function BlogForm({ blog, categories }) {
         if (isEdit) {
           const updated = await updateBlog.mutateAsync({ id: blog.id, ...payload });
           if (thumbnailFile) await uploadThumbnailSafely(blog.id);
-          finish(
-            updated,
-            updated.status === "PUBLISHED"
-              ? { tone: "success", message: "Đã cập nhật bài viết" }
-              : undefined
-          );
+          finish(updated, { edited: true });
           return;
         }
 
@@ -120,13 +112,19 @@ export default function BlogForm({ blog, categories }) {
   return (
     <form onSubmit={(event) => event.preventDefault()} noValidate className="flex flex-col gap-5">
       <section className="flex flex-col gap-5 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
-        {isEdit ? (
+        {isEdit && blog.status === "DRAFT" ? (
+          <p className="rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand">
+            Đây là bản nháp, chỉ mình bạn thấy. Sửa xong bạn bấm “Gửi duyệt” ở trang Bài viết của tôi để đăng.
+          </p>
+        ) : isEdit ? (
           <p className="rounded-xl bg-warning/10 px-3 py-2 text-sm text-warning">
-            Bài đã đăng sẽ được kiểm duyệt lại sau khi sửa và có thể bị ẩn tạm thời cho tới khi được duyệt.
+            {blog.status === "PUBLISHED"
+              ? "Sau khi lưu, bài sẽ bị ẩn khỏi trang công khai và chỉ hiện lại khi AI kiểm duyệt xong (thường vài giây)."
+              : "Bài sẽ được kiểm duyệt lại ngay khi bạn lưu thay đổi."}
           </p>
         ) : (
           <p className="rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand">
-            “Lưu nháp” chỉ lưu cho riêng bạn. “Đăng bài” sẽ gửi đi kiểm duyệt ngay.
+            “Lưu nháp” chỉ lưu cho riêng bạn. “Đăng bài” sẽ gửi cho AI kiểm duyệt, bài hiện công khai sau khi được duyệt.
           </p>
         )}
 
@@ -156,19 +154,22 @@ export default function BlogForm({ blog, categories }) {
           <label htmlFor={`${idPrefix}-category`} className={labelClass}>
             Danh mục
           </label>
-          <select
-            id={`${idPrefix}-category`}
-            aria-invalid={Boolean(errors.categoryId)}
-            className={`${fieldClass} h-11`}
-            {...register("categoryId")}
-          >
-            <option value="">Chọn danh mục</option>
-            {categories.map(({ id, name }) => (
-              <option key={id} value={String(id)}>
-                {name}
-              </option>
-            ))}
-          </select>
+          <Controller
+            name="categoryId"
+            control={control}
+            render={({ field }) => (
+              <SelectField
+                id={`${idPrefix}-category`}
+                variant="field"
+                placeholder="Chọn danh mục"
+                options={categoryOptions}
+                value={field.value}
+                onValueChange={field.onChange}
+                onBlur={field.onBlur}
+                aria-invalid={Boolean(errors.categoryId)}
+              />
+            )}
+          />
           {errors.categoryId && <p className={errorClass}>{errors.categoryId.message}</p>}
         </div>
 
@@ -193,8 +194,9 @@ export default function BlogForm({ blog, categories }) {
             <p className={errors.content ? "text-xs text-destructive" : "text-xs text-transparent"}>
               {errors.content?.message ?? "."}
             </p>
-            <span className="text-xs text-subtle">
-              {contentLength} ký tự (tối thiểu {BLOG_CONTENT_MIN})
+            <span className={contentLength > BLOG_CONTENT_MAX ? "text-xs text-destructive" : "text-xs text-subtle"}>
+              {contentLength.toLocaleString("vi-VN")}/{BLOG_CONTENT_MAX.toLocaleString("vi-VN")} ký tự (tối thiểu{" "}
+              {BLOG_CONTENT_MIN})
             </span>
           </div>
         </div>

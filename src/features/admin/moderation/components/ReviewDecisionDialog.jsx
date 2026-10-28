@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Check, ExternalLink, Loader2, X } from "lucide-react";
+import { Ban, Check, ExternalLink, Loader2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,13 +11,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-/**
- * Dialog xác nhận quyết định duyệt (APPROVED) hoặc từ chối (REJECTED) case kiểm duyệt.
- * Yêu cầu/cho phép admin nhập lý do quyết định trước khi gửi request PUT /ai/admin/moderation/{id}.
- */
 export default function ReviewDecisionDialog({
   item,
-  decision, // "APPROVED" | "REJECTED"
+  decision, // "APPROVED" | "REJECTED" | "DISMISSED"
   open,
   onOpenChange,
   loading = false,
@@ -26,6 +22,7 @@ export default function ReviewDecisionDialog({
   const [reason, setReason] = useState("");
 
   const isApprove = decision === "APPROVED";
+  const isDismiss = decision === "DISMISSED";
 
   const handleConfirm = () => {
     onConfirm({
@@ -51,19 +48,23 @@ export default function ReviewDecisionDialog({
               className={
                 isApprove
                   ? "flex size-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand"
-                  : "flex size-8 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive"
+                  : isDismiss
+                    ? "flex size-8 shrink-0 items-center justify-center rounded-full bg-surface text-subtle"
+                    : "flex size-8 shrink-0 items-center justify-center rounded-full bg-destructive/10 text-destructive"
               }
             >
-              {isApprove ? <Check className="size-4" /> : <X className="size-4" />}
+              {isApprove ? <Check className="size-4" /> : isDismiss ? <Ban className="size-4" /> : <X className="size-4" />}
             </span>
             <DialogTitle>
-              {isApprove ? "Duyệt nội dung" : "Từ chối nội dung"} #{item?.caseId}
+              {isApprove ? "Duyệt nội dung" : isDismiss ? "Bỏ qua ca kiểm duyệt" : "Từ chối nội dung"} #{item?.caseId}
             </DialogTitle>
           </div>
           <DialogDescription>
             {isApprove
               ? "Nội dung sẽ được đánh dấu đã phê duyệt và công khai trên hệ thống."
-              : "Nội dung sẽ bị từ chối và gỡ bỏ/ẩn khỏi nền tảng theo chính sách kiểm duyệt."}
+              : isDismiss
+                ? "Ca chỉ rời khỏi hàng đợi. Nội dung gốc KHÔNG bị đổi trạng thái (khác với Từ chối, nội dung sẽ bị gỡ/ẩn)."
+                : "Nội dung sẽ bị từ chối và gỡ bỏ/ẩn khỏi nền tảng theo chính sách kiểm duyệt."}
           </DialogDescription>
         </DialogHeader>
 
@@ -118,7 +119,7 @@ export default function ReviewDecisionDialog({
 
         <div className="flex flex-col gap-2 py-1">
           <label htmlFor="moderation-reason" className="text-xs font-semibold text-ink">
-            Lý do quyết định {isApprove ? "(tùy chọn)" : "(khuyến khích)"}
+            Lý do quyết định {isApprove || isDismiss ? "(tùy chọn)" : "(khuyến khích)"}
           </label>
           <textarea
             id="moderation-reason"
@@ -128,7 +129,9 @@ export default function ReviewDecisionDialog({
             placeholder={
               isApprove
                 ? "Ghi chú thêm về lý do duyệt..."
-                : "Nêu rõ lý do vi phạm (spam, ngôn từ kích động, v.v.)..."
+                : isDismiss
+                  ? "Ghi chú thêm về lý do bỏ qua (vd: báo nhầm, đã xử lý ở nơi khác)..."
+                  : "Nêu rõ lý do vi phạm (spam, ngôn từ kích động, v.v.)..."
             }
             maxLength={1000}
             className="w-full rounded-2xl border border-border bg-surface p-3 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15"
@@ -149,12 +152,12 @@ export default function ReviewDecisionDialog({
           </Button>
           <Button
             type="button"
-            variant={isApprove ? "default" : "destructive"}
+            variant={isApprove ? "default" : isDismiss ? "outline" : "destructive"}
             onClick={handleConfirm}
             disabled={loading}
           >
             {loading && <Loader2 className="size-4 animate-spin" />}
-            {isApprove ? "Xác nhận duyệt" : "Xác nhận từ chối"}
+            {isApprove ? "Xác nhận duyệt" : isDismiss ? "Xác nhận bỏ qua" : "Xác nhận từ chối"}
           </Button>
         </DialogFooter>
       </DialogContent>

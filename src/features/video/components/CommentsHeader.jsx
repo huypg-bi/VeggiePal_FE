@@ -1,20 +1,15 @@
-import { ArrowUpDown } from "lucide-react";
-
-import { currentVideo } from "@/features/video/data/mockVideo";
+import { MessageSquare } from "lucide-react";
 
 export default function CommentsHeader() {
   return (
-    <div className="flex items-center justify-between border-t border-border pt-5">
-      <h2 className="text-sm font-bold text-ink">
-        {currentVideo.commentsCount} bình luận
-      </h2>
-      <button
-        type="button"
-        className="flex items-center gap-1.5 text-xs font-medium text-subtle transition hover:text-ink"
-      >
-        <ArrowUpDown className="h-3.5 w-3.5" />
-        Sắp xếp theo
-      </button>
+    <div className="flex flex-col gap-3 rounded-2xl border border-dashed border-border p-4 text-center">
+      <div className="flex items-center justify-center gap-2 text-sm font-semibold text-subtle">
+        <MessageSquare className="size-4" />
+        Bình luận video
+      </div>
+      <p className="text-xs text-subtle">
+        Tính năng bình luận và thảo luận dưới video đang được hoàn thiện và sẽ sớm ra mắt.
+      </p>
     </div>
   );
 }

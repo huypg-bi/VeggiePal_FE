@@ -1,34 +1,34 @@
 import { create } from "zustand";
 
+import { revokeRefreshToken } from "@/features/auth/api/authApi";
 import { clearSession, loadSession, saveSession } from "@/features/auth/utils/authStorage";
 import { queryClient } from "@/lib/queryClient";
 
-// Khôi phục phiên khi mở app (token hết hạn sẽ bị bỏ ngay ở bước này).
+// Khôi phục phiên khi mở app (token hết hạn mà không có refresh token sẽ bị bỏ ngay ở bước này).
 const initial = loadSession();
 
-/**
- * Nguồn sự thật về trạng thái đăng nhập của toàn app.
- * - token / user: lưu để giữ phiên khi F5. Nơi lưu phụ thuộc `remember`:
- *   true -> localStorage (còn sau khi đóng trình duyệt), false -> sessionStorage.
- * - remember: người dùng có tick "Ghi nhớ đăng nhập" ở lần đăng nhập này hay không.
- */
 export const useAuthStore = create((set, get) => ({
     token: initial.token,
+    refreshToken: initial.refreshToken,
     user: initial.user,
     remember: initial.remember,
 
-    // gọi sau khi login thành công. Các lần cập nhật sau đó (vd. đồng bộ hồ sơ)
-    // không truyền `remember` thì giữ nguyên lựa chọn hiện tại.
-    setAuth: ({ token, user, remember = get().remember }) => {
-        saveSession({ token, user, remember });
-        set({ token, user, remember });
+    setAuth: ({ token, refreshToken = null, user, remember = get().remember }) => {
+        saveSession({ token, refreshToken, user, remember });
+        set({ token, refreshToken, user, remember });
     },
 
+    // Tab khác vừa đổi / xóa phiên trong localStorage thì lấy lại cho khớp.
+    syncFromStorage: () => set(loadSession()),
+
     logout: () => {
+        const { refreshToken } = get();
         clearSession();
-        set({ token: null, user: null, remember: false });
+        set({ token: null, refreshToken: null, user: null, remember: false });
         // Xóa cache React Query để user đăng nhập sau không thấy dữ liệu của user trước.
         queryClient.clear();
+        // Báo BE hủy refresh token của thiết bị này (không chờ, lỗi bỏ qua).
+        if (refreshToken) revokeRefreshToken(refreshToken);
     },
 }));
 

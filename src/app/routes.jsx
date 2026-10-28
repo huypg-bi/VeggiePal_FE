@@ -10,7 +10,7 @@ import MealPlannerScreen from "@/features/meal-planner/pages/MealPlannerScreen";
 import RestaurantMapScreen from "@/features/restaurant-map/pages/RestaurantMapScreen";
 import VideoHomeScreen from "@/features/video/pages/VideoHomeScreen";
 import VideoWatchScreen from "@/features/video/pages/VideoWatchScreen";
-// import VideoFormScreen from "@/features/video/pages/VideoFormScreen";
+import VideoFormScreen from "@/features/video/pages/VideoFormScreen";
 import ProfileScreen from "@/features/profile/pages/ProfileScreen";
 import EditProfileScreen from "@/features/profile/pages/EditProfileScreen";
 import ChatbotScreen from "@/features/chatbot/pages/ChatbotScreen";
@@ -29,6 +29,11 @@ import RecipeListScreen from "@/features/recipe/pages/RecipeListScreen";
 import RecipeDetailScreen from "@/features/recipe/pages/RecipeDetailScreen";
 import RecipeFormScreen from "@/features/recipe/pages/RecipeFormScreen";
 import MyContentScreen from "@/features/my-content/pages/MyContentScreen";
+import PricingScreen from "@/features/payment/pages/PricingScreen";
+import CheckoutScreen from "@/features/payment/pages/CheckoutScreen";
+import PaymentSuccessScreen from "@/features/payment/pages/PaymentSuccessScreen";
+import PaymentCancelScreen from "@/features/payment/pages/PaymentCancelScreen";
+import PaymentHistoryScreen from "@/features/payment/pages/PaymentHistoryScreen";
 
 export default function AppRoutes() {
   return (
@@ -51,6 +56,15 @@ export default function AppRoutes() {
       />
       <Route path="/forgot-password" element={<AuthScreen />} />
       <Route path="/verify-otp" element={<AuthScreen />} />
+      <Route path="/reset-password" element={<AuthScreen />} />
+      <Route
+        path="/verify-email"
+        element={
+          <RedirectIfAuthenticated>
+            <AuthScreen />
+          </RedirectIfAuthenticated>
+        }
+      />
       <Route path="/" element={<HomeScreen />} />
 
       {/* Blog công khai với khách (BE cho GET /blogs không cần token) */}
@@ -111,7 +125,22 @@ export default function AppRoutes() {
 
       {/* Video công khai với khách (BE cho GET /videos và GET /videos/:id không cần token) */}
       <Route path="/videos" element={<VideoHomeScreen />} />
-      {/* Tạm tắt /videos/new và /videos/:videoId/edit vì chưa có VideoFormScreen */}
+      <Route
+        path="/videos/new"
+        element={
+          <ProtectedRoute>
+            <VideoFormScreen />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/videos/:videoId/edit"
+        element={
+          <ProtectedRoute>
+            <VideoFormScreen />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/videos/:videoId" element={<VideoWatchScreen />} />
 
       {/* --- NHÓM PROFILE --- */}
@@ -144,6 +173,41 @@ export default function AppRoutes() {
       />
       {/* Công khai: khách chat thử (POST /ai/chat/guest), thành viên có lịch sử hội thoại */}
       <Route path="/chatbot" element={<ChatbotScreen />} />
+
+      {/* Gói thành viên & Thanh toán payOS */}
+      <Route path="/pricing" element={<PricingScreen />} />
+      <Route
+        path="/checkout/:orderId"
+        element={
+          <ProtectedRoute>
+            <CheckoutScreen />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment/success"
+        element={
+          <ProtectedRoute>
+            <PaymentSuccessScreen />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment/cancel"
+        element={
+          <ProtectedRoute>
+            <PaymentCancelScreen />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/payment/history"
+        element={
+          <ProtectedRoute>
+            <PaymentHistoryScreen />
+          </ProtectedRoute>
+        }
+      />
 
       {/* Khu quản trị: chỉ ADMIN (AdminRoute chặn), dùng khung AdminLayout riêng thay vì AppHeader */}
       <Route element={<AdminRoute />}>

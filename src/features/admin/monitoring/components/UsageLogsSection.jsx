@@ -12,15 +12,22 @@ import {
   toIsoDateTime,
 } from "@/features/admin/monitoring/utils/monitoringFormat";
 import { cn } from "@/lib/utils";
+import SelectField from "@/shared/components/SelectField";
 
 const PAGE_SIZE = 20;
 const USER_DEBOUNCE_MS = 400;
 
+const toOptions = (labels, allLabel) => [
+  { value: "", label: allLabel },
+  ...Object.entries(labels).map(([value, label]) => ({ value, label })),
+];
+
+const FEATURE_OPTIONS = toOptions(FEATURE_LABELS, "Mọi tác vụ");
+const STATUS_OPTIONS = toOptions(STATUS_LABELS, "Mọi trạng thái");
+
 const fieldClass =
   "h-10 rounded-full border border-border bg-surface px-3.5 text-sm text-ink outline-none transition focus:border-brand/40 focus:ring-2 focus:ring-brand/15";
 
-// Nhật ký từng lượt gọi AI, có lọc theo tác vụ / trạng thái / người dùng / khoảng ngày và phân trang
-// (GET /ai/admin/monitoring/logs/search).
 export default function UsageLogsSection() {
   const [feature, setFeature] = useState("");
   const [status, setStatus] = useState("");
@@ -53,6 +60,11 @@ export default function UsageLogsSection() {
     setPage(0);
   };
 
+  const handleSelect = (setter) => (value) => {
+    setter(value);
+    setPage(0);
+  };
+
   const handleUser = (event) => {
     // Chỉ giữ chữ số để userId luôn hợp lệ với BE (Long).
     const value = event.target.value.replace(/\D/g, "");
@@ -71,22 +83,20 @@ export default function UsageLogsSection() {
       <h2 className="font-heading text-xl font-bold text-ink">Nhật ký sử dụng</h2>
 
       <div className="flex flex-wrap items-center gap-3 rounded-3xl border border-border bg-card p-4 shadow-sm">
-        <select value={feature} onChange={handleFilter(setFeature)} aria-label="Lọc theo tác vụ" className={fieldClass}>
-          <option value="">Mọi tác vụ</option>
-          {Object.entries(FEATURE_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
-        <select value={status} onChange={handleFilter(setStatus)} aria-label="Lọc theo trạng thái" className={fieldClass}>
-          <option value="">Mọi trạng thái</option>
-          {Object.entries(STATUS_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
+        <SelectField
+          aria-label="Lọc theo tác vụ"
+          options={FEATURE_OPTIONS}
+          value={feature}
+          onValueChange={handleSelect(setFeature)}
+          className="h-10"
+        />
+        <SelectField
+          aria-label="Lọc theo trạng thái"
+          options={STATUS_OPTIONS}
+          value={status}
+          onValueChange={handleSelect(setStatus)}
+          className="h-10"
+        />
         <input
           type="text"
           inputMode="numeric"

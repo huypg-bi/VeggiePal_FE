@@ -6,11 +6,6 @@ import { cn } from "@/lib/utils";
 
 const TRANSITION_DURATION = 500;
 
-/**
- * Nút bật/tắt dark mode với hiệu ứng "Circular Reveal" mở rộng từ vị trí
- * con trỏ chuột, dựa trên View Transitions API. Trình duyệt không hỗ trợ
- * `startViewTransition` sẽ chuyển theme ngay lập tức, không hiệu ứng.
- */
 export default function ThemeToggle({ className }) {
     const theme = useThemeStore((s) => s.theme);
     const toggleTheme = useThemeStore((s) => s.toggleTheme);

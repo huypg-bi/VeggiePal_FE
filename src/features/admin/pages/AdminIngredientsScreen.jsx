@@ -7,20 +7,28 @@ import IngredientFormDialog from "@/features/admin/components/IngredientFormDial
 import { useDeleteIngredient } from "@/features/ingredient/hooks/useIngredientMutations";
 import { useIngredients } from "@/features/ingredient/hooks/useIngredients";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
+import SelectField from "@/shared/components/SelectField";
 
 const PAGE_SIZE = 10;
 const SEARCH_DEBOUNCE_MS = 400;
 
-const selectClass =
-  "h-10 rounded-full border border-border bg-surface px-3.5 text-sm text-ink outline-none transition focus:border-brand/40 focus:ring-2 focus:ring-brand/15";
+const VEGAN_OPTIONS = [
+  { value: "", label: "Mọi loại" },
+  { value: "true", label: "Thuần chay" },
+  { value: "false", label: "Không thuần chay" },
+];
 
-// Giá trị của <select> lọc -> tham số boolean của BE ("" = không lọc).
+const ALLERGEN_OPTIONS = [
+  { value: "", label: "Dị ứng: tất cả" },
+  { value: "true", label: "Có thể gây dị ứng" },
+  { value: "false", label: "Không gây dị ứng" },
+];
+
+// Giá trị của dropdown lọc -> tham số boolean của BE ("" = không lọc).
 const toBool = (value) => (value === "" ? undefined : value === "true");
 
 const num = (value) => (value == null ? "—" : Number(value));
 
-// Trang quản lý nguyên liệu (/admin/ingredients): tìm kiếm, lọc, phân trang, thêm / sửa / xóa.
-// Lưu ý: BE chỉ trả nguyên liệu đang hoạt động nên danh sách này không có nguyên liệu đã tắt.
 export default function AdminIngredientsScreen() {
   const [text, setText] = useState("");
   const [keyword, setKeyword] = useState("");
@@ -53,8 +61,8 @@ export default function AdminIngredientsScreen() {
     }, SEARCH_DEBOUNCE_MS);
   };
 
-  const handleFilter = (setter) => (event) => {
-    setter(event.target.value);
+  const handleFilter = (setter) => (value) => {
+    setter(value);
     setPage(0);
   };
 
@@ -70,7 +78,7 @@ export default function AdminIngredientsScreen() {
       },
     });
 
-  const items = data?.content ?? [];
+  const items = data?.items ?? [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -99,21 +107,20 @@ export default function AdminIngredientsScreen() {
             className="h-10 w-full rounded-full border border-border bg-surface pl-10 pr-4 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15"
           />
         </div>
-        <select value={vegan} onChange={handleFilter(setVegan)} aria-label="Lọc thuần chay" className={selectClass}>
-          <option value="">Mọi loại</option>
-          <option value="true">Thuần chay</option>
-          <option value="false">Không thuần chay</option>
-        </select>
-        <select
-          value={allergen}
-          onChange={handleFilter(setAllergen)}
+        <SelectField
+          aria-label="Lọc thuần chay"
+          options={VEGAN_OPTIONS}
+          value={vegan}
+          onValueChange={handleFilter(setVegan)}
+          className="h-10"
+        />
+        <SelectField
           aria-label="Lọc dị ứng"
-          className={selectClass}
-        >
-          <option value="">Dị ứng: tất cả</option>
-          <option value="true">Có thể gây dị ứng</option>
-          <option value="false">Không gây dị ứng</option>
-        </select>
+          options={ALLERGEN_OPTIONS}
+          value={allergen}
+          onValueChange={handleFilter(setAllergen)}
+          className="h-10"
+        />
       </div>
 
       {isError ? (
@@ -203,7 +210,7 @@ export default function AdminIngredientsScreen() {
                 type="button"
                 size="sm"
                 variant="outline"
-                disabled={data.first || isFetching}
+                disabled={data.page <= 0 || isFetching}
                 onClick={() => setPage((p) => Math.max(p - 1, 0))}
               >
                 <ChevronLeft className="size-4" />
@@ -213,7 +220,7 @@ export default function AdminIngredientsScreen() {
                 type="button"
                 size="sm"
                 variant="outline"
-                disabled={data.last || isFetching}
+                disabled={data.page + 1 >= data.totalPages || isFetching}
                 onClick={() => setPage((p) => p + 1)}
               >
                 Sau

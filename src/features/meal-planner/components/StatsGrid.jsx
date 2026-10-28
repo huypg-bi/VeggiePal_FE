@@ -3,9 +3,7 @@ import { Link } from "react-router-dom";
 
 import iconBmi from "@/assets/img/icon_bmi.png";
 import iconFire from "@/assets/img/icon_fire.png";
-import iconRun from "@/assets/img/icon_run.png";
-import iconWater from "@/assets/img/icon_water.png";
-import { mockStats } from "@/features/meal-planner/data/mockMealPlanner";
+import { ActivityCard, WaterCard } from "@/features/meal-planner/components/DiaryStatCards";
 import { toRounded } from "@/features/meal-planner/utils/mealPlan";
 import { useLatestHealthRecord } from "@/features/profile/hooks/useHealthRecords";
 import { bmiInfo } from "@/features/profile/utils/editProfileHelpers";
@@ -14,17 +12,7 @@ import Reveal from "@/shared/components/Reveal";
 const ICONS = {
   bmi: iconBmi,
   fire: iconFire,
-  water: iconWater,
-  run: iconRun,
 };
-
-// Thanh tiến độ BMI chạy trên dải 15 -> 35 để giá trị thường gặp nằm giữa thanh.
-const BMI_BAR_MIN = 15;
-const BMI_BAR_MAX = 35;
-
-function clampPercent(value) {
-  return Math.max(0, Math.min(100, Math.round(value)));
-}
 
 function bmiStat(record, isPending) {
   const bmi = Number(record?.bmi);
@@ -41,18 +29,41 @@ function bmiStat(record, isPending) {
       : isPending
         ? "Đang tải chỉ số..."
         : "Chưa có chỉ số, hãy cập nhật hồ sơ sức khỏe",
-    progress: hasBmi ? clampPercent(((bmi - BMI_BAR_MIN) / (BMI_BAR_MAX - BMI_BAR_MIN)) * 100) : 0,
-    barClass: "bg-chart-1",
     to: hasBmi ? undefined : "/profile/edit",
   };
 }
 
-function calorieStat(dayTotals, target, dayLong) {
-  const calories = toRounded(dayTotals?.calories);
+function calorieStat(dayTotals, target, dayLong, diary) {
   const max = Number(target?.maxCalories);
   const min = Number(target?.minCalories);
   const hasMax = Number.isFinite(max) && max > 0;
   const hasMin = Number.isFinite(min) && min > 0;
+  const planned = dayTotals ? toRounded(dayTotals.calories) : null;
+  const mealCount = diary?.meals?.length ?? 0;
+
+  // Có thực đơn (hoặc đã ghi bữa) và nhật ký đã tải: hiện calo thực ăn ghi trong nhật ký, đặt cạnh thực đơn / mục tiêu.
+  if (diary && (dayTotals || mealCount > 0)) {
+    const eaten = toRounded(diary.nutrition?.calories);
+    let caption = `Thực đơn ${dayLong} ${(planned ?? 0).toLocaleString("en-US")} kcal`;
+    if (mealCount > 0) {
+      const goal = hasMin && hasMax
+        ? `mục tiêu ${min.toLocaleString("en-US")} - ${max.toLocaleString("en-US")} kcal`
+        : hasMax
+          ? `mục tiêu tối đa ${max.toLocaleString("en-US")} kcal`
+          : planned != null
+            ? `thực đơn ${planned.toLocaleString("en-US")} kcal`
+            : "";
+      caption = `Đã ăn ${mealCount} bữa${goal ? ` • ${goal}` : ""}`;
+    }
+    return {
+      id: "calo",
+      icon: "fire",
+      label: "Calo Trong Ngày",
+      value: eaten.toLocaleString("en-US"),
+      unit: hasMax ? `/ ${max.toLocaleString("en-US")} kcal` : "kcal",
+      caption,
+    };
+  }
 
   let caption = "Chưa có thực đơn, hãy nhờ Bé Bông Cải lên thực đơn nhé";
   if (dayTotals) {
@@ -65,31 +76,21 @@ function calorieStat(dayTotals, target, dayLong) {
     id: "calo",
     icon: "fire",
     label: "Calo Trong Ngày",
-    value: dayTotals ? calories.toLocaleString("en-US") : "—",
+    value: dayTotals ? planned.toLocaleString("en-US") : "—",
     unit: hasMax && dayTotals ? `/ ${max.toLocaleString("en-US")} kcal` : dayTotals ? "kcal" : undefined,
     caption,
-    // Chỉ có thanh tiến độ khi người dùng đặt mục tiêu calo tối đa để so sánh.
-    progress: hasMax && dayTotals ? clampPercent((calories / max) * 100) : null,
-    barClass: "bg-chart-4",
   };
 }
 
-/**
- * Bốn thẻ chỉ số đầu trang.
- * - BMI: thật, từ nutrition-service (bản ghi sức khỏe mới nhất).
- * - Calo: thật, tổng calo của ngày đang xem trong thực đơn.
- * - Nước & Vận động: vẫn là dữ liệu mẫu, BE chưa có API theo dõi.
- * `dayTotals`: nutritionTotals của ngày đang xem; `target`: dailyNutritionTarget của thực đơn.
- */
-export default function StatsGrid({ dayTotals, target, dayLong = "hôm nay" }) {
+export default function StatsGrid({ dayTotals, target, dayLong = "hôm nay", diary, diaryDate, isFutureDay }) {
   const { data: latestRecord, isPending } = useLatestHealthRecord();
-  const stats = [bmiStat(latestRecord, isPending), calorieStat(dayTotals, target, dayLong), ...mockStats];
+  const stats = [bmiStat(latestRecord, isPending), calorieStat(dayTotals, target, dayLong, diary)];
 
   return (
     <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {stats.map((stat, index) => (
-        <Reveal key={stat.id} delay={index * 80}>
-          <article className="relative flex flex-col gap-3 rounded-2xl bg-card p-5 shadow-md transition hover:shadow-lg">
+        <Reveal key={stat.id} delay={index * 80} className="h-full">
+          <article className="relative flex h-full flex-col gap-3 rounded-2xl bg-card p-5 shadow-md transition hover:shadow-lg">
             {stat.badge && (
               <span className="absolute right-4 top-4 rounded-full bg-brand-soft px-2 py-0.5 text-[11px] font-semibold text-brand">
                 {stat.badge}
@@ -103,16 +104,16 @@ export default function StatsGrid({ dayTotals, target, dayLong = "hôm nay" }) {
               {stat.unit && <span className="text-sm font-medium text-subtle">{stat.unit}</span>}
             </div>
 
-            <p className="text-xs leading-snug text-subtle">{stat.caption}</p>
-
-            {stat.progress != null && (
-              <div className="h-1.5 w-full overflow-hidden rounded-full bg-black/5 dark:bg-white/10">
-                <div className={`h-full rounded-full ${stat.barClass}`} style={{ width: `${stat.progress}%` }} />
-              </div>
-            )}
+            <p className="mt-auto text-xs leading-snug text-subtle">{stat.caption}</p>
           </article>
         </Reveal>
       ))}
+      <Reveal delay={stats.length * 80} className="h-full">
+        <WaterCard diary={diary} date={diaryDate} isFutureDay={isFutureDay} />
+      </Reveal>
+      <Reveal delay={(stats.length + 1) * 80} className="h-full">
+        <ActivityCard diary={diary} date={diaryDate} isFutureDay={isFutureDay} />
+      </Reveal>
     </section>
   );
 }

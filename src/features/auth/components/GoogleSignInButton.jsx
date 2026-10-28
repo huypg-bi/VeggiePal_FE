@@ -16,12 +16,6 @@ const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 const MIN_WIDTH = 200;
 const MAX_WIDTH = 400;
 
-/**
- * Nút "Tiếp tục với Google" dùng chung cho màn đăng nhập và đăng ký (BE gộp hai luồng:
- * chưa có tài khoản thì tạo mới). Giữ nguyên nút kính mờ của app; nút thật của Google
- * (cần để lấy ID token) được phủ lên trên, trong suốt, nên bấm vào đâu cũng đúng nút Google.
- * `onError(message)`: để form cha hiện lỗi trong khung lỗi của nó.
- */
 export default function GoogleSignInButton({ onError }) {
   if (!GOOGLE_CLIENT_ID) {
     return <GoogleButtonBody status="missing" />;
@@ -59,9 +53,9 @@ function GoogleButtonWithOverlay({ onError }) {
     }
     setBusy(true);
     try {
-      const { token, user } = await loginWithGoogle(credential);
+      const { token, refreshToken, user } = await loginWithGoogle(credential);
       // Không có ô "Ghi nhớ đăng nhập" ở luồng Google nên giữ phiên lâu dài (localStorage).
-      setAuth({ token, user, remember: true });
+      setAuth({ token, refreshToken, user, remember: true });
       navigate(resolvePostLoginPath(user, from), { replace: true });
     } catch (err) {
       onError(err.message || "Đăng nhập bằng Google thất bại");
@@ -89,8 +83,6 @@ function GoogleButtonWithOverlay({ onError }) {
   );
 }
 
-// Phần nhìn thấy được. Khi chưa phủ được nút Google lên trên (thiếu cấu hình / chưa tải xong script)
-// thì bấm vào sẽ báo lý do thay vì im lặng.
 function GoogleButtonBody({ status }) {
   const onClick = () => {
     if (status === "missing") {

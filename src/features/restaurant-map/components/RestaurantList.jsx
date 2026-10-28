@@ -3,7 +3,6 @@ import { Loader2, SearchX } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import mascotWave from "@/assets/img/icon_map_page_1.png";
-import OptionDropdown from "@/features/restaurant-map/components/OptionDropdown";
 import RestaurantCard from "@/features/restaurant-map/components/RestaurantCard";
 import {
   MAX_RADIUS_KM,
@@ -14,6 +13,7 @@ import {
   SORT_RATING,
 } from "@/features/restaurant-map/utils/restaurantFormat";
 import Reveal from "@/shared/components/Reveal";
+import SelectField from "@/shared/components/SelectField";
 import { cn } from "@/lib/utils";
 
 const PAGE_SIZE = 5;
@@ -57,12 +57,6 @@ function StateBox({ icon, title, description, children }) {
   );
 }
 
-/**
- * Danh sách quán bên trái bản đồ. Toàn bộ dữ liệu và state nằm ở RestaurantMapScreen.
- * - restaurants: quán đã lọc và sắp xếp, hiện 5 quán một lần ("Xem thêm" để mở rộng)
- * - resetKey: đổi giá trị này thì số quán đang hiện quay lại 5
- * - isRefreshing: đang tải lại (đổi bán kính) trong khi vẫn hiện kết quả cũ
- */
 export default function RestaurantList({
   restaurants,
   isLoading,
@@ -92,8 +86,6 @@ export default function RestaurantList({
   const limit = Math.max(baseLimit, selectedIndex + 1);
   const shown = restaurants.slice(0, limit);
 
-  // Chọn quán từ marker: cuộn danh sách tới thẻ. Chỉ làm ở màn rộng (2 cột), vì ở màn hẹp
-  // bản đồ nằm dưới danh sách và cuộn lên sẽ kéo người dùng rời khỏi bản đồ.
   useEffect(() => {
     if (selectedId == null) return;
     if (!window.matchMedia("(min-width: 1024px)").matches) return;
@@ -227,17 +219,19 @@ export default function RestaurantList({
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <OptionDropdown
-            label="Bán kính tìm kiếm"
+          <SelectField
+            aria-label="Bán kính tìm kiếm"
             options={RADIUS_DROPDOWN_OPTIONS}
             value={radiusKm}
-            onSelect={onRadiusChange}
+            onValueChange={onRadiusChange}
+            className="h-9 px-3 shadow-sm"
           />
-          <OptionDropdown
-            label="Sắp xếp"
+          <SelectField
+            aria-label="Sắp xếp"
             options={SORT_OPTIONS}
             value={sort}
-            onSelect={onSortChange}
+            onValueChange={onSortChange}
+            className="h-9 px-3 shadow-sm"
           />
         </div>
       </div>

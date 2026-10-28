@@ -3,6 +3,7 @@ import { Activity, CreditCard, ExternalLink, FolderTree, LayoutDashboard, LogOut
 
 import logo from "@/assets/img/logo.png";
 import { Button } from "@/components/ui/button";
+import { usePendingModerationCases } from "@/features/admin/moderation/hooks/useModeration";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { cn } from "@/lib/utils";
 import ThemeToggle from "@/shared/components/ThemeToggle";
@@ -12,7 +13,7 @@ const NAV_ITEMS = [
   { to: "/admin/users", label: "Người dùng", icon: Users },
   { to: "/admin/categories", label: "Danh mục", icon: FolderTree },
   { to: "/admin/ingredients", label: "Nguyên liệu", icon: Salad },
-  { to: "/admin/moderation", label: "Kiểm duyệt", icon: ShieldAlert },
+  { to: "/admin/moderation", label: "Kiểm duyệt", icon: ShieldAlert, showBadge: true },
   { to: "/admin/ai-monitoring", label: "Giám sát AI", icon: Activity },
   { to: "/admin/payments", label: "Thanh toán", icon: CreditCard },
 ];
@@ -23,11 +24,11 @@ const navClass = ({ isActive }) =>
     isActive ? "bg-brand-soft text-brand" : "text-subtle hover:bg-surface hover:text-ink"
   );
 
-// Khung trang quản trị: thanh trên (logo, về trang web, đổi theme, đăng xuất) + menu trái.
-// Dưới lg menu chuyển thành hàng nút cuộn ngang phía trên nội dung.
 export default function AdminLayout() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const { data: pendingCases = [] } = usePendingModerationCases();
+  const pendingCount = pendingCases.length;
 
   return (
     <div className="min-h-dvh bg-canvas">
@@ -66,10 +67,15 @@ export default function AdminLayout() {
           aria-label="Menu quản trị"
           className="no-scrollbar flex gap-1 overflow-x-auto lg:sticky lg:top-20 lg:w-56 lg:shrink-0 lg:flex-col lg:self-start"
         >
-          {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
+          {NAV_ITEMS.map(({ to, label, icon: Icon, end, showBadge }) => (
             <NavLink key={to} to={to} end={end} className={navClass}>
               <Icon className="size-4" />
-              {label}
+              <span className="flex-1">{label}</span>
+              {showBadge && pendingCount > 0 && (
+                <span className="ml-1 inline-flex size-5 items-center justify-center rounded-full bg-warning text-[10px] font-bold text-white">
+                  {pendingCount > 99 ? "99+" : pendingCount}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>

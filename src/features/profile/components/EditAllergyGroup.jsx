@@ -1,25 +1,22 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Wheat } from "lucide-react";
+import { ChevronDown, ChevronUp, Wheat, Ban } from "lucide-react";
 
 import {
   ALLERGY_CATEGORY_META,
-  DEFAULT_OPEN_ALLERGY_GROUPS,
   OTHER_CATEGORY_META,
 } from "@/features/profile/utils/editProfileConstants";
 
 /** Một nhóm dị ứng (accordion) với các chip chọn theo allergenId. */
-export default function EditAllergyGroup({ category, items, index, selectedIds, onToggle }) {
+export default function EditAllergyGroup({ category, items, selectedIds, onToggle }) {
   const meta = ALLERGY_CATEGORY_META[category] || OTHER_CATEGORY_META;
-  // Nhóm đầu mở sẵn, user bấm thì theo lựa chọn của user.
-  const [openState, setOpenState] = useState(null);
-  const isOpen = openState ?? index < DEFAULT_OPEN_ALLERGY_GROUPS;
+  const [isOpen, setIsOpen] = useState(false);
   const selectedCount = items.filter((item) => selectedIds.has(item.id)).length;
 
   return (
     <div className="rounded-2xl border border-border bg-surface/40 overflow-hidden transition-all">
       <button
         type="button"
-        onClick={() => setOpenState(!isOpen)}
+        onClick={() => setIsOpen((prev) => !prev)}
         className="flex w-full items-center justify-between p-3.5 text-left hover:bg-surface transition-colors cursor-pointer"
       >
         <div className="flex items-center gap-2">
@@ -60,7 +57,7 @@ export default function EditAllergyGroup({ category, items, index, selectedIds, 
                       : "bg-surface text-body hover:bg-border/60 border border-transparent"
                   }`}
                 >
-                  {isSelected && <span>🚫</span>}
+                  {isSelected && <Ban className="size-3.5" />}
                   <span>{item.name}</span>
                 </button>
               );

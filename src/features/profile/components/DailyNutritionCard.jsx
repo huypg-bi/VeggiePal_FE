@@ -3,7 +3,7 @@ import { Activity } from 'lucide-react';
 
 export default function DailyNutritionCard() {
   return (
-    <div className="bg-card rounded-3xl p-5 shadow-sm border border-border mb-5">
+    <div className="bg-card rounded-3xl p-5 shadow-sm border border-border">
       <div className="flex items-center gap-2 mb-4">
         <Activity className="w-4 h-4 text-brand" />
         <h3 className="font-bold text-ink text-sm">Dinh Dưỡng Hôm Nay</h3>

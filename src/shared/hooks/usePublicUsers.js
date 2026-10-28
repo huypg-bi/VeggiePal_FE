@@ -5,11 +5,6 @@ import { normalizeIds } from "@/shared/utils/ids";
 
 const toUserMap = (users) => new Map(users.map((u) => [u.id, u]));
 
-/**
- * Tên + avatar của danh sách tác giả (GET /users/batch).
- * `data` là Map<id, { id, fullName, avatarUrl }> -> dùng `data?.get(authorId)`.
- * Id không có trong Map nghĩa là user không còn hiển thị công khai (nên hiện tên dự phòng).
- */
 export function usePublicUsers(ids) {
   const uniqueIds = normalizeIds(ids);
   return useQuery({

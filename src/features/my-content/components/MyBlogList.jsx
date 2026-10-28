@@ -20,8 +20,6 @@ import { cn } from "@/lib/utils";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
 import FallbackImage from "@/shared/components/FallbackImage";
 
-// Tab "Bài viết": lọc theo trạng thái (GET /blogs/me?status=) + danh sách "Xem thêm",
-// mỗi dòng có Sửa / Gửi duyệt / Xóa tùy trạng thái.
 export default function MyBlogList() {
   const [status, setStatus] = useState("");
   const { posts, total, isPending, isError, error, hasNextPage, fetchNextPage, isFetchingNextPage } =
@@ -162,14 +160,10 @@ function BlogRow({ post }) {
 
   return (
     <li className="rounded-3xl border border-border bg-card p-4 shadow-sm">
-      {isPublished ? (
-        // Chỉ bài đã đăng mới có trang đọc công khai.
-        <Link to={`/blog/${post.id}`} className="flex gap-4">
-          {summary}
-        </Link>
-      ) : (
-        <div className="flex gap-4">{summary}</div>
-      )}
+      {/* Chủ bài đọc được cả bài chưa đăng (trang đọc sẽ hiện nhãn trạng thái). */}
+      <Link to={`/blog/${post.id}`} className="flex gap-4">
+        {summary}
+      </Link>
 
       <div className="mt-3 flex flex-wrap justify-end gap-2 border-t border-border pt-3">
         {canEditBlog(post.status) && (
