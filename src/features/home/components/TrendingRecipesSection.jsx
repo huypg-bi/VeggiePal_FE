@@ -11,7 +11,7 @@ const TRENDING_COUNT = 3;
 
 export default function TrendingRecipesSection() {
   const { data, isPending, isError, error } = useRecipes({ size: TRENDING_COUNT });
-  const recipes = data?.content;
+  const recipes = data?.items;
 
   const { nutritionById } = useRecipeNutrition(recipes);
   const { data: authors } = usePublicUsers(recipes?.map((r) => r.userId));

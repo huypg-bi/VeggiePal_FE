@@ -1,15 +1,7 @@
 import apiClient from "@/shared/api/apiClient";
 import { RECIPE_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
-const EMPTY_PAGE = {
-  content: [],
-  page: 0,
-  size: 10,
-  totalElements: 0,
-  totalPages: 0,
-  first: true,
-  last: true,
-};
+const EMPTY_PAGE = { items: [], page: 0, size: 10, totalElements: 0, totalPages: 0 };
 
 function unwrap(res, fallbackMessage) {
   if (res.status >= 400) {
