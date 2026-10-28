@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Eye, ImageOff } from "lucide-react";
 
@@ -5,10 +6,13 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import AuthorAvatar from "@/features/blog/components/AuthorAvatar";
 import CommentSection from "@/features/blog/components/CommentSection";
+import FollowButton from "@/features/blog/components/FollowButton";
+import FollowListDialog from "@/features/blog/components/FollowListDialog";
 import RelatedBlogs from "@/features/blog/components/RelatedBlogs";
 import VoteButton from "@/features/blog/components/VoteButton";
 import { useMyVotes } from "@/features/blog/hooks/useBlogVotes";
 import { useBlog } from "@/features/blog/hooks/useBlogs";
+import { useFollowStats } from "@/features/blog/hooks/useFollow";
 import {
   FALLBACK_AUTHOR_NAME,
   formatCompactNumber,
@@ -33,6 +37,8 @@ export default function BlogDetailScreen() {
   const isPublished = blog?.status === "PUBLISHED";
   const { data: authors } = usePublicUsers(blog ? [blog.authorId] : []);
   const author = blog ? authors?.get(blog.authorId) : undefined;
+  const { data: followStats } = useFollowStats(blog?.authorId);
+  const [showFollowers, setShowFollowers] = useState(false);
   const { data: myVotes } = useMyVotes(isPublished ? [blog.id] : []);
   const statusInfo = getBlogStatusInfo(blog?.status);
   // Chỉ tác giả mới có nút sửa ở đây (admin xem để kiểm duyệt, không sửa hộ).
@@ -82,11 +88,27 @@ export default function BlogDetailScreen() {
                   <div className="flex items-center gap-3">
                     <AuthorAvatar author={author} />
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-ink">
-                        {author?.fullName ?? FALLBACK_AUTHOR_NAME}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="truncate text-sm font-semibold text-ink">
+                          {author?.fullName ?? FALLBACK_AUTHOR_NAME}
+                        </p>
+                        {/* Tác giả không resolve được thì BE không cho theo dõi nên ẩn nút. */}
+                        {author && <FollowButton userId={blog.authorId} className="shrink-0" />}
+                      </div>
                       <p className="text-xs text-subtle">
                         {formatTimeAgo(blog.publishedAt ?? blog.createdAt)}
+                        {followStats && (
+                          <>
+                            {" · "}
+                            <button
+                              type="button"
+                              onClick={() => setShowFollowers(true)}
+                              className="transition hover:text-brand hover:underline"
+                            >
+                              {followStats.followers.toLocaleString("vi-VN")} người theo dõi
+                            </button>
+                          </>
+                        )}
                       </p>
                     </div>
                     <div className="ml-auto flex shrink-0 flex-col items-end gap-1.5">
@@ -140,6 +162,15 @@ export default function BlogDetailScreen() {
           )}
         </div>
       </main>
+
+      {showFollowers && blog && (
+        <FollowListDialog
+          userId={blog.authorId}
+          title={`Theo dõi của ${author?.fullName ?? FALLBACK_AUTHOR_NAME}`}
+          initialKind="followers"
+          onClose={() => setShowFollowers(false)}
+        />
+      )}
 
       <AppFooter />
     </div>

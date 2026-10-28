@@ -13,7 +13,8 @@ import {
   useUpdateBlog,
   useUploadBlogThumbnail,
 } from "@/features/blog/hooks/useBlogMutations";
-import { BLOG_CONTENT_MIN, BLOG_TITLE_MAX, blogSchema } from "@/features/blog/schema";
+import { BLOG_CONTENT_MAX, BLOG_CONTENT_MIN, BLOG_TITLE_MAX, blogSchema } from "@/features/blog/schema";
+import { countCodePoints } from "@/features/blog/utils/textLength";
 import { describeBlogOutcome } from "@/features/blog/utils/blogForm";
 import SelectField from "@/shared/components/SelectField";
 
@@ -52,7 +53,7 @@ export default function BlogForm({ blog, categories }) {
   });
 
   const titleLength = useWatch({ control, name: "title" }).length;
-  const contentLength = useWatch({ control, name: "content" }).trim().length;
+  const contentLength = countCodePoints(useWatch({ control, name: "content" }).trim());
   const categoryOptions = categories.map(({ id, name }) => ({ value: String(id), label: name }));
 
   // Trả true nếu tải ảnh thành công; lỗi thì báo nhưng không chặn, vì bài đã được lưu.
@@ -197,8 +198,9 @@ export default function BlogForm({ blog, categories }) {
             <p className={errors.content ? "text-xs text-destructive" : "text-xs text-transparent"}>
               {errors.content?.message ?? "."}
             </p>
-            <span className="text-xs text-subtle">
-              {contentLength} ký tự (tối thiểu {BLOG_CONTENT_MIN})
+            <span className={contentLength > BLOG_CONTENT_MAX ? "text-xs text-destructive" : "text-xs text-subtle"}>
+              {contentLength.toLocaleString("vi-VN")}/{BLOG_CONTENT_MAX.toLocaleString("vi-VN")} ký tự (tối thiểu{" "}
+              {BLOG_CONTENT_MIN})
             </span>
           </div>
         </div>

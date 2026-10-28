@@ -1,16 +1,34 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
-import { getBlog, getBlogs, getRelatedBlogs } from "@/features/blog/api/blogApi";
+import { selectIsAuthenticated, useAuthStore } from "@/features/auth/store/authStore";
+import { getBlog, getBlogs, getFollowingBlogs, getRelatedBlogs } from "@/features/blog/api/blogApi";
 import { blogKeys } from "@/features/blog/queryKeys";
 import { flattenPages, getNextPageNumber } from "@/shared/utils/paging";
 
-export function useBlogFeed({ categoryId, keyword, sort, size = 10 } = {}) {
+// `enabled = false` khi tab "Đang theo dõi" đang mở, để không tải feed chung vô ích.
+export function useBlogFeed({ categoryId, keyword, sort, size = 10, enabled = true } = {}) {
   const query = useInfiniteQuery({
     queryKey: blogKeys.feed({ categoryId, keyword, sort, size }),
     queryFn: ({ pageParam }) =>
       getBlogs({ categoryId, keyword, sort, page: pageParam, size }),
     initialPageParam: 0,
     getNextPageParam: getNextPageNumber,
+    enabled,
+    staleTime: 60 * 1000,
+  });
+
+  return { ...query, posts: flattenPages(query.data) };
+}
+
+/** Feed bài của những người tôi theo dõi (chỉ khi đã đăng nhập và `enabled`). */
+export function useFollowingFeed({ size = 10, enabled = true } = {}) {
+  const isAuthenticated = useAuthStore(selectIsAuthenticated);
+  const query = useInfiniteQuery({
+    queryKey: blogKeys.followingFeed(size),
+    queryFn: ({ pageParam }) => getFollowingBlogs({ page: pageParam, size }),
+    initialPageParam: 0,
+    getNextPageParam: getNextPageNumber,
+    enabled: enabled && isAuthenticated,
     staleTime: 60 * 1000,
   });
 
