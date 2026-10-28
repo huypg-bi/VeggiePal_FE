@@ -45,7 +45,7 @@
 - **📝 Cộng đồng (Blog):** Đăng và đọc bài viết (tối đa 50.000 ký tự; bài được AI kiểm duyệt nền nên đăng xong ở trạng thái chờ, trang chi tiết tự cập nhật khi AI xét xong), bình luận, thả tim, tìm kiếm / sắp xếp / lọc danh mục, theo dõi tác giả, xem tab "Đang theo dõi" và danh sách người theo dõi *(API thật; bảng vàng, chủ đề và thử thách tuần vẫn là Mock Data)*.
 - **🎥 Khám phá video (Videos):** Xem và đăng tải video nấu món chay (tệp .mp4 hoặc liên kết YouTube), phân trang và lọc theo danh mục, quản lý video cá nhân kèm kiểm duyệt tự động *(API thật)*. Tab "Bóc tách" ở trang Nội dung của tôi cho AI bóc tách nguyên liệu và các bước làm từ video (tệp ≤ 100MB, ≤ 30 phút, lịch sử `GET /ai/videos` theo lượt của gói thành viên). Ở trang xem video, nút "Bóc tách công thức AI" ở `VideoMetaHeader` và thẻ `AiSummaryCard` hiển thị công thức AI dùng chung cho video tải lên (`POST /ai/videos/process-existing`, xem công khai qua `GET /ai/videos/by-video/:videoId`, khách chưa đăng nhập vẫn xem được kết quả có sẵn) *(API thật)*.
 - **📍 Bản đồ xanh (Map):** Tìm kiếm và xem danh sách các nhà hàng, quán ăn chay *(Mock Data)*.
-- **🤖 Trợ lý Bông Cải (AI Chatbot):** Giao diện hỏi đáp kiến thức dinh dưỡng chay, quản lý nhiều đoạn chat *(API thật: ai-service, có chế độ dùng thử cho khách)*.
+- **🤖 Trợ lý Bông Cải (AI Chatbot):** Giao diện hỏi đáp kiến thức dinh dưỡng chay, quản lý nhiều đoạn chat *(API thật: ai-service, có chế độ dùng thử cho khách; giới hạn lượt/ngày: khách 3 lượt, FREE 5, PLUS 20, PRO 50; mở cuộc trò chuyện của người khác trả 404)*.
 - **🎨 Giao diện & Trải nghiệm:** Landing page hiện đại, hỗ trợ chuyển đổi chế độ Sáng/Tối (Light/Dark Mode).
 - **💳 Gói thành viên & Thanh toán (Payment & Subscriptions):** Xem bảng giá các gói thành viên (FREE, PLUS, PRO), thanh toán qua cổng payOS VietQR, polling kiểm tra webhook kích hoạt gói tức thì, quản lý lịch sử thanh toán và thời hạn sử dụng *(API thật: payment-service)*. Trang thanh toán tự dựng `/checkout/:orderId`: FE tự vẽ mã VietQR bằng `qrcode.react`, đếm ngược hết hạn, polling trạng thái đơn, huỷ/tạo lại đơn.
 
@@ -170,6 +170,12 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | `POST` / `DELETE` | `/nutrition/me/diary/activities`, `/nutrition/me/diary/activities/:id` | Ghi / xóa một hoạt động (`{date, activityType, minutes}`) |
 | `GET` | `/ai/meal-plans/favorites`, `/ai/meal-plans/favorites/:id` | Danh sách thực đơn yêu thích (phân trang) / một thực đơn yêu thích |
 | `GET` | `/ai/meal-plans/:id/versions`, `/ai/meal-plans/:id/versions/:version` | Lịch sử phiên bản / nội dung một phiên bản cũ |
+| `POST` | `/ai/chat/guest-sessions` | Tạo phiên dùng thử cho khách (mỗi khách 1 phiên, lưu `sessionStorage`) |
+| `POST` | `/ai/chat/guest` | Khách hỏi AI Bông Cải (giới hạn 3 lượt/ngày) |
+| `POST` | `/ai/chat` | Thành viên hỏi AI (tạo mới hoặc tiếp tục cuộc trò chuyện) |
+| `GET` | `/ai/chat/conversations` | Danh sách các cuộc trò chuyện của thành viên |
+| `GET` | `/ai/chat/conversations/:id` | Chi tiết các tin nhắn trong một cuộc trò chuyện (truy cập của người khác trả 404) |
+| `DELETE` | `/ai/chat/conversations/:id` | Xóa một cuộc trò chuyện |
 | `GET` | `/payments/plans` | Danh sách gói thành viên (công khai) |
 | `POST` | `/payments/checkout` | Tạo đơn thanh toán payOS (gói PLUS / PRO) |
 | `GET` | `/payments/orders/:id` | Chi tiết đơn thanh toán theo ID |
