@@ -7,7 +7,7 @@ import {
 } from "@/features/profile/utils/editProfileConstants";
 
 /** Một nhóm dị ứng (accordion) với các chip chọn theo allergenId. */
-export default function EditAllergyGroup({ category, items, index, selectedIds, onToggle }) {
+export default function EditAllergyGroup({ category, items, selectedIds, onToggle }) {
   const meta = ALLERGY_CATEGORY_META[category] || OTHER_CATEGORY_META;
   const [isOpen, setIsOpen] = useState(false);
   const selectedCount = items.filter((item) => selectedIds.has(item.id)).length;
