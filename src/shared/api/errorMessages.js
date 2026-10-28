@@ -163,6 +163,12 @@ export const RECIPE_ERROR_MESSAGES = {
   4106: "Các bước thực hiện bị trùng số thứ tự, vui lòng thử lại",
   4107: "Có đơn vị nguyên liệu chưa được hỗ trợ, vui lòng chọn lại đơn vị",
   4108: "Công thức đã bị xóa hoặc đang bị ẩn nên không thể thực hiện thao tác này",
+  4110: "Tên công thức tối đa 200 ký tự",
+  4111: "Mô tả tối đa 2000 ký tự",
+  4112: "Link ảnh tối đa 500 ký tự",
+  4113: "Đơn vị nguyên liệu tối đa 30 ký tự",
+  4114: "Ghi chú nguyên liệu tối đa 300 ký tự",
+  4115: "Mỗi bước thực hiện tối đa 2000 ký tự",
 };
 
 // location-service (50xx)

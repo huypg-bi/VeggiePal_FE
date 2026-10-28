@@ -78,7 +78,7 @@ export default function AdminIngredientsScreen() {
       },
     });
 
-  const items = data?.content ?? [];
+  const items = data?.items ?? [];
 
   return (
     <div className="flex flex-col gap-6">
@@ -210,7 +210,7 @@ export default function AdminIngredientsScreen() {
                 type="button"
                 size="sm"
                 variant="outline"
-                disabled={data.first || isFetching}
+                disabled={data.page <= 0 || isFetching}
                 onClick={() => setPage((p) => Math.max(p - 1, 0))}
               >
                 <ChevronLeft className="size-4" />
@@ -220,7 +220,7 @@ export default function AdminIngredientsScreen() {
                 type="button"
                 size="sm"
                 variant="outline"
-                disabled={data.last || isFetching}
+                disabled={data.page + 1 >= data.totalPages || isFetching}
                 onClick={() => setPage((p) => p + 1)}
               >
                 Sau

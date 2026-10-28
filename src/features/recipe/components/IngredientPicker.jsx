@@ -27,7 +27,7 @@ export default function IngredientPicker({ selectedIds, onPick }) {
   };
 
   const selected = new Set(selectedIds);
-  const results = (data?.content ?? []).filter((i) => !selected.has(i.id)).slice(0, RESULT_SIZE);
+  const results = (data?.items ?? []).filter((i) => !selected.has(i.id)).slice(0, RESULT_SIZE);
 
   return (
     <div>

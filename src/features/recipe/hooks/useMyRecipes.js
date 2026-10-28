@@ -14,7 +14,7 @@ export function useMyRecipes({ size = 10 } = {}) {
 
   return {
     ...query,
-    recipes: flattenPages(query.data, "content"),
+    recipes: flattenPages(query.data),
     total: query.data?.pages?.[0]?.totalElements ?? 0,
   };
 }
