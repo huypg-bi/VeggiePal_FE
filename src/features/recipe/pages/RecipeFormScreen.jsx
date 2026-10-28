@@ -3,7 +3,6 @@ import { Link, useParams } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import RecipeForm from "@/features/recipe/components/RecipeForm";
 import { useRecipe } from "@/features/recipe/hooks/useRecipes";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 
 export default function RecipeFormScreen() {
@@ -41,8 +40,6 @@ export default function RecipeFormScreen() {
         </h1>
         {body}
       </main>
-
-      <AppFooter />
     </div>
   );
 }

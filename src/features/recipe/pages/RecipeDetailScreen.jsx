@@ -17,7 +17,6 @@ import {
   isAllergenIngredient,
   isNonVeganIngredient,
 } from "@/features/recipe/utils/recipeSafety";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import FallbackImage from "@/shared/components/FallbackImage";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
@@ -72,8 +71,6 @@ export default function RecipeDetailScreen() {
         </div>
         {body}
       </main>
-
-      <AppFooter />
     </div>
   );
 }

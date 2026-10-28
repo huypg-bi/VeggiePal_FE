@@ -1,7 +1,6 @@
 import { useLocation } from "react-router-dom";
 
 import AppHeader from "@/shared/components/AppHeader";
-import AppFooter from "@/shared/components/AppFooter";
 import Reveal from "@/shared/components/Reveal";
 
 import EditProfileHeader from "@/features/profile/components/EditProfileHeader";
@@ -73,8 +72,6 @@ export default function EditProfileScreen() {
           />
         </Reveal>
       </main>
-
-      <AppFooter />
     </div>
   );
 }

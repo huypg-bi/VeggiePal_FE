@@ -5,7 +5,6 @@ import BlogForm from "@/features/blog/components/BlogForm";
 import { useCategories } from "@/features/blog/hooks/useCategories";
 import { useBlog } from "@/features/blog/hooks/useBlogs";
 import { flattenCategories } from "@/features/blog/utils/feedFilters";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 
 export default function BlogFormScreen() {
@@ -58,8 +57,6 @@ export default function BlogFormScreen() {
         </h1>
         {body}
       </main>
-
-      <AppFooter />
     </div>
   );
 }

@@ -26,7 +26,7 @@ Nếu yêu cầu khóa có hiệu lực ngay với mọi phiên, cần thiết k
 
 Recipe và AI hiện trả cả `items` lẫn `content` (cùng nội dung) để các client cũ không vỡ. Khi mọi client đã chuyển sang `items`, bỏ `content` và getter alias, cập nhật test serialization tương ứng. Việc này cần phối hợp phát hành, không có ngày tự động.
 
-**Tình trạng phía FE (28/10/2026):** FE đã đọc `items` ở blog, meal-planner, recipe, nguyên liệu và trang chủ. Còn `features/video/hooks/useVideoJobs.js` (danh sách bóc tách video của ai-service) đọc `content`, nên chưa gỡ được alias của AI cho tới khi video chuyển sang `items`. Alias của recipe-service thì FE không còn dùng.
+**Tình trạng phía FE (28/10/2026):** FE đã đọc `items` ở blog, meal-planner, recipe, nguyên liệu và trang chủ. Danh sách bóc tách video (`useVideoJobs`) cũng đã chuyển sang `items`. Hiện không còn nơi nào ở FE đọc `content` hay `first` / `last`, nên BE có thể gỡ alias của cả recipe-service và ai-service khi phối hợp phát hành (cần chốt với các client khác nếu có).
 
 ### I01 — Mô tả endpoint cho API sẵn có
 
