@@ -927,8 +927,8 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export function getChatErrorMessage(error, { guest = false } = {}) {`
 
-> Dịch lỗi của ai-service (ErrorCode 6000-6999) sang thông báo tiếng Việt.
-> BE trả message tiếng Anh nên không hiển thị trực tiếp cho người dùng.
+> Dịch lỗi của ai-service (ErrorCode 6000-6999) sang thông báo tiếng Việt qua bảng CHATBOT_ERROR_MESSAGES và CHATBOT_GUEST_ERROR_MESSAGES trong src/shared/api/errorMessages.js.
+> BE trả message tiếng Anh nên dịch theo code (6000-6007, 6999) và dự phòng theo HTTP status (401, 404, 429, 500-599).
 
 ### features/chatbot/utils/parseChatMarkdown.js
 

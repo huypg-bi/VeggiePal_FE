@@ -232,6 +232,23 @@ export const VIDEO_JOB_ERROR_MESSAGES = {
   6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
 };
 
+// ai-service (60xx), trợ lý AI chatbot
+export const CHATBOT_ERROR_MESSAGES = {
+  6000: "Câu hỏi không hợp lệ hoặc quá dài (tối đa 4000 ký tự)",
+  6001: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
+  6002: "Không tìm thấy cuộc trò chuyện này",
+  6003: "Bạn đã dùng hết lượt hỏi AI hôm nay. Nâng cấp gói thành viên tại /pricing để nhận thêm lượt hoặc quay lại vào ngày mai",
+  6004: "Trợ lý AI đang tạm thời quá tải, vui lòng thử lại sau ít phút",
+  6005: "Tính năng AI chưa được cấu hình trên máy chủ",
+  6006: "Dịch vụ liên quan đang bận, vui lòng thử lại sau",
+  6007: "AI trả về kết quả không hợp lệ, vui lòng thử lại",
+  6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
+};
+
+export const CHATBOT_GUEST_ERROR_MESSAGES = {
+  6001: "Phiên dùng thử đã hết hạn. Hãy gửi lại câu hỏi để tạo phiên mới",
+  6003: "Bạn đã dùng hết lượt hỏi thử hôm nay. Hãy đăng nhập để tiếp tục trò chuyện",
+};
 // payment-service (60xx, trùng số với ai-service nhưng là service khác)
 export const PAYMENT_ERROR_MESSAGES = {
   1008: "Phiên đăng nhập hết hạn",
