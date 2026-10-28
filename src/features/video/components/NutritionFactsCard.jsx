@@ -21,9 +21,14 @@ export default function NutritionFactsCard() {
         <div className="flex items-center gap-2.5">
           <img src={iconNutrition} alt="" className="size-9 shrink-0" />
           <div>
-            <h2 className="text-sm font-bold leading-snug text-ink">
-              Giá Trị Dinh Dưỡng
-            </h2>
+            <div className="flex items-center gap-2">
+              <h2 className="text-sm font-bold leading-snug text-ink">
+                Giá Trị Dinh Dưỡng
+              </h2>
+              <span className="rounded-full border border-border bg-surface px-2 py-0.5 text-[10px] font-medium text-subtle">
+                Dữ liệu mẫu
+              </span>
+            </div>
             <span className="text-[11px] font-medium text-subtle">
               (Dữ liệu mẫu tham khảo)
             </span>

@@ -24,6 +24,8 @@ const VI_MESSAGES = {
   6022: "Video này đang được bóc tách, vui lòng chờ trong giây lát",
   6023: "Lần bóc tách trước của video này chưa thành công",
   6024: "Video không có đủ thông tin công thức (nguyên liệu kèm số lượng và các bước) để AI bóc tách",
+  6025: "Hệ thống đang bận xử lý nhiều video, vui lòng thử lại sau ít phút",
+  6026: "Chưa hỗ trợ bóc tách video YouTube, chỉ bóc tách được video tải lên trực tiếp",
   6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
 };
 
