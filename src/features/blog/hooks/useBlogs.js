@@ -2,7 +2,9 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 import { selectIsAuthenticated, useAuthStore } from "@/features/auth/store/authStore";
 import { getBlog, getBlogs, getFollowingBlogs, getRelatedBlogs } from "@/features/blog/api/blogApi";
+import { useReviewPollInterval } from "@/features/blog/hooks/useReviewPolling";
 import { blogKeys } from "@/features/blog/queryKeys";
+import { isAiReviewing } from "@/features/blog/utils/blogModeration";
 import { flattenPages, getNextPageNumber } from "@/shared/utils/paging";
 
 // `enabled = false` khi tab "Đang theo dõi" đang mở, để không tải feed chung vô ích.
@@ -36,11 +38,14 @@ export function useFollowingFeed({ size = 10, enabled = true } = {}) {
 }
 
 export function useBlog(id) {
+  const pollInterval = useReviewPollInterval();
   return useQuery({
     queryKey: blogKeys.detail(id),
     queryFn: () => getBlog(id),
     enabled: id != null,
-    staleTime: 5 * 60 * 1000,
+    // Bài đang chờ duyệt thì luôn lấy mới và tự hỏi lại trong lúc AI xét.
+    staleTime: (query) => (query.state.data?.status === "PENDING" ? 0 : 5 * 60 * 1000),
+    refetchInterval: (query) => pollInterval(isAiReviewing(query.state.data)),
   });
 }
 

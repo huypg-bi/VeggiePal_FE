@@ -76,6 +76,36 @@ Các đường dẫn trên là mapping trực tiếp tại service; khi gọi qu
 
 **Hoàn thành khi:** tài khoản đăng bài được thì tên và avatar hiện ở feed, chi tiết bài và bình luận, và theo dõi được; không còn tài khoản đăng nhập được mà bị ẩn khỏi API công khai; có test cho từng trạng thái.
 
+### B04 — Danh sách bài viết thiếu `aiReviewInProgress` và `moderationReason`
+
+**Service:** blog-service · ghi 28/10/2026.
+
+**Hiện trạng:** kiểm duyệt blog giờ chạy nền. Chỉ `BlogResponse` (chi tiết, đăng, sửa, gửi duyệt) có `aiReviewInProgress` và `moderationReason`. `GET /blogs/me` và các danh sách trả `BlogSummaryResponse`, chỉ có `status`. Hai bài `PENDING` trong "Bài viết của tôi" có thể đang chờ AI hoặc đang chờ admin, và bài `REJECTED` không có lý do; client không phân biệt được nếu không gọi chi tiết từng bài.
+
+**Việc làm:** thêm `aiReviewInProgress` và `moderationReason` vào `BlogSummaryResponse`, chỉ điền cho `GET /blogs/me` (chủ bài). Các danh sách công khai không cần và không nên trả `moderationReason`. Ghi vào `BACKEND_CHANGES.md`.
+
+**Hoàn thành khi:** `GET /blogs/me` trả đúng hai field cho bài `PENDING` (đang chờ AI: `true`, chờ admin: `false`) và bài `REJECTED` có lý do; feed công khai không lộ `moderationReason`; có test.
+
+### B05 — Thiếu API lịch sử kiểm duyệt (ca đã xử lý)
+
+**Service:** ai-service · ghi 28/10/2026.
+
+**Hiện trạng:** `GET /ai/admin/moderation` (`ModerationService.pending()`) chỉ trả các ca có `decision = REVIEW_REQUIRED` chưa xử lý. Ca AI đã `APPROVED` hoặc `REJECTED` thẳng, và ca admin đã duyệt, từ chối hoặc bỏ qua (`DISMISSED`) đều không có endpoint nào để đọc lại, dù bảng `ai_moderation_cases` vẫn lưu đủ nội dung, quyết định, lý do, độ tin cậy, `reviewed_by`, `reviewed_at`. Hệ quả: admin không xem được AI đã duyệt hay từ chối bài nào và vì sao. `GET /ai/admin/monitoring/logs/search` chỉ ghi lần gọi AI (token, độ trễ, trạng thái), không có quyết định và nội dung.
+
+**Việc làm:** thêm endpoint chỉ dành cho ADMIN, ví dụ `GET /ai/admin/moderation/history`, trả `PageResponse<ModerationResponse>` (`items`, `page`, `size`, `totalElements`, `totalPages`, theo quy ước phân trang chung), sắp xếp mới nhất trước (`createdAt` giảm dần, tie-break theo `id`). Tham số lọc tùy chọn: `decision` (APPROVED / REJECTED / REVIEW_REQUIRED / DISMISSED), `contentType` (BLOG / VIDEO / COMMENT), `authorId`, `from`, `to`. Không trả ca đang chờ (đã có ở hàng đợi) trừ khi lọc `decision=REVIEW_REQUIRED` rõ ràng. Cân nhắc có trả `content` đầy đủ hay cắt ngắn trong danh sách. Ghi vào `BACKEND_CHANGES.md`.
+
+**Hoàn thành khi:** gọi không phải ADMIN trả 403; lọc theo `decision` và `contentType` đúng; ca admin đã xử lý có `reviewedBy` / `reviewedAt`; phân trang đúng shape chung và chặn `size` tối đa 100; có test, gồm trường hợp bảng rỗng.
+
+### B06 — Giám sát AI: không loại trừ được một tác vụ khỏi danh sách và tổng quan
+
+**Service:** ai-service · ghi 28/10/2026.
+
+**Hiện trạng:** `GET /ai/admin/monitoring/logs/search` nhận `feature` và so bằng đúng một giá trị (`MonitoringService.search`: `feature = ?`), nên không thể lấy "mọi tác vụ trừ kiểm duyệt". `GET /ai/admin/monitoring/summary` cộng toàn bộ usage log (`UsageLogRepository.aggregateSince`) và không tách theo tác vụ. Kiểm duyệt nền của blog giờ ghi usage log cho mọi bài đăng, sửa và lần thử lại (principal `service:moderation`, `userId` là tác giả), nên số liệu tổng quan và danh sách bị lẫn dữ liệu kiểm duyệt, trong khi kiểm duyệt thuộc về luồng duyệt nội dung chứ không phải theo dõi tính năng AI của người dùng.
+
+**Việc làm:** (1) thêm tham số loại trừ cho `/logs/search`, ví dụ `excludeFeature` (một hoặc nhiều giá trị), áp dụng trong cùng truy vấn phân trang để `totalElements` và `totalPages` vẫn đúng. (2) Cho `/summary` nhận tham số `feature` hoặc `excludeFeature`, hoặc trả thêm bảng tách theo từng `feature` (số yêu cầu, token, lỗi, độ trễ trung bình). Chốt cách biểu diễn rồi ghi vào `BACKEND_CHANGES.md`. Giá trị `feature` phải trùng với giá trị đang ghi trong `usage_logs` (ví dụ `MODERATION`).
+
+**Hoàn thành khi:** `logs/search?excludeFeature=MODERATION` không trả dòng kiểm duyệt nào và phân trang vẫn đúng; `/summary` tách hoặc loại được kiểm duyệt; không đổi hành vi khi không truyền tham số mới; có test.
+
 ## 2. Giải thích chi tiết các tính năng mới còn lại
 
 ### D22.1 — Trang người sáng tạo và video theo tác giả

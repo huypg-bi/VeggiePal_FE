@@ -1,6 +1,6 @@
 const BLOG_STATUS = {
   DRAFT: { label: "Bản nháp", tone: "muted", hint: "Chưa gửi duyệt, chỉ mình bạn thấy" },
-  PENDING: { label: "Chờ duyệt", tone: "warning", hint: "Đang chờ kiểm duyệt" },
+  PENDING: { label: "Chờ duyệt", tone: "warning", hint: "AI hoặc quản trị viên đang kiểm duyệt, bài tạm ẩn" },
   PUBLISHED: { label: "Đã đăng", tone: "success", hint: "" },
   REJECTED: { label: "Bị từ chối", tone: "danger", hint: "Không vượt qua kiểm duyệt" },
   BANNED: { label: "Đã bị gỡ", tone: "danger", hint: "Quản trị viên đã gỡ bài này" },

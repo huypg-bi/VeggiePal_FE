@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Eye, ImageOff } from "lucide-react";
+import { ArrowLeft, Eye, ImageOff, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/features/auth/store/authStore";
@@ -13,11 +13,13 @@ import VoteButton from "@/features/blog/components/VoteButton";
 import { useMyVotes } from "@/features/blog/hooks/useBlogVotes";
 import { useBlog } from "@/features/blog/hooks/useBlogs";
 import { useFollowStats } from "@/features/blog/hooks/useFollow";
+import { useReviewResultToast } from "@/features/blog/hooks/useReviewPolling";
 import {
   FALLBACK_AUTHOR_NAME,
   formatCompactNumber,
   formatTimeAgo,
 } from "@/features/blog/utils/blogFormat";
+import { getBlogReviewNote, isAiReviewing } from "@/features/blog/utils/blogModeration";
 import StatusBadge from "@/features/my-content/components/StatusBadge";
 import { canEditBlog, getBlogStatusInfo } from "@/features/my-content/utils/statusInfo";
 import AppHeader from "@/shared/components/AppHeader";
@@ -40,6 +42,8 @@ export default function BlogDetailScreen() {
   const [showFollowers, setShowFollowers] = useState(false);
   const { data: myVotes } = useMyVotes(isPublished ? [blog.id] : []);
   const statusInfo = getBlogStatusInfo(blog?.status);
+  const reviewNote = getBlogReviewNote(blog);
+  useReviewResultToast(blog);
   // Chỉ tác giả mới có nút sửa ở đây (admin xem để kiểm duyệt, không sửa hộ).
   const canEdit = blog && blog.authorId === user?.id && canEditBlog(blog.status);
 
@@ -69,8 +73,9 @@ export default function BlogDetailScreen() {
                 {!isPublished && (
                   <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-warning/10 px-4 py-3 text-sm text-body ring-1 ring-warning/30">
                     <StatusBadge info={statusInfo} />
+                    {isAiReviewing(blog) && <Loader2 className="size-4 shrink-0 animate-spin text-warning" />}
                     <span className="min-w-0 flex-1 text-subtle">
-                      {statusInfo.hint || "Bài viết này chưa được đăng công khai."}
+                      {reviewNote ?? (statusInfo.hint || "Bài viết này chưa được đăng công khai.")}
                     </span>
                     {canEdit && (
                       <Link
