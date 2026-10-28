@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   AlertTriangle,
   Ban,
@@ -9,6 +10,7 @@ import {
   Eye,
   FileText,
   Filter,
+  History,
   Info,
   MessageSquare,
   Percent,
@@ -27,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ModerationDetailDialog from "@/features/admin/moderation/components/ModerationDetailDialog";
 import ReviewDecisionDialog from "@/features/admin/moderation/components/ReviewDecisionDialog";
+import ModerationLogsSection from "@/features/admin/moderation/components/ModerationLogsSection";
 import { MOCK_MODERATION_CASES } from "@/features/admin/moderation/data/mockModerationData";
 import {
   useDismissModeration,
@@ -64,6 +67,23 @@ function formatDateTime(isoString) {
 }
 
 export default function AdminModerationScreen() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "queue";
+
+  const handleTabChange = (tab) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (tab === "queue") {
+          next.delete("tab");
+        } else {
+          next.set("tab", tab);
+        }
+        return next;
+      },
+      { replace: true }
+    );
+  };
   const queryClient = useQueryClient();
   const { data: realCases = [], isPending, isError, error, isFetching } = usePendingModerationCases();
   const reviewMutation = useReviewModeration();
@@ -205,6 +225,7 @@ export default function AdminModerationScreen() {
           </p>
         </div>
 
+        {activeTab === "queue" && (
         <div className="flex items-center gap-2">
           {/* Nút bật/tắt Mock Mode chỉ hiển thị khi BE chưa có dữ liệu thật */}
           {!hasRealData && (
@@ -248,8 +269,64 @@ export default function AdminModerationScreen() {
             Làm mới
           </Button>
         </div>
+        )}
       </div>
 
+      {/* Tabs chuyển đổi giữa hàng đợi, nhật ký và lịch sử */}
+      <div className="flex border-b border-border gap-2">
+        <button
+          type="button"
+          onClick={() => handleTabChange("queue")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition",
+            activeTab === "queue"
+              ? "border-brand text-brand"
+              : "border-transparent text-subtle hover:text-ink hover:border-border"
+          )}
+        >
+          <ShieldAlert className="size-4" />
+          <span>Hàng đợi kiểm duyệt</span>
+          {activeCases.length > 0 && (
+            <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-semibold text-warning">
+              {activeCases.length}
+            </span>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleTabChange("logs")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition",
+            activeTab === "logs"
+              ? "border-brand text-brand"
+              : "border-transparent text-subtle hover:text-ink hover:border-border"
+          )}
+        >
+          <History className="size-4" />
+          <span>Nhật ký kiểm duyệt</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleTabChange("history")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition",
+            activeTab === "history"
+              ? "border-brand text-brand"
+              : "border-transparent text-subtle hover:text-ink hover:border-border"
+          )}
+        >
+          <CheckCircle2 className="size-4" />
+          <span>Đã xử lý</span>
+          <span className="rounded-full bg-surface px-1.5 py-0.5 text-[10px] font-medium text-subtle border border-border">
+            Chờ BE
+          </span>
+        </button>
+      </div>
+
+      {activeTab === "queue" && (
+        <>
       {/* Thông tin giải thích cơ chế kiểm duyệt */}
       <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 text-xs text-subtle shadow-sm">
         <Info className="mt-0.5 size-4 shrink-0 text-brand" />
@@ -578,6 +655,49 @@ export default function AdminModerationScreen() {
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+        </>
+      )}
+
+      {/* Tab nhật ký kiểm duyệt */}
+      {activeTab === "logs" && <ModerationLogsSection />}
+
+      {/* Tab đã xử lý (chờ BE B05) */}
+      {activeTab === "history" && (
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card p-12 text-center shadow-sm">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-brand/10 text-brand">
+            <CheckCircle2 className="size-7" />
+          </div>
+          <h3 className="mt-4 font-heading text-lg font-bold text-ink">
+            Lịch sử kiểm duyệt (Chờ Backend - B05)
+          </h3>
+          <p className="mt-2 max-w-lg text-sm text-subtle leading-relaxed">
+            Tính năng xem lịch sử các ca đã duyệt, từ chối bởi AI và Admin (kèm quyết định, lý do, độ tin cậy và người duyệt) đang chờ Backend hoàn thành endpoint <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs text-ink">GET /ai/admin/moderation/history</code> (Task B05 trong BACKEND_COMPLETION_TASKS.md).
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleTabChange("logs")}
+              className="gap-2 text-xs"
+            >
+              <History className="size-3.5" />
+              Xem nhật ký gọi AI
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={() => handleTabChange("queue")}
+              className="gap-2 text-xs"
+            >
+              <ShieldAlert className="size-3.5" />
+              Về hàng đợi chờ duyệt
+            </Button>
           </div>
         </div>
       )}

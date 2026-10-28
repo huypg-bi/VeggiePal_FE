@@ -254,9 +254,20 @@ Tổng cộng 334 mục từ 200 file.
 **Gắn với:** `export default function AdminModerationScreen() {`
 
 > Trang kiểm duyệt nội dung của Admin (/admin/moderation):  
-> - Hàng đợi các case cần duyệt (REVIEW_REQUIRED, cũ nhất trước).  
-> - Hiển thị: caseId, loại nội dung (BLOG, VIDEO, COMMENT), externalContentId, authorId, content (nội dung bị gắn cờ), categories, reason, confidence.  
-> - Hỗ trợ chế độ Mock Data để test giao diện và luồng duyệt/từ chối ngay cả khi BE chưa có dữ liệu.
+> - Giao diện 3 tab điều hướng qua URL param (?tab=queue | logs | history).  
+> - Tab "Hàng đợi kiểm duyệt" (mặc định): Hàng đợi các case cần duyệt (REVIEW_REQUIRED, cũ nhất trước); hiển thị caseId, loại nội dung (BLOG, VIDEO, COMMENT), externalContentId, authorId, content (nội dung bị gắn cờ), categories, reason, confidence; hỗ trợ chế độ Mock Data để test giao diện và luồng duyệt/từ chối ngay cả khi BE chưa có dữ liệu.  
+> - Tab "Nhật ký kiểm duyệt" (ModerationLogsSection): Xem lịch sử các lượt gọi AI kiểm duyệt (GET /ai/admin/monitoring/logs/search?feature=MODERATION) gồm thời gian, tác giả, model, prompt/completion tokens, độ trễ ms, trạng thái thành công/thất bại và bộ lọc theo trạng thái, userId, khoảng ngày.  
+> - Tab "Đã xử lý": Giao diện giữ chỗ thông báo tính năng xem lịch sử các ca đã duyệt/từ chối bởi AI và Admin kèm quyết định, lý do, độ tin cậy và người duyệt (chờ Backend hoàn thành endpoint GET /ai/admin/moderation/history theo task B05).
+
+### features/admin/moderation/components/ModerationLogsSection.jsx
+
+**Gắn với:** `export default function ModerationLogsSection() {`
+
+> Khối nhật ký kiểm duyệt hiển thị các lượt gọi AI kiểm duyệt nội dung trong trang /admin/moderation.  
+> - Gọi GET /ai/admin/monitoring/logs/search với tham số cố định feature=MODERATION thông qua hook useUsageLogs.  
+> - Bộ lọc: trạng thái (Tất cả, SUCCESS, FAILED), mã người dùng userId (có debounce 400ms), khoảng ngày từ ngày - đến ngày.  
+> - Bảng danh sách phân trang 20 dòng / trang ("Trước", "Sau"): hiển thị thời gian, người gọi (dùng describeCaller), model, token vào/ra, độ trễ và badge trạng thái.  
+> - Banner giải thích: phân biệt rõ đây là nhật ký gọi AI của hệ thống, không thay thế tính năng xem quyết định kiểm duyệt chi tiết (B05).
 
 ### features/admin/payments/api/adminPaymentApi.js
 
