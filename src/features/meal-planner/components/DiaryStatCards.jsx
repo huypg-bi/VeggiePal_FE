@@ -11,7 +11,7 @@ import { formatLiters, WATER_GOAL_ML, WATER_QUICK_AMOUNTS } from "@/features/mea
 
 // Hai thẻ ghi nhận nước uống và vận động của ngày đang xem, cùng dáng với các thẻ khác trong StatsGrid.
 
-function CardShell({ icon, label, badge, value, unit, caption, children }) {
+function CardShell({ icon, label, badge, value, unit, action, caption, children }) {
   return (
     <article className="relative flex h-full flex-col gap-3 rounded-2xl bg-card p-5 shadow-md transition hover:shadow-lg">
       {badge && (
@@ -25,12 +25,13 @@ function CardShell({ icon, label, badge, value, unit, caption, children }) {
         </span>
         <span className="flex-1">{label}</span>
       </div>
-      <div className="flex items-baseline gap-1.5">
+      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2">
         <span className="text-2xl font-bold text-ink">{value}</span>
         {unit && <span className="text-sm font-medium text-subtle">{unit}</span>}
+        {action && <span className="ml-2">{action}</span>}
       </div>
-      <p className="text-xs leading-snug text-subtle">{caption}</p>
-      {children && <div className="mt-auto flex flex-wrap gap-2 pt-1">{children}</div>}
+      {children && <div className="flex flex-wrap gap-1.5">{children}</div>}
+      {caption && <p className="mt-auto text-xs leading-snug text-subtle">{caption}</p>}
     </article>
   );
 }
@@ -73,9 +74,7 @@ export function WaterCard({ diary, date, isFutureDay }) {
           ? "Chưa đến ngày này nên chưa ghi được"
           : !diary
             ? "Đang tải nhật ký..."
-            : entries.length === 0
-              ? "Chưa ghi lần uống nào, bấm nút bên dưới mỗi khi uống"
-              : `Đã ghi ${entries.length} lần uống`
+            : undefined
       }
     >
       {WATER_QUICK_AMOUNTS.map((amount) => (
@@ -89,9 +88,16 @@ export function WaterCard({ diary, date, isFutureDay }) {
         </Button>
       ))}
       {entries.length > 0 && (
-        <Button type="button" size="sm" variant="ghost" disabled={disabled} onClick={handleUndo}>
+        <Button
+          type="button"
+          size="icon-sm"
+          variant="ghost"
+          aria-label="Hoàn tác lần uống gần nhất"
+          title="Hoàn tác"
+          disabled={disabled}
+          onClick={handleUndo}
+        >
           {deleteWater.isPending ? <Loader2 className="animate-spin" /> : <Undo2 />}
-          Hoàn tác
         </Button>
       )}
     </CardShell>
@@ -110,6 +116,12 @@ export function ActivityCard({ diary, date, isFutureDay }) {
         label="Vận Động"
         value={diary ? (Number(diary.totalActivityMinutes) || 0).toLocaleString("vi-VN") : "—"}
         unit="phút"
+        action={
+          <Button type="button" size="sm" variant="soft" disabled={!diary || isFutureDay} onClick={() => setOpen(true)}>
+            <Plus />
+            Ghi vận động
+          </Button>
+        }
         caption={
           isFutureDay
             ? "Chưa đến ngày này nên chưa ghi được"
@@ -119,12 +131,7 @@ export function ActivityCard({ diary, date, isFutureDay }) {
                 ? `Gần nhất: ${last.activityType} ${last.minutes} phút`
                 : "Chưa ghi hoạt động nào"
         }
-      >
-        <Button type="button" size="sm" variant="soft" disabled={!diary || isFutureDay} onClick={() => setOpen(true)}>
-          <Plus />
-          Ghi vận động
-        </Button>
-      </CardShell>
+      />
       {open && <ActivityDialog date={date} entries={entries} onClose={() => setOpen(false)} />}
     </>
   );

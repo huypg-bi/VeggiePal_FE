@@ -171,13 +171,12 @@ export default function BlogScreen() {
             ) : (
               <>
                 {posts.map((post) => (
-                  <Reveal key={post.id}>
-                    <BlogPostCard
-                      post={post}
-                      author={authors?.get(post.authorId)}
-                      myVote={myVotes?.get(post.id)}
-                    />
-                  </Reveal>
+                  <BlogPostCard
+                    key={post.id}
+                    post={post}
+                    author={authors?.get(post.authorId)}
+                    myVote={myVotes?.get(post.id)}
+                  />
                 ))}
 
                 {hasNextPage && (
