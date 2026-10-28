@@ -39,7 +39,7 @@
 ## ✨ Tính năng nổi bật
 
 - **🔐 Quản lý tài khoản (Authentication):** Đăng ký, đăng nhập xác thực JWT, bảo vệ đường dẫn riêng tư (Protected Routes).
-- **👤 Hồ sơ cá nhân (Profile):** Quản lý thông tin cá nhân, cập nhật ảnh đại diện và đổi mật khẩu.
+- **👤 Hồ sơ cá nhân (Profile):** Quản lý thông tin cá nhân, cập nhật ảnh đại diện, đổi mật khẩu, xem số người theo dõi & đang theo dõi thật và danh sách theo dõi.
 - **📊 Sức khỏe & Dị ứng (Nutrition):** Ghi nhận chiều cao/cân nặng, theo dõi lịch sử BMI, chọn danh mục thực phẩm dị ứng.
 - **🥗 Thực đơn dinh dưỡng (Meal Planner):** AI lên thực đơn 7 ngày × 3 bữa theo mục tiêu giảm / duy trì / tăng cân (BE tự tính calo từ chỉ số sức khỏe, ngày sinh, giới tính, mức vận động, hoặc tự đặt mục tiêu riêng), nguyên liệu sẵn có và khẩu vị; xem theo ngày, đổi món, chuyển giữa các thực đơn đã lưu *(API thật; thẻ nước, vận động và bữa phụ vẫn là Mock Data)*.
 - **🎥 Khám phá video (Videos):** Xem và đăng tải video nấu món chay (tệp .mp4 hoặc liên kết YouTube), phân trang và lọc theo danh mục, quản lý video cá nhân kèm kiểm duyệt tự động *(API thật)*. Tab "Bóc tách" ở trang Nội dung của tôi cho AI bóc tách nguyên liệu và các bước làm từ video (tệp ≤ 100MB, ≤ 30 phút, lịch sử `GET /ai/videos` theo lượt của gói thành viên). Ở trang xem video, nút "Bóc tách công thức AI" ở `VideoMetaHeader` và thẻ `AiSummaryCard` hiển thị công thức AI dùng chung cho video tải lên (`POST /ai/videos/process-existing`, xem công khai qua `GET /ai/videos/by-video/:videoId`, khách chưa đăng nhập vẫn xem được kết quả có sẵn) *(API thật)*.
