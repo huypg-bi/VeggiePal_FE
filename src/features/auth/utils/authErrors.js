@@ -12,3 +12,10 @@ export function toAuthMessage(res, fallbackMessage, overrides = {}) {
   if (res?.status >= 500) return SERVER_ERROR_MESSAGE;
   return fallbackMessage;
 }
+
+/** Error tiếng Việt kèm `code` của BE, để form phân nhánh theo mã (vd 1023 chưa xác minh, 1029 mã hết hạn). */
+export function toAuthError(res, fallbackMessage, overrides) {
+  return Object.assign(new Error(toAuthMessage(res, fallbackMessage, overrides)), {
+    code: res?.data?.code,
+  });
+}

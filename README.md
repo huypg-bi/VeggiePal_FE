@@ -38,7 +38,7 @@
 
 ## ✨ Tính năng nổi bật
 
-- **🔐 Quản lý tài khoản (Authentication):** Đăng ký, đăng nhập xác thực JWT, bảo vệ đường dẫn riêng tư (Protected Routes).
+- **🔐 Quản lý tài khoản (Authentication):** Đăng ký kèm xác minh email bằng mã OTP, đăng nhập (email hoặc Google), tự làm mới phiên bằng refresh token, quên mật khẩu bằng mã OTP qua email, bảo vệ đường dẫn riêng tư (Protected Routes).
 - **👤 Hồ sơ cá nhân (Profile):** Quản lý thông tin cá nhân, cập nhật ảnh đại diện, đổi mật khẩu, xem số người theo dõi & đang theo dõi thật và danh sách theo dõi.
 - **📊 Sức khỏe & Dị ứng (Nutrition):** Ghi nhận chiều cao/cân nặng, theo dõi lịch sử BMI, chọn danh mục thực phẩm dị ứng.
 - **🥗 Thực đơn dinh dưỡng (Meal Planner):** AI lên thực đơn 7 ngày × 3 bữa theo mục tiêu giảm / duy trì / tăng cân (BE tự tính calo từ chỉ số sức khỏe, ngày sinh, giới tính, mức vận động, hoặc tự đặt mục tiêu riêng), nguyên liệu sẵn có và khẩu vị; xem theo ngày, đổi món, chuyển giữa các thực đơn đã lưu; đánh dấu bữa đã ăn, ghi nước uống và vận động vào nhật ký ăn uống, thẻ calo trong ngày tính theo bữa đã ăn *(API thật; bữa phụ chưa có, lời khuyên hằng ngày vẫn là Mock Data)*.
@@ -146,7 +146,10 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | Method | Endpoint | Mô tả |
 | :--- | :--- | :--- |
 | `POST` | `/auth/login` | Đăng nhập |
-| `POST` | `/auth/register` | Đăng ký |
+| `POST` | `/auth/register` | Đăng ký (tài khoản `PENDING`, BE gửi mã OTP qua email) |
+| `POST` | `/auth/verify-email`, `/auth/resend-verification` | Xác minh email bằng mã 6 số (đăng nhập luôn) / gửi lại mã (cách nhau tối thiểu 60 giây) |
+| `POST` | `/auth/refresh`, `/auth/logout` | Đổi refresh token (dùng một lần) lấy cặp token mới / hủy refresh token của thiết bị |
+| `POST` | `/auth/forgot-password`, `/auth/verify-otp`, `/auth/reset-password` | Quên mật khẩu: gửi mã qua email, đổi mã lấy `resetToken`, đặt mật khẩu mới |
 | `POST` | `/auth/google` | Đăng nhập / đăng ký bằng Google (gửi `idToken`) |
 | `GET` / `PATCH` | `/users/me` | Xem / sửa hồ sơ (họ tên, số điện thoại, ngày sinh, giới tính, mức vận động) |
 | `PUT` | `/users/me/password` | Đổi mật khẩu |

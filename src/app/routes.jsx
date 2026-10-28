@@ -55,6 +55,15 @@ export default function AppRoutes() {
       />
       <Route path="/forgot-password" element={<AuthScreen />} />
       <Route path="/verify-otp" element={<AuthScreen />} />
+      <Route path="/reset-password" element={<AuthScreen />} />
+      <Route
+        path="/verify-email"
+        element={
+          <RedirectIfAuthenticated>
+            <AuthScreen />
+          </RedirectIfAuthenticated>
+        }
+      />
       <Route path="/" element={<HomeScreen />} />
 
       {/* Blog công khai với khách (BE cho GET /blogs không cần token) */}

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Lock } from "lucide-react";
@@ -6,6 +8,7 @@ import { ChevronDown, ChevronUp, Eye, EyeOff, Loader2, Lock } from "lucide-react
 import { changePasswordSchema } from "@/lib/schema";
 import { useChangePassword } from "@/features/profile/hooks/useProfile";
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/features/auth/store/authStore";
 import {
   accordionBodyClass,
   accordionHeaderClass,
@@ -23,6 +26,8 @@ export default function EditPasswordCard() {
   const [open, setOpen] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const changePwd = useChangePassword();
+  const navigate = useNavigate();
+  const logout = useAuthStore((s) => s.logout);
 
   const {
     register,
@@ -42,6 +47,10 @@ export default function EditPasswordCard() {
         newPassword: values.newPassword,
       });
       reset(); // xóa sạch mật khẩu khỏi form sau khi đổi thành công
+      // BE hủy mọi phiên (kể cả thiết bị này) nên phải đăng nhập lại bằng mật khẩu mới.
+      logout();
+      toast.success("Đã đổi mật khẩu, vui lòng đăng nhập lại bằng mật khẩu mới.");
+      navigate("/login", { replace: true });
     } catch (err) {
       // Lỗi từ server (vd: sai mật khẩu hiện tại) hiện ngay dưới form
       setError("root", { message: err.message || "Đổi mật khẩu thất bại" });
