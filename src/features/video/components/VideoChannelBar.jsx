@@ -16,7 +16,10 @@ export default function VideoChannelBar() {
     <div className="flex flex-col gap-2 rounded-3xl border border-border bg-card p-3 shadow-sm">
       <div className="flex items-center justify-between px-1">
         <span className="text-xs font-semibold text-subtle">
-          Kênh ẩm thực đề xuất <span className="text-[11px] font-normal text-subtle/80">(Dữ liệu mẫu)</span>
+          Kênh ẩm thực đề xuất
+        </span>
+        <span className="rounded-full border border-border bg-surface px-2 py-0.5 text-[10px] font-medium text-subtle">
+          Dữ liệu mẫu
         </span>
       </div>
       <div

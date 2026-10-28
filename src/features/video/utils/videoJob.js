@@ -53,7 +53,7 @@ export function recipeStateFromResponse(res) {
   }
   if (code === 6022 || res.status === 409) return { state: "processing" };
   if (code === 6023) return { state: "failed" };
-  if (code === 6026) return { state: "unsupported" };
+  if (code === 6026 || code === 6021) return { state: "unsupported" };
   if (res.status === 404) return { state: "none" };
   return null;
 }
