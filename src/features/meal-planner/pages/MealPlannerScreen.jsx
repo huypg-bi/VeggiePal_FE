@@ -4,7 +4,6 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 import AdviceCard from "@/features/meal-planner/components/AdviceCard";
 import AiMealSuggestion from "@/features/meal-planner/components/AiMealSuggestion";
 import HeroBanner from "@/features/meal-planner/components/HeroBanner";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import MacroBalanceCard from "@/features/meal-planner/components/MacroBalanceCard";
 import StatsGrid from "@/features/meal-planner/components/StatsGrid";
@@ -100,8 +99,6 @@ export default function MealPlannerScreen() {
           </section>
         </Reveal>
       </main>
-
-      <AppFooter />
     </div>
   );
 }

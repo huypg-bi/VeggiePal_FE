@@ -20,7 +20,6 @@ import {
   toFeedSearchParams,
 } from "@/features/blog/utils/feedFilters";
 import { cn } from "@/lib/utils";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
@@ -211,8 +210,6 @@ export default function BlogScreen() {
       </main>
 
       {showFollowList && <FollowListDialog onClose={() => setShowFollowList(false)} />}
-
-      <AppFooter />
     </div>
   );
 }

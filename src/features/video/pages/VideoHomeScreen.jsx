@@ -6,7 +6,6 @@ import TrendingVideoGrid from "@/features/video/components/TrendingVideoGrid";
 import VideoBanner from "@/features/video/components/VideoBanner";
 import VideoChannelBar from "@/features/video/components/VideoChannelBar";
 import { useVideoFeed } from "@/features/video/hooks/useVideos";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
@@ -71,8 +70,6 @@ export default function VideoHomeScreen() {
           onCategoryChange={setCategory}
         />
       </main>
-
-      <AppFooter />
     </div>
   );
 }

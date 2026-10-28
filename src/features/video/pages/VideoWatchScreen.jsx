@@ -9,7 +9,6 @@ import SuggestedVideoList from "@/features/video/components/SuggestedVideoList";
 import VideoMetaHeader from "@/features/video/components/VideoMetaHeader";
 import VideoPlayerFrame from "@/features/video/components/VideoPlayerFrame";
 import { useVideo } from "@/features/video/hooks/useVideos";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
@@ -44,7 +43,6 @@ export default function VideoWatchScreen() {
             Về danh sách video
           </Link>
         </main>
-        <AppFooter />
       </div>
     );
   }
@@ -81,8 +79,6 @@ export default function VideoWatchScreen() {
           </div>
         </div>
       </main>
-
-      <AppFooter />
     </div>
   );
 }

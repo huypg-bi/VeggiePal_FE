@@ -7,7 +7,7 @@ const UPLOAD_TIMEOUT_MS = 600_000;
 // Bóc tách video đã đăng: BE tải tệp từ Cloudinary về và kiểm tra bằng ffprobe trước khi trả 202.
 const PROCESS_EXISTING_TIMEOUT_MS = 120_000;
 
-const EMPTY_PAGE = { content: [], page: 0, size: 0, totalElements: 0, totalPages: 0, first: true, last: true };
+const EMPTY_PAGE = { items: [], page: 0, size: 0, totalElements: 0, totalPages: 0 };
 
 // Lỗi 401/413/429/503 do Spring Security hoặc multipart trả về có thể không kèm mã 60xx nên dựa thêm vào HTTP status.
 function toMessage(res, fallbackMessage) {

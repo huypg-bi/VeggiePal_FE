@@ -90,13 +90,10 @@ export default function AiSummaryCard({ video }) {
         (noQuota ? (
           upgradeHint
         ) : (
-          <>
-            <p className={noteClass}>
-              Video này chưa có công thức AI. Bóc tách sẽ dùng 1 lượt trong tháng của gói thành viên (lượt được hoàn
-              lại nếu không thành công) và kết quả được dùng chung cho mọi người xem video.
-            </p>
-            {runButton("Bóc tách công thức")}
-          </>
+          <p className={noteClass}>
+            Video này chưa có công thức AI. Bóc tách sẽ dùng 1 lượt trong tháng của gói thành viên (lượt được hoàn
+            lại nếu không thành công) và kết quả được dùng chung cho mọi người xem video.
+          </p>
         ))}
 
       {status === "processing" && (

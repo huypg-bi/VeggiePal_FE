@@ -7,7 +7,6 @@ import RecipeCard, { RecipeCardSkeleton } from "@/features/recipe/components/Rec
 import RecipeBanner from "@/features/recipe/components/RecipeBanner";
 import { useRecipeNutrition } from "@/features/recipe/hooks/useRecipeNutrition";
 import { useRecipeFeed } from "@/features/recipe/hooks/useRecipes";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
@@ -140,8 +139,6 @@ export default function RecipeListScreen() {
           </>
         )}
       </main>
-
-      <AppFooter />
     </div>
   );
 }

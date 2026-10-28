@@ -224,11 +224,11 @@ export const VIDEO_JOB_ERROR_MESSAGES = {
   6007: "AI chưa bóc tách được công thức từ video này, vui lòng thử lại",
   6008: "Không xử lý được video này: tệp bị lỗi hoặc dài hơn 30 phút",
   6009: "Tệp video vượt quá dung lượng cho phép (tối đa 100MB)",
-  6020: "Hệ thống đang bận xử lý nhiều video, vui lòng thử lại sau ít phút",
-  6021: "Chưa hỗ trợ bóc tách video YouTube, chỉ bóc tách được video tải lên trực tiếp",
   6022: "Video này đang được bóc tách, vui lòng chờ trong giây lát",
   6023: "Lần bóc tách trước của video này chưa thành công",
   6024: "Video không có đủ thông tin công thức (nguyên liệu kèm số lượng và các bước) để AI bóc tách",
+  6025: "Hệ thống đang bận xử lý nhiều video, vui lòng thử lại sau ít phút",
+  6026: "Chưa hỗ trợ bóc tách video YouTube, chỉ bóc tách được video tải lên trực tiếp",
   6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
 };
 

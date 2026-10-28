@@ -20,7 +20,6 @@ import {
 } from "@/features/blog/utils/blogFormat";
 import StatusBadge from "@/features/my-content/components/StatusBadge";
 import { canEditBlog, getBlogStatusInfo } from "@/features/my-content/utils/statusInfo";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import FallbackImage from "@/shared/components/FallbackImage";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
@@ -171,8 +170,6 @@ export default function BlogDetailScreen() {
           onClose={() => setShowFollowers(false)}
         />
       )}
-
-      <AppFooter />
     </div>
   );
 }

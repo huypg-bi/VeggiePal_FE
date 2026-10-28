@@ -10,7 +10,6 @@ import MyVideoJobList from "@/features/my-content/components/MyVideoJobList";
 import MyVideoList from "@/features/my-content/components/MyVideoList";
 import UploadVideoJobDialog from "@/features/video/components/UploadVideoJobDialog";
 import { cn } from "@/lib/utils";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 
 const TABS = [
@@ -96,8 +95,6 @@ export default function MyContentScreen() {
       </main>
 
       <UploadVideoJobDialog open={uploadOpen} onOpenChange={setUploadOpen} />
-
-      <AppFooter />
     </div>
   );
 }

@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { XCircle, ArrowLeft, Home, HelpCircle } from "lucide-react";
 
 import AppHeader from "@/shared/components/AppHeader";
-import AppFooter from "@/shared/components/AppFooter";
 import Reveal from "@/shared/components/Reveal";
 import { Button } from "@/components/ui/button";
 import { PENDING_ORDER_STORAGE_KEY } from "@/features/payment/utils/paymentFormat";
@@ -64,8 +63,6 @@ export default function PaymentCancelScreen() {
           </div>
         </Reveal>
       </main>
-
-      <AppFooter />
     </div>
   );
 }
