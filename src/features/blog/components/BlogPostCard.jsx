@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Eye, ImageOff } from "lucide-react";
 
 import AuthorAvatar from "@/features/blog/components/AuthorAvatar";
+import FollowButton from "@/features/blog/components/FollowButton";
 import VoteButton from "@/features/blog/components/VoteButton";
 import {
   FALLBACK_AUTHOR_NAME,
@@ -19,7 +20,11 @@ export default function BlogPostCard({ post, author, myVote }) {
       <header className="flex items-center gap-3">
         <AuthorAvatar author={author} />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-semibold text-ink">{authorName}</p>
+          <div className="flex items-center gap-2">
+            <p className="truncate text-sm font-semibold text-ink">{authorName}</p>
+            {/* Tác giả không resolve được (tài khoản không hoạt động) thì BE không cho theo dõi nên ẩn nút. */}
+            {author && <FollowButton userId={post.authorId} className="shrink-0" />}
+          </div>
           <p className="text-xs text-subtle">
             {formatTimeAgo(post.publishedAt ?? post.createdAt)}
           </p>

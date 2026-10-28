@@ -93,3 +93,12 @@ export async function uploadBlogThumbnail(id, file) {
   });
   return unwrap(res, "Tải ảnh bìa thất bại");
 }
+
+/**
+ * GET /blogs/feed/following — bài đã đăng của những người tôi theo dõi (mới đăng trước), cần đăng nhập.
+ * Chưa theo dõi ai thì trả trang rỗng; lấy danh sách theo dõi lỗi thì 503 / 3070, không rơi về feed chung.
+ */
+export async function getFollowingBlogs({ page = 0, size = 10 } = {}) {
+  const res = await apiClient.get("/blogs/feed/following", { params: { page, size } });
+  return unwrap(res, "Không lấy được bài viết từ người bạn theo dõi") ?? EMPTY_PAGE;
+}

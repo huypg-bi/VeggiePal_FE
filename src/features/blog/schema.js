@@ -2,6 +2,7 @@ import { z } from "zod";
 
 // Import tương đối (không dùng alias @/) để `npm test` (node --test) tự resolve được file này.
 import { MAX_COMMENT_CHARS, MAX_COMMENT_WORDS, countWords } from "./utils/commentText.js";
+import { countCodePoints } from "./utils/textLength.js";
 
 // Form viết / sửa bình luận, khớp luật của CommentRequest ở blog-service.
 export const commentSchema = z.object({
@@ -17,6 +18,8 @@ export const commentSchema = z.object({
 
 export const BLOG_TITLE_MAX = 150;
 export const BLOG_CONTENT_MIN = 20;
+// BE (lỗi 3016) giới hạn theo ký tự Unicode, tính cả markup và khoảng trắng, không phải byte.
+export const BLOG_CONTENT_MAX = 50000;
 
 export const blogSchema = z.object({
   title: z
@@ -29,7 +32,10 @@ export const blogSchema = z.object({
     .string()
     .trim()
     .min(1, "Vui lòng nhập nội dung bài viết")
-    .min(BLOG_CONTENT_MIN, `Nội dung tối thiểu ${BLOG_CONTENT_MIN} ký tự`),
+    .min(BLOG_CONTENT_MIN, `Nội dung tối thiểu ${BLOG_CONTENT_MIN} ký tự`)
+    .refine((text) => countCodePoints(text) <= BLOG_CONTENT_MAX, {
+      message: `Nội dung tối đa ${BLOG_CONTENT_MAX.toLocaleString("vi-VN")} ký tự`,
+    }),
 });
 
 export const CATEGORY_NAME_MAX = 100;

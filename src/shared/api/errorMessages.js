@@ -77,6 +77,7 @@ export const BLOG_ERROR_MESSAGES = {
   3013: "Nội dung bài viết tối thiểu 20 ký tự",
   3014: "Bài viết không tồn tại hoặc chưa được đăng",
   3015: "Bài viết đang ở trạng thái không cho phép thao tác này",
+  3016: "Nội dung bài viết tối đa 50.000 ký tự, bạn hãy rút gọn bớt",
   3020: "Vui lòng chọn ảnh bìa",
   3021: "Ảnh bìa phải là JPEG, PNG hoặc WEBP",
   3022: "Ảnh bìa không được vượt quá 5MB",
@@ -93,6 +94,17 @@ export const BLOG_ERROR_MESSAGES = {
   3050: "Hệ thống kiểm duyệt tạm thời không khả dụng, vui lòng thử lại sau",
   3051: "Kết quả kiểm duyệt không hợp lệ, vui lòng thử lại sau",
   3052: "Dữ liệu kiểm duyệt không khớp tác giả",
+  3070: "Chưa lấy được danh sách người bạn theo dõi, vui lòng thử lại sau",
+};
+
+// identity-service (10xx), theo dõi người dùng
+export const FOLLOW_ERROR_MESSAGES = {
+  1001: INVALID_DATA,
+  1007: "Không tìm thấy người dùng này",
+  1008: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
+  1009: "Bạn không có quyền thực hiện thao tác này",
+  1018: INVALID_DATA,
+  1020: "Bạn không thể tự theo dõi chính mình",
 };
 
 // blog-service (30xx), video
