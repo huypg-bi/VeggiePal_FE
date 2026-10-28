@@ -39,7 +39,7 @@
 ## ✨ Tính năng nổi bật
 
 - **🔐 Quản lý tài khoản (Authentication):** Đăng ký, đăng nhập xác thực JWT, bảo vệ đường dẫn riêng tư (Protected Routes).
-- **👤 Hồ sơ cá nhân (Profile):** Quản lý thông tin cá nhân, cập nhật ảnh đại diện và đổi mật khẩu.
+- **👤 Hồ sơ cá nhân (Profile):** Quản lý thông tin cá nhân, cập nhật ảnh đại diện, đổi mật khẩu, xem số người theo dõi & đang theo dõi thật và danh sách theo dõi.
 - **📊 Sức khỏe & Dị ứng (Nutrition):** Ghi nhận chiều cao/cân nặng, theo dõi lịch sử BMI, chọn danh mục thực phẩm dị ứng.
 - **🥗 Thực đơn dinh dưỡng (Meal Planner):** AI lên thực đơn 7 ngày × 3 bữa theo mục tiêu giảm / duy trì / tăng cân (BE tự tính calo từ chỉ số sức khỏe, ngày sinh, giới tính, mức vận động, hoặc tự đặt mục tiêu riêng), nguyên liệu sẵn có và khẩu vị; xem theo ngày, đổi món, chuyển giữa các thực đơn đã lưu; đánh dấu bữa đã ăn, ghi nước uống và vận động vào nhật ký ăn uống, thẻ calo trong ngày tính theo bữa đã ăn *(API thật; bữa phụ chưa có, lời khuyên hằng ngày vẫn là Mock Data)*.
 - **📝 Cộng đồng (Blog):** Đăng và đọc bài viết (tối đa 50.000 ký tự; bài được AI kiểm duyệt nền nên đăng xong ở trạng thái chờ, trang chi tiết tự cập nhật khi AI xét xong), bình luận, thả tim, tìm kiếm / sắp xếp / lọc danh mục, theo dõi tác giả, xem tab "Đang theo dõi" và danh sách người theo dõi *(API thật; bảng vàng, chủ đề và thử thách tuần vẫn là Mock Data)*.

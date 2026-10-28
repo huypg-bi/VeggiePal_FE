@@ -1759,6 +1759,15 @@ Tổng cộng 334 mục từ 200 file.
 > - submitSlot: phần tử DOM (ở đầu thẻ) để đặt nút "Ghi nhận"; nút vẫn thuộc form này (gắn bằng thuộc tính `form`)  
 >  nên trạng thái "Đang ghi…" vẫn đúng. Không truyền thì nút nằm ngay cuối form.
 
+### features/profile/components/ProfileBanner.jsx
+
+**Gắn với:** `export default function ProfileBanner({ profile }) {`
+
+> Thẻ đầu trang cá nhân (ảnh bìa, ảnh đại diện, danh hiệu, gói tài khoản, nút sửa hồ sơ và 5 chỉ số).
+> - Số người theo dõi và đang theo dõi lấy từ API thật `GET /users/{id}/follow-stats` qua `useFollowStats`, bấm vào ô mở `FollowListDialog` để xem danh sách và theo dõi / bỏ theo dõi.
+> - Lượt lưu công thức giữ mock có nhãn "đợi BE làm" (chờ BE phát triển theo D21.2).
+> - Thẻ BMI lấy từ bản ghi sức khỏe mới nhất, bài viết & video lấy từ tổng thực tế blog và recipe của người dùng.
+
 ### features/profile/hooks/useAllergyDraft.js
 
 **Gắn với:** `export function useAllergyDraft() {`
