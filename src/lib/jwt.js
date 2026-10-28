@@ -1,6 +1,3 @@
-// Đọc thời điểm hết hạn (claim "exp") từ JWT ở phía client. Chỉ để UI biết khi nào
-// nên tự đăng xuất — KHÔNG thay cho việc server kiểm tra token.
-
 /** Trả về thời điểm hết hạn (ms, kiểu Date.now()) hoặc null nếu không đọc được. */
 export function getTokenExpiryMs(token) {
   try {

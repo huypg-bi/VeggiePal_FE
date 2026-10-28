@@ -9,13 +9,6 @@ export function createLocalId(prefix = "id") {
   return `${prefix}-${Date.now().toString(36)}-${random}`;
 }
 
-/**
- * Xác định session nên active sau khi xoá `deletedId`.
- * - Nếu session bị xoá không phải session đang active, giữ nguyên active hiện tại.
- * - Nếu đang active bị xoá, chuyển sang session gần nhất còn lại (sessions cần
- *   được sắp xếp sẵn theo thời gian — BE đã trả về theo updatedAt giảm dần).
- * - Nếu không còn session nào, trả về null (= đoạn chat mới).
- */
 export function pickNextActiveSessionId(sessions, deletedId, currentActiveId) {
   if (currentActiveId !== deletedId) return currentActiveId;
   const remaining = sessions.filter((s) => s.id !== deletedId);
@@ -57,10 +50,6 @@ export function toMessageItem(message) {
   };
 }
 
-/**
- * Phiên khách còn dùng được không. BE trả `expiresAt` dạng LocalDateTime
- * (không có múi giờ) nên chừa 60 giây đệm để tránh gửi sát giờ hết hạn.
- */
 export function isGuestSessionValid(stored, now = new Date()) {
   if (!stored?.guestSession || !stored?.expiresAt) return false;
   const expires = new Date(stored.expiresAt).getTime();
@@ -68,10 +57,6 @@ export function isGuestSessionValid(stored, now = new Date()) {
   return expires - 60_000 > now.getTime();
 }
 
-/**
- * Dịch lỗi của ai-service (ErrorCode 6000-6999) sang thông báo tiếng Việt.
- * BE trả message tiếng Anh nên không hiển thị trực tiếp cho người dùng.
- */
 export function getChatErrorMessage(error, { guest = false } = {}) {
   const code = error?.code;
   const status = error?.status;

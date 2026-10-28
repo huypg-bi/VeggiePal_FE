@@ -13,7 +13,7 @@ import {
   successBoxClass,
 } from "@/features/profile/utils/editProfileConstants";
 
-/** Accordion "Thông tin cá nhân" — nhận form từ usePersonalInfoForm. */
+/** Accordion "Thông tin cá nhân" (họ tên, số điện thoại) — nhận form từ usePersonalInfoForm. */
 export default function EditPersonalInfoCard({ personal }) {
   const { form, profile, updateProfile, open, toggleOpen, saving, profileLoading } = personal;
   const { errors, isDirty } = form.formState;
@@ -29,7 +29,7 @@ export default function EditPersonalInfoCard({ personal }) {
             <h4 className="text-xs sm:text-sm font-bold text-ink">
               Thông tin cá nhân
             </h4>
-            <p className="text-[10px] text-subtle">Họ tên, số điện thoại, ngày sinh</p>
+            <p className="text-[10px] text-subtle">Họ tên, số điện thoại</p>
           </div>
         </div>
         {open ? (
@@ -70,21 +70,6 @@ export default function EditPersonalInfoCard({ personal }) {
               {...form.register("phone")}
             />
             {errors.phone && <span className={errorTextClass}>{errors.phone.message}</span>}
-          </div>
-
-          <div>
-            <label htmlFor="edit-birthDate" className={labelClass}>
-              Ngày sinh
-            </label>
-            <input
-              id="edit-birthDate"
-              type="date"
-              autoComplete="bday"
-              aria-invalid={Boolean(errors.birthDate)}
-              className={inputClass}
-              {...form.register("birthDate")}
-            />
-            {errors.birthDate && <span className={errorTextClass}>{errors.birthDate.message}</span>}
           </div>
 
           <div>

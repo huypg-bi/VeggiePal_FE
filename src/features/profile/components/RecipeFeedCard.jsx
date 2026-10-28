@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Eye, ImageOff, Loader2 } from "lucide-react";
+import { Eye, ImageOff, Loader2, ArrowRight, Clock, Sprout } from "lucide-react";
 
 import BlogPostCard from "@/features/blog/components/BlogPostCard";
 import AuthorAvatar from "@/features/blog/components/AuthorAvatar";
@@ -108,13 +108,13 @@ export default function RecipeFeedCard() {
             {(item.servings != null || totalMinutes > 0) && (
               <div className="mt-3 flex flex-wrap items-center gap-2 text-xs font-semibold">
                 {item.servings != null && (
-                  <span className="px-2.5 py-1 rounded-lg bg-brand-soft text-brand">
-                    🌱 {item.servings} khẩu phần
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-brand-soft text-brand">
+                    <Sprout className="size-3.5" /> {item.servings} khẩu phần
                   </span>
                 )}
                 {totalMinutes > 0 && (
-                  <span className="px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300">
-                    ⚡ {totalMinutes} phút
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300">
+                    <Clock className="size-3.5" /> {totalMinutes} phút
                   </span>
                 )}
               </div>
@@ -158,9 +158,9 @@ export default function RecipeFeedCard() {
               )}
               <Link
                 to={item.link}
-                className="ml-auto text-sm font-medium text-brand transition hover:underline"
+                className="ml-auto inline-flex items-center gap-1 text-sm font-medium text-brand transition hover:underline"
               >
-                Xem chi tiết →
+                Xem chi tiết <ArrowRight className="size-4" />
               </Link>
             </footer>
           </article>

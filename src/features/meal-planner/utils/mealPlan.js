@@ -89,11 +89,6 @@ export function toRounded(value) {
   return Number.isFinite(n) && n > 0 ? Math.round(n) : 0;
 }
 
-/**
- * Tỉ lệ năng lượng (%) của tinh bột / đạm / béo trong một ngày, tổng đúng 100.
- * Quy đổi theo năng lượng: đạm 4 kcal/g, tinh bột 4 kcal/g, béo 9 kcal/g.
- * Trả null khi chưa có dữ liệu (tổng bằng 0).
- */
 export function macroPercentages(totals) {
   const energy = {
     carb: Math.max(0, Number(totals?.carbohydrate) || 0) * 4,
@@ -141,15 +136,17 @@ function describeRange(min, max, unit) {
   return "";
 }
 
-/**
- * Các chất mà ngày này lệch khỏi mục tiêu (ngoài dung sai của BE), lấy từ `day.targetDeviations`.
- * BE không từ chối thực đơn mà chỉ đánh dấu: `targetMet: false` + `targetDeviations: { protein: { actual, min?, max? } }`.
- * Trả mảng { key, label, unit, actual, range } theo thứ tự năng lượng, đạm, tinh bột, béo; rỗng khi ngày đạt
- * mục tiêu, không đặt mục tiêu hoặc thực đơn cũ chưa có hai trường này.
- */
 export function dayTargetDeviations(day) {
+  return day?.targetMet === true ? [] : listDeviations(day);
+}
+
+export function dayMacroNotes(day) {
+  return day?.targetMet === true ? listDeviations(day) : [];
+}
+
+function listDeviations(day) {
   const deviations = day?.targetDeviations;
-  if (day?.targetMet === true || !deviations || typeof deviations !== "object") return [];
+  if (!deviations || typeof deviations !== "object") return [];
 
   return TARGET_METRICS.filter(({ key }) => deviations[key] && typeof deviations[key] === "object").map(
     ({ key, label, unit }) => {
@@ -186,10 +183,6 @@ export function findDayByKey(planBody, key) {
   return days.find((day) => normalizeDay(day.day) === normalizeDay(key)) ?? null;
 }
 
-/**
- * Dựng `edits` gửi BE cho một bữa: đổi món thì REPLACE (kèm khẩu phần chọn, vì BE mặc định giữ khẩu phần cũ),
- * chỉ đổi khẩu phần thì UPDATE_SERVING. Không đổi gì thì trả mảng rỗng.
- */
 export function buildMealEdits({ day, mealType, currentRecipeId, currentMultiplier = 1, recipeId, multiplier }) {
   if (recipeId !== currentRecipeId) {
     return [{ day, mealType, action: "REPLACE", recipeId, servingMultiplier: multiplier }];
@@ -202,10 +195,6 @@ export function buildMealEdits({ day, mealType, currentRecipeId, currentMultipli
 
 const TARGET_SUFFIX ={ calories: "Calories", protein: "Protein", carbohydrate: "Carbohydrate", fat: "Fat" };
 
-/**
- * Các mốc mục tiêu (dailyNutritionTarget) thành dòng chữ cho từng chất, bỏ chất không đặt mốc nào.
- * Trả mảng { key, label, unit, range }, ví dụ { label: "Đạm", range: "≥ 80 g" }.
- */
 export function targetRangeLines(target) {
   if (!target) return [];
   return TARGET_METRICS.map(({ key, label, unit }) => ({
@@ -216,10 +205,6 @@ export function targetRangeLines(target) {
   })).filter((line) => line.range);
 }
 
-/**
- * Năng lượng / đạm / tinh bột / béo trung bình mỗi ngày của phần `plan` (có days[].nutritionTotals),
- * làm tròn số nguyên. Trả null khi chưa có ngày nào có nutritionTotals.
- */
 export function averageDailyTotals(planBody) {
   const days = Array.isArray(planBody?.days) ? planBody.days.filter((day) => day?.nutritionTotals) : [];
   if (days.length === 0) return null;
@@ -245,16 +230,18 @@ export const TARGET_FIELDS = [
   "maxFat",
 ];
 
-/** "1,500" / "1500,5" / "1500.5" -> số. Chuỗi rỗng hoặc không phải số -> NaN. */
+// Số có dấu phân cách hàng nghìn: nhóm đúng 3 chữ số, nhóm đầu 1-3 chữ số không bắt đầu bằng 0 (nên "0,500" vẫn là 0,5).
+const EN_GROUPED_NUMBER = /^[1-9]\d{0,2}(,\d{3})+(\.\d+)?$/; // 1,500 / 1,500.5
+const VI_GROUPED_NUMBER = /^[1-9]\d{0,2}(\.\d{3})+(,\d+)?$/; // 1.500 / 1.500,5
+
 export function parseTargetNumber(text) {
-  const clean = String(text ?? "").trim().replace(",", ".");
-  return clean === "" ? Number.NaN : Number(clean);
+  const clean = String(text ?? "").trim();
+  if (clean === "") return Number.NaN;
+  if (EN_GROUPED_NUMBER.test(clean)) return Number(clean.replaceAll(",", ""));
+  if (VI_GROUPED_NUMBER.test(clean)) return Number(clean.replaceAll(".", "").replace(",", "."));
+  return Number(clean.replace(",", "."));
 }
 
-/**
- * Dựng dailyNutritionTarget từ các ô nhập (chuỗi). Ô trống bị bỏ qua; không có ô nào thì
- * trả undefined để KHÔNG gửi mục tiêu (khỏi ràng buộc thực đơn không cần thiết).
- */
 export function buildNutritionTarget(values) {
   const target = {};
   for (const field of TARGET_FIELDS) {
@@ -264,11 +251,84 @@ export function buildNutritionTarget(values) {
   return Object.keys(target).length > 0 ? target : undefined;
 }
 
-/** Payload cho POST /ai/meal-plans từ giá trị form + nguyên liệu/khẩu vị đã chọn. */
-export function buildGeneratePayload({ name, healthGoal, preferences, ingredients, target }) {
+/** Hai mục tiêu (kết quả của buildNutritionTarget) có giống nhau không; undefined = không đặt mục tiêu riêng. */
+export function sameTarget(a, b) {
+  const left = a ?? {};
+  const right = b ?? {};
+  return TARGET_FIELDS.every((field) => left[field] === right[field]);
+}
+
+export function buildHealthUpdateBody({ confirm, customTarget, changeSummary }) {
+  const body = { confirm: Boolean(confirm) };
+  if (customTarget && Object.keys(customTarget).length > 0) body.customTarget = customTarget;
+  const summary = String(changeSummary ?? "").trim();
+  if (summary) body.changeSummary = summary;
+  return body;
+}
+
+// Mục tiêu của thực đơn, giá trị khớp enum GoalType của BE. `label` cũng là mô tả mặc định gửi vào `healthGoal`.
+export const GOAL_OPTIONS = [
+  { value: "LOSE", label: "Giảm cân", hint: "Ăn ít hơn nhu cầu khoảng 15%" },
+  { value: "MAINTAIN", label: "Duy trì", hint: "Ăn đúng nhu cầu mỗi ngày" },
+  { value: "GAIN", label: "Tăng cân", hint: "Ăn nhiều hơn nhu cầu khoảng 15%" },
+];
+
+/** Nhãn tiếng Việt của goalType; thực đơn cũ chưa có goalType (null) hoặc giá trị lạ thì trả chuỗi rỗng. */
+export function goalLabel(goalType) {
+  return GOAL_OPTIONS.find((option) => option.value === goalType)?.label ?? "";
+}
+
+export function planGoalNote(plan) {
+  const goal = String(plan?.goal ?? "").trim();
+  const label = goalLabel(plan?.goalType);
+  if (!label) return goal;
+  if (goal === label) return "";
+  return goal.startsWith(`${label}: `) ? goal.slice(label.length + 2) : goal;
+}
+
+/** Mục tiêu của thực đơn trên một dòng: "Giảm cân · ăn thanh đạm", "Duy trì", hoặc nguyên `goal` với thực đơn cũ. */
+export function planGoalSummary(plan) {
+  const label = goalLabel(plan?.goalType);
+  const note = planGoalNote(plan);
+  if (!label) return note;
+  return note ? `${label} · ${note}` : label;
+}
+
+// BE chỉ tự tính mục tiêu calo cho người từ 18 tuổi trở lên (lỗi 6021).
+const ADULT_AGE = 18;
+
+export function missingProfileFields(profile) {
+  if (!profile) return [];
+  return ["dateOfBirth", "gender", "activityLevel"].filter((field) => !profile[field]);
+}
+
+export function profileFixState(missingFields = []) {
+  return { missingFields, returnTo: "/meal-planner", returnLabel: "Quay lại thực đơn" };
+}
+
+export function profileTargetIssue(profile, today = new Date()) {
+  if (!profile) return null;
+  if (!profile.dateOfBirth || !profile.gender || !profile.activityLevel) return "incomplete";
+
+  const [year, month, day] = String(profile.dateOfBirth).slice(0, 10).split("-").map(Number);
+  if (![year, month, day].every(Number.isFinite)) return "incomplete";
+
+  const hadBirthday = today.getMonth() + 1 > month || (today.getMonth() + 1 === month && today.getDate() >= day);
+  const age = today.getFullYear() - year - (hadBirthday ? 0 : 1);
+  return age < ADULT_AGE ? "underage" : null;
+}
+
+export function buildHealthGoalText(goalType, note) {
+  const label = goalLabel(goalType);
+  const extra = String(note ?? "").trim();
+  return extra ? `${label}: ${extra}` : label;
+}
+
+export function buildGeneratePayload({ name, goalType, healthNote, preferences, ingredients, target }) {
   const payload = {
     name: name.trim(),
-    healthGoal: healthGoal.trim(),
+    goalType,
+    healthGoal: buildHealthGoalText(goalType, healthNote),
     preferences: preferences.map((p) => p.trim()).filter(Boolean),
     availableIngredients: ingredients.map((i) => i.trim()).filter(Boolean),
   };
@@ -289,20 +349,12 @@ export function weekStart(date = new Date()) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate() - ((date.getDay() + 6) % 7));
 }
 
-/**
- * Tên gợi ý cho thực đơn mới: cả tuần T2 -> CN chứa ngày tạo, ví dụ tạo ngày 17/10 -> "Thực đơn 12/10 - 18/10".
- * BE chỉ lưu thứ (MONDAY..SUNDAY) chứ không lưu ngày cụ thể, nên lấy tuần lịch là khớp nhất với dữ liệu.
- */
 export function defaultPlanName(date = new Date()) {
   const start = weekStart(date);
   const end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
   return `Thực đơn ${formatDayMonth(start)} - ${formatDayMonth(end)}`;
 }
 
-/**
- * Ngày cụ thể của một thứ trong thực đơn, tính theo tuần chứa ngày tạo (`plan.createdAt`).
- * Trả null khi thiếu createdAt / thứ lạ.
- */
 export function planDayDate(plan, dayKey) {
   const index = DAY_ORDER.indexOf(normalizeDay(dayKey));
   const created = new Date(plan?.createdAt);
@@ -341,4 +393,36 @@ export function formatDateTime(iso) {
 export function replacePlanInList(list, updated) {
   if (!Array.isArray(list)) return list;
   return list.map((plan) => (plan.id === updated.id ? updated : plan));
+}
+
+/** "YYYY-MM-DD" theo giờ máy người dùng (không dùng toISOString vì nó đổi sang UTC và có thể lệch ngày). */
+export function toDateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/** `date` có nằm sau hôm nay không (so theo ngày, bỏ qua giờ). BE chưa chặn ngày tương lai (task B02) nên FE tự chặn. */
+export function isFutureDate(date, now = new Date()) {
+  const day = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return day.getTime() > today.getTime();
+}
+
+/** Bản ghi "đã ăn" của một bữa trong thực đơn `planId` ở nhật ký đã tải; không có thì undefined. */
+export function findMealEntry(diary, planId, mealType) {
+  const entries = Array.isArray(diary?.meals) ? diary.meals : [];
+  return entries.find(
+    (entry) => entry.mealPlanId === planId && normalizeDay(entry.mealType) === normalizeDay(mealType),
+  );
+}
+
+// Nhật ký chưa có mục tiêu nước từ BE; lấy theo lời khuyên 2 - 2,5 L/ngày ở AdviceCard.
+export const WATER_GOAL_ML = 2000;
+export const WATER_QUICK_AMOUNTS = [250, 500];
+
+/** 1750 -> "1,75" (lít). */
+export function formatLiters(ml) {
+  return (Number(ml) / 1000).toLocaleString("vi-VN", { maximumFractionDigits: 2 });
 }

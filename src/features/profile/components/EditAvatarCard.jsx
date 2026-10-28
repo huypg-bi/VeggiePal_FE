@@ -77,12 +77,9 @@ export default function EditAvatarCard({ profile, loading, error }) {
           />
         </div>
         <div className="min-w-0">
-          <div className="flex items-center gap-1.5">
-            <h3 className="truncate font-bold text-ink text-base">
-              {displayName}
-            </h3>
-            <span className="text-brand text-xs font-bold">✓</span>
-          </div>
+          <h3 className="truncate font-bold text-ink text-base">
+            {displayName}
+          </h3>
           <p className="text-xs text-subtle">{roleText}</p>
         </div>
       </div>

@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 
 import AppHeader from "@/shared/components/AppHeader";
-import AppFooter from "@/shared/components/AppFooter";
 import Reveal from "@/shared/components/Reveal";
 import { Button } from "@/components/ui/button";
 import { usePaymentHistory } from "@/features/payment/hooks/usePaymentHistory";
@@ -20,6 +19,7 @@ import {
   formatVnd,
   formatDateTime,
   getPaymentStatusInfo,
+  isOrderResumable,
   PLAN_DETAILS,
 } from "@/features/payment/utils/paymentFormat";
 import { cn } from "@/lib/utils";
@@ -131,7 +131,7 @@ export default function PaymentHistoryScreen() {
                       <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-surface text-ink">
                         {order.status === "PAID" ? (
                           <CheckCircle2 className="size-5 text-emerald-600 dark:text-emerald-400" />
-                        ) : order.status === "FAILED" ? (
+                        ) : order.status === "FAILED" || order.status === "CANCELLED" ? (
                           <XCircle className="size-5 text-destructive" />
                         ) : (
                           <Clock className="size-5 text-amber-600 dark:text-amber-400" />
@@ -170,6 +170,17 @@ export default function PaymentHistoryScreen() {
                         </p>
                       </div>
 
+                      {isOrderResumable(order) && (
+                        <Button
+                          type="button"
+                          size="sm"
+                          render={<Link to={`/checkout/${order.id}`} />}
+                          className="rounded-full font-semibold"
+                        >
+                          Tiếp tục thanh toán
+                        </Button>
+                      )}
+
                       <span
                         className={cn(
                           "inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold shrink-0",
@@ -186,8 +197,6 @@ export default function PaymentHistoryScreen() {
           )}
         </div>
       </main>
-
-      <AppFooter />
     </div>
   );
 }

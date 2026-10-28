@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   Sparkles,
@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 
 import AppHeader from "@/shared/components/AppHeader";
-import AppFooter from "@/shared/components/AppFooter";
 import Reveal from "@/shared/components/Reveal";
 import { Button } from "@/components/ui/button";
 import { useRequireLogin } from "@/features/auth/hooks/useRequireLogin";
@@ -28,6 +27,7 @@ export default function PricingScreen() {
   const { plans, loading: loadingPlans, error: plansError, refetch: refetchPlans } = usePlans();
   const { subscription, loading: loadingSub } = useMySubscription();
   const checkoutMutation = useCheckout();
+  const navigate = useNavigate();
   const { isAuthenticated, requireLogin } = useRequireLogin();
 
   const [confirmPlan, setConfirmPlan] = useState(null);
@@ -59,10 +59,10 @@ export default function PricingScreen() {
       if (order?.id) {
         sessionStorage.setItem(PENDING_ORDER_STORAGE_KEY, String(order.id));
       }
-      if (order?.checkoutUrl) {
-        window.location.href = order.checkoutUrl;
+      if (order?.id) {
+        navigate(`/checkout/${order.id}`);
       } else {
-        toast.error("Không nhận được liên kết thanh toán từ cổng payOS");
+        toast.error("Không nhận được thông tin đơn thanh toán");
       }
     } catch (err) {
       toast.error(err.message || "Không thể tạo giao dịch thanh toán");
@@ -241,8 +241,6 @@ export default function PricingScreen() {
           </div>
         </Reveal>
       </main>
-
-      <AppFooter />
 
       {/* Hộp thoại xác nhận đổi gói */}
       {confirmPlan && (

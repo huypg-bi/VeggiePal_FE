@@ -1,30 +1,31 @@
+import { useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, Eye, ImageOff } from "lucide-react";
+import { ArrowLeft, Eye, ImageOff, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import AuthorAvatar from "@/features/blog/components/AuthorAvatar";
 import CommentSection from "@/features/blog/components/CommentSection";
+import FollowButton from "@/features/blog/components/FollowButton";
+import FollowListDialog from "@/features/blog/components/FollowListDialog";
 import RelatedBlogs from "@/features/blog/components/RelatedBlogs";
 import VoteButton from "@/features/blog/components/VoteButton";
 import { useMyVotes } from "@/features/blog/hooks/useBlogVotes";
 import { useBlog } from "@/features/blog/hooks/useBlogs";
+import { useFollowStats } from "@/features/blog/hooks/useFollow";
+import { useReviewResultToast } from "@/features/blog/hooks/useReviewPolling";
 import {
   FALLBACK_AUTHOR_NAME,
   formatCompactNumber,
   formatTimeAgo,
 } from "@/features/blog/utils/blogFormat";
+import { getBlogReviewNote, isAiReviewing } from "@/features/blog/utils/blogModeration";
 import StatusBadge from "@/features/my-content/components/StatusBadge";
 import { canEditBlog, getBlogStatusInfo } from "@/features/my-content/utils/statusInfo";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import FallbackImage from "@/shared/components/FallbackImage";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-// Trang đọc một bài (route /blog/:blogId), công khai. Nội dung BE lưu là text thuần,
-// nên hiển thị bằng text (giữ xuống dòng) chứ không render HTML.
-// Chủ bài / ADMIN (kèm token) còn mở được bài chưa đăng: lúc đó hiện nhãn trạng thái và ẩn vote,
-// bình luận, bài liên quan vì những phần này chỉ dành cho bài đã đăng.
 export default function BlogDetailScreen() {
   const { blogId } = useParams();
   const navigate = useNavigate();
@@ -37,8 +38,12 @@ export default function BlogDetailScreen() {
   const isPublished = blog?.status === "PUBLISHED";
   const { data: authors } = usePublicUsers(blog ? [blog.authorId] : []);
   const author = blog ? authors?.get(blog.authorId) : undefined;
+  const { data: followStats } = useFollowStats(blog?.authorId);
+  const [showFollowers, setShowFollowers] = useState(false);
   const { data: myVotes } = useMyVotes(isPublished ? [blog.id] : []);
   const statusInfo = getBlogStatusInfo(blog?.status);
+  const reviewNote = getBlogReviewNote(blog);
+  useReviewResultToast(blog);
   // Chỉ tác giả mới có nút sửa ở đây (admin xem để kiểm duyệt, không sửa hộ).
   const canEdit = blog && blog.authorId === user?.id && canEditBlog(blog.status);
 
@@ -49,10 +54,6 @@ export default function BlogDetailScreen() {
     <div className="min-h-dvh">
       <AppHeader />
 
-      {/* 3 cột như trang Cộng đồng: trái là nút quay lại, bài chính ở giữa, bài liên quan bên phải.
-          Nút quay lại nằm ở cột trái nên khung bài chính và khung bài liên quan bắt đầu cùng một mức.
-          Hai cột bên rộng gần bằng nhau nên bài luôn nằm đúng giữa trang, kể cả khi chưa có bài
-          liên quan. Dưới lg chỉ còn 1 cột: nút quay lại, bài, rồi bài liên quan. */}
       <main className="mx-auto w-full max-w-[1280px] px-6 py-6">
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[250px_minmax(0,1fr)_300px]">
           <aside>
@@ -72,8 +73,9 @@ export default function BlogDetailScreen() {
                 {!isPublished && (
                   <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-warning/10 px-4 py-3 text-sm text-body ring-1 ring-warning/30">
                     <StatusBadge info={statusInfo} />
+                    {isAiReviewing(blog) && <Loader2 className="size-4 shrink-0 animate-spin text-warning" />}
                     <span className="min-w-0 flex-1 text-subtle">
-                      {statusInfo.hint || "Bài viết này chưa được đăng công khai."}
+                      {reviewNote ?? (statusInfo.hint || "Bài viết này chưa được đăng công khai.")}
                     </span>
                     {canEdit && (
                       <Link
@@ -90,15 +92,29 @@ export default function BlogDetailScreen() {
                   <div className="flex items-center gap-3">
                     <AuthorAvatar author={author} />
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold text-ink">
-                        {author?.fullName ?? FALLBACK_AUTHOR_NAME}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="truncate text-sm font-semibold text-ink">
+                          {author?.fullName ?? FALLBACK_AUTHOR_NAME}
+                        </p>
+                        {/* Tác giả không resolve được thì BE không cho theo dõi nên ẩn nút. */}
+                        {author && <FollowButton userId={blog.authorId} className="shrink-0" />}
+                      </div>
                       <p className="text-xs text-subtle">
                         {formatTimeAgo(blog.publishedAt ?? blog.createdAt)}
+                        {followStats && (
+                          <>
+                            {" · "}
+                            <button
+                              type="button"
+                              onClick={() => setShowFollowers(true)}
+                              className="transition hover:text-brand hover:underline"
+                            >
+                              {followStats.followers.toLocaleString("vi-VN")} người theo dõi
+                            </button>
+                          </>
+                        )}
                       </p>
                     </div>
-                    {/* Bên phải: danh mục, và ngay dưới là tim + lượt xem cỡ nhỏ (không chen vào hàng tiêu đề,
-                        vì tiêu đề dài sẽ đẩy chúng xuống dòng). */}
                     <div className="ml-auto flex shrink-0 flex-col items-end gap-1.5">
                       {blog.categoryName && (
                         <span className="rounded-full bg-brand-soft px-2.5 py-1 text-[11px] font-medium text-brand">
@@ -151,7 +167,14 @@ export default function BlogDetailScreen() {
         </div>
       </main>
 
-      <AppFooter />
+      {showFollowers && blog && (
+        <FollowListDialog
+          userId={blog.authorId}
+          title={`Theo dõi của ${author?.fullName ?? FALLBACK_AUTHOR_NAME}`}
+          initialKind="followers"
+          onClose={() => setShowFollowers(false)}
+        />
+      )}
     </div>
   );
 }

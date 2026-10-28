@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { Activity, ExternalLink, FolderTree, LayoutDashboard, LogOut, Salad, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Activity, CreditCard, ExternalLink, FolderTree, LayoutDashboard, LogOut, Salad, ShieldAlert, ShieldCheck } from "lucide-react";
 
 import logo from "@/assets/img/logo.png";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ const NAV_ITEMS = [
   { to: "/admin/ingredients", label: "Nguyên liệu", icon: Salad },
   { to: "/admin/moderation", label: "Kiểm duyệt", icon: ShieldAlert, showBadge: true },
   { to: "/admin/ai-monitoring", label: "Giám sát AI", icon: Activity },
+  { to: "/admin/payments", label: "Thanh toán", icon: CreditCard },
 ];
 
 const navClass = ({ isActive }) =>
@@ -22,8 +23,6 @@ const navClass = ({ isActive }) =>
     isActive ? "bg-brand-soft text-brand" : "text-subtle hover:bg-surface hover:text-ink"
   );
 
-// Khung trang quản trị: thanh trên (logo, về trang web, đổi theme, đăng xuất) + menu trái.
-// Dưới lg menu chuyển thành hàng nút cuộn ngang phía trên nội dung.
 export default function AdminLayout() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);

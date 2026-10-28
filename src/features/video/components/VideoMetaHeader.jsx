@@ -1,13 +1,21 @@
 import { useState } from "react";
-import { CheckCircle2, ChevronDown, ChevronUp, Sparkles, ThumbsDown, ThumbsUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Loader2, Sparkles, ThumbsDown, ThumbsUp } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { useRequireLogin } from "@/features/auth/hooks/useRequireLogin";
 import { formatCompactNumber, formatTimeAgo, getInitials } from "@/features/blog/utils/blogFormat";
+import { useVideoRecipe } from "@/features/video/hooks/useVideoRecipe";
 import FallbackImage from "@/shared/components/FallbackImage";
+
+const scrollToAiCard = () => {
+  document.getElementById("ai-summary-card")?.scrollIntoView({ behavior: "smooth" });
+};
 
 export default function VideoMetaHeader({ video, author }) {
   const [descExpanded, setDescExpanded] = useState(false);
+  const recipe = useVideoRecipe(video);
+  const { requireLogin } = useRequireLogin();
 
   if (!video) {
     return (
@@ -30,11 +38,20 @@ export default function VideoMetaHeader({ video, author }) {
     toast.info("Tính năng bình chọn video đang được phát triển.");
   };
 
-  const handleScrollToAi = () => {
-    const el = document.getElementById("ai-summary-card");
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth" });
+  // Nút AI theo trạng thái công thức của video (xem useVideoRecipe): đã có kết quả thì cuộn tới thẻ AI (khách và thành viên đều xem được), chưa có thì bóc tách (trừ 1 lượt của thành viên), YouTube thì khóa, khách thì mời đăng nhập để bóc tách.
+  const aiStatus = recipe.status;
+  const aiBusy = aiStatus === "processing";
+  const aiDisabled = aiBusy || aiStatus === "loading" || aiStatus === "unsupported";
+  const aiLabel =
+    aiStatus === "ready" ? "Xem công thức AI" : aiBusy ? "Đang bóc tách…" : "Bóc tách công thức AI";
+
+  const handleAiClick = () => {
+    if (aiStatus === "login") {
+      requireLogin();
+      return;
     }
+    if ((aiStatus === "none" || aiStatus === "failed") && !recipe.noQuota) recipe.run();
+    scrollToAiCard();
   };
 
   return (
@@ -58,10 +75,7 @@ export default function VideoMetaHeader({ video, author }) {
             }
           />
           <div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm font-bold text-ink">{authorName}</span>
-              <CheckCircle2 className="size-4 fill-brand text-brand-foreground" />
-            </div>
+            <span className="text-sm font-bold text-ink">{authorName}</span>
             <p className="text-xs text-subtle">
               {video.categoryName ? `Chuyên mục: ${video.categoryName}` : "Thành viên cộng đồng"}
             </p>
@@ -70,11 +84,13 @@ export default function VideoMetaHeader({ video, author }) {
           <Button
             type="button"
             size="sm"
-            onClick={handleScrollToAi}
+            onClick={handleAiClick}
+            disabled={aiDisabled}
+            title={aiStatus === "unsupported" ? "Chưa hỗ trợ bóc tách video YouTube" : undefined}
             className="ml-2 gap-1.5 shadow-sm"
           >
-            <Sparkles className="size-3.5" />
-            Bóc tách công thức AI
+            {aiBusy ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
+            {aiLabel}
           </Button>
         </div>
 

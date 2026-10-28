@@ -1,31 +1,36 @@
 import apiClient from "@/shared/api/apiClient";
+import { RECOMMENDATION_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
-/**
- * AI Content Recommendation APIs (ai-service qua gateway).
- * GET /ai/recommendations?interest=&limit= (cần đăng nhập, limit 1-10, mặc định 6).
- * Trả về danh sách Recommendation:
- * [{ type: "BLOG" | "RECIPE", id: number, reason: string, content: JsonNode }]
- */
+// Lỗi 401/429/503 do Spring Security hoặc gateway trả về có thể không kèm mã 60xx nên dựa thêm vào HTTP status.
+function toMessage(res, fallbackMessage) {
+  const byCode = RECOMMENDATION_ERROR_MESSAGES[res.data?.code];
+  if (byCode) return byCode;
+  if (res.status === 401) return RECOMMENDATION_ERROR_MESSAGES[6001];
+  if (res.status === 429) return RECOMMENDATION_ERROR_MESSAGES[6003];
+  if (res.status === 503) return RECOMMENDATION_ERROR_MESSAGES[6004];
+  if (res.status >= 500) return RECOMMENDATION_ERROR_MESSAGES[6999];
+  return fallbackMessage;
+}
 
 function unwrap(res, fallbackMessage) {
   if (res.status >= 400) {
-    throw new Error(res.data?.message || fallbackMessage);
+    throw new Error(toMessage(res, fallbackMessage));
   }
   return res.data?.result;
 }
 
-/**
- * Lấy danh sách gợi ý nội dung từ AI.
- * @param {Object} params
- * @param {string} [params.interest] - Chủ đề / sở thích (mặc định BE dùng "ăn chay")
- * @param {number} [params.limit=6] - Số lượng gợi ý (1-10)
- */
 export async function getRecommendations({ interest, limit = 6 } = {}) {
-  const res = await apiClient.get("/ai/recommendations", {
-    params: {
-      interest: interest?.trim() || undefined,
-      limit,
-    },
-  });
+  let res;
+  try {
+    res = await apiClient.get("/ai/recommendations", {
+      params: {
+        interest: interest?.trim() || undefined,
+        limit,
+      },
+    });
+  } catch (error) {
+    // validateStatus tắt throw theo status, nên chỉ còn lỗi mạng / máy chủ không phản hồi rơi vào catch.
+    throw new Error("Không kết nối được máy chủ, vui lòng thử lại", { cause: error });
+  }
   return unwrap(res, "Không lấy được danh sách gợi ý nội dung") ?? [];
 }

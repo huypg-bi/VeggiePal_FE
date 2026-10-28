@@ -5,7 +5,6 @@ import { useCategories } from "@/features/blog/hooks/useCategories";
 import { flattenCategories } from "@/features/blog/utils/feedFilters";
 import VideoForm from "@/features/video/components/VideoForm";
 import { useVideo } from "@/features/video/hooks/useVideos";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 
 // Trang đăng video mới (/videos/new) và sửa video (/videos/:videoId/edit), cần đăng nhập.
@@ -22,8 +21,6 @@ export default function VideoFormScreen() {
     isError: categoriesError,
   } = useCategories();
 
-  // Nạp video để sửa: ưu tiên lấy từ router state (để sửa được cả bản nháp/bị từ chối từ My Content),
-  // nếu không có thì gọi GET /videos/:id (chỉ video đã đăng).
   const stateVideo = location.state?.video;
   const shouldFetch = isEdit && !stateVideo && id !== null;
   const {
@@ -83,8 +80,6 @@ export default function VideoFormScreen() {
         </h1>
         {body}
       </main>
-
-      <AppFooter />
     </div>
   );
 }

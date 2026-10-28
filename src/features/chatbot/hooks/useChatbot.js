@@ -36,8 +36,6 @@ function clearGuestSession() {
   sessionStorage.removeItem(GUEST_STORAGE_KEY);
 }
 
-// Dùng lại phiên còn hạn để không tốn thêm lượt tạo phiên (BE giới hạn theo IP/ngày).
-// forceNew = true: bỏ qua phiên đang lưu trong sessionStorage và tạo phiên hoàn toàn mới.
 async function ensureGuestSession(forceNew = false) {
   if (!forceNew) {
     const stored = readGuestSession();
@@ -48,12 +46,6 @@ async function ensureGuestSession(forceNew = false) {
   return created.guestSession;
 }
 
-/**
- * State + hành động cho trang chatbot.
- * - Đã đăng nhập: hội thoại lưu ở BE (danh sách / chi tiết / gửi / xoá).
- *   `activeSessionId = null` nghĩa là đoạn chat mới — BE tự tạo hội thoại ở tin nhắn đầu.
- * - Chưa đăng nhập: chế độ khách, tin nhắn chỉ giữ trong bộ nhớ, bị giới hạn lượt hỏi.
- */
 export function useChatbot() {
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
   const queryClient = useQueryClient();
@@ -80,8 +72,6 @@ export function useChatbot() {
   const memberSend = useMutation({
     mutationFn: async (variables) => {
       const reply = await sendChatMessage(variables);
-      // Đồng bộ lại trong mutationFn để dấu "đang trả lời" giữ tới khi tin nhắn
-      // thật đã có trong cache (tránh nháy mất tin nhắn giữa hai lần render).
       try {
         await Promise.all([
           queryClient.fetchQuery({

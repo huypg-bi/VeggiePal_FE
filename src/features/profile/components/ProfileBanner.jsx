@@ -1,8 +1,6 @@
 import { useNavigate, Link } from "react-router-dom";
 import {
-  PlusCircle,
   Edit3,
-  CheckCircle,
   Video,
   Users,
   Bookmark,
@@ -18,7 +16,6 @@ import { CHALLENGE_BADGE_NAME } from "@/features/blog/utils/challenge";
 import { useProfileStats } from "@/features/profile/hooks/useProfileStats";
 import { useMySubscription } from "@/features/payment/hooks/useMySubscription";
 import { formatDate } from "@/features/payment/utils/paymentFormat";
-import { bmiInfo } from "@/features/profile/utils/editProfileHelpers";
 
 const DEFAULT_AVATAR =
   "https://ui-avatars.com/api/?name=User&background=10b981&color=fff&size=256";
@@ -34,7 +31,6 @@ export default function ProfileBanner({ profile }) {
   const avatarUrl = profile?.avatarUrl || DEFAULT_AVATAR;
 
   const { latest } = stats;
-  const bmi = bmiInfo(latest?.bmi);
   const totalPosts = stats.loading ? "…" : stats.blogTotal + stats.recipeTotal;
 
   return (
@@ -66,7 +62,6 @@ export default function ProfileBanner({ profile }) {
             <div>
               <div className="mb-1 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                 <h1 className="text-2xl font-bold text-ink">{displayName}</h1>
-                <CheckCircle className="h-5 w-5 fill-brand text-brand-foreground" />
                 {/* Danh hiệu — Giữ nguyên theo P3 */}
                 <span className="rounded-full border border-brand/30 bg-brand-soft px-3 py-0.5 text-xs font-semibold text-brand">
                   Đầu Bếp Chay Sáng Tạo
@@ -95,24 +90,14 @@ export default function ProfileBanner({ profile }) {
               )}
               {/* Bio — Giữ nguyên theo P3 */}
               <p className="max-w-xl text-xs leading-relaxed text-body sm:text-sm">
-                • Đam mê sáng tạo món chay mục dưỡng WFPB &amp; ứng dụng AI nấu nướng 🌿 • Đồng hành cùng thói quen sống xanh không rác thải.
+                • Đam mê sáng tạo món chay mục dưỡng WFPB &amp; ứng dụng AI nấu nướng 🌿
+                <br />
+                • Đồng hành cùng thói quen sống xanh không rác thải.
               </p>
             </div>
           </div>
 
           <div className="flex shrink-0 items-center gap-2 flex-wrap justify-center">
-            {/* Nút Tạo Blog & Video Mới -> điều hướng sang /blog/new */}
-            <Button
-              type="button"
-              variant="default"
-              size="sm"
-              onClick={() => navigate("/blog/new")}
-              className="rounded-full gap-2 cursor-pointer font-semibold shadow-sm"
-            >
-              <PlusCircle className="h-4 w-4" />
-              Tạo Blog &amp; Video Mới
-            </Button>
-
             {/* Nút Sửa hồ sơ -> điều hướng sang /profile/edit */}
             <Button
               type="button"
@@ -181,12 +166,9 @@ export default function ProfileBanner({ profile }) {
             </div>
             <div>
               <div className="text-base font-bold text-ink">
-                {latest?.bmi != null ? Number(latest.bmi).toFixed(1) : "—"}{" "}
-                <span className="text-xs font-normal text-subtle">BMI</span>
+                {latest?.bmi != null ? Number(latest.bmi).toFixed(1) : "—"}
               </div>
-              <div className={`text-xs font-medium ${latest ? bmi.textClass : "text-subtle"}`}>
-                {latest ? `Chỉ số BMI ${bmi.text.toLowerCase()}` : "Chưa có chỉ số"}
-              </div>
+              <div className="text-xs font-normal text-subtle">BMI</div>
             </div>
           </div>
         </div>

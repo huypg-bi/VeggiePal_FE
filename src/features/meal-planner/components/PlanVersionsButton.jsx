@@ -24,13 +24,6 @@ function describeAverage(plan) {
   )}g · béo ${n(average.fat)}g`;
 }
 
-/**
- * Nút "Lịch sử" + hộp thoại liệt kê các phiên bản cũ của một thực đơn (chỉ xem, BE chưa có API khôi phục).
- * Đầu hộp thoại là phiên bản hiện tại lấy mới từ server (GET /ai/meal-plans/:id); bấm "Xem nội dung" ở một phiên bản
- * cũ để xem 7 ngày của bản đó (GET /ai/meal-plans/:id/versions/:version).
- * BE chỉ lưu phiên bản khi thực đơn được cập nhật theo sức khỏe hoặc sửa thủ công; đổi món bằng AI thì không.
- * `plan` là một MealPlan trong danh sách của useMealPlans (có `version` hiện tại).
- */
 export default function PlanVersionsButton({ plan }) {
   const [open, setOpen] = useState(false);
   const [expandedVersion, setExpandedVersion] = useState(null);

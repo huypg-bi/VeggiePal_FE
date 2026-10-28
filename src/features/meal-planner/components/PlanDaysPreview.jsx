@@ -15,10 +15,6 @@ import { cn } from "@/lib/utils";
 
 const formatNumber = (value) => toRounded(value).toLocaleString("vi-VN");
 
-/**
- * Xem nhanh nội dung một thực đơn (hoặc một phiên bản cũ), chỉ đọc: mỗi ngày một dòng kèm năng lượng,
- * bấm vào để xem 3 bữa. `plan` là phần `plan` của BE (có days[].meals và days[].nutritionTotals).
- */
 export default function PlanDaysPreview({ plan }) {
   const days = sortedDays({ plan });
   if (days.length === 0) {

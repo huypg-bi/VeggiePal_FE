@@ -2,10 +2,6 @@ import { Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
-/**
- * Thanh tìm kiếm quán. BE chưa tìm theo tên nên từ khóa lọc ngay trên danh sách đã tải.
- * - keyword / onKeywordChange: ô tìm kiếm (lọc theo tên hoặc địa chỉ)
- */
 export default function MapSearchBar({ keyword, onKeywordChange }) {
   const handleSubmit = (event) => {
     event.preventDefault();

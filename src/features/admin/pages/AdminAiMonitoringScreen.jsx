@@ -10,8 +10,6 @@ import { monitoringKeys } from "@/features/admin/monitoring/queryKeys";
 import { DAY_OPTIONS } from "@/features/admin/monitoring/utils/monitoringFormat";
 import { cn } from "@/lib/utils";
 
-// Trang giám sát AI (/admin/ai-monitoring): lượt dùng, token, độ trễ, lỗi của ai-service,
-// model đang dùng, giới hạn quota và nhật ký từng lượt gọi.
 export default function AdminAiMonitoringScreen() {
   const [days, setDays] = useState(7);
   const queryClient = useQueryClient();

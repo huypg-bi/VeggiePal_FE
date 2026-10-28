@@ -249,7 +249,6 @@ export const CHATBOT_GUEST_ERROR_MESSAGES = {
   6001: "Phiên dùng thử đã hết hạn. Hãy gửi lại câu hỏi để tạo phiên mới",
   6003: "Bạn đã dùng hết lượt hỏi thử hôm nay. Hãy đăng nhập để tiếp tục trò chuyện",
 };
-
 // payment-service (60xx, trùng số với ai-service nhưng là service khác)
 export const PAYMENT_ERROR_MESSAGES = {
   1008: "Phiên đăng nhập hết hạn",

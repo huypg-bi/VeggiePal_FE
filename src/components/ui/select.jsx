@@ -31,12 +31,13 @@ function SelectValue({
   )
 }
 
-// pill: thanh lọc (bo tròn hẳn); field: ô chọn trong form (cùng dáng với ô input bo rounded-xl).
 const TRIGGER_VARIANTS = {
   pill:
     "h-11 max-w-[min(20rem,100%)] rounded-full px-4 font-medium hover:border-brand/40 focus-visible:ring-2 focus-visible:ring-brand/30",
   field:
     "h-11 w-full rounded-xl px-3.5 focus-visible:border-brand/40 focus-visible:ring-2 focus-visible:ring-brand/15 aria-invalid:border-destructive/50 aria-invalid:ring-2 aria-invalid:ring-destructive/20",
+  compact:
+    "h-10 w-full rounded-2xl px-3.5 text-xs focus-visible:border-brand/40 focus-visible:ring-2 focus-visible:ring-brand/15 aria-invalid:border-destructive/50 aria-invalid:ring-2 aria-invalid:ring-destructive/20",
 }
 
 function SelectTrigger({

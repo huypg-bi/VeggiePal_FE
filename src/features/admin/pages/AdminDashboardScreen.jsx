@@ -7,8 +7,6 @@ import { useCategories } from "@/features/blog/hooks/useCategories";
 import { useIngredients } from "@/features/ingredient/hooks/useIngredients";
 import { cn } from "@/lib/utils";
 
-// Trang tổng quan quản trị (/admin): số liệu nhanh + lối tắt tới các trang quản lý.
-// Số liệu lấy từ các API công khai có sẵn (đếm qua totalElements, size=1 cho nhẹ).
 export default function AdminDashboardScreen() {
   const user = useAuthStore((s) => s.user);
 

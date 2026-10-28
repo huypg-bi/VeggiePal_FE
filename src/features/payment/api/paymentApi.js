@@ -1,20 +1,5 @@
 import apiClient from "@/shared/api/apiClient";
-
-/**
- * Bảng dịch lỗi dành riêng cho payment-service (mã 6000–6007 của payment-service,
- * không dùng chung với ai-service hay các service khác).
- */
-const PAYMENT_ERROR_MESSAGES = {
-  1008: "Phiên đăng nhập hết hạn",
-  6000: "Vui lòng chọn gói thành viên",
-  6001: "Gói không tồn tại",
-  6002: "Gói này không thể mua",
-  6003: "Không tìm thấy đơn hàng",
-  6004: "Cổng thanh toán đang bận, thử lại sau",
-  6005: "Chữ ký thanh toán không hợp lệ",
-  6006: "Số tiền thanh toán không khớp với đơn hàng",
-  6007: "Thanh toán không thành công",
-};
+import { PAYMENT_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
 function toPaymentMessage(res, fallbackMessage) {
   const code = res.data?.code;
@@ -49,11 +34,6 @@ function unwrap(res, fallbackMessage) {
   return res.data?.result;
 }
 
-/**
- * GET /payments/plans (Công khai)
- * Danh sách các gói thành viên hiện có:
- * [{ id, code, price, durationDays, chatPerDay, mealPlansPerMonth, videosPerMonth }]
- */
 export async function getPlans() {
   let res;
   try {
@@ -64,11 +44,6 @@ export async function getPlans() {
   return unwrap(res, "Không lấy được danh sách gói thành viên") ?? [];
 }
 
-/**
- * POST /payments/checkout (Yêu cầu đăng nhập)
- * Body: { planCode: "PLUS" | "PRO" }
- * Trả về: { id, orderCode, planCode, amount, status, checkoutUrl, createdAt, paidAt }
- */
 export async function checkout(planCode) {
   let res;
   try {
@@ -79,10 +54,6 @@ export async function checkout(planCode) {
   return unwrap(res, "Tạo yêu cầu thanh toán thất bại");
 }
 
-/**
- * GET /payments/orders/{id} (Yêu cầu đăng nhập)
- * Lấy chi tiết đơn hàng theo internal ID (không phải orderCode payOS)
- */
 export async function getOrder(id) {
   let res;
   try {
@@ -93,10 +64,16 @@ export async function getOrder(id) {
   return unwrap(res, "Không tìm thấy đơn hàng");
 }
 
-/**
- * GET /payments/history (Yêu cầu đăng nhập)
- * Lịch sử thanh toán của người dùng, mới nhất trước
- */
+export async function cancelOrder(id) {
+  let res;
+  try {
+    res = await apiClient.post(`/payments/orders/${id}/cancel`);
+  } catch (error) {
+    throw networkError(error, "Yêu cầu huỷ đơn quá thời gian chờ");
+  }
+  return unwrap(res, PAYMENT_ERROR_MESSAGES[6009]);
+}
+
 export async function getHistory() {
   let res;
   try {
@@ -107,11 +84,6 @@ export async function getHistory() {
   return unwrap(res, "Không lấy được lịch sử thanh toán") ?? [];
 }
 
-/**
- * GET /subscriptions/me (Yêu cầu đăng nhập)
- * Gói thành viên hiện tại:
- * { planCode, startedAt, expiresAt, chatPerDay, mealPlansPerMonth, videosPerMonth }
- */
 export async function getMySubscription() {
   let res;
   try {

@@ -9,13 +9,10 @@ import SuggestedVideoList from "@/features/video/components/SuggestedVideoList";
 import VideoMetaHeader from "@/features/video/components/VideoMetaHeader";
 import VideoPlayerFrame from "@/features/video/components/VideoPlayerFrame";
 import { useVideo } from "@/features/video/hooks/useVideos";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-// Trang xem video chi tiết (route /videos/:videoId, công khai).
-// Nạp dữ liệu qua GET /videos/:id (BE tính 1 lượt xem mỗi lần xem).
 export default function VideoWatchScreen() {
   const { videoId } = useParams();
   const id = /^[1-9]\d*$/.test(videoId ?? "") ? Number(videoId) : null;
@@ -46,7 +43,6 @@ export default function VideoWatchScreen() {
             Về danh sách video
           </Link>
         </main>
-        <AppFooter />
       </div>
     );
   }
@@ -63,7 +59,7 @@ export default function VideoWatchScreen() {
               <VideoMetaHeader video={video} author={author} />
             </Reveal>
             <Reveal>
-              <AiSummaryCard videoId={videoId} />
+              <AiSummaryCard video={video} />
             </Reveal>
             <Reveal>
               <CommentsHeader />
@@ -83,8 +79,6 @@ export default function VideoWatchScreen() {
           </div>
         </div>
       </main>
-
-      <AppFooter />
     </div>
   );
 }

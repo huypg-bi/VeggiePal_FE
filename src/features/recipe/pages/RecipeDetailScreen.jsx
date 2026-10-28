@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
-import { ArrowLeft, ChefHat, Clock, Flame, Pencil, Users } from "lucide-react";
+import { ArrowLeft, ChefHat, Clock, Flame, Pencil, TriangleAlert, Users, Wheat } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/variants/button-variants";
@@ -12,14 +12,15 @@ import { getRecipeStatusInfo } from "@/features/my-content/utils/statusInfo";
 import { useRecipe } from "@/features/recipe/hooks/useRecipes";
 import { useRecipeNutrition } from "@/features/recipe/hooks/useRecipeNutrition";
 import { formatIngredientAmount, sortSteps } from "@/features/recipe/utils/recipeFormat";
-import AppFooter from "@/shared/components/AppFooter";
+import {
+  collectIngredientWarnings,
+  isAllergenIngredient,
+  isNonVeganIngredient,
+} from "@/features/recipe/utils/recipeSafety";
 import AppHeader from "@/shared/components/AppHeader";
 import FallbackImage from "@/shared/components/FallbackImage";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-// Trang đọc một công thức (route /recipes/:recipeId), công khai với công thức đã đăng.
-// BE chỉ trả bản nháp/đang ẩn cho tác giả hoặc ADMIN (kèm token), người khác nhận 404. FE vẫn kiểm tra
-// thêm ở đây để chắc chắn không hiện nhầm (vd. công thức ARCHIVED, BE trả cho mọi người vì thực đơn cũ cần).
 export default function RecipeDetailScreen() {
   const { recipeId } = useParams();
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ export default function RecipeDetailScreen() {
   const { data: authors } = usePublicUsers(recipe ? [recipe.userId] : []);
   const author = recipe ? authors?.get(recipe.userId) : undefined;
   const recipes = useMemo(() => (recipe ? [recipe] : []), [recipe]);
-  const { nutritionById, loading: nutritionLoading } = useRecipeNutrition(recipes);
+  const { nutritionById, gapById } = useRecipeNutrition(recipes);
 
   const canManage = Boolean(recipe && (recipe.userId === user?.id || user?.role === "ADMIN"));
   const visible = Boolean(recipe && (recipe.status === "PUBLISHED" || canManage));
@@ -50,8 +51,9 @@ export default function RecipeDetailScreen() {
         recipe={recipe}
         author={author}
         nutrition={nutritionById.get(recipe.id)}
-        nutritionLoading={nutritionLoading}
+        nutritionGap={gapById.get(recipe.id)}
         canManage={canManage}
+        isLoggedIn={Boolean(user)}
       />
     );
   }
@@ -69,15 +71,14 @@ export default function RecipeDetailScreen() {
         </div>
         {body}
       </main>
-
-      <AppFooter />
     </div>
   );
 }
 
-function RecipeArticle({ recipe, author, nutrition, nutritionLoading, canManage }) {
+function RecipeArticle({ recipe, author, nutrition, nutritionGap, canManage, isLoggedIn }) {
   const steps = sortSteps(recipe.steps);
   const ingredients = recipe.ingredients ?? [];
+  const warnings = collectIngredientWarnings(recipe);
   const showStatus = recipe.status !== "PUBLISHED";
 
   return (
@@ -123,11 +124,13 @@ function RecipeArticle({ recipe, author, nutrition, nutritionLoading, canManage 
         <Chip icon={Flame}>
           {nutrition
             ? `${nutrition.kcal} kcal • ${nutrition.protein}g đạm / khẩu phần`
-            : nutritionLoading
-              ? "Đang tính dinh dưỡng..."
-              : "Chưa có thông tin dinh dưỡng"}
+            : "Chưa có thông tin dinh dưỡng"}
         </Chip>
+        {nutrition && (
+          <Chip icon={Wheat}>{`${nutrition.carbs}g carb • ${nutrition.fat}g béo / khẩu phần`}</Chip>
+        )}
       </ul>
+      {!nutrition && nutritionGap && <p className="mt-2 text-xs text-subtle">{nutritionGap}</p>}
 
       <FallbackImage
         src={recipe.imageUrl}
@@ -143,6 +146,23 @@ function RecipeArticle({ recipe, author, nutrition, nutritionLoading, canManage 
 
       <section className="mt-8">
         <h2 className="font-heading text-xl font-bold text-ink">Nguyên liệu</h2>
+        {warnings.allergens.length > 0 && (
+          <Notice tone="warning">
+            Có nguyên liệu thuộc nhóm dễ gây dị ứng: <strong>{warnings.allergens.join(", ")}</strong>.{" "}
+            {isLoggedIn ? (
+              <Link to="/profile/edit" className="font-semibold underline underline-offset-2">
+                Kiểm tra hồ sơ dị ứng của bạn
+              </Link>
+            ) : (
+              "Hãy đối chiếu với tình trạng dị ứng của bạn."
+            )}
+          </Notice>
+        )}
+        {warnings.nonVegan.length > 0 && (
+          <Notice tone="danger">
+            Có nguyên liệu không thuần chay: <strong>{warnings.nonVegan.join(", ")}</strong>.
+          </Notice>
+        )}
         <ul className="mt-3 divide-y divide-border rounded-2xl border border-border bg-surface">
           {ingredients.map((item) => (
             <li
@@ -152,6 +172,8 @@ function RecipeArticle({ recipe, author, nutrition, nutritionLoading, canManage 
               <span className="text-sm font-medium text-ink">
                 {item.ingredientName}
                 {item.note && <span className="font-normal text-subtle"> ({item.note})</span>}
+                {isAllergenIngredient(item) && <Tag tone="warning">Dễ gây dị ứng</Tag>}
+                {isNonVeganIngredient(item) && <Tag tone="danger">Không thuần chay</Tag>}
               </span>
               <span className="text-sm font-semibold text-brand">{formatIngredientAmount(item)}</span>
             </li>
@@ -175,6 +197,30 @@ function RecipeArticle({ recipe, author, nutrition, nutritionLoading, canManage 
         </ol>
       </section>
     </article>
+  );
+}
+
+const TONE_CLASSES = {
+  warning: "bg-warning/15 text-warning",
+  danger: "bg-destructive/10 text-destructive",
+};
+
+// Khung cảnh báo phía trên danh sách nguyên liệu.
+function Notice({ tone, children }) {
+  return (
+    <p className={`mt-3 flex items-start gap-2 rounded-xl px-3 py-2 text-sm ${TONE_CLASSES[tone]}`}>
+      <TriangleAlert className="mt-0.5 size-4 shrink-0" />
+      <span>{children}</span>
+    </p>
+  );
+}
+
+// Nhãn nhỏ cạnh tên nguyên liệu.
+function Tag({ tone, children }) {
+  return (
+    <span className={`ml-2 rounded-full px-2 py-0.5 align-middle text-[11px] font-medium ${TONE_CLASSES[tone]}`}>
+      {children}
+    </span>
   );
 }
 

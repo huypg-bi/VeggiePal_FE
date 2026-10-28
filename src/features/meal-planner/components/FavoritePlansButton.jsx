@@ -12,17 +12,12 @@ import {
 } from "@/components/ui/dialog";
 import PlanDaysPreview from "@/features/meal-planner/components/PlanDaysPreview";
 import { useFavoriteMealPlan, useFavoriteMealPlans } from "@/features/meal-planner/hooks/useMealPlans";
-import { averageDailyTotals, formatDateTime } from "@/features/meal-planner/utils/mealPlan";
+import { averageDailyTotals, formatDateTime, planGoalSummary } from "@/features/meal-planner/utils/mealPlan";
 
 const PAGE_SIZE = 5;
 
 const formatNumber = (value) => Number(value).toLocaleString("vi-VN");
 
-/**
- * Nút "Yêu thích của tôi" + hộp thoại liệt kê các thực đơn đã yêu thích (GET /ai/meal-plans/favorites, phân trang).
- * Mỗi mục bấm "Xem chi tiết" để mở 7 ngày của thực đơn (GET /ai/meal-plans/favorites/:id), hoặc "Mở trên trang" để
- * chuyển trang thực đơn sang thực đơn đó. `plans` là danh sách thực đơn đã tải của trang; `onSelectPlan(id)` chọn một cái.
- */
 export default function FavoritePlansButton({ plans, onSelectPlan }) {
   const [open, setOpen] = useState(false);
   const [page, setPage] = useState(0);
@@ -48,7 +43,7 @@ export default function FavoritePlansButton({ plans, onSelectPlan }) {
     document.getElementById("today-meals")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const items = data?.content ?? [];
+  const items = data?.items ?? [];
   const loadedIds = new Set(plans.map((plan) => plan.id));
 
   return (
@@ -108,7 +103,7 @@ export default function FavoritePlansButton({ plans, onSelectPlan }) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                disabled={data.first || isFetching}
+                disabled={data.page <= 0 || isFetching}
                 onClick={() => goToPage(page - 1)}
               >
                 <ChevronLeft className="size-4" />
@@ -121,7 +116,7 @@ export default function FavoritePlansButton({ plans, onSelectPlan }) {
                 type="button"
                 variant="ghost"
                 size="sm"
-                disabled={data.last || isFetching}
+                disabled={data.page + 1 >= data.totalPages || isFetching}
                 onClick={() => goToPage(page + 1)}
               >
                 Sau
@@ -149,7 +144,9 @@ function FavoriteItem({ item, expanded, canOpenOnPage, onToggle, onOpenOnPage })
         <span className="font-semibold text-ink">{item.name}</span>
         <span className="text-xs text-subtle">Tạo lúc {formatDateTime(item.createdAt)}</span>
       </div>
-      {item.goal && <p className="mt-1 line-clamp-1 text-xs text-subtle">Mục tiêu: {item.goal}</p>}
+      {planGoalSummary(item) && (
+        <p className="mt-1 line-clamp-1 text-xs text-subtle">Mục tiêu: {planGoalSummary(item)}</p>
+      )}
       {average && (
         <p className="mt-1 text-xs text-subtle">
           TB mỗi ngày: {formatNumber(average.calories)} kcal · đạm {formatNumber(average.protein)}g · tinh bột{" "}

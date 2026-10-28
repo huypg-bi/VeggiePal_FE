@@ -1,24 +1,46 @@
 import { useId, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowRight, HeartPulse, Leaf, Loader2, Plus, Sparkles, Wand2, X } from "lucide-react";
-import { Controller, useForm } from "react-hook-form";
+import {
+  ArrowRight,
+  HeartPulse,
+  Leaf,
+  Loader2,
+  Plus,
+  Scale,
+  Sparkles,
+  TrendingDown,
+  TrendingUp,
+  Wand2,
+  X,
+} from "lucide-react";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import iconChatbot from "@/assets/img/icon_chatbot_1.png";
 import GoalCombobox from "@/features/meal-planner/components/GoalCombobox";
+import NutritionTargetCard from "@/features/meal-planner/components/NutritionTargetCard";
 import NutritionTargetFields from "@/features/meal-planner/components/NutritionTargetFields";
 import { flavorPreferences, healthGoalSuggestions } from "@/features/meal-planner/data/mockMealPlanner";
 import { useCreateMealPlan } from "@/features/meal-planner/hooks/useMealPlanMutations";
+import { useNutritionTarget } from "@/features/meal-planner/hooks/useMealPlans";
 import { MEAL_PLAN_LIMITS, mealPlanSchema } from "@/features/meal-planner/schema";
 import {
   buildGeneratePayload,
+  buildNutritionTarget,
   countMissedDays,
   defaultPlanName,
+  GOAL_OPTIONS,
+  missingProfileFields,
+  profileFixState,
+  profileTargetIssue,
   TARGET_FIELDS,
 } from "@/features/meal-planner/utils/mealPlan";
+import { useMySubscription } from "@/features/payment/hooks/useMySubscription";
+import { PLAN_DETAILS } from "@/features/payment/utils/paymentFormat";
 import { useLatestHealthRecord } from "@/features/profile/hooks/useHealthRecords";
+import { useProfile } from "@/features/profile/hooks/useProfile";
 import IngredientPicker from "@/features/recipe/components/IngredientPicker";
 import { cn } from "@/lib/utils";
 
@@ -31,35 +53,58 @@ function emptyTarget() {
   return Object.fromEntries(TARGET_FIELDS.map((field) => [field, ""]));
 }
 
-/**
- * Form nhờ AI lên thực đơn 7 ngày (POST /ai/meal-plans).
- * - Nguyên liệu có sẵn: chọn từ danh mục nguyên liệu; BE chỉ ưu tiên các món dùng chúng (không loại món khác).
- * - Cần có hồ sơ sức khỏe (chiều cao, cân nặng) mới tạo được thực đơn: thiếu thì khóa nút và dẫn tới hồ sơ.
- * - Khẩu vị: gửi nhãn các lựa chọn đang bật qua `preferences`.
- * - Tên, mục tiêu sức khỏe, mục tiêu dinh dưỡng: react-hook-form + zod.
- * `onCreated(plan)` được gọi khi tạo xong để trang chuyển sang xem thực đơn mới.
- */
+const GOAL_ICONS = { LOSE: TrendingDown, MAINTAIN: Scale, GAIN: TrendingUp };
+
+const AUTO_TARGET_BLOCKING_CODES = new Set([6020, 6021]);
+
 export default function AiMealSuggestion({ onCreated }) {
   const idPrefix = useId();
   const createPlan = useCreateMealPlan();
-  // BE trả lỗi 6010 nếu chưa có bản ghi sức khỏe nên chặn sớm. Chỉ khóa khi chắc chắn là chưa có
-  // (đã tải xong, không lỗi); nếu không tải được thì vẫn cho thử, BE sẽ là bên quyết định.
   const healthRecord = useLatestHealthRecord();
   const missingHealthRecord = !healthRecord.isPending && !healthRecord.isError && healthRecord.data == null;
+  const { subscription } = useMySubscription();
+  const noQuota = subscription?.mealPlansPerMonth === 0;
 
   const [ingredients, setIngredients] = useState([]);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [activePrefs, setActivePrefs] = useState(() => new Set());
+  const [targetOpen, setTargetOpen] = useState(false);
 
   const {
     register,
     handleSubmit,
     control,
+    setValue,
     formState: { errors },
   } = useForm({
     resolver: zodResolver(mealPlanSchema),
-    defaultValues: { name: defaultPlanName(), healthGoal: "", ...emptyTarget() },
+    defaultValues: { name: defaultPlanName(), goalType: "", healthNote: "", ...emptyTarget() },
   });
+
+  const watched = useWatch({ control });
+  const customTarget = buildNutritionTarget(watched);
+
+  const { profile, loading: profileLoading, error: profileError } = useProfile();
+  const profileIssue = profileLoading || profileError ? null : profileTargetIssue(profile);
+  const missingFields = profileLoading || profileError ? [] : missingProfileFields(profile);
+
+  // Cùng khóa với thẻ NutritionTargetCard nên chỉ gọi API một lần.
+  const autoTarget = useNutritionTarget(watched.goalType, !missingHealthRecord && !profileIssue);
+  const autoTargetBlocked =
+    !customTarget && (Boolean(profileIssue) || AUTO_TARGET_BLOCKING_CODES.has(autoTarget.error?.code));
+
+  // Điền mục tiêu BE tính được vào các ô "tự đặt riêng" (mở sẵn phần đó) để người dùng chỉnh tiếp.
+  const fillCustomTarget = (target) => {
+    for (const field of TARGET_FIELDS) {
+      setValue(field, target?.[field] == null ? "" : String(target[field]), { shouldDirty: true, shouldValidate: true });
+    }
+    setTargetOpen(true);
+  };
+
+  // Xóa mọi ô để quay lại mục tiêu BE tự tính.
+  const clearCustomTarget = () => {
+    for (const field of TARGET_FIELDS) setValue(field, "", { shouldDirty: true, shouldValidate: true });
+  };
 
   const togglePreference = (id) => {
     setActivePrefs((prev) => {
@@ -83,10 +128,11 @@ export default function AiMealSuggestion({ onCreated }) {
   };
 
   const onSubmit = async (values) => {
-    const { name, healthGoal, ...target } = values;
+    const { name, goalType, healthNote, ...target } = values;
     const payload = buildGeneratePayload({
       name,
-      healthGoal,
+      goalType,
+      healthNote,
       preferences: flavorPreferences.filter((pref) => activePrefs.has(pref.id)).map((pref) => pref.label),
       ingredients: ingredients.map((item) => item.name),
       target,
@@ -216,14 +262,62 @@ export default function AiMealSuggestion({ onCreated }) {
                         "grid size-4 shrink-0 place-items-center rounded-full text-[10px] leading-none",
                         active && "bg-white/20",
                       )}
-                      style={!active ? { background: pref.color } : undefined}
                     >
-                      {pref.icon}
+                      <pref.icon className="size-2.5" />
                     </span>
                     {pref.label}
                   </button>
                 );
               })}
+            </div>
+
+            <div className="mt-4">
+              <span id={`${idPrefix}-goal-type`} className={labelClass}>
+                Mục tiêu của thực đơn
+              </span>
+              <Controller
+                name="goalType"
+                control={control}
+                render={({ field }) => (
+                  <div
+                    role="radiogroup"
+                    aria-labelledby={`${idPrefix}-goal-type`}
+                    aria-invalid={Boolean(errors.goalType)}
+                    className="grid grid-cols-1 gap-2 sm:grid-cols-3"
+                  >
+                    {GOAL_OPTIONS.map((option) => {
+                      const Icon = GOAL_ICONS[option.value];
+                      const active = field.value === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          role="radio"
+                          aria-checked={active}
+                          onClick={() => field.onChange(option.value)}
+                          onBlur={field.onBlur}
+                          className={cn(
+                            "flex items-center gap-3 rounded-2xl px-3.5 py-3 text-left transition",
+                            active
+                              ? "bg-brand text-brand-foreground shadow-sm"
+                              : "bg-card text-ink ring-1 ring-border hover:bg-surface",
+                            errors.goalType && !active && "ring-destructive/50",
+                          )}
+                        >
+                          <Icon className="size-5 shrink-0" />
+                          <span className="flex min-w-0 flex-col">
+                            <span className="text-sm font-semibold">{option.label}</span>
+                            <span className={cn("text-xs", active ? "text-brand-foreground/80" : "text-subtle")}>
+                              {option.hint}
+                            </span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              />
+              {errors.goalType && <p className={errorClass}>{errors.goalType.message}</p>}
             </div>
 
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -243,33 +337,51 @@ export default function AiMealSuggestion({ onCreated }) {
               </div>
 
               <div>
-                <label htmlFor={`${idPrefix}-goal`} className={labelClass}>
-                  Mục tiêu sức khỏe
+                <label htmlFor={`${idPrefix}-note`} className={labelClass}>
+                  Mô tả thêm <span className="text-xs font-normal text-subtle">(không bắt buộc)</span>
                 </label>
                 <Controller
-                  name="healthGoal"
+                  name="healthNote"
                   control={control}
                   render={({ field }) => (
                     <GoalCombobox
-                      id={`${idPrefix}-goal`}
+                      id={`${idPrefix}-note`}
                       value={field.value}
                       onChange={field.onChange}
                       onBlur={field.onBlur}
                       inputRef={field.ref}
                       options={healthGoalSuggestions}
-                      maxLength={MEAL_PLAN_LIMITS.healthGoal}
-                      placeholder="Nhập mục tiêu hoặc bấm mũi tên để chọn..."
-                      aria-invalid={Boolean(errors.healthGoal)}
+                      maxLength={MEAL_PLAN_LIMITS.healthNote}
+                      placeholder="Ví dụ: tăng cơ, ăn thanh đạm..."
+                      aria-invalid={Boolean(errors.healthNote)}
                       className={cn(fieldClass, "h-11")}
                     />
                   )}
                 />
-                {errors.healthGoal && <p className={errorClass}>{errors.healthGoal.message}</p>}
+                {errors.healthNote && <p className={errorClass}>{errors.healthNote.message}</p>}
               </div>
             </div>
 
             <div className="mt-2">
-              <NutritionTargetFields register={register} errors={errors} />
+              <NutritionTargetCard
+                goalType={watched.goalType}
+                enabled={!missingHealthRecord}
+                profileIssue={profileIssue}
+                missingFields={missingFields}
+                overridden={Boolean(customTarget)}
+                onUseTarget={fillCustomTarget}
+                onClearTarget={clearCustomTarget}
+              />
+            </div>
+
+            <div className="mt-2">
+              <NutritionTargetFields
+                register={register}
+                errors={errors}
+                replacesAuto
+                open={targetOpen}
+                onOpenChange={setTargetOpen}
+              />
             </div>
           </div>
         </div>
@@ -287,6 +399,7 @@ export default function AiMealSuggestion({ onCreated }) {
             </p>
             <Link
               to="/profile/edit"
+              state={profileFixState(missingFields)}
               className="shrink-0 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground transition hover:bg-brand/90"
             >
               Cập nhật hồ sơ
@@ -294,7 +407,22 @@ export default function AiMealSuggestion({ onCreated }) {
           </div>
         )}
 
-        <div className={cn("relative flex flex-col items-center gap-4 rounded-2xl bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6", missingHealthRecord ? "mt-3" : "mt-7")}>
+        {noQuota && (
+          <div
+            role="alert"
+            className="relative mt-7 flex flex-col items-start gap-3 rounded-2xl bg-warning/10 p-4 text-sm text-ink sm:flex-row sm:items-center sm:justify-between"
+          >
+            <p>Gói hiện tại của bạn chưa có lượt tạo thực đơn. Nâng cấp lên gói PLUS hoặc PRO để dùng tính năng này.</p>
+            <Link
+              to="/pricing"
+              className="shrink-0 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground transition hover:bg-brand/90"
+            >
+              Xem các gói thành viên
+            </Link>
+          </div>
+        )}
+
+        <div className={cn("relative flex flex-col items-center gap-4 rounded-2xl bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6", missingHealthRecord || noQuota ? "mt-3" : "mt-7")}>
           <p className="flex items-center gap-2 text-center text-xs text-subtle sm:text-left">
             <Wand2 className="h-4 w-4 shrink-0 text-brand" />
             {isCreating
@@ -304,7 +432,7 @@ export default function AiMealSuggestion({ onCreated }) {
           <Button
             type="submit"
             size="lg"
-            disabled={isCreating || missingHealthRecord}
+            disabled={isCreating || missingHealthRecord || noQuota || autoTargetBlocked}
             className="h-auto min-h-11 w-full whitespace-normal px-6 py-2.5 shadow-sm sm:w-auto"
           >
             {isCreating ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
@@ -312,6 +440,21 @@ export default function AiMealSuggestion({ onCreated }) {
             {!isCreating && <ArrowRight className="size-4" />}
           </Button>
         </div>
+
+        {subscription && !noQuota && (
+          <p className="relative mt-3 text-center text-xs text-subtle">
+            {PLAN_DETAILS[subscription.planCode]?.name ?? subscription.planCode}: tối đa {subscription.mealPlansPerMonth}{" "}
+            thực đơn mỗi tháng.
+            {subscription.planCode !== "PRO" && (
+              <>
+                {" "}
+                <Link to="/pricing" className="font-semibold text-brand underline underline-offset-2">
+                  Nâng cấp để tạo nhiều hơn
+                </Link>
+              </>
+            )}
+          </p>
+        )}
       </form>
     </section>
   );
