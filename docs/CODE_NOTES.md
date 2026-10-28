@@ -297,8 +297,9 @@ Tổng cộng 334 mục từ 200 file.
 **Gắn với:** `export async function login({ email, password }) {`
 
 > Đăng nhập bằng email + mật khẩu (khớp /auth/login của identity-service).
-> Trả về: { token, user: { id, email, fullName, role } }
-> Ném lỗi (throw) với thông báo tiếng Việt (dịch theo `code` của BE) nếu thất bại.
+> Trả về: { token, refreshToken, user: { id, email, fullName, role } }
+> Ném lỗi (throw) với thông báo tiếng Việt (dịch theo `code` của BE) nếu thất bại; Error mang thêm `code`
+> để form phân nhánh (vd 1023 chưa xác minh email thì chuyển sang nhập mã).
 
 **Gắn với:** `export async function loginWithGoogle(idToken) {`
 
@@ -309,8 +310,29 @@ Tổng cộng 334 mục từ 200 file.
 **Gắn với:** `export async function register({ email, password, fullName, phone }) {`
 
 > Đăng ký tài khoản mới (khớp /auth/register của identity-service).
-> Backend không trả token khi đăng ký -> đăng ký xong phải đăng nhập lại.
+> Backend không trả token khi đăng ký: tài khoản ở PENDING, mã OTP gửi qua email, phải xác minh (verifyEmail) mới đăng nhập được.
 > Trả về: { id, email, fullName, phone, avatarUrl, role, status, emailVerified }
+
+**Gắn với:** `export async function refreshAccessToken(refreshToken) {`
+
+> Không ném lỗi: trả { outcome, session? } với outcome "ok" | "dead" | "unavailable" để refreshSession quyết định
+> đăng xuất (dead) hay giữ phiên và thử lại (unavailable: lỗi mạng / 5xx). `skipAuthRefresh` để interceptor của
+> apiClient không tự refresh chính request này.
+
+**Gắn với:** `export function revokeRefreshToken(refreshToken) {`
+
+> Gọi khi đăng xuất, không chờ kết quả: phiên phía FE đã xóa, còn BE chậm hoặc lỗi thì refresh token tự hết hạn sau 7 ngày.
+
+### features/auth/api/refreshSession.js
+
+**Gắn với:** `export function refreshSession() {`
+
+> Mọi request cùng gặp 401 dùng chung một lần refresh (refresh token chỉ dùng được một lần, hai lần song song sẽ làm
+> lần sau bị từ chối và đăng xuất oan).
+
+**Gắn với:** `const stored = loadSession();`
+
+> Refresh bị từ chối nhưng localStorage đã có refresh token khác thì tab khác vừa đổi trước: lấy cặp mới đó thay vì đăng xuất.
 
 ### features/auth/components/AdminRoute.jsx
 
@@ -341,13 +363,21 @@ Tổng cộng 334 mục từ 200 file.
 > Bọc quanh route cần đăng nhập. Chưa đăng nhập -> đá về /login,
 > nhớ lại trang đang muốn vào để login xong quay lại.
 
-### features/auth/hooks/useAutoLogout.js
+### features/auth/hooks/useSessionRefresh.js
 
-**Gắn với:** `export function useAutoLogout() {`
+**Gắn với:** `export function useSessionRefresh() {`
 
-> Tự đăng xuất khi token hết hạn (đọc từ claim "exp" của JWT).
-> Gọi một lần ở gốc app. Token không phải JWT / không có "exp" thì không làm gì,
-> lúc đó việc hết hạn do server từ chối request quyết định.
+> Làm mới access token trước khi hết hạn 60 giây (đọc "exp" của JWT), gọi một lần ở gốc app. Phiên cũ không có refresh token
+> thì đăng xuất khi hết hạn như trước. Token không phải JWT / không có "exp" thì không làm gì, lúc đó việc hết hạn do
+> server từ chối request (401 -> interceptor của apiClient) quyết định.
+
+**Gắn với:** `if (Date.now() - lastRefreshAt.current < MIN_GAP_MS) {`
+
+> Giờ máy lệch quá nhiều làm token vừa nhận vẫn "sắp hết hạn" thì không được refresh liên tục (mỗi lần tốn một refresh token).
+
+**Gắn với:** `const onStorage = (event) => {`
+
+> Chỉ localStorage mới chia sẻ giữa các tab; sessionStorage (không ghi nhớ) là của riêng từng tab nên không cần đồng bộ.
 
 ### features/auth/hooks/useRequireLogin.js
 
@@ -361,7 +391,7 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export default function AuthScreen() {`
 
-> 4 mode (login/register/quên mật khẩu/otp) dùng chung 1 khung ảnh+card,
+> 6 mode (login/register/verify-email/quên mật khẩu/otp đặt lại/đặt mật khẩu mới) dùng chung 1 khung ảnh+card,
 > URL quyết định mode nào hiển thị — không còn tách thành page riêng nữa.
 
 ### features/auth/schema.js
@@ -380,11 +410,20 @@ Tổng cộng 334 mục từ 200 file.
 > - token / user: lưu để giữ phiên khi F5. Nơi lưu phụ thuộc `remember`:  
 >  true -> localStorage (còn sau khi đóng trình duyệt), false -> sessionStorage.  
 > - remember: người dùng có tick "Ghi nhớ đăng nhập" ở lần đăng nhập này hay không.
+> - refreshToken: dùng một lần, mỗi lần làm mới đổi sang token mới (xem refreshSession).
 
-**Trong:** `useAuthStore` · **Gắn với:** `setAuth: ({ token, user, remember = get().remember }) => {`
+**Trong:** `useAuthStore` · **Gắn với:** `setAuth: ({ token, refreshToken = null, user, remember = get().remember }) => {`
 
-> gọi sau khi login thành công. Các lần cập nhật sau đó (vd. đồng bộ hồ sơ)
+> gọi sau khi login thành công và sau mỗi lần làm mới phiên. Các lần cập nhật sau đó (vd. đồng bộ hồ sơ)
 > không truyền `remember` thì giữ nguyên lựa chọn hiện tại.
+
+**Trong:** `useAuthStore` · **Gắn với:** `syncFromStorage: () => set(loadSession()),`
+
+> Tab khác vừa đăng nhập / làm mới / đăng xuất qua localStorage thì tab này đọc lại cho khớp (gọi từ sự kiện `storage`).
+
+**Trong:** `useAuthStore` · **Gắn với:** `if (refreshToken) revokeRefreshToken(refreshToken);`
+
+> authStore import authApi và authApi import apiClient (vốn import authStore): vòng import này an toàn vì chỉ dùng bên trong hàm, không dùng lúc nạp module.
 
 ### features/auth/utils/authErrors.js
 
@@ -401,6 +440,7 @@ Tổng cộng 334 mục từ 200 file.
 > "Ghi nhớ đăng nhập" = lưu phiên ở localStorage (còn sau khi đóng trình duyệt).
 > Không ghi nhớ = sessionStorage (mất khi đóng tab/trình duyệt, F5 vẫn còn).
 > Tham số storage truyền vào được để test; mặc định là storage của trình duyệt.
+> Access token hết hạn nhưng còn refresh token thì vẫn giữ phiên (sẽ được làm mới); hết hạn mà không có refresh token thì xóa.
 
 ### features/auth/utils/roleRedirect.js
 
@@ -2522,6 +2562,12 @@ Tổng cộng 334 mục từ 200 file.
 
 > Lấy token từ store (không đọc thẳng localStorage, vì token có thể nằm ở
 > sessionStorage khi người dùng không tick "Ghi nhớ đăng nhập").
+
+**Gắn với:** `apiClient.interceptors.response.use(async (res) => {`
+
+> Access token chỉ sống 15 phút nên 401 là chuyện thường: làm mới bằng refresh token rồi gửi lại request đúng một lần (`authRetried`).
+> Bỏ qua `/auth/*` (đăng nhập sai cũng là 401) và request có `skipAuthRefresh`. Request đi bằng token cũ mà request khác đã làm mới xong
+> thì chỉ gửi lại, không đổi refresh token thêm lần nữa.
 
 ### shared/api/errorMessages.js
 

@@ -27,3 +27,23 @@ export const registerSchema = z
         message: "Mật khẩu nhập lại không khớp",
         path: ["confirmPassword"],
     });
+
+// Quên mật khẩu: BE chỉ gửi mã qua email.
+export const forgotPasswordSchema = z.object({
+    email: z
+        .string()
+        .trim()
+        .min(1, "Vui lòng nhập email")
+        .email("Email không hợp lệ"),
+});
+
+// Đặt mật khẩu mới sau khi xác nhận mã: cùng luật mật khẩu với đăng ký (tối thiểu 6 ký tự).
+export const resetPasswordSchema = z
+    .object({
+        newPassword: z.string().min(6, "Mật khẩu tối thiểu 6 ký tự"),
+        confirmPassword: z.string().min(1, "Vui lòng nhập lại mật khẩu"),
+    })
+    .refine((data) => data.newPassword === data.confirmPassword, {
+        message: "Mật khẩu nhập lại không khớp",
+        path: ["confirmPassword"],
+    });

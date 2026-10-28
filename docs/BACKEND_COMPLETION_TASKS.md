@@ -12,6 +12,8 @@
 
 ### A06 — Trạng thái tài khoản và đăng nhập
 
+**Cập nhật 28/10/2026: BE đã làm phần cốt lõi** (commit `caddafe`). Chỉ tài khoản `ACTIVE` được cấp token ở đăng nhập, Google và refresh (khóa `1021`, không hoạt động `1022`, chưa xác minh `1023`, kiểm tra sau khi mật khẩu đúng); có API admin khóa / mở khóa / đổi quyền (`/admin/users`); access token sống 15 phút và khóa tài khoản hủy refresh token nên có hiệu lực tối đa sau 15 phút. Phần còn lại bên dưới là mô tả ban đầu, chỉ còn cần kiểm chứng test Google không phát token cho tài khoản bị khóa và chốt Q03–Q05.
+
 **Vấn đề đã kiểm chứng trong source:** `UserService` đăng nhập mật khẩu chỉ kiểm tra email và password rồi phát token. `loginWithGoogle` cũng phát token cho bất kỳ user nào tìm thấy theo email, kể cả `BLOCKED`/`INACTIVE`. `linkGoogleAccount` chỉ chuyển `PENDING` thành `ACTIVE` khi tài khoản chưa xác minh email.
 
 **Việc làm bắt buộc:** kiểm tra trạng thái trước khi phát JWT trong cả password login và Google login; thống nhất chính sách cho các trạng thái hiện có (đề xuất chỉ `ACTIVE` được phát token).
@@ -71,6 +73,8 @@ Các đường dẫn trên là mapping trực tiếp tại service; khi gọi qu
 **Hiện trạng:** `GET /users/batch` (`PublicUserService.getPublicUsers`) chỉ trả tài khoản `ACTIVE`; `FollowService` coi tài khoản không `ACTIVE` là không tồn tại (`1007`). Trong DB local (28/10/2026) có ba tài khoản `PENDING` (id 1, 2, 3) và hai `ACTIVE` (id 4, 5). Các tài khoản `PENDING` vẫn đăng nhập được (đăng nhập không kiểm `status`, xem A06) và đã đăng bài `PUBLISHED`. Kết quả: bài của họ hiện tên dự phòng "Người dùng VeggiePal" kèm ảnh "NV" ở feed và trang chi tiết; người khác bấm "Theo dõi" nhận `1007`; số người theo dõi và feed theo dõi bỏ qua họ. Chưa kiểm chứng trên DB triển khai.
 
 **Nguồn gốc:** `UserService.register` hiện đặt `ACTIVE` ngay (`emailVerified=false`), nên các dòng `PENDING` là dữ liệu cũ. Chỉ `linkGoogleAccount` mới chuyển `PENDING` sang `ACTIVE`.
+
+**Cập nhật 28/10/2026:** từ `caddafe`, đăng ký tạo tài khoản `PENDING` rồi chỉ `ACTIVE` sau khi nhập mã OTP (`POST /auth/verify-email`), và `PENDING` không đăng nhập được (`1023`), nên tài khoản mới không còn rơi vào tình trạng đăng bài được mà tên bị ẩn. Dữ liệu `PENDING` cũ trong DB vẫn còn: chủ tài khoản kích hoạt bằng `resend-verification` hoặc quên mật khẩu; seed id 1–3 là `ACTIVE`. Còn lại là dọn dữ liệu cũ nếu cần; bài đã đăng của các tài khoản đó vẫn hiện tên dự phòng cho tới khi họ kích hoạt.
 
 **Việc làm:** chốt một quy tắc rồi áp dụng nhất quán cho đăng nhập, `/users/batch`, theo dõi và đăng bài: (1) chặn đăng nhập (A06) và đăng nội dung của `PENDING`, hoặc (2) coi `PENDING` như `ACTIVE` khi hiển thị công khai. Đồng thời migrate dữ liệu cũ (ví dụ `UPDATE users SET status = 'ACTIVE' WHERE status = 'PENDING'` nếu bỏ trạng thái này) và ghi vào `BACKEND_CHANGES.md`.
 
@@ -182,9 +186,9 @@ Tất cả câu trả lời trong cột Đề xuất là gợi ý để thảo l
 
 | Mã | Task | Câu hỏi cần quyết định | Đề xuất bắt đầu / lưu ý |
 |---|---|---|---|
-| Q03 | A06 | Trạng thái nào được login, dùng HTTP/mã lỗi nào? Có thực sự cần SUSPENDED ngoài BLOCKED? | Chỉ ACTIVE được phát token; không thêm enum mới khi chưa có ý nghĩa riêng. |
-| Q04 | A06 | Khóa tài khoản có phải vô hiệu hóa JWT đang hoạt động ngay không? | Tách rõ chặn login mới và chặn mọi request; yêu cầu thứ hai cần cơ chế đa service. |
-| Q05 | A06 | Đợt này có cần API admin khóa/mở khóa tài khoản không? Ai được đổi trạng thái và có cần lý do/lịch sử? | Chốt phạm vi riêng; không tự gộp thành một dòng sửa login. |
+| Q03 | A06 | Trạng thái nào được login, dùng HTTP/mã lỗi nào? Có thực sự cần SUSPENDED ngoài BLOCKED? | **Đã làm 28/10:** chỉ ACTIVE được phát token; BLOCKED `1021`, INACTIVE `1022`, PENDING `1023` (HTTP 403); không thêm enum mới. |
+| Q04 | A06 | Khóa tài khoản có phải vô hiệu hóa JWT đang hoạt động ngay không? | **BE chọn 28/10:** không tức thì. Khóa hủy refresh token nên phiên hết hiệu lực khi access token (15 phút) hết hạn; request trong 15 phút đó vẫn qua. |
+| Q05 | A06 | Đợt này có cần API admin khóa/mở khóa tài khoản không? Ai được đổi trạng thái và có cần lý do/lịch sử? | **Đã làm 28/10:** `PUT /admin/users/{id}/lock` (bắt buộc lý do ≤ 500 ký tự, lưu `lockedReason` / `lockedAt` / `lockedBy`), `/unlock`, `/role`; admin không thao tác lên chính mình (`1024`) hay admin khác (`1025`). Chưa có lịch sử nhiều lần, chỉ lưu lần khóa hiện tại. |
 | Q08 | D20.2 | Xếp tác giả hay bài viết? Công thức điểm, thời gian, timezone, bằng điểm và chống tăng điểm giả thế nào? | Bắt đầu một bảng xếp hạng với công thức kiểm thử được; không tự chọn trọng số. |
 | Q09 | D20.3 | Topic là category hay hashtag? Xu hướng theo vote, view, comment hay bài mới? Tính trong bao lâu? | Tận dụng category trước; chưa tạo hệ hashtag nếu không cần. |
 | Q10 | D20.4 | Cần chính xác những chỉ số nào, tính theo điều kiện nào? Cần realtime hay chấp nhận trễ? Khi một service lỗi thì sao? | Chốt danh sách chỉ số và ví dụ response trước khi viết API. |

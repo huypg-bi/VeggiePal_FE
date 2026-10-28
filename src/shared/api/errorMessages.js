@@ -11,6 +11,14 @@ export const AUTH_ERROR_MESSAGES = {
   1010: "Vui lòng nhập mật khẩu",
   1018: "Dữ liệu chưa hợp lệ, vui lòng kiểm tra lại",
   1019: "Không xác thực được tài khoản Google. Vui lòng thử lại.",
+  1021: "Tài khoản của bạn đã bị khóa, vui lòng liên hệ quản trị viên",
+  1022: "Tài khoản hiện không hoạt động, vui lòng liên hệ quản trị viên",
+  1023: "Tài khoản chưa xác minh email, vui lòng nhập mã xác minh đã gửi qua email",
+  1027: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
+  1028: "Mã xác nhận không đúng",
+  1029: "Mã đã hết hạn hoặc nhập sai quá nhiều lần, vui lòng gửi mã mới",
+  1030: "Phiên đặt lại mật khẩu đã hết hạn, vui lòng bắt đầu lại",
+  1031: "Không gửi được email, vui lòng thử lại sau",
 };
 
 // identity-service (10xx) + nutrition-service (20xx), dùng cho hồ sơ, chỉ số sức khỏe, dị ứng
