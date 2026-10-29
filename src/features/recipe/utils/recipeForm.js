@@ -1,5 +1,16 @@
 import { parseQuantity } from "../schema.js";
 
+export const RECIPE_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+export const RECIPE_IMAGE_TYPES = ["image/jpeg", "image/png"];
+
+/** Kiểm tra ảnh công thức theo luật của BE (chỉ JPEG / PNG, ≤ 5MB, không nhận WEBP). Trả message lỗi hoặc null nếu hợp lệ. */
+export function validateRecipeImage(file) {
+  if (!file) return null;
+  if (!RECIPE_IMAGE_TYPES.includes(file.type)) return "Ảnh công thức phải là JPEG hoặc PNG";
+  if (file.size > RECIPE_IMAGE_MAX_BYTES) return "Ảnh công thức không được vượt quá 5MB";
+  return null;
+}
+
 export const UNIT_OPTIONS = [
   { value: "GRAM", label: "gram" },
   { value: "KG", label: "kg" },

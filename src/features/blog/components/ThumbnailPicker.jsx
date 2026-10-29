@@ -5,7 +5,15 @@ import { Button } from "@/components/ui/button";
 import { THUMBNAIL_TYPES, validateThumbnail } from "@/features/blog/utils/blogForm";
 import FallbackImage from "@/shared/components/FallbackImage";
 
-export default function ThumbnailPicker({ currentUrl, onChange }) {
+/** Chọn ảnh (xem trước, đổi, bỏ). Mặc định là ảnh bìa blog; công thức truyền `acceptTypes`, `validate`, `label`, `hint` riêng. */
+export default function ThumbnailPicker({
+  currentUrl,
+  onChange,
+  acceptTypes = THUMBNAIL_TYPES,
+  validate = validateThumbnail,
+  label = "Ảnh bìa",
+  hint = "JPEG, PNG hoặc WEBP, tối đa 5MB",
+}) {
   const inputRef = useRef(null);
   const previewRef = useRef(null);
   const [preview, setPreview] = useState(null);
@@ -25,7 +33,7 @@ export default function ThumbnailPicker({ currentUrl, onChange }) {
     event.target.value = ""; // cho phép chọn lại đúng file vừa bỏ
     if (!file) return;
 
-    const message = validateThumbnail(file);
+    const message = validate(file);
     setError(message ?? "");
     if (message) return;
 
@@ -46,20 +54,20 @@ export default function ThumbnailPicker({ currentUrl, onChange }) {
       <input
         ref={inputRef}
         type="file"
-        accept={THUMBNAIL_TYPES.join(",")}
+        accept={acceptTypes.join(",")}
         onChange={handleFile}
         className="sr-only"
         tabIndex={-1}
-        aria-label="Chọn ảnh bìa"
+        aria-label={`Chọn ${label.toLowerCase()}`}
       />
 
       {shown ? (
         <div className="relative overflow-hidden rounded-2xl border border-border">
           <FallbackImage
             src={shown}
-            alt="Ảnh bìa"
+            alt={label}
             className="aspect-[16/9] w-full object-cover"
-            // Ảnh bìa hiện có bị hỏng -> khung trống, vẫn bấm "Đổi ảnh" được.
+            // Ảnh hiện có bị hỏng -> khung trống, vẫn bấm "Đổi ảnh" được.
             fallback={
               <div className="grid aspect-[16/9] w-full place-items-center bg-surface text-subtle">
                 <ImageOff className="size-8" />
@@ -84,8 +92,8 @@ export default function ThumbnailPicker({ currentUrl, onChange }) {
           className="flex aspect-[16/6] w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-surface text-subtle transition hover:border-brand/40 hover:text-brand"
         >
           <ImagePlus className="size-7" />
-          <span className="text-sm font-medium">Chọn ảnh bìa</span>
-          <span className="text-xs">JPEG, PNG hoặc WEBP, tối đa 5MB</span>
+          <span className="text-sm font-medium">Chọn {label.toLowerCase()}</span>
+          <span className="text-xs">{hint}</span>
         </button>
       )}
 

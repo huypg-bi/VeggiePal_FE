@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import { Bookmark, ChefHat, ChevronRight, Clock, Flame, User } from "lucide-react";
 
+import RecipeFavoriteButton from "@/features/recipe/components/RecipeFavoriteButton";
+
 import { totalMinutes } from "@/features/recipe/utils/recipeNutrition";
 import FallbackImage from "@/shared/components/FallbackImage";
 
@@ -30,22 +32,24 @@ export default function RecipeCard({ recipe, nutrition, author }) {
             {minutes} phút
           </span>
         )}
-        <button
-          type="button"
-          aria-label="Lưu công thức"
-          className="absolute right-3 top-3 grid size-8 place-items-center rounded-full bg-black/60 text-white backdrop-blur transition hover:bg-black/80"
-        >
-          <Bookmark className="h-4 w-4" />
-        </button>
+        <RecipeFavoriteButton recipe={recipe} />
       </div>
 
       <div className="p-4">
-        <span className="flex items-center gap-1.5 text-xs text-subtle">
-          <Flame className="h-3.5 w-3.5 text-brand" />
-          {nutrition
-            ? `${nutrition.kcal} kcal • ${nutrition.protein}g Đạm`
-            : "Chưa có thông tin dinh dưỡng"}
-        </span>
+        <div className="flex items-center justify-between gap-2 text-xs text-subtle">
+          <span className="flex items-center gap-1.5">
+            <Flame className="h-3.5 w-3.5 text-brand" />
+            {nutrition
+              ? `${nutrition.kcal} kcal • ${nutrition.protein}g Đạm`
+              : "Chưa có thông tin dinh dưỡng"}
+          </span>
+          {recipe.favoriteCount > 0 && (
+            <span className="flex shrink-0 items-center gap-1" title="Lượt lưu">
+              <Bookmark className="size-3.5" />
+              {recipe.favoriteCount}
+            </span>
+          )}
+        </div>
 
         <h3 className="mt-2 text-base font-semibold text-ink">
           <Link to={`/recipes/${recipe.id}`} className="transition hover:text-brand">

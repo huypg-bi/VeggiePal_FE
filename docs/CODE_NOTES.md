@@ -673,12 +673,13 @@ Tổng cộng 334 mục từ 200 file.
 
 ### features/blog/components/ThumbnailPicker.jsx
 
-**Gắn với:** `export default function ThumbnailPicker({ currentUrl, onChange }) {`
+**Gắn với:** `export default function ThumbnailPicker({`
 
-> Chọn ảnh bìa (JPEG/PNG/WEBP ≤ 5MB). Chỉ giữ file trong bộ nhớ; việc tải lên do form cha làm
+> Chọn ảnh (mặc định là ảnh bìa blog: JPEG/PNG/WEBP ≤ 5MB; form công thức truyền `acceptTypes`, `validate`, `label`, `hint` riêng vì BE chỉ nhận JPEG/PNG). Chỉ giữ file trong bộ nhớ; việc tải lên do form cha làm
 > sau khi bài đã được tạo (BE tải ảnh qua endpoint riêng cần blogId).  
 > - currentUrl: ảnh bìa hiện có của bài (chế độ sửa), hiện khi chưa chọn ảnh mới  
 > - onChange(file | null): file đã qua kiểm tra, hoặc null khi bỏ chọn
+> - acceptTypes / validate(file) -> message | null / label / hint: đổi luật kiểm tra và chữ hiển thị
 
 ### features/blog/components/VoteButton.jsx
 
@@ -1853,7 +1854,14 @@ Tổng cộng 334 mục từ 200 file.
 
 > Thẻ đầu trang cá nhân (ảnh bìa, ảnh đại diện, danh hiệu, gói tài khoản, nút sửa hồ sơ và 5 chỉ số).
 > - Số người theo dõi và đang theo dõi lấy từ API thật `GET /users/{id}/follow-stats` qua `useFollowStats`, bấm vào ô mở `FollowListDialog` để xem danh sách và theo dõi / bỏ theo dõi.
-> - Lượt lưu công thức giữ mock có nhãn "đợi BE làm" (chờ BE phát triển theo D21.2).
+> - Ô thứ tư là "Công thức đã lưu": tổng số từ `GET /recipes/favorites` (`useFavoriteRecipes({ size: 1 })`, chỉ cần `totalElements`). BE chưa có số lượt lưu mà công thức của tôi nhận được nên không hiện chỉ số đó.
+
+### features/profile/components/FavoritesCard.jsx
+
+**Gắn với:** `export default function FavoritesCard() {`
+
+> Thẻ "Công Thức Đã Lưu" ở cột trái trang cá nhân: lưới công thức tôi đã lưu (`GET /recipes/favorites`, lưu gần nhất trước), bấm mở công thức.
+> Mặc định 6 mục; "Xem tất cả" nâng lên 30 mục mới lưu gần nhất (chưa có trang riêng). BE chỉ trả công thức đang đăng nên công thức đã bị ẩn tự biến mất.
 > - Thẻ BMI lấy từ bản ghi sức khỏe mới nhất, bài viết & video lấy từ tổng thực tế blog và recipe của người dùng.
 
 ### features/profile/hooks/useAllergyDraft.js
@@ -2006,7 +2014,7 @@ Tổng cộng 334 mục từ 200 file.
 **Gắn với:** `const EMPTY_PAGE = {`
 
 > Recipe APIs (recipe-service qua api-gateway) — GET công khai, không cần token.
->  GET /recipes?keyword=&page=&size=
+>  GET /recipes?keyword=&sort=&page=&size=   (sort=popular: được lưu nhiều nhất trước, còn lại mới nhất trước)
 >  GET /recipes/:id   (công thức đã đăng ai cũng đọc được; bản nháp / đang ẩn (DRAFT, HIDDEN) chỉ chủ công thức  
 >    và ADMIN đọc được khi kèm token hợp lệ, người khác nhận 404 (4100) -> dùng để nạp form sửa.  
 >    Token hỏng / hết hạn bị bỏ qua, không làm 401. Công thức ARCHIVED (đã xóa) vẫn đọc được để thực đơn  
@@ -2039,6 +2047,19 @@ Tổng cộng 334 mục từ 200 file.
 > imageUrl 500 (chỉ là chuỗi URL, recipe-service chưa có API tải ảnh lên), unit 30, note 300,
 > instruction 2000, quantity tối đa 2 chữ số thập phân. BE tự IN HOA unit.
 
+**Gắn với:** `export async function uploadRecipeImage(id, file) {`
+
+> POST /recipes/:id/image (multipart, field `file`): JPEG hoặc PNG ≤ 5MB, chủ công thức hoặc ADMIN. BE kiểm tra cả
+> chữ ký tệp, tải lên Cloudinary, ghi `imageUrl` và xóa ảnh Cloudinary cũ (link dán tay thì để nguyên). Lỗi 4116 / 4117 / 4118 / 1017.
+
+**Gắn với:** `export async function getFavoriteRecipeIds() {`
+
+> Yêu thích công thức (cần đăng nhập, mọi API trả lỗi 401 với khách):
+>  GET /recipes/favorites/ids  id các công thức tôi đã lưu, để tô trái tim ở danh sách công khai
+>  GET /recipes/favorites?page&size  công thức đã lưu, lưu gần nhất trước, chỉ gồm công thức đang PUBLISHED
+>  POST|DELETE /recipes/:id/favorite  lưu / bỏ lưu, gọi lặp không lỗi, trả { recipeId, favorited, favoriteCount }
+> BE chỉ cho lưu công thức đã đăng (404 / 4100 với bản nháp), nhưng bỏ lưu được cả công thức đã bị ẩn.
+
 ### features/recipe/components/IngredientPicker.jsx
 
 **Gắn với:** `export default function IngredientPicker({ selectedIds, onPick }) {`
@@ -2055,6 +2076,15 @@ Tổng cộng 334 mục từ 200 file.
 
 > Thẻ công thức dùng chung (trang chủ, trang danh sách công thức).
 > `nutrition` là { kcal, protein, ... } hoặc null/undefined (chưa tính được); `author` là { fullName, avatarUrl } hoặc undefined.
+> Nút lưu ở góc ảnh là `RecipeFavoriteButton`; số lượt lưu (`favoriteCount`) hiện cạnh dòng dinh dưỡng khi lớn hơn 0.
+
+### features/recipe/components/RecipeFavoriteButton.jsx
+
+**Gắn với:** `export default function RecipeFavoriteButton({ recipe, variant = "overlay" }) {`
+
+> Nút lưu / bỏ lưu công thức. `overlay`: nút tròn đè lên ảnh thẻ; `full`: nút có chữ và số lượt lưu ở trang chi tiết.
+> Trạng thái đã lưu lấy từ một lần gọi `GET /recipes/favorites/ids` cho cả danh sách (không gọi từng công thức); chưa tải xong
+> thì khóa nút để khỏi POST nhầm lên công thức đã lưu; khách bấm thì dẫn tới đăng nhập. Ẩn với công thức chưa PUBLISHED vì BE từ chối.
 
 ### features/recipe/components/RecipeForm.jsx
 
@@ -2063,7 +2093,9 @@ Tổng cộng 334 mục từ 200 file.
 > Form tạo / sửa công thức.  
 > - Tạo mới (không có `recipe`): "Lưu nháp" hoặc "Lưu và đăng".  
 > - Sửa (`recipe` là RecipeResponse): "Lưu thay đổi" (không đổi trạng thái);  
->  công thức chưa đăng có thêm "Lưu và đăng".
+>  công thức chưa đăng có thêm "Lưu và đăng".  
+> - Ảnh: chọn tệp (`ThumbnailPicker`) hoặc dán link. Tệp chỉ được tải lên sau khi công thức đã lưu (BE cần id), ngay trước bước đăng,  
+>  và ghi đè link. Tải ảnh lỗi thì công thức vẫn được lưu; nếu đang bấm "Lưu và đăng" thì dừng ở bản nháp để sửa lại, giống form bài viết.
 
 ### features/recipe/components/RecipeStepsEditor.jsx
 
@@ -2085,17 +2117,24 @@ Tổng cộng 334 mục từ 200 file.
 > Trả về query của React Query + `recipes` (mảng phẳng) + `total`.
 > recipe-service trả danh sách ở field `content` (khác blog-service dùng `items`).
 
+### features/recipe/hooks/useRecipeFavorites.js
+
+**Gắn với:** `export function useSetRecipeFavorite() {`
+
+> mutate({ recipeId, favorite }): `favorite = true` gọi POST, `false` gọi DELETE (BE không có toggle).
+> BE trả luôn `favoriteCount` mới nên ghi thẳng vào mọi danh sách / chi tiết đang có trong cache gốc `recipes` (`patchFavoriteCount`),
+> cập nhật tập id đã lưu và đánh dấu cũ các trang "công thức đã lưu". Khóa cache của phần này nằm ngoài gốc `recipes`
+> (`recipeFavoriteKeys`) để lưu / bỏ lưu không làm tải lại mọi danh sách công khai.
+
 ### features/recipe/hooks/useRecipeNutrition.js
 
 **Gắn với:** `export function useRecipeNutrition(recipes) {`
 
-> Dinh dưỡng mỗi khẩu phần của danh sách công thức.
-> BE đã nhúng dinh dưỡng trên 100g vào từng nguyên liệu của công thức (cả danh sách lẫn chi tiết) nên chỉ cần
-> cộng lại tại chỗ, không còn gọi API riêng cho từng nguyên liệu.  
-> 
-> Trả về:  
-> - nutritionById: Map\<recipeId, { kcal, protein, carbs, fat } | null>, null nghĩa là chưa tính được  
-> - gapById: Map\<recipeId, string> chỉ có với công thức chưa tính được vì đơn vị (ml, muỗng, quả...), kèm lý do
+> Dinh dưỡng mỗi khẩu phần của danh sách công thức, đọc từ `recipe.nutritionPerServing` do BE tính sẵn (xem `readRecipeNutrition`).
+>
+> Trả về:
+> - nutritionById: Map\<recipeId, { kcal, protein, carbs, fat } | null>, null nghĩa là chưa tính được
+> - gapById: Map\<recipeId, string> chỉ có với công thức BE chưa quy đổi hết nguyên liệu, kèm tên nguyên liệu
 
 ### features/recipe/hooks/useRecipes.js
 
@@ -2104,11 +2143,10 @@ Tổng cộng 334 mục từ 200 file.
 > Danh sách công thức đã publish (GET /recipes). params: { keyword, page, size }.
 > Giữ dữ liệu trang cũ trong lúc tải trang/từ khóa mới để danh sách không bị nháy.
 
-**Gắn với:** `export function useRecipeFeed({ keyword, size = 12 } = {}) {`
+**Gắn với:** `export function useRecipeFeed({ keyword, sort, size = 12 } = {}) {`
 
-> Feed công thức đã đăng dạng "Xem thêm" (GET /recipes), lọc theo từ khóa.
+> Feed công thức đã đăng dạng "Xem thêm" (GET /recipes), lọc theo từ khóa, `sort="popular"` để xếp theo lượt lưu.
 > Trả về query của React Query + `recipes` (mảng phẳng) + `total`.
-> recipe-service trả danh sách ở field `content` (khác blog-service dùng `items`).
 
 ### features/recipe/pages/RecipeDetailScreen.jsx
 
@@ -2132,6 +2170,7 @@ Tổng cộng 334 mục từ 200 file.
 
 > Trang duyệt công thức (route /recipes), công khai: lưới công thức đã đăng, mới nhất trước,
 > tìm theo từ khóa (BE tìm trong tên và mô tả). Từ khóa nằm trên URL (?q=) để chia sẻ/quay lại được.
+> Ô "Sắp xếp" chọn Mới nhất hoặc Được lưu nhiều nhất (?sort=popular); đổi từ khóa và đổi kiểu sắp xếp giữ nguyên nhau trên URL.
 
 ### features/recipe/schema.js
 
@@ -2149,8 +2188,12 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export const UNIT_OPTIONS = [`
 
-> Đơn vị cho chọn. BE lưu chuỗi tự do và tự IN HOA. Chỉ GRAM / G / KG quy đổi được ra gram
-> để tính kcal (xem recipeNutrition.js), các đơn vị còn lại thì công thức sẽ không có kcal.
+> Đơn vị cho chọn. BE lưu chuỗi tự do và tự IN HOA. GRAM / KG luôn quy đổi được ra gram; ml, muỗng, quả chỉ quy đổi
+> được với một số nguyên liệu quen thuộc (BE có bảng khối lượng riêng / cân nặng mỗi quả), không thì công thức chưa có kcal.
+
+**Gắn với:** `export function validateRecipeImage(file) {`
+
+> Luật ảnh công thức của BE: chỉ JPEG / PNG (khác blog, không nhận WEBP), tối đa 5MB.
 
 **Gắn với:** `export function formValuesToPayload(values) {`
 
@@ -2158,30 +2201,25 @@ Tổng cộng 334 mục từ 200 file.
 > - thứ tự bước = vị trí trong danh sách (stepNumber bắt đầu từ 1)  
 > - thời gian để trống -> null; quantity đổi dấu phẩy thành dấu chấm rồi ép số
 
+### features/recipe/utils/recipeFavorite.js
+
+**Gắn với:** `export function patchFavoriteCount(data, recipeId, favoriteCount) {`
+
+> Ghi `favoriteCount` mới của một công thức vào dữ liệu cache: nhận chi tiết (một công thức), một trang `{ items }`
+> hoặc danh sách vô hạn `{ pages }`; không khớp thì trả nguyên dữ liệu cũ.
+
 ### features/recipe/utils/recipeNutrition.js
 
-**Gắn với:** `const GRAMS_PER_UNIT = {`
+**Gắn với:** `export function readRecipeNutrition(recipe) {`
 
-> BE không trả kcal / đạm của cả công thức, nhưng mỗi nguyên liệu trong `recipe.ingredients[]` đã kèm sẵn
-> dinh dưỡng trên 100g (caloriesPer100g, proteinPer100g, carbsPer100g, fatPer100g) -> FE chỉ cần cộng lại,
-> không phải gọi thêm GET /ingredients/:id cho từng nguyên liệu.
+> Đọc dinh dưỡng MỖI KHẨU PHẦN do BE tính (`recipe.nutritionPerServing`, cả danh sách lẫn chi tiết): { kcal (làm tròn), protein, carbs, fat }.
+> BE tự quy đổi muỗng / quả / ml ra gram, FE không còn tính lại. Khi `complete = false` BE bỏ các nguyên liệu không quy đổi được
+> (`missingIngredients`) khỏi tổng nên con số sẽ thấp hơn thật; FE khi đó không hiện số mà nêu tên các nguyên liệu đó.
+> Công thức không có nguyên liệu hoặc thiếu trường (BE cũ) thì trả nutrition = null, gap = null.
 
-**Gắn với:** `const GRAMS_PER_UNIT = {`
+**Gắn với:** `export function isGramUnit(unit) {`
 
-> Hệ số quy đổi về gram. BE lưu đơn vị IN HOA và chỉ quy đổi được các đơn vị khối lượng; ml, muỗng, quả...
-> cần biết khối lượng riêng của nguyên liệu nên FE không tự suy ra được.
-
-**Gắn với:** `export function calcRecipeNutrition(recipe) {`
-
-> Dinh dưỡng MỖI KHẨU PHẦN của công thức: { kcal, protein, carbs, fat } (kcal làm tròn, còn lại 1 số lẻ).
-> Dữ liệu lấy từ chính `recipe.ingredients[]` do BE trả.
-> Trả null nếu có bất kỳ nguyên liệu nào chưa tính được (thiếu dữ liệu hoặc đơn vị không quy đổi được),
-> vì cộng thiếu sẽ ra con số thấp hơn thực tế và gây hiểu nhầm. Lý do xem `nutritionGapHint`.
-
-**Gắn với:** `export function nutritionGapHint(recipe) {`
-
-> Lý do chưa tính được dinh dưỡng vì đơn vị: liệt kê các đơn vị không quy đổi được ra gram.
-> Trả null nếu mọi nguyên liệu đều quy đổi được (khi đó nếu vẫn không tính được là do thiếu dữ liệu khác).
+> Đơn vị khối lượng (gram, kg, mg) mà BE luôn quy đổi được; form dùng để nhắc khi chọn đơn vị khác.
 
 ### features/recipe/utils/recipeSafety.js
 
