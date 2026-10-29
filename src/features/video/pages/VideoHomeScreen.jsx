@@ -6,6 +6,7 @@ import TrendingVideoGrid from "@/features/video/components/TrendingVideoGrid";
 import VideoBanner from "@/features/video/components/VideoBanner";
 import VideoChannelBar from "@/features/video/components/VideoChannelBar";
 import { useVideoFeed } from "@/features/video/hooks/useVideos";
+import { useMyVideoVotes } from "@/features/video/hooks/useVideoVotes";
 import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
@@ -32,6 +33,7 @@ export default function VideoHomeScreen() {
   } = useVideoFeed({ categoryId: activeCategoryId, size: 12 });
 
   const { data: authors } = usePublicUsers(videos.map((v) => v.authorId));
+  const { data: myVotes } = useMyVideoVotes(videos.map((v) => v.id));
 
   const setCategory = (id) => {
     if (!id) {
@@ -57,6 +59,7 @@ export default function VideoHomeScreen() {
         <TrendingVideoGrid
           videos={videos}
           authors={authors}
+          myVotes={myVotes}
           isPending={isPending}
           isError={isError}
           error={error}

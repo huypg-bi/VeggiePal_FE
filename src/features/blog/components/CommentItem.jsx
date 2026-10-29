@@ -59,6 +59,8 @@ export default function CommentItem({ comment, author, isReply = false }) {
       <div className="min-w-0 flex-1">
         {editing ? (
           <CommentComposer
+            targetType={comment.targetType ?? "BLOG"}
+            targetId={comment.targetId}
             blogId={comment.targetId}
             commentId={comment.id}
             initialContent={comment.content ?? ""}
@@ -115,6 +117,8 @@ export default function CommentItem({ comment, author, isReply = false }) {
         {replying && (
           <div className="mt-2">
             <CommentComposer
+              targetType={comment.targetType ?? "BLOG"}
+              targetId={comment.targetId}
               blogId={comment.targetId}
               parentCommentId={comment.id}
               placeholder={`Phản hồi ${author?.fullName ?? FALLBACK_AUTHOR_NAME}...`}

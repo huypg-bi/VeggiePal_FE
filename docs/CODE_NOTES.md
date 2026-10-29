@@ -590,7 +590,7 @@ Tổng cộng 334 mục từ 200 file.
 
 > Comment APIs (blog-service qua api-gateway).
 > Công khai (không cần token):
->  GET /comments?targetType=BLOG&targetId=&page=&size=   (comment cấp 1, cũ nhất trước)
+>  GET /comments?targetType=BLOG|VIDEO&targetId=&page=&size=   (comment cấp 1, cũ nhất trước)
 >  GET /comments/:id/replies?page=&size=                  (reply của một comment, cũ nhất trước)
 > Cần đăng nhập:
 >  POST   /comments        body { targetType, targetId, parentCommentId?, content }
@@ -605,6 +605,7 @@ Tổng cộng 334 mục từ 200 file.
 > - Comment mới/sửa đi qua kiểm duyệt: có thể bị ẩn hoặc chờ duyệt mà response vẫn trả bình thường  
 >  (không có field status) -> UI không được giả định comment vừa gửi sẽ hiện ngay trong danh sách.  
 > - Nội dung tối đa 500 từ và 5000 ký tự.  
+> - Bình luận video được kiểm duyệt đồng bộ; khi ai-service không phản hồi thì BE trả 503 / 3050 (MODERATION_UNAVAILABLE). Chỉ bình luận được trên nội dung đã PUBLISHED.  
 > Page: { items, page, size, totalElements, totalPages }
 
 ### features/blog/components/AuthorAvatar.jsx
@@ -921,6 +922,12 @@ Tổng cộng 334 mục từ 200 file.
 
 > Cập nhật cache React Query sau khi vote, để không phải tải lại cả feed.
 > `vote` là VoteResponse của BE: { blogId, myVote: 1 | -1 | null, voteScore }.
+
+### features/video/utils/videoVoteCache.js
+
+**Gắn với:** `export function applyVoteToMyVideoVotes(list, vote) {`
+
+> Cập nhật điểm voteScore và trạng thái myVote vào cache React Query của feed và chi tiết video sau khi vote.
 
 ## features/chatbot
 
@@ -2412,6 +2419,19 @@ Tổng cộng 334 mục từ 200 file.
 
 > DELETE /videos/:id — chủ xóa thật, admin xóa người khác thì video bị BANNED.
 
+**Gắn với:** `export async function voteVideo(id, value = 1) {`
+
+> POST /videos/:id/vote — thích (value = 1) hoặc không thích (value = -1) một video đã xuất bản.
+> Gửi cùng giá trị lần hai thì BE hủy vote (toggle). Trả VoteResponse { videoId, myVote, voteScore }.
+
+**Gắn với:** `export async function removeVideoVote(id) {`
+
+> DELETE /videos/:id/vote — bỏ vote rõ ràng; gọi lặp lại không lỗi. Trả VoteResponse với myVote = null.
+
+**Gắn với:** `export async function getMyVideoVotes(videoIds) {`
+
+> GET /videos/me/votes?videoIds=1,2,3 — lấy trạng thái vote của tôi trên tối đa 100 video mỗi lượt gọi (chunk tự động).
+
 ### features/video/api/videoJobApi.js
 
 **Gắn với:** `export async function processVideo(file, { onUploadProgress } = {}) {`
@@ -2447,13 +2467,6 @@ Tổng cộng 334 mục từ 200 file.
 > Thẻ "Tóm tắt công thức nấu ăn (AI Summary)" ở trang xem video: công thức AI bóc tách từ chính video này
 > (GET /ai/videos/by-video/:id, công khai dùng chung cho mọi người nên xem không tốn lượt). Chưa có thì mời bóc tách
 > (POST /ai/videos/process-existing, trừ 1 lượt của gói). Nút ở tiêu đề (VideoMetaHeader) dùng chung trạng thái này.
-
-### features/video/components/CommentsHeader.jsx
-
-**Gắn với:** `export default function CommentsHeader() {`
-
-> BE từ chối targetType=VIDEO với mã lỗi UNSUPPORTED_TARGET_TYPE.
-> Vì vậy phần bình luận được hiển thị thông báo trạng thái tĩnh, không gọi API bình luận để tránh lỗi.
 
 ### features/video/components/NutritionFactsCard.jsx
 
@@ -2580,6 +2593,17 @@ Tổng cộng 334 mục từ 200 file.
 
 > Chi tiết video đã xuất bản (GET /videos/:id).
 > BE tăng 1 lượt xem mỗi lần gọi, nên tắt refetch khi focus để không tăng lượt xem ảo.
+
+### features/video/hooks/useVideoVotes.js
+
+**Gắn với:** `export function useMyVideoVotes(videoIds) {`
+
+> Lấy danh sách vote của tôi trên các video hiển thị (tối đa 100 id mỗi đợt, chunk tự động).
+> Trả Map<videoId, myVote> (1: Thích, -1: Không thích, null: chưa vote).
+
+**Gắn với:** `export function useVoteVideo() {`
+
+> Mutation bình chọn video dạng toggle (POST /videos/:id/vote). Cập nhật cache React Query cho feed, chi tiết và myVotes.
 
 ### features/video/pages/VideoFormScreen.jsx
 

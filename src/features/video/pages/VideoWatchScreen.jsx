@@ -2,13 +2,14 @@ import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, PlaySquare } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/variants/button-variants";
+import CommentSection from "@/features/blog/components/CommentSection";
 import AiSummaryCard from "@/features/video/components/AiSummaryCard";
-import CommentsHeader from "@/features/video/components/CommentsHeader";
 import NutritionFactsCard from "@/features/video/components/NutritionFactsCard";
 import SuggestedVideoList from "@/features/video/components/SuggestedVideoList";
 import VideoMetaHeader from "@/features/video/components/VideoMetaHeader";
 import VideoPlayerFrame from "@/features/video/components/VideoPlayerFrame";
 import { useVideo } from "@/features/video/hooks/useVideos";
+import { useMyVideoVotes } from "@/features/video/hooks/useVideoVotes";
 import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
@@ -18,8 +19,11 @@ export default function VideoWatchScreen() {
   const id = /^[1-9]\d*$/.test(videoId ?? "") ? Number(videoId) : null;
 
   const { data: video, isPending, isError, error } = useVideo(id);
+  const isPublished = video?.status === "PUBLISHED";
   const { data: authors } = usePublicUsers(video ? [video.authorId] : []);
   const author = video ? authors?.get(video.authorId) : null;
+  const { data: myVotes } = useMyVideoVotes(isPublished && id ? [id] : []);
+  const myVote = id ? myVotes?.get(id) : null;
 
   if (id === null || (isError && !isPending)) {
     return (
@@ -56,14 +60,16 @@ export default function VideoWatchScreen() {
           <div className="flex flex-col gap-6 lg:col-span-2">
             <VideoPlayerFrame video={video} />
             <Reveal>
-              <VideoMetaHeader video={video} author={author} />
+              <VideoMetaHeader video={video} author={author} myVote={myVote} />
             </Reveal>
             <Reveal>
               <AiSummaryCard video={video} />
             </Reveal>
-            <Reveal>
-              <CommentsHeader />
-            </Reveal>
+            {isPublished && (
+              <Reveal>
+                <CommentSection targetType="VIDEO" targetId={id} isPublished={isPublished} />
+              </Reveal>
+            )}
           </div>
 
           <div className="flex flex-col gap-6">
