@@ -121,6 +121,11 @@ Giao diện chạy tại: http://localhost:5173
 | `npm run lint` | Kiểm tra code với ESLint |
 | `npm test` | Chạy test tạm (`*.test.js`). Repo không giữ file test lâu dài: viết để kiểm tra, test xong thì xóa |
 
+### 5. Deploy lên Vercel
+- Import repo vào Vercel (preset Vite), thêm các biến `VITE_*` ở Settings → Environment Variables (`VITE_VEGGIEPAL_API_BASE_URL` phải gồm `/api`), sửa biến xong phải Redeploy vì Vite nhúng biến lúc build.
+- `vercel.json` có rewrite mọi đường dẫn về `index.html` để refresh hoặc mở thẳng route con (`/login`, `/recipes/...`) không bị 404 (app là SPA dùng React Router).
+- Origin của FE phải nằm trong CORS của BE và trong "Authorized JavaScript origins" của Google OAuth Client ID.
+
 ---
 
 ## 📁 Cấu trúc thư mục
