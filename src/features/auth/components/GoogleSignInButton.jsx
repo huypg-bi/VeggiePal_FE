@@ -63,11 +63,13 @@ function GoogleButtonWithOverlay({ onError }) {
     }
   };
 
+  const showGoogleButton = !busy && scriptLoadedSuccessfully && width > 0;
+
   return (
-    <div ref={wrapperRef} className="group/google relative mt-3 w-full">
-      <GoogleButtonBody status={busy ? "busy" : scriptLoadedSuccessfully ? "ready" : "loading"} />
-      {!busy && scriptLoadedSuccessfully && width > 0 && (
-        <div className="absolute inset-0 flex h-10 items-center justify-center overflow-hidden rounded-full opacity-0">
+    <div ref={wrapperRef} className="mt-3 w-full">
+      {showGoogleButton ? (
+        // Nút Google phải hiện rõ (opacity 1) vì iframe của Google bỏ qua cú bấm khi bị làm mờ.
+        <div className="flex h-10 items-center justify-center">
           <GoogleLogin
             onSuccess={handleSuccess}
             onError={() => onError("Đăng nhập bằng Google thất bại. Vui lòng thử lại.")}
@@ -78,6 +80,8 @@ function GoogleButtonWithOverlay({ onError }) {
             locale="vi"
           />
         </div>
+      ) : (
+        <GoogleButtonBody status={busy ? "busy" : "loading"} />
       )}
     </div>
   );
@@ -99,11 +103,7 @@ function GoogleButtonBody({ status }) {
       size="md"
       disabled={status === "busy"}
       onClick={onClick}
-      className={
-        status === "missing"
-          ? "mt-3 w-full text-[13px]"
-          : "w-full text-[13px] group-hover/google:bg-white/20"
-      }
+      className={status === "missing" ? "mt-3 w-full text-[13px]" : "w-full text-[13px]"}
     >
       <img src={googleIcon} alt="" className="size-4" />
       {status === "busy" ? "Đang đăng nhập..." : "Tiếp tục với Google"}
