@@ -27,3 +27,20 @@ export async function getNearbyRestaurants({
   }
   return unwrap(res, "Không lấy được danh sách quán chay") ?? [];
 }
+
+/**
+ * GET /restaurants/search — tìm quán theo tên (công khai, tối đa 20 quán, không giới hạn bán kính).
+ * q phải 2 - 100 ký tự (BE trả 400 / 5003 nếu không); quán khớp đầu tên đứng trước, rồi gần nhất.
+ * Có lat / lng thì mỗi quán kèm distanceKm, không thì distanceKm là null.
+ */
+export async function searchRestaurants({ q, lat, lng, veganOnly = false }) {
+  let res;
+  try {
+    res = await apiClient.get("/restaurants/search", {
+      params: { q, lat, lng, veganOnly },
+    });
+  } catch {
+    throw new Error("Không kết nối được máy chủ, vui lòng thử lại");
+  }
+  return unwrap(res, "Không tìm được quán chay") ?? [];
+}

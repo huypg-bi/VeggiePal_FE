@@ -1,11 +1,12 @@
 import { Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { MAX_SEARCH_LENGTH } from "@/features/restaurant-map/utils/mapConfig";
 
 export default function MapSearchBar({ keyword, onKeywordChange }) {
   const handleSubmit = (event) => {
     event.preventDefault();
-    // Danh sách đã lọc theo từng ký tự gõ; nhấn tìm chỉ đóng bàn phím trên điện thoại.
+    // Kết quả tự cập nhật khi gõ (đủ 2 ký tự thì BE tìm theo tên); nhấn tìm chỉ đóng bàn phím trên điện thoại.
     document.activeElement?.blur();
   };
 
@@ -21,7 +22,8 @@ export default function MapSearchBar({ keyword, onKeywordChange }) {
             type="search"
             value={keyword}
             onChange={(event) => onKeywordChange(event.target.value)}
-            placeholder="Tìm theo tên quán hoặc địa chỉ..."
+            placeholder="Tìm theo tên quán (từ 2 ký tự)..."
+            maxLength={MAX_SEARCH_LENGTH}
             aria-label="Tìm quán chay"
             className="h-12 w-full rounded-full border border-border bg-surface pl-11 pr-4 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/30 focus:bg-card focus:ring-2 focus:ring-brand/10"
           />

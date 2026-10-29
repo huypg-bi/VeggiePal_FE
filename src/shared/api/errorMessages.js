@@ -198,6 +198,7 @@ export const RESTAURANT_ERROR_MESSAGES = {
   1018: "Dữ liệu tìm kiếm không hợp lệ",
   5001: "Tọa độ không hợp lệ",
   5002: "Bán kính tìm kiếm phải lớn hơn 0 và tối đa 10 km",
+  5003: "Từ khóa tìm quán phải dài từ 2 đến 100 ký tự",
 };
 
 // ai-service (60xx), gợi ý nội dung trang chủ

@@ -2244,10 +2244,17 @@ Tổng cộng 334 mục từ 200 file.
 > }
 > Kết quả xếp theo khoảng cách tăng dần, không phân trang. radiusKm tối đa 10.
 > Lỗi: 1018 thiếu/sai kiểu tham số, 5001 tọa độ ngoài phạm vi, 5002 bán kính ngoài (0, 10].
+>  GET /restaurants/search?q=&lat=&lng=[&veganOnly=false]  tìm theo tên, xem `searchRestaurants`  
 
 **Gắn với:** `export async function getNearbyRestaurants({`
 
 > GET /restaurants/nearby — quán chay trong bán kính `radiusKm` (tối đa 10), gần nhất trước.
+
+**Gắn với:** `export async function searchRestaurants({ q, lat, lng, veganOnly = false }) {`
+
+> GET /restaurants/search — tìm quán theo TÊN (không tìm theo địa chỉ), công khai, tối đa 20 quán, không phân trang và không theo bán kính.
+> q phải 2 - 100 ký tự (ngoài khoảng: 400 / 5003). Thứ tự: quán có tên bắt đầu bằng q trước, rồi gần nhất (hoặc A-Z khi không có lat / lng); không phân biệt hoa thường và dấu.
+> Có lat / lng thì mỗi quán kèm `distanceKm`, không thì null (`formatDistance` trả chuỗi rỗng nên thẻ không hiện khoảng cách).
 
 ### features/restaurant-map/components/MapPanel.jsx
 
@@ -2257,14 +2264,16 @@ Tổng cộng 334 mục từ 200 file.
 > - restaurants: quán đang hiện trong danh sách (đã lọc), vẽ thành chấm; > 50 quán thì gom cụm  
 > - location / isDefaultLocation / radiusKm: tâm tìm kiếm (chấm xanh là vị trí thật) và vòng bán kính  
 > - selectedId / onSelect(id | null): quán đang chọn (có ghim lớn và popup), đồng bộ với danh sách  
-> - onLocate / locating: nút "Vị trí của tôi" xin định vị lại
+> - onLocate / locating: nút "Vị trí của tôi" xin định vị lại  
+> - searchMode: đang hiện kết quả tìm theo tên. Quán có thể nằm ngoài vòng bán kính nên ẩn vòng và `fitBounds` vừa các kết quả mới (chỉ khi tập kết quả đổi);
+>   thoát chế độ này thì bay về vòng bán kính như bình thường
 
 ### features/restaurant-map/components/MapSearchBar.jsx
 
 **Gắn với:** `export default function MapSearchBar({ keyword, onKeywordChange }) {`
 
-> Thanh tìm kiếm quán. BE chưa tìm theo tên nên từ khóa lọc ngay trên danh sách đã tải.  
-> - keyword / onKeywordChange: ô tìm kiếm (lọc theo tên hoặc địa chỉ)
+> Thanh tìm kiếm quán. Từ khóa đủ 2 ký tự thì màn hình gọi BE tìm theo tên (xem RestaurantMapScreen), ít hơn thì chỉ lọc trên danh sách quanh đây.  
+> - keyword / onKeywordChange: ô tìm kiếm (tối đa 100 ký tự, khớp giới hạn của BE)
 
 ### features/restaurant-map/components/RestaurantList.jsx
 
@@ -2273,7 +2282,8 @@ Tổng cộng 334 mục từ 200 file.
 > Danh sách quán bên trái bản đồ. Toàn bộ dữ liệu và state nằm ở RestaurantMapScreen.  
 > - restaurants: quán đã lọc và sắp xếp, hiện 5 quán một lần ("Xem thêm" để mở rộng)  
 > - resetKey: đổi giá trị này thì số quán đang hiện quay lại 5  
-> - isRefreshing: đang tải lại (đổi bán kính) trong khi vẫn hiện kết quả cũ
+> - isRefreshing: đang tải lại (đổi bán kính) trong khi vẫn hiện kết quả cũ  
+> - searchTerm: từ khóa đang được BE tìm (null khi không tìm theo tên); có giá trị thì tiêu đề đổi thành "N quán khớp ..." và ô bán kính bị khóa vì BE không xét bán kính
 
 **Trong:** `RestaurantList` · **Gắn với:** `useEffect(() => {`
 
@@ -2287,6 +2297,12 @@ Tổng cộng 334 mục từ 200 file.
 > Quán chay quanh một điểm (GET /restaurants/nearby), gần nhất trước.
 > params: { lat, lng, radiusKm, veganOnly }. Trả về query của React Query + `restaurants`
 > (mảng, luôn có giá trị). Đổi bán kính thì giữ kết quả cũ trong lúc tải để danh sách không nháy trống.
+
+### features/restaurant-map/hooks/useSearchRestaurants.js
+
+**Gắn với:** `export function useSearchRestaurants({ q, lat, lng, veganOnly = false }) {`
+
+> Tìm quán theo tên (GET /restaurants/search). `q` null thì không gọi (enabled = false). Giữ kết quả cũ trong lúc tải từ khóa mới để danh sách không nháy trống.
 
 ### features/restaurant-map/hooks/useUserLocation.js
 
@@ -2309,14 +2325,16 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export default function RestaurantMapScreen() {`
 
-> Trang Bản đồ quán chay (location-service: GET /restaurants/nearby).
+> Trang Bản đồ quán chay (location-service: GET /restaurants/nearby và GET /restaurants/search).
 > Màn hình giữ toàn bộ state; danh sách và bản đồ cùng đọc một mảng quán đã lọc.
+> `searchTerm` = từ khóa đã cắt khoảng trắng, dài 2 - 100 ký tự và đứng yên 400 ms (gõ dở thì null, danh sách quanh đây lọc ngay trên máy);
+> có `searchTerm` thì danh sách / bản đồ / trạng thái tải lấy từ kết quả tìm theo tên, không thì từ danh sách quanh đây. Hai truy vấn dùng chung khóa cache theo từ khóa và tọa độ làm tròn.
 
 ### features/restaurant-map/queryKeys.js
 
 **Gắn với:** `const round = (n) => Math.round(n * 1e4) / 1e4;`
 
-> Khóa cache React Query của feature restaurant-map.
+> Khóa cache React Query của feature restaurant-map (`nearby` và `search`).
 > Tọa độ làm tròn 4 chữ số thập phân (~11 m) để GPS nhích nhẹ không gọi lại API.
 
 ### features/restaurant-map/utils/mapConfig.js
@@ -2325,6 +2343,10 @@ Tổng cộng 334 mục từ 200 file.
 
 > Màu marker: paint của Mapbox không đọc được token CSS, nên lặp lại giá trị
 > `--brand` trong globals.css cho từng theme.
+
+**Gắn với:** `export const MIN_SEARCH_LENGTH = 2;`
+
+> Độ dài từ khóa BE chấp nhận khi tìm quán theo tên (2 - 100 ký tự; ngoài khoảng là lỗi 5003).
 
 **Gắn với:** `export function zoomForRadius(radiusKm) {`
 
@@ -2337,6 +2359,10 @@ Tổng cộng 334 mục từ 200 file.
 > Tọa độ theo [kinh độ, vĩ độ]; vòng khép kín (điểm cuối trùng điểm đầu).
 
 ### features/restaurant-map/utils/restaurantFormat.js
+
+**Gắn với:** `export function getSearchTerm(keyword) {`
+
+> Từ khóa đã cắt khoảng trắng nếu dài 2 - 100 ký tự (đủ để gọi BE tìm theo tên), ngắn hoặc dài hơn thì null.
 
 **Gắn với:** `export function sortRestaurants(restaurants, sort) {`
 
