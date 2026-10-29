@@ -1,5 +1,5 @@
 import { Link, NavLink, Outlet } from "react-router-dom";
-import { Activity, CreditCard, ExternalLink, FolderTree, LayoutDashboard, LogOut, Salad, ShieldAlert, ShieldCheck } from "lucide-react";
+import { Activity, CreditCard, ExternalLink, FolderTree, LayoutDashboard, LogOut, Salad, ShieldAlert, ShieldCheck, Users } from "lucide-react";
 
 import logo from "@/assets/img/logo.png";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import ThemeToggle from "@/shared/components/ThemeToggle";
 
 const NAV_ITEMS = [
   { to: "/admin", label: "Tổng quan", icon: LayoutDashboard, end: true },
+  { to: "/admin/users", label: "Người dùng", icon: Users },
   { to: "/admin/categories", label: "Danh mục", icon: FolderTree },
   { to: "/admin/ingredients", label: "Nguyên liệu", icon: Salad },
   { to: "/admin/moderation", label: "Kiểm duyệt", icon: ShieldAlert, showBadge: true },

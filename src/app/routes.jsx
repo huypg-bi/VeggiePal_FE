@@ -18,6 +18,7 @@ import BlogScreen from "@/features/blog/pages/BlogScreen";
 import BlogDetailScreen from "@/features/blog/pages/BlogDetailScreen";
 import AdminLayout from "@/features/admin/components/AdminLayout";
 import AdminCategoriesScreen from "@/features/admin/pages/AdminCategoriesScreen";
+import AdminUsersScreen from "@/features/admin/pages/AdminUsersScreen";
 import AdminDashboardScreen from "@/features/admin/pages/AdminDashboardScreen";
 import AdminAiMonitoringScreen from "@/features/admin/pages/AdminAiMonitoringScreen";
 import AdminPaymentsScreen from "@/features/admin/pages/AdminPaymentsScreen";
@@ -55,6 +56,15 @@ export default function AppRoutes() {
       />
       <Route path="/forgot-password" element={<AuthScreen />} />
       <Route path="/verify-otp" element={<AuthScreen />} />
+      <Route path="/reset-password" element={<AuthScreen />} />
+      <Route
+        path="/verify-email"
+        element={
+          <RedirectIfAuthenticated>
+            <AuthScreen />
+          </RedirectIfAuthenticated>
+        }
+      />
       <Route path="/" element={<HomeScreen />} />
 
       {/* Blog công khai với khách (BE cho GET /blogs không cần token) */}
@@ -203,6 +213,7 @@ export default function AppRoutes() {
       <Route element={<AdminRoute />}>
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboardScreen />} />
+          <Route path="/admin/users" element={<AdminUsersScreen />} />
           <Route path="/admin/categories" element={<AdminCategoriesScreen />} />
           <Route path="/admin/ingredients" element={<AdminIngredientsScreen />} />
           <Route path="/admin/moderation" element={<AdminModerationScreen />} />

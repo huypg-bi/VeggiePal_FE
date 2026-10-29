@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import {
   Edit3,
   Video,
   Users,
+  UserCheck,
   Bookmark,
   Activity,
   Heart,
@@ -11,8 +13,12 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useAuthStore } from "@/features/auth/store/authStore";
+import FollowListDialog from "@/features/blog/components/FollowListDialog";
 import { useChallenge } from "@/features/blog/hooks/useChallenge";
+import { useFollowStats } from "@/features/blog/hooks/useFollow";
 import { CHALLENGE_BADGE_NAME } from "@/features/blog/utils/challenge";
+import { useFavoriteRecipes } from "@/features/recipe/hooks/useRecipeFavorites";
 import { useProfileStats } from "@/features/profile/hooks/useProfileStats";
 import { useMySubscription } from "@/features/payment/hooks/useMySubscription";
 import { formatDate } from "@/features/payment/utils/paymentFormat";
@@ -26,12 +32,22 @@ export default function ProfileBanner({ profile }) {
   const { subscription } = useMySubscription();
   // Huy hiệu mở khóa khi hoàn thành thử thách 7 ngày ở trang Cộng đồng.
   const { completed: hasChallengeBadge } = useChallenge();
+  const [followDialogKind, setFollowDialogKind] = useState(null);
+
+  const authUser = useAuthStore((s) => s.user);
+  const userId = profile?.id ?? authUser?.id;
+  const { data: followStats, isLoading: isFollowStatsLoading } = useFollowStats(userId);
+  // Chỉ cần tổng số nên xin 1 mục.
+  const { data: favoritePage, isPending: isFavoritesPending } = useFavoriteRecipes({ size: 1 });
 
   const displayName = profile?.fullName?.trim() || "Người dùng VeggiePal";
   const avatarUrl = profile?.avatarUrl || DEFAULT_AVATAR;
 
   const { latest } = stats;
   const totalPosts = stats.loading ? "…" : stats.blogTotal + stats.recipeTotal;
+  const followersCount = isFollowStatsLoading && !followStats ? "…" : (followStats?.followers ?? 0).toLocaleString("vi-VN");
+  const savedRecipesCount = isFavoritesPending ? "…" : (favoritePage?.totalElements ?? 0).toLocaleString("vi-VN");
+  const followingCount = isFollowStatsLoading && !followStats ? "…" : (followStats?.following ?? 0).toLocaleString("vi-VN");
 
   return (
     <div className="mb-2">
@@ -124,8 +140,8 @@ export default function ProfileBanner({ profile }) {
           </div>
         </div>
 
-        {/* 4 Stats */}
-        <div className="mt-6 grid grid-cols-2 gap-3 border-t border-border pt-5 md:grid-cols-4">
+        {/* 5 Stats */}
+        <div className="mt-6 grid grid-cols-2 gap-3 border-t border-border pt-5 sm:grid-cols-3 lg:grid-cols-5">
           {/* 1. Bài viết & Video lấy từ tổng thực tế /blogs/me và /recipes/me */}
           <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand">
@@ -137,30 +153,49 @@ export default function ProfileBanner({ profile }) {
             </div>
           </div>
 
-          {/* 2. Followers — Giữ nguyên theo P3 */}
-          <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-3">
+          {/* 2. Người theo dõi: lấy từ GET /users/{id}/follow-stats, bấm mở danh sách */}
+          <button
+            type="button"
+            onClick={() => setFollowDialogKind("followers")}
+            className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-3 text-left transition hover:border-brand/40 hover:bg-surface/80 cursor-pointer"
+          >
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sky-50 text-sky-700 dark:bg-sky-950/60 dark:text-sky-400">
               <Users className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-base font-bold text-ink">3.8k</div>
+              <div className="text-base font-bold text-ink">{followersCount}</div>
               <div className="text-xs text-subtle">Người theo dõi</div>
             </div>
-          </div>
+          </button>
 
-          {/* 3. Lượt lưu — Giữ nguyên theo P3 */}
+          {/* 3. Đang theo dõi: lấy từ GET /users/{id}/follow-stats, bấm mở danh sách */}
+          <button
+            type="button"
+            onClick={() => setFollowDialogKind("following")}
+            className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-3 text-left transition hover:border-brand/40 hover:bg-surface/80 cursor-pointer"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-400">
+              <UserCheck className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="text-base font-bold text-ink">{followingCount}</div>
+              <div className="text-xs text-subtle">Đang theo dõi</div>
+            </div>
+          </button>
+
+          {/* 4. Công thức đã lưu: tổng số trong GET /recipes/favorites */}
           <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400">
               <Bookmark className="h-5 w-5" />
             </div>
             <div>
-              <div className="text-base font-bold text-ink">12.4k</div>
-              <div className="text-xs text-subtle">Lượt lưu công thức</div>
+              <div className="text-base font-bold text-ink">{savedRecipesCount}</div>
+              <div className="text-xs text-subtle">Công thức đã lưu</div>
             </div>
           </div>
 
-          {/* 4. Thẻ BMI: lấy từ health record mới nhất */}
-          <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-3">
+          {/* 5. Thẻ BMI: lấy từ health record mới nhất */}
+          <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-3 col-span-2 sm:col-span-1">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-teal-50 text-teal-700 dark:bg-teal-950/60 dark:text-teal-400">
               <Activity className="h-5 w-5" />
             </div>
@@ -173,6 +208,15 @@ export default function ProfileBanner({ profile }) {
           </div>
         </div>
       </div>
+
+      {/* Hộp thoại danh sách người theo dõi / đang theo dõi */}
+      {followDialogKind && (
+        <FollowListDialog
+          userId={userId ?? "me"}
+          initialKind={followDialogKind}
+          onClose={() => setFollowDialogKind(null)}
+        />
+      )}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { History, Loader2 } from "lucide-react";
+import { History, Loader2, RotateCcw } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,6 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import PlanDaysPreview from "@/features/meal-planner/components/PlanDaysPreview";
+import { useRestoreMealPlanVersion } from "@/features/meal-planner/hooks/useMealPlanMutations";
 import { useMealPlan, useMealPlanVersion, useMealPlanVersions } from "@/features/meal-planner/hooks/useMealPlans";
 import { averageDailyTotals, formatDateTime } from "@/features/meal-planner/utils/mealPlan";
 
@@ -27,6 +29,9 @@ function describeAverage(plan) {
 export default function PlanVersionsButton({ plan }) {
   const [open, setOpen] = useState(false);
   const [expandedVersion, setExpandedVersion] = useState(null);
+  // Số phiên bản đang chờ xác nhận khôi phục (chỉ một dòng được hỏi một lúc).
+  const [confirmVersion, setConfirmVersion] = useState(null);
+  const restore = useRestoreMealPlanVersion();
   const { data: versions, isPending, isError, error, refetch } = useMealPlanVersions(plan.id, open);
   const { data: current } = useMealPlan(plan.id, open);
   // Phiên bản hiện tại lấy mới từ server; chưa tải xong thì dùng bản đã có trong danh sách trang.
@@ -34,7 +39,21 @@ export default function PlanVersionsButton({ plan }) {
 
   const handleOpenChange = (next) => {
     setOpen(next);
-    if (!next) setExpandedVersion(null);
+    if (!next) {
+      setExpandedVersion(null);
+      setConfirmVersion(null);
+    }
+  };
+
+  const handleRestore = async (version) => {
+    try {
+      await restore.mutateAsync({ planId: plan.id, version });
+      toast.success(`Đã khôi phục phiên bản ${version} thành phiên bản mới của thực đơn`);
+      setConfirmVersion(null);
+      setExpandedVersion(null);
+    } catch (err) {
+      toast.error(err.message);
+    }
   };
 
   return (
@@ -51,7 +70,7 @@ export default function PlanVersionsButton({ plan }) {
             <DialogDescription>
               “{currentPlan.name}” đang ở phiên bản {currentPlan.version ?? 1}
               {currentPlan.updatedAt && ` (cập nhật lúc ${formatDateTime(currentPlan.updatedAt)})`}. Mỗi lần cập nhật
-              theo chỉ số sức khỏe hoặc sửa thủ công, bản trước đó được lưu lại ở đây.
+              theo chỉ số sức khỏe, sửa thủ công hoặc khôi phục, bản trước đó được lưu lại ở đây.
             </DialogDescription>
           </DialogHeader>
 
@@ -89,16 +108,56 @@ export default function PlanVersionsButton({ plan }) {
                     </div>
                     {item.changeSummary && <p className="mt-1 text-body">{item.changeSummary}</p>}
                     {average && <p className="mt-1 text-xs text-subtle">{average}</p>}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="mt-2"
-                      aria-expanded={expandedVersion === item.version}
-                      onClick={() => setExpandedVersion((value) => (value === item.version ? null : item.version))}
-                    >
-                      {expandedVersion === item.version ? "Ẩn nội dung" : "Xem nội dung"}
-                    </Button>
+                    <div className="mt-2 flex flex-wrap items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        aria-expanded={expandedVersion === item.version}
+                        onClick={() => setExpandedVersion((value) => (value === item.version ? null : item.version))}
+                      >
+                        {expandedVersion === item.version ? "Ẩn nội dung" : "Xem nội dung"}
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="soft"
+                        size="sm"
+                        disabled={restore.isPending}
+                        onClick={() => setConfirmVersion(item.version)}
+                      >
+                        <RotateCcw className="size-4" />
+                        Khôi phục
+                      </Button>
+                    </div>
+                    {confirmVersion === item.version && (
+                      <div className="mt-3 flex flex-col items-start gap-2 rounded-2xl bg-warning/10 px-3 py-2.5">
+                        <p className="text-xs text-body">
+                          Khôi phục phiên bản {item.version} thành phiên bản {(currentPlan.version ?? 1) + 1}? Bản đang
+                          dùng được lưu vào lịch sử nên bạn vẫn quay lại được. Món trong bản này được kiểm tra lại theo
+                          dị ứng hiện tại của bạn. Nhật ký đã ghi không bị đổi và không tốn lượt tạo thực đơn.
+                        </p>
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            disabled={restore.isPending}
+                            onClick={() => handleRestore(item.version)}
+                          >
+                            {restore.isPending && <Loader2 className="size-4 animate-spin" />}
+                            {restore.isPending ? "Đang khôi phục..." : "Xác nhận khôi phục"}
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            disabled={restore.isPending}
+                            onClick={() => setConfirmVersion(null)}
+                          >
+                            Hủy
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                     {expandedVersion === item.version && <VersionDetail planId={plan.id} version={item.version} />}
                   </li>
                 );

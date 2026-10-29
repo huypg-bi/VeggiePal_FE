@@ -8,6 +8,10 @@ export const RADIUS_OPTIONS_KM = [1, 3, 5, 10];
 export const DEFAULT_RADIUS_KM = 5;
 export const MAX_RADIUS_KM = 10;
 
+// BE chỉ tìm theo tên khi từ khóa dài 2 - 100 ký tự (lỗi 5003 nếu ngoài khoảng này).
+export const MIN_SEARCH_LENGTH = 2;
+export const MAX_SEARCH_LENGTH = 100;
+
 export const MARKER_COLORS = {
   light: { brand: "#1d9d5a", text: "#ffffff", stroke: "#ffffff" },
   dark: { brand: "#34c37c", text: "#06170e", stroke: "#10231a" },

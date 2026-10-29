@@ -23,10 +23,10 @@ export function useRecipe(id) {
   });
 }
 
-export function useRecipeFeed({ keyword, size = 12 } = {}) {
+export function useRecipeFeed({ keyword, sort, size = 12 } = {}) {
   const query = useInfiniteQuery({
-    queryKey: recipeKeys.feed({ keyword, size }),
-    queryFn: ({ pageParam }) => getRecipes({ keyword, page: pageParam, size }),
+    queryKey: recipeKeys.feed({ keyword, sort, size }),
+    queryFn: ({ pageParam }) => getRecipes({ keyword, sort, page: pageParam, size }),
     initialPageParam: 0,
     getNextPageParam: getNextPageNumber,
     staleTime: 60 * 1000,

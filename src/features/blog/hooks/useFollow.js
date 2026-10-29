@@ -52,6 +52,11 @@ export function useSetFollow() {
         const rest = old.filter((id) => id !== userId);
         return follow ? [...rest, userId] : rest;
       });
+      // Cập nhật lại số liệu theo dõi của chính tôi (số "đang theo dõi" thay đổi).
+      const myId = useAuthStore.getState().user?.id;
+      if (myId) {
+        queryClient.invalidateQueries({ queryKey: blogKeys.followStats(myId) });
+      }
       queryClient.invalidateQueries({ queryKey: blogKeys.followingFeeds });
       // Hộp thoại danh sách đang mở thì giữ nguyên hàng vừa bỏ theo dõi (để còn theo dõi lại), chỉ đánh dấu cũ để lần mở sau tải mới.
       queryClient.invalidateQueries({ queryKey: blogKeys.followLists, refetchType: "none" });

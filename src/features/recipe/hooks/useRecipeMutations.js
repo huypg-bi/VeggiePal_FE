@@ -5,13 +5,17 @@ import {
   deleteRecipe,
   publishRecipe,
   updateRecipe,
+  uploadRecipeImage,
 } from "@/features/recipe/api/recipeApi";
-import { recipeKeys } from "@/features/recipe/queryKeys";
+import { recipeFavoriteKeys, recipeKeys } from "@/features/recipe/queryKeys";
 
 // Mọi thay đổi công thức làm mới toàn bộ cache "recipes" (danh sách công khai, chi tiết, của tôi).
 function useInvalidateRecipes() {
   const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ queryKey: recipeKeys.all });
+  return () => {
+    queryClient.invalidateQueries({ queryKey: recipeKeys.all });
+    queryClient.invalidateQueries({ queryKey: recipeFavoriteKeys.all });
+  };
 }
 
 /** Tạo công thức (luôn là DRAFT). mutate(payload) -> RecipeResponse. */
@@ -39,4 +43,13 @@ export function usePublishRecipe() {
 export function useDeleteRecipe() {
   const invalidate = useInvalidateRecipes();
   return useMutation({ mutationFn: deleteRecipe, onSuccess: invalidate });
+}
+
+/** Tải / thay ảnh công thức. mutate({ id, file }) -> RecipeResponse có imageUrl mới. */
+export function useUploadRecipeImage() {
+  const invalidate = useInvalidateRecipes();
+  return useMutation({
+    mutationFn: ({ id, file }) => uploadRecipeImage(id, file),
+    onSuccess: invalidate,
+  });
 }

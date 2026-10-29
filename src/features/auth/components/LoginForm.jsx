@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -38,11 +39,19 @@ export default function LoginForm({ onSwitchMode }) {
 
   const onSubmit = async (values) => {
     try {
-      const { token, user } = await login(values);
-      setAuth({ token, user, remember: Boolean(values.remember) });
+      const { token, refreshToken, user } = await login(values);
+      setAuth({ token, refreshToken, user, remember: Boolean(values.remember) });
       // ADMIN vào thẳng trang quản trị; người dùng thường quay lại trang trước đó (hoặc "/").
       navigate(resolvePostLoginPath(user, from), { replace: true });
     } catch (err) {
+      // 1023: mật khẩu đúng nhưng chưa xác minh email -> sang bước nhập mã (và xin mã mới).
+      if (err.code === 1023) {
+        toast.info(err.message);
+        navigate("/verify-email", {
+          state: { email: values.email.trim().toLowerCase(), sendCode: true, from: location.state?.from },
+        });
+        return;
+      }
       setError("root", { message: err.message || "Đăng nhập thất bại" });
     }
   };
@@ -70,7 +79,7 @@ export default function LoginForm({ onSwitchMode }) {
               id={emailId}
               type="text"
               autoComplete="email"
-              placeholder="Nhập email hoặc số điện thoại..."
+              placeholder="Nhập email của bạn..."
               aria-invalid={Boolean(errors.email)}
               {...register("email")}
             />

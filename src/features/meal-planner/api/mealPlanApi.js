@@ -1,6 +1,6 @@
 import { buildHealthUpdateBody } from "@/features/meal-planner/utils/mealPlan";
 import apiClient from "@/shared/api/apiClient";
-import { MEAL_PLAN_ERROR_MESSAGES } from "@/shared/api/errorMessages";
+import { MEAL_PLAN_ERROR_MESSAGES, MEAL_PLAN_RESTORE_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
 // Tạo thực đơn gọi LLM (đọc tối đa 45s, thử lại 2 lần) nên cho chờ lâu hơn mặc định.
 const CREATE_TIMEOUT_MS = 120_000;
@@ -106,6 +106,24 @@ export async function getMealPlanVersion(id, version) {
 export async function getMealPlanVersions(id) {
   const res = await apiClient.get(`/ai/meal-plans/${id}/versions`);
   return unwrap(res, "Không lấy được lịch sử phiên bản") ?? [];
+}
+
+/** POST /ai/meal-plans/:id/versions/:version/restore — đưa bản cũ thành phiên bản mới, không gọi AI nên không tốn lượt. */
+export async function restoreMealPlanVersion(id, version) {
+  const res = await apiClient.post(`/ai/meal-plans/${id}/versions/${version}/restore`);
+  const restoreMessage = MEAL_PLAN_RESTORE_ERROR_MESSAGES[res.data?.code];
+  if (res.status >= 400 && restoreMessage) {
+    const error = new Error(restoreMessage);
+    error.code = res.data.code;
+    throw error;
+  }
+  return unwrap(res, "Khôi phục phiên bản thất bại");
+}
+
+/** GET /ai/meal-plans/usage — lượt tạo thực đơn của tháng này: { planCode, limit, used, remaining, periodStart, resetsOn }. */
+export async function getMealPlanUsage() {
+  const res = await apiClient.get("/ai/meal-plans/usage");
+  return unwrap(res, "Không lấy được số lượt tạo thực đơn");
 }
 
 export async function updatePlanFromHealth(id, { confirm = false, customTarget, changeSummary } = {}) {

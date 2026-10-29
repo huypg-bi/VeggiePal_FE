@@ -11,9 +11,27 @@ export const AUTH_ERROR_MESSAGES = {
   1010: "Vui lòng nhập mật khẩu",
   1018: "Dữ liệu chưa hợp lệ, vui lòng kiểm tra lại",
   1019: "Không xác thực được tài khoản Google. Vui lòng thử lại.",
+  1021: "Tài khoản của bạn đã bị khóa, vui lòng liên hệ quản trị viên",
+  1022: "Tài khoản hiện không hoạt động, vui lòng liên hệ quản trị viên",
+  1023: "Tài khoản chưa xác minh email, vui lòng nhập mã xác minh đã gửi qua email",
+  1027: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
+  1028: "Mã xác nhận không đúng",
+  1029: "Mã đã hết hạn hoặc nhập sai quá nhiều lần, vui lòng gửi mã mới",
+  1030: "Phiên đặt lại mật khẩu đã hết hạn, vui lòng bắt đầu lại",
+  1031: "Không gửi được email, vui lòng thử lại sau",
 };
 
 // identity-service (10xx) + nutrition-service (20xx), dùng cho hồ sơ, chỉ số sức khỏe, dị ứng
+export const ADMIN_USER_ERROR_MESSAGES = {
+  1007: "Không tìm thấy người dùng",
+  1008: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
+  1009: "Bạn không có quyền quản trị người dùng",
+  1018: "Dữ liệu không hợp lệ (ví dụ: mở khóa tài khoản không bị khóa)",
+  1024: "Bạn không thể thao tác lên tài khoản của chính mình",
+  1025: "Không thể thao tác lên tài khoản quản trị viên khác",
+  1026: "Vui lòng nhập lý do khóa (tối đa 500 ký tự)",
+};
+
 const INVALID_DATA = "Dữ liệu chưa hợp lệ, vui lòng kiểm tra lại";
 const HEIGHT_INVALID = "Chiều cao 50 đến 250 cm, tối đa 1 chữ số thập phân";
 const WEIGHT_INVALID = "Cân nặng 20 đến 300 kg, tối đa 1 chữ số thập phân";
@@ -171,6 +189,10 @@ export const RECIPE_ERROR_MESSAGES = {
   4113: "Đơn vị nguyên liệu tối đa 30 ký tự",
   4114: "Ghi chú nguyên liệu tối đa 300 ký tự",
   4115: "Mỗi bước thực hiện tối đa 2000 ký tự",
+  4116: "Vui lòng chọn ảnh cho công thức",
+  4117: "Ảnh công thức không được vượt quá 5MB",
+  4118: "Ảnh công thức phải là JPEG hoặc PNG",
+  1017: "Không tải được ảnh lên, vui lòng thử lại sau",
 };
 
 // location-service (50xx)
@@ -178,6 +200,7 @@ export const RESTAURANT_ERROR_MESSAGES = {
   1018: "Dữ liệu tìm kiếm không hợp lệ",
   5001: "Tọa độ không hợp lệ",
   5002: "Bán kính tìm kiếm phải lớn hơn 0 và tối đa 10 km",
+  5003: "Từ khóa tìm quán phải dài từ 2 đến 100 ký tự",
 };
 
 // ai-service (60xx), gợi ý nội dung trang chủ
@@ -215,6 +238,12 @@ export const MEAL_PLAN_ERROR_MESSAGES = {
   6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
 };
 
+// ai-service, khôi phục phiên bản thực đơn: 6018 / 6019 mang nghĩa khác bảng chung vì không phải do người dùng chọn món
+export const MEAL_PLAN_RESTORE_ERROR_MESSAGES = {
+  6018: "Phiên bản này có món không còn là món thuần chay nên chưa khôi phục được",
+  6019: "Phiên bản này có món chứa thành phần gây dị ứng của bạn (dị ứng đã đổi sau khi lưu bản này) nên chưa khôi phục được",
+};
+
 // ai-service (60xx), bóc tách công thức từ video
 export const VIDEO_JOB_ERROR_MESSAGES = {
   6000: "Tệp không phải video hợp lệ, vui lòng chọn tệp video khác",
@@ -234,6 +263,23 @@ export const VIDEO_JOB_ERROR_MESSAGES = {
   6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
 };
 
+// ai-service (60xx), trợ lý AI chatbot
+export const CHATBOT_ERROR_MESSAGES = {
+  6000: "Câu hỏi không hợp lệ hoặc quá dài (tối đa 4000 ký tự)",
+  6001: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
+  6002: "Không tìm thấy cuộc trò chuyện này",
+  6003: "Bạn đã dùng hết lượt hỏi AI hôm nay. Nâng cấp gói thành viên tại /pricing để nhận thêm lượt hoặc quay lại vào ngày mai",
+  6004: "Trợ lý AI đang tạm thời quá tải, vui lòng thử lại sau ít phút",
+  6005: "Tính năng AI chưa được cấu hình trên máy chủ",
+  6006: "Dịch vụ liên quan đang bận, vui lòng thử lại sau",
+  6007: "AI trả về kết quả không hợp lệ, vui lòng thử lại",
+  6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
+};
+
+export const CHATBOT_GUEST_ERROR_MESSAGES = {
+  6001: "Phiên dùng thử đã hết hạn. Hãy gửi lại câu hỏi để tạo phiên mới",
+  6003: "Bạn đã dùng hết lượt hỏi thử hôm nay. Hãy đăng nhập để tiếp tục trò chuyện",
+};
 // payment-service (60xx, trùng số với ai-service nhưng là service khác)
 export const PAYMENT_ERROR_MESSAGES = {
   1008: "Phiên đăng nhập hết hạn",

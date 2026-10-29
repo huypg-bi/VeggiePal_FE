@@ -254,9 +254,20 @@ Tổng cộng 334 mục từ 200 file.
 **Gắn với:** `export default function AdminModerationScreen() {`
 
 > Trang kiểm duyệt nội dung của Admin (/admin/moderation):  
-> - Hàng đợi các case cần duyệt (REVIEW_REQUIRED, cũ nhất trước).  
-> - Hiển thị: caseId, loại nội dung (BLOG, VIDEO, COMMENT), externalContentId, authorId, content (nội dung bị gắn cờ), categories, reason, confidence.  
-> - Hỗ trợ chế độ Mock Data để test giao diện và luồng duyệt/từ chối ngay cả khi BE chưa có dữ liệu.
+> - Giao diện 3 tab điều hướng qua URL param (?tab=queue | logs | history).  
+> - Tab "Hàng đợi kiểm duyệt" (mặc định): Hàng đợi các case cần duyệt (REVIEW_REQUIRED, cũ nhất trước); hiển thị caseId, loại nội dung (BLOG, VIDEO, COMMENT), externalContentId, authorId, content (nội dung bị gắn cờ), categories, reason, confidence; hỗ trợ chế độ Mock Data để test giao diện và luồng duyệt/từ chối ngay cả khi BE chưa có dữ liệu.  
+> - Tab "Nhật ký kiểm duyệt" (ModerationLogsSection): Xem lịch sử các lượt gọi AI kiểm duyệt (GET /ai/admin/monitoring/logs/search?feature=MODERATION) gồm thời gian, tác giả, model, prompt/completion tokens, độ trễ ms, trạng thái thành công/thất bại và bộ lọc theo trạng thái, userId, khoảng ngày.  
+> - Tab "Đã xử lý": Giao diện giữ chỗ thông báo tính năng xem lịch sử các ca đã duyệt/từ chối bởi AI và Admin kèm quyết định, lý do, độ tin cậy và người duyệt (chờ Backend hoàn thành endpoint GET /ai/admin/moderation/history theo task B05).
+
+### features/admin/moderation/components/ModerationLogsSection.jsx
+
+**Gắn với:** `export default function ModerationLogsSection() {`
+
+> Khối nhật ký kiểm duyệt hiển thị các lượt gọi AI kiểm duyệt nội dung trong trang /admin/moderation.  
+> - Gọi GET /ai/admin/monitoring/logs/search với tham số cố định feature=MODERATION thông qua hook useUsageLogs.  
+> - Bộ lọc: trạng thái (Tất cả, SUCCESS, FAILED), mã người dùng userId (có debounce 400ms), khoảng ngày từ ngày - đến ngày.  
+> - Bảng danh sách phân trang 20 dòng / trang ("Trước", "Sau"): hiển thị thời gian, người gọi (dùng describeCaller), model, token vào/ra, độ trễ và badge trạng thái.  
+> - Banner giải thích: phân biệt rõ đây là nhật ký gọi AI của hệ thống, không thay thế tính năng xem quyết định kiểm duyệt chi tiết (B05).
 
 ### features/admin/payments/api/adminPaymentApi.js
 
@@ -290,6 +301,30 @@ Tổng cộng 334 mục từ 200 file.
 > Chuyển giá trị \<input type="date"> ("2026-10-22") thành Instant ISO (UTC) theo giờ địa phương.
 > endOfDay = true -> 23:59:59.999 cuối ngày để bao trọn ngày kết thúc.
 
+### features/admin/users/api/usersApi.js
+
+**Gắn với:** `export async function searchUsers({ keyword, status, role, page = 0, size = 20 } = {}) {`
+
+> API Quản lý người dùng khu vực Admin (identity-service qua gateway).
+> searchUsers: GET /admin/users?keyword=&status=&role=&page=&size= (phân trang dạng { items, page, size, totalElements, totalPages }).
+> lockUser: PUT /admin/users/{id}/lock với body { reason: string } (bắt buộc, tối đa 500 ký tự).
+> unlockUser: PUT /admin/users/{id}/unlock (chỉ áp dụng cho tài khoản BLOCKED).
+> changeUserRole: PUT /admin/users/{id}/role với body { role: "USER" | "ADMIN" }.
+> Dịch mã lỗi BE (1007, 1008, 1009, 1018, 1024, 1025, 1026) thông qua ADMIN_USER_ERROR_MESSAGES trong src/shared/api/errorMessages.js.
+
+### features/admin/pages/AdminUsersScreen.jsx
+
+**Gắn với:** `export default function AdminUsersScreen() {`
+
+> Màn hình quản lý người dùng của Quản trị viên:
+> - Tìm kiếm theo email hoặc họ tên có debounce 400ms.
+> - Lọc theo trạng thái tài khoản (ACTIVE, PENDING, INACTIVE, BLOCKED) và vai trò (USER, ADMIN) sử dụng component SelectField.
+> - Bảng danh sách phân trang 20 người dùng/trang, hỗ trợ chuyển trang Trước / Sau.
+> - Phản ánh quy tắc nghiệp vụ: không cho phép admin thao tác lên chính mình (mã 1024) và tài khoản admin khác (mã 1025).
+> - Thao tác khóa tài khoản mở LockUserDialog đếm 500 ký tự và ghi chú về hiệu lực access token 15 phút.
+> - Thao tác mở khóa mở UnlockUserDialog cho tài khoản đang BLOCKED.
+> - Thao tác nâng quyền mở ChangeRoleDialog xác nhận nâng USER lên ADMIN và lưu ý hạ quyền phải thao tác trực tiếp qua DB.
+
 ## features/auth
 
 ### features/auth/api/authApi.js
@@ -297,8 +332,9 @@ Tổng cộng 334 mục từ 200 file.
 **Gắn với:** `export async function login({ email, password }) {`
 
 > Đăng nhập bằng email + mật khẩu (khớp /auth/login của identity-service).
-> Trả về: { token, user: { id, email, fullName, role } }
-> Ném lỗi (throw) với thông báo tiếng Việt (dịch theo `code` của BE) nếu thất bại.
+> Trả về: { token, refreshToken, user: { id, email, fullName, role } }
+> Ném lỗi (throw) với thông báo tiếng Việt (dịch theo `code` của BE) nếu thất bại; Error mang thêm `code`
+> để form phân nhánh (vd 1023 chưa xác minh email thì chuyển sang nhập mã).
 
 **Gắn với:** `export async function loginWithGoogle(idToken) {`
 
@@ -309,8 +345,29 @@ Tổng cộng 334 mục từ 200 file.
 **Gắn với:** `export async function register({ email, password, fullName, phone }) {`
 
 > Đăng ký tài khoản mới (khớp /auth/register của identity-service).
-> Backend không trả token khi đăng ký -> đăng ký xong phải đăng nhập lại.
+> Backend không trả token khi đăng ký: tài khoản ở PENDING, mã OTP gửi qua email, phải xác minh (verifyEmail) mới đăng nhập được.
 > Trả về: { id, email, fullName, phone, avatarUrl, role, status, emailVerified }
+
+**Gắn với:** `export async function refreshAccessToken(refreshToken) {`
+
+> Không ném lỗi: trả { outcome, session? } với outcome "ok" | "dead" | "unavailable" để refreshSession quyết định
+> đăng xuất (dead) hay giữ phiên và thử lại (unavailable: lỗi mạng / 5xx). `skipAuthRefresh` để interceptor của
+> apiClient không tự refresh chính request này.
+
+**Gắn với:** `export function revokeRefreshToken(refreshToken) {`
+
+> Gọi khi đăng xuất, không chờ kết quả: phiên phía FE đã xóa, còn BE chậm hoặc lỗi thì refresh token tự hết hạn sau 7 ngày.
+
+### features/auth/api/refreshSession.js
+
+**Gắn với:** `export function refreshSession() {`
+
+> Mọi request cùng gặp 401 dùng chung một lần refresh (refresh token chỉ dùng được một lần, hai lần song song sẽ làm
+> lần sau bị từ chối và đăng xuất oan).
+
+**Gắn với:** `const stored = loadSession();`
+
+> Refresh bị từ chối nhưng localStorage đã có refresh token khác thì tab khác vừa đổi trước: lấy cặp mới đó thay vì đăng xuất.
 
 ### features/auth/components/AdminRoute.jsx
 
@@ -341,13 +398,21 @@ Tổng cộng 334 mục từ 200 file.
 > Bọc quanh route cần đăng nhập. Chưa đăng nhập -> đá về /login,
 > nhớ lại trang đang muốn vào để login xong quay lại.
 
-### features/auth/hooks/useAutoLogout.js
+### features/auth/hooks/useSessionRefresh.js
 
-**Gắn với:** `export function useAutoLogout() {`
+**Gắn với:** `export function useSessionRefresh() {`
 
-> Tự đăng xuất khi token hết hạn (đọc từ claim "exp" của JWT).
-> Gọi một lần ở gốc app. Token không phải JWT / không có "exp" thì không làm gì,
-> lúc đó việc hết hạn do server từ chối request quyết định.
+> Làm mới access token trước khi hết hạn 60 giây (đọc "exp" của JWT), gọi một lần ở gốc app. Phiên cũ không có refresh token
+> thì đăng xuất khi hết hạn như trước. Token không phải JWT / không có "exp" thì không làm gì, lúc đó việc hết hạn do
+> server từ chối request (401 -> interceptor của apiClient) quyết định.
+
+**Gắn với:** `if (Date.now() - lastRefreshAt.current < MIN_GAP_MS) {`
+
+> Giờ máy lệch quá nhiều làm token vừa nhận vẫn "sắp hết hạn" thì không được refresh liên tục (mỗi lần tốn một refresh token).
+
+**Gắn với:** `const onStorage = (event) => {`
+
+> Chỉ localStorage mới chia sẻ giữa các tab; sessionStorage (không ghi nhớ) là của riêng từng tab nên không cần đồng bộ.
 
 ### features/auth/hooks/useRequireLogin.js
 
@@ -361,7 +426,7 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export default function AuthScreen() {`
 
-> 4 mode (login/register/quên mật khẩu/otp) dùng chung 1 khung ảnh+card,
+> 6 mode (login/register/verify-email/quên mật khẩu/otp đặt lại/đặt mật khẩu mới) dùng chung 1 khung ảnh+card,
 > URL quyết định mode nào hiển thị — không còn tách thành page riêng nữa.
 
 ### features/auth/schema.js
@@ -380,11 +445,20 @@ Tổng cộng 334 mục từ 200 file.
 > - token / user: lưu để giữ phiên khi F5. Nơi lưu phụ thuộc `remember`:  
 >  true -> localStorage (còn sau khi đóng trình duyệt), false -> sessionStorage.  
 > - remember: người dùng có tick "Ghi nhớ đăng nhập" ở lần đăng nhập này hay không.
+> - refreshToken: dùng một lần, mỗi lần làm mới đổi sang token mới (xem refreshSession).
 
-**Trong:** `useAuthStore` · **Gắn với:** `setAuth: ({ token, user, remember = get().remember }) => {`
+**Trong:** `useAuthStore` · **Gắn với:** `setAuth: ({ token, refreshToken = null, user, remember = get().remember }) => {`
 
-> gọi sau khi login thành công. Các lần cập nhật sau đó (vd. đồng bộ hồ sơ)
+> gọi sau khi login thành công và sau mỗi lần làm mới phiên. Các lần cập nhật sau đó (vd. đồng bộ hồ sơ)
 > không truyền `remember` thì giữ nguyên lựa chọn hiện tại.
+
+**Trong:** `useAuthStore` · **Gắn với:** `syncFromStorage: () => set(loadSession()),`
+
+> Tab khác vừa đăng nhập / làm mới / đăng xuất qua localStorage thì tab này đọc lại cho khớp (gọi từ sự kiện `storage`).
+
+**Trong:** `useAuthStore` · **Gắn với:** `if (refreshToken) revokeRefreshToken(refreshToken);`
+
+> authStore import authApi và authApi import apiClient (vốn import authStore): vòng import này an toàn vì chỉ dùng bên trong hàm, không dùng lúc nạp module.
 
 ### features/auth/utils/authErrors.js
 
@@ -401,6 +475,7 @@ Tổng cộng 334 mục từ 200 file.
 > "Ghi nhớ đăng nhập" = lưu phiên ở localStorage (còn sau khi đóng trình duyệt).
 > Không ghi nhớ = sessionStorage (mất khi đóng tab/trình duyệt, F5 vẫn còn).
 > Tham số storage truyền vào được để test; mặc định là storage của trình duyệt.
+> Access token hết hạn nhưng còn refresh token thì vẫn giữ phiên (sẽ được làm mới); hết hạn mà không có refresh token thì xóa.
 
 ### features/auth/utils/roleRedirect.js
 
@@ -599,12 +674,13 @@ Tổng cộng 334 mục từ 200 file.
 
 ### features/blog/components/ThumbnailPicker.jsx
 
-**Gắn với:** `export default function ThumbnailPicker({ currentUrl, onChange }) {`
+**Gắn với:** `export default function ThumbnailPicker({`
 
-> Chọn ảnh bìa (JPEG/PNG/WEBP ≤ 5MB). Chỉ giữ file trong bộ nhớ; việc tải lên do form cha làm
+> Chọn ảnh (mặc định là ảnh bìa blog: JPEG/PNG/WEBP ≤ 5MB; form công thức truyền `acceptTypes`, `validate`, `label`, `hint` riêng vì BE chỉ nhận JPEG/PNG). Chỉ giữ file trong bộ nhớ; việc tải lên do form cha làm
 > sau khi bài đã được tạo (BE tải ảnh qua endpoint riêng cần blogId).  
 > - currentUrl: ảnh bìa hiện có của bài (chế độ sửa), hiện khi chưa chọn ảnh mới  
 > - onChange(file | null): file đã qua kiểm tra, hoặc null khi bỏ chọn
+> - acceptTypes / validate(file) -> message | null / label / hint: đổi luật kiểm tra và chữ hiển thị
 
 ### features/blog/components/VoteButton.jsx
 
@@ -934,8 +1010,8 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export function getChatErrorMessage(error, { guest = false } = {}) {`
 
-> Dịch lỗi của ai-service (ErrorCode 6000-6999) sang thông báo tiếng Việt.
-> BE trả message tiếng Anh nên không hiển thị trực tiếp cho người dùng.
+> Dịch lỗi của ai-service (ErrorCode 6000-6999) sang thông báo tiếng Việt qua bảng CHATBOT_ERROR_MESSAGES và CHATBOT_GUEST_ERROR_MESSAGES trong src/shared/api/errorMessages.js.
+> BE trả message tiếng Anh nên dịch theo code (6000-6007, 6999) và dự phòng theo HTTP status (401, 404, 429, 500-599).
 
 ### features/chatbot/utils/parseChatMarkdown.js
 
@@ -1099,7 +1175,12 @@ Tổng cộng 334 mục từ 200 file.
 >  GET /ai/meal-plans/:id/versions/:version  một phiên bản cũ (6017 khi không có số phiên bản đó)
 >  GET /ai/meal-plans/:id/versions  các bản cũ đã được thay thế, mới nhất trước:  
 >    [{ id, mealPlanId, version, name, goal, plan, changeSummary, createdAt }]. Mỗi lần cập nhật theo sức khỏe hoặc  
->    sửa thủ công, BE lưu bản trước đó ở đây (đổi món bằng AI `/replace` thì không tạo phiên bản). Chưa có API khôi phục.  
+>    sửa thủ công hoặc khôi phục, BE lưu bản trước đó ở đây (đổi món bằng AI `/replace` thì không tạo phiên bản).  
+> 
+ POST /ai/meal-plans/:id/versions/:version/restore  đưa bản cũ thành phiên bản mới (không body, trả MealPlan; không tốn lượt).  
+   BE lưu bản đang dùng vào lịch sử (ghi chú "Trước khi khôi phục phiên bản N") và kiểm tra lại từng món theo dị ứng / món chay  
+   hiện tại: 6018 / 6019 (dịch riêng bằng `MEAL_PLAN_RESTORE_ERROR_MESSAGES`), 6017 không có phiên bản đó.  
+ GET /ai/meal-plans/usage  lượt tạo thực đơn của tháng: { planCode, limit, used, remaining, periodStart, resetsOn (YYYY-MM-DD) }  
 > 
 >  GET /ai/meal-plans/nutrition-target?goalType=  mục tiêu calo / macro BE tính từ hồ sơ (xem getNutritionTarget)  
 > 
@@ -1192,7 +1273,13 @@ Tổng cộng 334 mục từ 200 file.
 **Trong:** `AiMealSuggestion` · **Gắn với:** `const { subscription } = useMySubscription();`
 
 > Gói quy định số thực đơn được tạo mỗi tháng (BE báo lỗi 6003 khi hết). Chưa biết gói (đang tải / lỗi) thì
-> không chặn, để BE quyết định; BE chưa có API số lượt đã dùng nên chỉ hiện được tổng lượt của gói.
+> không chặn, để BE quyết định.
+
+**Trong:** `AiMealSuggestion` · **Gắn với:** `const { data: usage } = useMealPlanUsage();`
+
+> Số lượt lấy từ `GET /ai/meal-plans/usage` (BE tính bằng đúng bộ kiểm tra hạn mức của lúc tạo nên khớp với 6003). `limit = 0` là gói không có lượt
+> (mời nâng cấp), `remaining = 0` là đã dùng hết (khóa nút, báo ngày `resetsOn`). Chưa tải được usage thì dùng `mealPlansPerMonth` của gói
+> và không khóa vì hết lượt, để BE quyết định. Tạo thực đơn xong thì làm mới `mealPlanKeys.usage`.
 
 **Trong:** `AiMealSuggestion` · **Gắn với:** `const { profile, loading: profileLoading, error: profileError } = useProfile();`
 
@@ -1313,10 +1400,12 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export default function PlanVersionsButton({ plan }) {`
 
-> Nút "Lịch sử" + hộp thoại liệt kê các phiên bản cũ của một thực đơn (chỉ xem, BE chưa có API khôi phục).
+> Nút "Lịch sử" + hộp thoại liệt kê các phiên bản cũ của một thực đơn; mỗi bản có "Xem nội dung" và "Khôi phục".
 > Đầu hộp thoại là phiên bản hiện tại lấy mới từ server (GET /ai/meal-plans/:id); bấm "Xem nội dung" ở một phiên bản
 > cũ để xem 7 ngày của bản đó (GET /ai/meal-plans/:id/versions/:version).
-> BE chỉ lưu phiên bản khi thực đơn được cập nhật theo sức khỏe hoặc sửa thủ công; đổi món bằng AI thì không.
+> BE chỉ lưu phiên bản khi thực đơn được cập nhật theo sức khỏe, sửa thủ công hoặc khôi phục; đổi món bằng AI thì không.
+> "Khôi phục" hỏi xác nhận ngay trong dòng (`confirmVersion`), khôi phục tạo phiên bản mới = `version + 1` chứ không quay số phiên bản lại;
+> sau khi xong cache danh sách và chi tiết thực đơn được ghi đè, lịch sử tải lại. Nhật ký ăn uống đã ghi không đổi.
 > `plan` là một MealPlan trong danh sách của useMealPlans (có `version` hiện tại).
 
 ### features/meal-planner/components/StatsGrid.jsx
@@ -1766,6 +1855,22 @@ Tổng cộng 334 mục từ 200 file.
 > - submitSlot: phần tử DOM (ở đầu thẻ) để đặt nút "Ghi nhận"; nút vẫn thuộc form này (gắn bằng thuộc tính `form`)  
 >  nên trạng thái "Đang ghi…" vẫn đúng. Không truyền thì nút nằm ngay cuối form.
 
+### features/profile/components/ProfileBanner.jsx
+
+**Gắn với:** `export default function ProfileBanner({ profile }) {`
+
+> Thẻ đầu trang cá nhân (ảnh bìa, ảnh đại diện, danh hiệu, gói tài khoản, nút sửa hồ sơ và 5 chỉ số).
+> - Số người theo dõi và đang theo dõi lấy từ API thật `GET /users/{id}/follow-stats` qua `useFollowStats`, bấm vào ô mở `FollowListDialog` để xem danh sách và theo dõi / bỏ theo dõi.
+> - Ô thứ tư là "Công thức đã lưu": tổng số từ `GET /recipes/favorites` (`useFavoriteRecipes({ size: 1 })`, chỉ cần `totalElements`). BE chưa có số lượt lưu mà công thức của tôi nhận được nên không hiện chỉ số đó.
+
+### features/profile/components/FavoritesCard.jsx
+
+**Gắn với:** `export default function FavoritesCard() {`
+
+> Thẻ "Công Thức Đã Lưu" ở cột trái trang cá nhân: lưới công thức tôi đã lưu (`GET /recipes/favorites`, lưu gần nhất trước), bấm mở công thức.
+> Mặc định 6 mục; "Xem tất cả" nâng lên 30 mục mới lưu gần nhất (chưa có trang riêng). BE chỉ trả công thức đang đăng nên công thức đã bị ẩn tự biến mất.
+> - Thẻ BMI lấy từ bản ghi sức khỏe mới nhất, bài viết & video lấy từ tổng thực tế blog và recipe của người dùng.
+
 ### features/profile/hooks/useAllergyDraft.js
 
 **Gắn với:** `export function useAllergyDraft() {`
@@ -1916,7 +2021,7 @@ Tổng cộng 334 mục từ 200 file.
 **Gắn với:** `const EMPTY_PAGE = {`
 
 > Recipe APIs (recipe-service qua api-gateway) — GET công khai, không cần token.
->  GET /recipes?keyword=&page=&size=
+>  GET /recipes?keyword=&sort=&page=&size=   (sort=popular: được lưu nhiều nhất trước, còn lại mới nhất trước)
 >  GET /recipes/:id   (công thức đã đăng ai cũng đọc được; bản nháp / đang ẩn (DRAFT, HIDDEN) chỉ chủ công thức  
 >    và ADMIN đọc được khi kèm token hợp lệ, người khác nhận 404 (4100) -> dùng để nạp form sửa.  
 >    Token hỏng / hết hạn bị bỏ qua, không làm 401. Công thức ARCHIVED (đã xóa) vẫn đọc được để thực đơn  
@@ -1949,6 +2054,19 @@ Tổng cộng 334 mục từ 200 file.
 > imageUrl 500 (chỉ là chuỗi URL, recipe-service chưa có API tải ảnh lên), unit 30, note 300,
 > instruction 2000, quantity tối đa 2 chữ số thập phân. BE tự IN HOA unit.
 
+**Gắn với:** `export async function uploadRecipeImage(id, file) {`
+
+> POST /recipes/:id/image (multipart, field `file`): JPEG hoặc PNG ≤ 5MB, chủ công thức hoặc ADMIN. BE kiểm tra cả
+> chữ ký tệp, tải lên Cloudinary, ghi `imageUrl` và xóa ảnh Cloudinary cũ (link dán tay thì để nguyên). Lỗi 4116 / 4117 / 4118 / 1017.
+
+**Gắn với:** `export async function getFavoriteRecipeIds() {`
+
+> Yêu thích công thức (cần đăng nhập, mọi API trả lỗi 401 với khách):
+>  GET /recipes/favorites/ids  id các công thức tôi đã lưu, để tô trái tim ở danh sách công khai
+>  GET /recipes/favorites?page&size  công thức đã lưu, lưu gần nhất trước, chỉ gồm công thức đang PUBLISHED
+>  POST|DELETE /recipes/:id/favorite  lưu / bỏ lưu, gọi lặp không lỗi, trả { recipeId, favorited, favoriteCount }
+> BE chỉ cho lưu công thức đã đăng (404 / 4100 với bản nháp), nhưng bỏ lưu được cả công thức đã bị ẩn.
+
 ### features/recipe/components/IngredientPicker.jsx
 
 **Gắn với:** `export default function IngredientPicker({ selectedIds, onPick }) {`
@@ -1965,6 +2083,15 @@ Tổng cộng 334 mục từ 200 file.
 
 > Thẻ công thức dùng chung (trang chủ, trang danh sách công thức).
 > `nutrition` là { kcal, protein, ... } hoặc null/undefined (chưa tính được); `author` là { fullName, avatarUrl } hoặc undefined.
+> Nút lưu ở góc ảnh là `RecipeFavoriteButton`; số lượt lưu (`favoriteCount`) hiện cạnh dòng dinh dưỡng khi lớn hơn 0.
+
+### features/recipe/components/RecipeFavoriteButton.jsx
+
+**Gắn với:** `export default function RecipeFavoriteButton({ recipe, variant = "overlay" }) {`
+
+> Nút lưu / bỏ lưu công thức. `overlay`: nút tròn đè lên ảnh thẻ; `full`: nút có chữ và số lượt lưu ở trang chi tiết.
+> Trạng thái đã lưu lấy từ một lần gọi `GET /recipes/favorites/ids` cho cả danh sách (không gọi từng công thức); chưa tải xong
+> thì khóa nút để khỏi POST nhầm lên công thức đã lưu; khách bấm thì dẫn tới đăng nhập. Ẩn với công thức chưa PUBLISHED vì BE từ chối.
 
 ### features/recipe/components/RecipeForm.jsx
 
@@ -1973,7 +2100,9 @@ Tổng cộng 334 mục từ 200 file.
 > Form tạo / sửa công thức.  
 > - Tạo mới (không có `recipe`): "Lưu nháp" hoặc "Lưu và đăng".  
 > - Sửa (`recipe` là RecipeResponse): "Lưu thay đổi" (không đổi trạng thái);  
->  công thức chưa đăng có thêm "Lưu và đăng".
+>  công thức chưa đăng có thêm "Lưu và đăng".  
+> - Ảnh: chọn tệp (`ThumbnailPicker`) hoặc dán link. Tệp chỉ được tải lên sau khi công thức đã lưu (BE cần id), ngay trước bước đăng,  
+>  và ghi đè link. Tải ảnh lỗi thì công thức vẫn được lưu; nếu đang bấm "Lưu và đăng" thì dừng ở bản nháp để sửa lại, giống form bài viết.
 
 ### features/recipe/components/RecipeStepsEditor.jsx
 
@@ -1995,17 +2124,24 @@ Tổng cộng 334 mục từ 200 file.
 > Trả về query của React Query + `recipes` (mảng phẳng) + `total`.
 > recipe-service trả danh sách ở field `content` (khác blog-service dùng `items`).
 
+### features/recipe/hooks/useRecipeFavorites.js
+
+**Gắn với:** `export function useSetRecipeFavorite() {`
+
+> mutate({ recipeId, favorite }): `favorite = true` gọi POST, `false` gọi DELETE (BE không có toggle).
+> BE trả luôn `favoriteCount` mới nên ghi thẳng vào mọi danh sách / chi tiết đang có trong cache gốc `recipes` (`patchFavoriteCount`),
+> cập nhật tập id đã lưu và đánh dấu cũ các trang "công thức đã lưu". Khóa cache của phần này nằm ngoài gốc `recipes`
+> (`recipeFavoriteKeys`) để lưu / bỏ lưu không làm tải lại mọi danh sách công khai.
+
 ### features/recipe/hooks/useRecipeNutrition.js
 
 **Gắn với:** `export function useRecipeNutrition(recipes) {`
 
-> Dinh dưỡng mỗi khẩu phần của danh sách công thức.
-> BE đã nhúng dinh dưỡng trên 100g vào từng nguyên liệu của công thức (cả danh sách lẫn chi tiết) nên chỉ cần
-> cộng lại tại chỗ, không còn gọi API riêng cho từng nguyên liệu.  
-> 
-> Trả về:  
-> - nutritionById: Map\<recipeId, { kcal, protein, carbs, fat } | null>, null nghĩa là chưa tính được  
-> - gapById: Map\<recipeId, string> chỉ có với công thức chưa tính được vì đơn vị (ml, muỗng, quả...), kèm lý do
+> Dinh dưỡng mỗi khẩu phần của danh sách công thức, đọc từ `recipe.nutritionPerServing` do BE tính sẵn (xem `readRecipeNutrition`).
+>
+> Trả về:
+> - nutritionById: Map\<recipeId, { kcal, protein, carbs, fat } | null>, null nghĩa là chưa tính được
+> - gapById: Map\<recipeId, string> chỉ có với công thức BE chưa quy đổi hết nguyên liệu, kèm tên nguyên liệu
 
 ### features/recipe/hooks/useRecipes.js
 
@@ -2014,11 +2150,10 @@ Tổng cộng 334 mục từ 200 file.
 > Danh sách công thức đã publish (GET /recipes). params: { keyword, page, size }.
 > Giữ dữ liệu trang cũ trong lúc tải trang/từ khóa mới để danh sách không bị nháy.
 
-**Gắn với:** `export function useRecipeFeed({ keyword, size = 12 } = {}) {`
+**Gắn với:** `export function useRecipeFeed({ keyword, sort, size = 12 } = {}) {`
 
-> Feed công thức đã đăng dạng "Xem thêm" (GET /recipes), lọc theo từ khóa.
+> Feed công thức đã đăng dạng "Xem thêm" (GET /recipes), lọc theo từ khóa, `sort="popular"` để xếp theo lượt lưu.
 > Trả về query của React Query + `recipes` (mảng phẳng) + `total`.
-> recipe-service trả danh sách ở field `content` (khác blog-service dùng `items`).
 
 ### features/recipe/pages/RecipeDetailScreen.jsx
 
@@ -2042,6 +2177,7 @@ Tổng cộng 334 mục từ 200 file.
 
 > Trang duyệt công thức (route /recipes), công khai: lưới công thức đã đăng, mới nhất trước,
 > tìm theo từ khóa (BE tìm trong tên và mô tả). Từ khóa nằm trên URL (?q=) để chia sẻ/quay lại được.
+> Ô "Sắp xếp" chọn Mới nhất hoặc Được lưu nhiều nhất (?sort=popular); đổi từ khóa và đổi kiểu sắp xếp giữ nguyên nhau trên URL.
 
 ### features/recipe/schema.js
 
@@ -2059,8 +2195,12 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export const UNIT_OPTIONS = [`
 
-> Đơn vị cho chọn. BE lưu chuỗi tự do và tự IN HOA. Chỉ GRAM / G / KG quy đổi được ra gram
-> để tính kcal (xem recipeNutrition.js), các đơn vị còn lại thì công thức sẽ không có kcal.
+> Đơn vị cho chọn. BE lưu chuỗi tự do và tự IN HOA. GRAM / KG luôn quy đổi được ra gram; ml, muỗng, quả chỉ quy đổi
+> được với một số nguyên liệu quen thuộc (BE có bảng khối lượng riêng / cân nặng mỗi quả), không thì công thức chưa có kcal.
+
+**Gắn với:** `export function validateRecipeImage(file) {`
+
+> Luật ảnh công thức của BE: chỉ JPEG / PNG (khác blog, không nhận WEBP), tối đa 5MB.
 
 **Gắn với:** `export function formValuesToPayload(values) {`
 
@@ -2068,30 +2208,25 @@ Tổng cộng 334 mục từ 200 file.
 > - thứ tự bước = vị trí trong danh sách (stepNumber bắt đầu từ 1)  
 > - thời gian để trống -> null; quantity đổi dấu phẩy thành dấu chấm rồi ép số
 
+### features/recipe/utils/recipeFavorite.js
+
+**Gắn với:** `export function patchFavoriteCount(data, recipeId, favoriteCount) {`
+
+> Ghi `favoriteCount` mới của một công thức vào dữ liệu cache: nhận chi tiết (một công thức), một trang `{ items }`
+> hoặc danh sách vô hạn `{ pages }`; không khớp thì trả nguyên dữ liệu cũ.
+
 ### features/recipe/utils/recipeNutrition.js
 
-**Gắn với:** `const GRAMS_PER_UNIT = {`
+**Gắn với:** `export function readRecipeNutrition(recipe) {`
 
-> BE không trả kcal / đạm của cả công thức, nhưng mỗi nguyên liệu trong `recipe.ingredients[]` đã kèm sẵn
-> dinh dưỡng trên 100g (caloriesPer100g, proteinPer100g, carbsPer100g, fatPer100g) -> FE chỉ cần cộng lại,
-> không phải gọi thêm GET /ingredients/:id cho từng nguyên liệu.
+> Đọc dinh dưỡng MỖI KHẨU PHẦN do BE tính (`recipe.nutritionPerServing`, cả danh sách lẫn chi tiết): { kcal (làm tròn), protein, carbs, fat }.
+> BE tự quy đổi muỗng / quả / ml ra gram, FE không còn tính lại. Khi `complete = false` BE bỏ các nguyên liệu không quy đổi được
+> (`missingIngredients`) khỏi tổng nên con số sẽ thấp hơn thật; FE khi đó không hiện số mà nêu tên các nguyên liệu đó.
+> Công thức không có nguyên liệu hoặc thiếu trường (BE cũ) thì trả nutrition = null, gap = null.
 
-**Gắn với:** `const GRAMS_PER_UNIT = {`
+**Gắn với:** `export function isGramUnit(unit) {`
 
-> Hệ số quy đổi về gram. BE lưu đơn vị IN HOA và chỉ quy đổi được các đơn vị khối lượng; ml, muỗng, quả...
-> cần biết khối lượng riêng của nguyên liệu nên FE không tự suy ra được.
-
-**Gắn với:** `export function calcRecipeNutrition(recipe) {`
-
-> Dinh dưỡng MỖI KHẨU PHẦN của công thức: { kcal, protein, carbs, fat } (kcal làm tròn, còn lại 1 số lẻ).
-> Dữ liệu lấy từ chính `recipe.ingredients[]` do BE trả.
-> Trả null nếu có bất kỳ nguyên liệu nào chưa tính được (thiếu dữ liệu hoặc đơn vị không quy đổi được),
-> vì cộng thiếu sẽ ra con số thấp hơn thực tế và gây hiểu nhầm. Lý do xem `nutritionGapHint`.
-
-**Gắn với:** `export function nutritionGapHint(recipe) {`
-
-> Lý do chưa tính được dinh dưỡng vì đơn vị: liệt kê các đơn vị không quy đổi được ra gram.
-> Trả null nếu mọi nguyên liệu đều quy đổi được (khi đó nếu vẫn không tính được là do thiếu dữ liệu khác).
+> Đơn vị khối lượng (gram, kg, mg) mà BE luôn quy đổi được; form dùng để nhắc khi chọn đơn vị khác.
 
 ### features/recipe/utils/recipeSafety.js
 
@@ -2116,10 +2251,17 @@ Tổng cộng 334 mục từ 200 file.
 > }
 > Kết quả xếp theo khoảng cách tăng dần, không phân trang. radiusKm tối đa 10.
 > Lỗi: 1018 thiếu/sai kiểu tham số, 5001 tọa độ ngoài phạm vi, 5002 bán kính ngoài (0, 10].
+>  GET /restaurants/search?q=&lat=&lng=[&veganOnly=false]  tìm theo tên, xem `searchRestaurants`  
 
 **Gắn với:** `export async function getNearbyRestaurants({`
 
 > GET /restaurants/nearby — quán chay trong bán kính `radiusKm` (tối đa 10), gần nhất trước.
+
+**Gắn với:** `export async function searchRestaurants({ q, lat, lng, veganOnly = false }) {`
+
+> GET /restaurants/search — tìm quán theo TÊN (không tìm theo địa chỉ), công khai, tối đa 20 quán, không phân trang và không theo bán kính.
+> q phải 2 - 100 ký tự (ngoài khoảng: 400 / 5003). Thứ tự: quán có tên bắt đầu bằng q trước, rồi gần nhất (hoặc A-Z khi không có lat / lng); không phân biệt hoa thường và dấu.
+> Có lat / lng thì mỗi quán kèm `distanceKm`, không thì null (`formatDistance` trả chuỗi rỗng nên thẻ không hiện khoảng cách).
 
 ### features/restaurant-map/components/MapPanel.jsx
 
@@ -2129,14 +2271,16 @@ Tổng cộng 334 mục từ 200 file.
 > - restaurants: quán đang hiện trong danh sách (đã lọc), vẽ thành chấm; > 50 quán thì gom cụm  
 > - location / isDefaultLocation / radiusKm: tâm tìm kiếm (chấm xanh là vị trí thật) và vòng bán kính  
 > - selectedId / onSelect(id | null): quán đang chọn (có ghim lớn và popup), đồng bộ với danh sách  
-> - onLocate / locating: nút "Vị trí của tôi" xin định vị lại
+> - onLocate / locating: nút "Vị trí của tôi" xin định vị lại  
+> - searchMode: đang hiện kết quả tìm theo tên. Quán có thể nằm ngoài vòng bán kính nên ẩn vòng và `fitBounds` vừa các kết quả mới (chỉ khi tập kết quả đổi);
+>   thoát chế độ này thì bay về vòng bán kính như bình thường
 
 ### features/restaurant-map/components/MapSearchBar.jsx
 
 **Gắn với:** `export default function MapSearchBar({ keyword, onKeywordChange }) {`
 
-> Thanh tìm kiếm quán. BE chưa tìm theo tên nên từ khóa lọc ngay trên danh sách đã tải.  
-> - keyword / onKeywordChange: ô tìm kiếm (lọc theo tên hoặc địa chỉ)
+> Thanh tìm kiếm quán. Từ khóa đủ 2 ký tự thì màn hình gọi BE tìm theo tên (xem RestaurantMapScreen), ít hơn thì chỉ lọc trên danh sách quanh đây.  
+> - keyword / onKeywordChange: ô tìm kiếm (tối đa 100 ký tự, khớp giới hạn của BE)
 
 ### features/restaurant-map/components/RestaurantList.jsx
 
@@ -2145,7 +2289,8 @@ Tổng cộng 334 mục từ 200 file.
 > Danh sách quán bên trái bản đồ. Toàn bộ dữ liệu và state nằm ở RestaurantMapScreen.  
 > - restaurants: quán đã lọc và sắp xếp, hiện 5 quán một lần ("Xem thêm" để mở rộng)  
 > - resetKey: đổi giá trị này thì số quán đang hiện quay lại 5  
-> - isRefreshing: đang tải lại (đổi bán kính) trong khi vẫn hiện kết quả cũ
+> - isRefreshing: đang tải lại (đổi bán kính) trong khi vẫn hiện kết quả cũ  
+> - searchTerm: từ khóa đang được BE tìm (null khi không tìm theo tên); có giá trị thì tiêu đề đổi thành "N quán khớp ..." và ô bán kính bị khóa vì BE không xét bán kính
 
 **Trong:** `RestaurantList` · **Gắn với:** `useEffect(() => {`
 
@@ -2159,6 +2304,12 @@ Tổng cộng 334 mục từ 200 file.
 > Quán chay quanh một điểm (GET /restaurants/nearby), gần nhất trước.
 > params: { lat, lng, radiusKm, veganOnly }. Trả về query của React Query + `restaurants`
 > (mảng, luôn có giá trị). Đổi bán kính thì giữ kết quả cũ trong lúc tải để danh sách không nháy trống.
+
+### features/restaurant-map/hooks/useSearchRestaurants.js
+
+**Gắn với:** `export function useSearchRestaurants({ q, lat, lng, veganOnly = false }) {`
+
+> Tìm quán theo tên (GET /restaurants/search). `q` null thì không gọi (enabled = false). Giữ kết quả cũ trong lúc tải từ khóa mới để danh sách không nháy trống.
 
 ### features/restaurant-map/hooks/useUserLocation.js
 
@@ -2181,14 +2332,16 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export default function RestaurantMapScreen() {`
 
-> Trang Bản đồ quán chay (location-service: GET /restaurants/nearby).
+> Trang Bản đồ quán chay (location-service: GET /restaurants/nearby và GET /restaurants/search).
 > Màn hình giữ toàn bộ state; danh sách và bản đồ cùng đọc một mảng quán đã lọc.
+> `searchTerm` = từ khóa đã cắt khoảng trắng, dài 2 - 100 ký tự và đứng yên 400 ms (gõ dở thì null, danh sách quanh đây lọc ngay trên máy);
+> có `searchTerm` thì danh sách / bản đồ / trạng thái tải lấy từ kết quả tìm theo tên, không thì từ danh sách quanh đây. Hai truy vấn dùng chung khóa cache theo từ khóa và tọa độ làm tròn.
 
 ### features/restaurant-map/queryKeys.js
 
 **Gắn với:** `const round = (n) => Math.round(n * 1e4) / 1e4;`
 
-> Khóa cache React Query của feature restaurant-map.
+> Khóa cache React Query của feature restaurant-map (`nearby` và `search`).
 > Tọa độ làm tròn 4 chữ số thập phân (~11 m) để GPS nhích nhẹ không gọi lại API.
 
 ### features/restaurant-map/utils/mapConfig.js
@@ -2197,6 +2350,10 @@ Tổng cộng 334 mục từ 200 file.
 
 > Màu marker: paint của Mapbox không đọc được token CSS, nên lặp lại giá trị
 > `--brand` trong globals.css cho từng theme.
+
+**Gắn với:** `export const MIN_SEARCH_LENGTH = 2;`
+
+> Độ dài từ khóa BE chấp nhận khi tìm quán theo tên (2 - 100 ký tự; ngoài khoảng là lỗi 5003).
 
 **Gắn với:** `export function zoomForRadius(radiusKm) {`
 
@@ -2209,6 +2366,10 @@ Tổng cộng 334 mục từ 200 file.
 > Tọa độ theo [kinh độ, vĩ độ]; vòng khép kín (điểm cuối trùng điểm đầu).
 
 ### features/restaurant-map/utils/restaurantFormat.js
+
+**Gắn với:** `export function getSearchTerm(keyword) {`
+
+> Từ khóa đã cắt khoảng trắng nếu dài 2 - 100 ký tự (đủ để gọi BE tìm theo tên), ngắn hoặc dài hơn thì null.
 
 **Gắn với:** `export function sortRestaurants(restaurants, sort) {`
 
@@ -2537,6 +2698,12 @@ Tổng cộng 334 mục từ 200 file.
 
 > Lấy token từ store (không đọc thẳng localStorage, vì token có thể nằm ở
 > sessionStorage khi người dùng không tick "Ghi nhớ đăng nhập").
+
+**Gắn với:** `apiClient.interceptors.response.use(async (res) => {`
+
+> Access token chỉ sống 15 phút nên 401 là chuyện thường: làm mới bằng refresh token rồi gửi lại request đúng một lần (`authRetried`).
+> Bỏ qua `/auth/*` (đăng nhập sai cũng là 401) và request có `skipAuthRefresh`. Request đi bằng token cũ mà request khác đã làm mới xong
+> thì chỉ gửi lại, không đổi refresh token thêm lần nữa.
 
 ### shared/api/errorMessages.js
 
