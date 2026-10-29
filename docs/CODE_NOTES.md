@@ -382,14 +382,17 @@ Tổng cộng 334 mục từ 200 file.
 **Gắn với:** `export default function GoogleSignInButton({ onError }) {`
 
 > Nút "Tiếp tục với Google" dùng chung cho màn đăng nhập và đăng ký (BE gộp hai luồng:
-> chưa có tài khoản thì tạo mới). Giữ nguyên nút kính mờ của app; nút thật của Google
-> (cần để lấy ID token) được phủ lên trên, trong suốt, nên bấm vào đâu cũng đúng nút Google.
+> chưa có tài khoản thì tạo mới). Hiện thẳng nút thật của Google (cần để lấy ID token).
+> Không được làm mờ / trong suốt nút này (opacity < 1): iframe của Google có cơ chế chống
+> clickjacking và bỏ qua cú bấm, nên bấm không có phản hồi gì (không popup, không request).
+> Cao 40px như nút kính mờ, rộng bằng khung form (Google chỉ cho 200 - 400px nên khung rộng hơn 400px thì
+> nút nằm giữa) và co giãn theo khung: `ResizeObserver` đo lại sau 150ms khi đổi cỡ.
 > `onError(message)`: để form cha hiện lỗi trong khung lỗi của nó.
 
 **Gắn với:** `function GoogleButtonBody({ status }) {`
 
-> Phần nhìn thấy được. Khi chưa phủ được nút Google lên trên (thiếu cấu hình / chưa tải xong script)
-> thì bấm vào sẽ báo lý do thay vì im lặng.
+> Nút kính mờ của app, chỉ hiện khi chưa có nút Google thật (thiếu cấu hình / chưa tải xong script /
+> đang đăng nhập) để bấm vào sẽ báo lý do thay vì im lặng.
 
 ### features/auth/components/ProtectedRoute.jsx
 

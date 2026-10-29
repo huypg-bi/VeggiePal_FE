@@ -23,12 +23,12 @@ export default function GoogleSignInButton({ onError }) {
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID} locale="vi">
-      <GoogleButtonWithOverlay onError={onError} />
+      <GoogleButton onError={onError} />
     </GoogleOAuthProvider>
   );
 }
 
-function GoogleButtonWithOverlay({ onError }) {
+function GoogleButton({ onError }) {
   const navigate = useNavigate();
   const location = useLocation();
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -41,9 +41,22 @@ function GoogleButtonWithOverlay({ onError }) {
   // trang người dùng muốn vào trước khi bị đá về /login (nếu có)
   const from = location.state?.from?.pathname;
 
+  // Đo bề rộng khung và đo lại (chờ 150ms) mỗi khi khung đổi cỡ để nút co giãn theo.
   useLayoutEffect(() => {
-    const measured = Math.round(wrapperRef.current?.offsetWidth ?? 0);
-    setWidth(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, measured)));
+    const el = wrapperRef.current;
+    if (!el) return undefined;
+    const measure = () => setWidth(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, Math.round(el.offsetWidth))));
+    measure();
+    let timer;
+    const observer = new ResizeObserver(() => {
+      clearTimeout(timer);
+      timer = setTimeout(measure, 150);
+    });
+    observer.observe(el);
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
   }, []);
 
   const handleSuccess = async ({ credential }) => {
@@ -63,11 +76,13 @@ function GoogleButtonWithOverlay({ onError }) {
     }
   };
 
+  const showGoogleButton = !busy && scriptLoadedSuccessfully && width > 0;
+
   return (
-    <div ref={wrapperRef} className="group/google relative mt-3 w-full">
-      <GoogleButtonBody status={busy ? "busy" : scriptLoadedSuccessfully ? "ready" : "loading"} />
-      {!busy && scriptLoadedSuccessfully && width > 0 && (
-        <div className="absolute inset-0 flex h-10 items-center justify-center overflow-hidden rounded-full opacity-0">
+    <div ref={wrapperRef} className="mt-3 w-full">
+      {showGoogleButton ? (
+        // Nút Google phải hiện rõ (opacity 1) vì iframe của Google bỏ qua cú bấm khi bị làm mờ.
+        <div className="flex h-10 items-center justify-center">
           <GoogleLogin
             onSuccess={handleSuccess}
             onError={() => onError("Đăng nhập bằng Google thất bại. Vui lòng thử lại.")}
@@ -78,6 +93,8 @@ function GoogleButtonWithOverlay({ onError }) {
             locale="vi"
           />
         </div>
+      ) : (
+        <GoogleButtonBody status={busy ? "busy" : "loading"} />
       )}
     </div>
   );
@@ -99,11 +116,7 @@ function GoogleButtonBody({ status }) {
       size="md"
       disabled={status === "busy"}
       onClick={onClick}
-      className={
-        status === "missing"
-          ? "mt-3 w-full text-[13px]"
-          : "w-full text-[13px] group-hover/google:bg-white/20"
-      }
+      className={status === "missing" ? "mt-3 w-full text-[13px]" : "w-full text-[13px]"}
     >
       <img src={googleIcon} alt="" className="size-4" />
       {status === "busy" ? "Đang đăng nhập..." : "Tiếp tục với Google"}
