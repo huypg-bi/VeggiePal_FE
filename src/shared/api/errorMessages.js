@@ -231,6 +231,12 @@ export const MEAL_PLAN_ERROR_MESSAGES = {
   6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
 };
 
+// ai-service, khôi phục phiên bản thực đơn: 6018 / 6019 mang nghĩa khác bảng chung vì không phải do người dùng chọn món
+export const MEAL_PLAN_RESTORE_ERROR_MESSAGES = {
+  6018: "Phiên bản này có món không còn là món thuần chay nên chưa khôi phục được",
+  6019: "Phiên bản này có món chứa thành phần gây dị ứng của bạn (dị ứng đã đổi sau khi lưu bản này) nên chưa khôi phục được",
+};
+
 // ai-service (60xx), bóc tách công thức từ video
 export const VIDEO_JOB_ERROR_MESSAGES = {
   6000: "Tệp không phải video hợp lệ, vui lòng chọn tệp video khác",

@@ -1167,7 +1167,12 @@ Tổng cộng 334 mục từ 200 file.
 >  GET /ai/meal-plans/:id/versions/:version  một phiên bản cũ (6017 khi không có số phiên bản đó)
 >  GET /ai/meal-plans/:id/versions  các bản cũ đã được thay thế, mới nhất trước:  
 >    [{ id, mealPlanId, version, name, goal, plan, changeSummary, createdAt }]. Mỗi lần cập nhật theo sức khỏe hoặc  
->    sửa thủ công, BE lưu bản trước đó ở đây (đổi món bằng AI `/replace` thì không tạo phiên bản). Chưa có API khôi phục.  
+>    sửa thủ công hoặc khôi phục, BE lưu bản trước đó ở đây (đổi món bằng AI `/replace` thì không tạo phiên bản).  
+> 
+ POST /ai/meal-plans/:id/versions/:version/restore  đưa bản cũ thành phiên bản mới (không body, trả MealPlan; không tốn lượt).  
+   BE lưu bản đang dùng vào lịch sử (ghi chú "Trước khi khôi phục phiên bản N") và kiểm tra lại từng món theo dị ứng / món chay  
+   hiện tại: 6018 / 6019 (dịch riêng bằng `MEAL_PLAN_RESTORE_ERROR_MESSAGES`), 6017 không có phiên bản đó.  
+ GET /ai/meal-plans/usage  lượt tạo thực đơn của tháng: { planCode, limit, used, remaining, periodStart, resetsOn (YYYY-MM-DD) }  
 > 
 >  GET /ai/meal-plans/nutrition-target?goalType=  mục tiêu calo / macro BE tính từ hồ sơ (xem getNutritionTarget)  
 > 
@@ -1260,7 +1265,13 @@ Tổng cộng 334 mục từ 200 file.
 **Trong:** `AiMealSuggestion` · **Gắn với:** `const { subscription } = useMySubscription();`
 
 > Gói quy định số thực đơn được tạo mỗi tháng (BE báo lỗi 6003 khi hết). Chưa biết gói (đang tải / lỗi) thì
-> không chặn, để BE quyết định; BE chưa có API số lượt đã dùng nên chỉ hiện được tổng lượt của gói.
+> không chặn, để BE quyết định.
+
+**Trong:** `AiMealSuggestion` · **Gắn với:** `const { data: usage } = useMealPlanUsage();`
+
+> Số lượt lấy từ `GET /ai/meal-plans/usage` (BE tính bằng đúng bộ kiểm tra hạn mức của lúc tạo nên khớp với 6003). `limit = 0` là gói không có lượt
+> (mời nâng cấp), `remaining = 0` là đã dùng hết (khóa nút, báo ngày `resetsOn`). Chưa tải được usage thì dùng `mealPlansPerMonth` của gói
+> và không khóa vì hết lượt, để BE quyết định. Tạo thực đơn xong thì làm mới `mealPlanKeys.usage`.
 
 **Trong:** `AiMealSuggestion` · **Gắn với:** `const { profile, loading: profileLoading, error: profileError } = useProfile();`
 
@@ -1381,10 +1392,12 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export default function PlanVersionsButton({ plan }) {`
 
-> Nút "Lịch sử" + hộp thoại liệt kê các phiên bản cũ của một thực đơn (chỉ xem, BE chưa có API khôi phục).
+> Nút "Lịch sử" + hộp thoại liệt kê các phiên bản cũ của một thực đơn; mỗi bản có "Xem nội dung" và "Khôi phục".
 > Đầu hộp thoại là phiên bản hiện tại lấy mới từ server (GET /ai/meal-plans/:id); bấm "Xem nội dung" ở một phiên bản
 > cũ để xem 7 ngày của bản đó (GET /ai/meal-plans/:id/versions/:version).
-> BE chỉ lưu phiên bản khi thực đơn được cập nhật theo sức khỏe hoặc sửa thủ công; đổi món bằng AI thì không.
+> BE chỉ lưu phiên bản khi thực đơn được cập nhật theo sức khỏe, sửa thủ công hoặc khôi phục; đổi món bằng AI thì không.
+> "Khôi phục" hỏi xác nhận ngay trong dòng (`confirmVersion`), khôi phục tạo phiên bản mới = `version + 1` chứ không quay số phiên bản lại;
+> sau khi xong cache danh sách và chi tiết thực đơn được ghi đè, lịch sử tải lại. Nhật ký ăn uống đã ghi không đổi.
 > `plan` là một MealPlan trong danh sách của useMealPlans (có `version` hiện tại).
 
 ### features/meal-planner/components/StatsGrid.jsx

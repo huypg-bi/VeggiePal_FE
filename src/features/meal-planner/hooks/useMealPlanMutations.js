@@ -5,6 +5,7 @@ import {
   editMealPlan,
   favoriteMealPlan,
   replaceMeal,
+  restoreMealPlanVersion,
   unfavoriteMealPlan,
   updatePlanFromHealth,
 } from "@/features/meal-planner/api/mealPlanApi";
@@ -20,6 +21,8 @@ export function useCreateMealPlan() {
         created,
         ...(Array.isArray(old) ? old.filter((plan) => plan.id !== created.id) : []),
       ]);
+      // Tạo thực đơn tốn 1 lượt trong tháng nên số lượt còn lại phải tải lại.
+      queryClient.invalidateQueries({ queryKey: mealPlanKeys.usage });
     },
   });
 }
@@ -83,6 +86,20 @@ export function useReplaceMeal() {
     mutationFn: ({ planId, ...body }) => replaceMeal(planId, body),
     onSuccess: (updated) => {
       queryClient.setQueryData(mealPlanKeys.list, (old) => replacePlanInList(old, updated));
+    },
+  });
+}
+
+/** Khôi phục bản cũ thành phiên bản mới. mutate({ planId, version }) -> MealPlan sau khi khôi phục. */
+export function useRestoreMealPlanVersion() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ planId, version }) => restoreMealPlanVersion(planId, version),
+    onSuccess: (restored, { planId }) => {
+      queryClient.setQueryData(mealPlanKeys.list, (old) => replacePlanInList(old, restored));
+      queryClient.setQueryData(mealPlanKeys.detail(planId), restored);
+      // BE vừa lưu bản đang dùng vào lịch sử với ghi chú "Trước khi khôi phục phiên bản N".
+      queryClient.invalidateQueries({ queryKey: mealPlanKeys.versions(planId) });
     },
   });
 }

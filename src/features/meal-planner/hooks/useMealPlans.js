@@ -4,6 +4,7 @@ import {
   getFavoriteMealPlan,
   getFavoriteMealPlans,
   getMealPlan,
+  getMealPlanUsage,
   getMealPlanVersion,
   getMealPlans,
   getMealPlanVersions,
@@ -16,6 +17,16 @@ export function useMealPlans() {
   return useQuery({
     queryKey: mealPlanKeys.list,
     queryFn: getMealPlans,
+    staleTime: 60 * 1000,
+  });
+}
+
+/** Số lượt tạo thực đơn đã dùng / còn lại trong tháng (GET /ai/meal-plans/usage). */
+export function useMealPlanUsage(enabled = true) {
+  return useQuery({
+    queryKey: mealPlanKeys.usage,
+    queryFn: getMealPlanUsage,
+    enabled: Boolean(enabled),
     staleTime: 60 * 1000,
   });
 }

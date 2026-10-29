@@ -24,13 +24,14 @@ import NutritionTargetCard from "@/features/meal-planner/components/NutritionTar
 import NutritionTargetFields from "@/features/meal-planner/components/NutritionTargetFields";
 import { flavorPreferences, healthGoalSuggestions } from "@/features/meal-planner/data/mockMealPlanner";
 import { useCreateMealPlan } from "@/features/meal-planner/hooks/useMealPlanMutations";
-import { useNutritionTarget } from "@/features/meal-planner/hooks/useMealPlans";
+import { useMealPlanUsage, useNutritionTarget } from "@/features/meal-planner/hooks/useMealPlans";
 import { MEAL_PLAN_LIMITS, mealPlanSchema } from "@/features/meal-planner/schema";
 import {
   buildGeneratePayload,
   buildNutritionTarget,
   countMissedDays,
   defaultPlanName,
+  formatIsoDate,
   GOAL_OPTIONS,
   missingProfileFields,
   profileFixState,
@@ -63,7 +64,13 @@ export default function AiMealSuggestion({ onCreated }) {
   const healthRecord = useLatestHealthRecord();
   const missingHealthRecord = !healthRecord.isPending && !healthRecord.isError && healthRecord.data == null;
   const { subscription } = useMySubscription();
-  const noQuota = subscription?.mealPlansPerMonth === 0;
+  const { data: usage } = useMealPlanUsage();
+  // Số lượt lấy từ usage của BE (cùng nguồn với bước kiểm tra khi tạo); chưa tải được thì dùng giới hạn của gói.
+  const planLimit = usage?.limit ?? subscription?.mealPlansPerMonth;
+  const planCode = usage?.planCode ?? subscription?.planCode;
+  const noQuota = planLimit === 0;
+  const quotaExhausted = !noQuota && usage != null && usage.remaining <= 0;
+  const quotaBlocked = noQuota || quotaExhausted;
 
   const [ingredients, setIngredients] = useState([]);
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -422,7 +429,27 @@ export default function AiMealSuggestion({ onCreated }) {
           </div>
         )}
 
-        <div className={cn("relative flex flex-col items-center gap-4 rounded-2xl bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6", missingHealthRecord || noQuota ? "mt-3" : "mt-7")}>
+        {quotaExhausted && (
+          <div
+            role="alert"
+            className="relative mt-7 flex flex-col items-start gap-3 rounded-2xl bg-warning/10 p-4 text-sm text-ink sm:flex-row sm:items-center sm:justify-between"
+          >
+            <p>
+              Bạn đã dùng hết {usage.limit}/{usage.limit} lượt tạo thực đơn của tháng này
+              {usage.resetsOn && `, lượt mới có từ ngày ${formatIsoDate(usage.resetsOn)}`}.
+            </p>
+            {planCode !== "PRO" && (
+              <Link
+                to="/pricing"
+                className="shrink-0 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-brand-foreground transition hover:bg-brand/90"
+              >
+                Nâng cấp gói
+              </Link>
+            )}
+          </div>
+        )}
+
+        <div className={cn("relative flex flex-col items-center gap-4 rounded-2xl bg-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6", missingHealthRecord || quotaBlocked ? "mt-3" : "mt-7")}>
           <p className="flex items-center gap-2 text-center text-xs text-subtle sm:text-left">
             <Wand2 className="h-4 w-4 shrink-0 text-brand" />
             {isCreating
@@ -432,7 +459,7 @@ export default function AiMealSuggestion({ onCreated }) {
           <Button
             type="submit"
             size="lg"
-            disabled={isCreating || missingHealthRecord || noQuota || autoTargetBlocked}
+            disabled={isCreating || missingHealthRecord || quotaBlocked || autoTargetBlocked}
             className="h-auto min-h-11 w-full whitespace-normal px-6 py-2.5 shadow-sm sm:w-auto"
           >
             {isCreating ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
@@ -441,11 +468,16 @@ export default function AiMealSuggestion({ onCreated }) {
           </Button>
         </div>
 
-        {subscription && !noQuota && (
+        {planCode && !quotaBlocked && (
           <p className="relative mt-3 text-center text-xs text-subtle">
-            {PLAN_DETAILS[subscription.planCode]?.name ?? subscription.planCode}: tối đa {subscription.mealPlansPerMonth}{" "}
-            thực đơn mỗi tháng.
-            {subscription.planCode !== "PRO" && (
+            {PLAN_DETAILS[planCode]?.name ?? planCode}:{" "}
+            {usage
+              ? `đã dùng ${usage.used}/${usage.limit} thực đơn tháng này (còn ${usage.remaining} lượt${
+                  usage.resetsOn ? `, làm mới ngày ${formatIsoDate(usage.resetsOn)}` : ""
+                })`
+              : `tối đa ${planLimit} thực đơn mỗi tháng`}
+            .
+            {planCode !== "PRO" && (
               <>
                 {" "}
                 <Link to="/pricing" className="font-semibold text-brand underline underline-offset-2">
