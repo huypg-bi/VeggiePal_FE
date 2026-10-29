@@ -42,6 +42,7 @@
 - **👤 Hồ sơ cá nhân (Profile):** Quản lý thông tin cá nhân, cập nhật ảnh đại diện, đổi mật khẩu, xem số người theo dõi & đang theo dõi thật và danh sách theo dõi.
 - **📊 Sức khỏe & Dị ứng (Nutrition):** Ghi nhận chiều cao/cân nặng, theo dõi lịch sử BMI, chọn danh mục thực phẩm dị ứng.
 - **🥗 Thực đơn dinh dưỡng (Meal Planner):** AI lên thực đơn 7 ngày × 3 bữa theo mục tiêu giảm / duy trì / tăng cân (BE tự tính calo từ chỉ số sức khỏe, ngày sinh, giới tính, mức vận động, hoặc tự đặt mục tiêu riêng), nguyên liệu sẵn có và khẩu vị; xem theo ngày, đổi món, chuyển giữa các thực đơn đã lưu; đánh dấu bữa đã ăn, ghi nước uống và vận động vào nhật ký ăn uống, thẻ calo trong ngày tính theo bữa đã ăn *(API thật; bữa phụ chưa có, lời khuyên hằng ngày vẫn là Mock Data)*.
+- **🍲 Công thức (Recipe):** Duyệt công thức món chay đã đăng (tìm theo tên / mô tả, sắp xếp mới nhất hoặc được lưu nhiều nhất), xem chi tiết kèm dinh dưỡng mỗi khẩu phần do BE tính sẵn và cảnh báo nguyên liệu dễ dị ứng / không thuần chay, lưu công thức yêu thích (thẻ "Công Thức Đã Lưu" ở trang cá nhân), tạo / sửa công thức với ảnh tải lên (JPEG / PNG ≤ 5MB) hoặc link ảnh *(API thật)*.
 - **📝 Cộng đồng (Blog):** Đăng và đọc bài viết (tối đa 50.000 ký tự; bài được AI kiểm duyệt nền nên đăng xong ở trạng thái chờ, trang chi tiết tự cập nhật khi AI xét xong), bình luận, thả tim, tìm kiếm / sắp xếp / lọc danh mục, theo dõi tác giả, xem tab "Đang theo dõi" và danh sách người theo dõi *(API thật; bảng vàng, chủ đề và thử thách tuần vẫn là Mock Data)*.
 - **🎥 Khám phá video (Videos):** Xem và đăng tải video nấu món chay (tệp .mp4 hoặc liên kết YouTube), phân trang và lọc theo danh mục, quản lý video cá nhân kèm kiểm duyệt tự động *(API thật; kênh gợi ý và thông tin dinh dưỡng gắn nhãn "Dữ liệu mẫu", bình luận và vote chờ BE)*. Tab "Bóc tách" ở trang Nội dung của tôi cho AI bóc tách nguyên liệu và các bước làm từ video (tệp ≤ 100MB, ≤ 30 phút, lịch sử `GET /ai/videos` phân trang dạng `items` theo lượt của gói thành viên). Ở trang xem video, nút "Bóc tách công thức AI" ở `VideoMetaHeader` và thẻ `AiSummaryCard` hiển thị công thức AI dùng chung cho video tải lên (`POST /ai/videos/process-existing`, xem công khai qua `GET /ai/videos/by-video/:videoId`, khách chưa đăng nhập vẫn xem được kết quả có sẵn; video YouTube hiện "chưa hỗ trợ" mã 6026 và khóa nút; hàng đợi đầy trả 6025 "hệ thống đang bận") *(API thật)*.
 - **📍 Bản đồ xanh (Map):** Tìm kiếm và xem danh sách các nhà hàng, quán ăn chay *(Mock Data)*.
@@ -159,6 +160,10 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | `GET` | `/blogs/feed/following` | Feed bài của những người tôi theo dõi (phân trang, cần đăng nhập) |
 | `GET` | `/videos`, `/videos/:id`, `/videos/me` | Danh sách video đã duyệt (phân trang dạng `items`, lọc danh mục) / Chi tiết video / Video của tôi |
 | `POST` / `PUT` / `DELETE` | `/videos`, `/videos/:id` | Đăng video (tệp .mp4 ≤ 30MB hoặc YouTube link) / Sửa / Xóa video |
+| `GET` | `/recipes`, `/recipes/:id` | Danh sách công thức đã đăng (`keyword`, `sort=popular`, phân trang dạng `items`) / Chi tiết (kèm `nutritionPerServing`, `favoriteCount`) |
+| `POST` | `/recipes/:id/image` | Tải ảnh công thức (multipart `file`, JPEG / PNG ≤ 5MB, chủ hoặc ADMIN) |
+| `GET` | `/recipes/favorites`, `/recipes/favorites/ids` | Công thức tôi đã lưu (phân trang) / id các công thức đã lưu |
+| `POST` / `DELETE` | `/recipes/:id/favorite` | Lưu / bỏ lưu công thức (gọi lặp không lỗi, trả `favoriteCount` mới) |
 | `POST` | `/users/me/avatar` | Tải ảnh đại diện |
 | `GET` | `/nutrition/allergens` | Danh mục dị ứng |
 | `GET` / `PUT` | `/nutrition/me/allergies` | Xem / cập nhật dị ứng |

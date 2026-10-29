@@ -187,6 +187,10 @@ export const RECIPE_ERROR_MESSAGES = {
   4113: "Đơn vị nguyên liệu tối đa 30 ký tự",
   4114: "Ghi chú nguyên liệu tối đa 300 ký tự",
   4115: "Mỗi bước thực hiện tối đa 2000 ký tự",
+  4116: "Vui lòng chọn ảnh cho công thức",
+  4117: "Ảnh công thức không được vượt quá 5MB",
+  4118: "Ảnh công thức phải là JPEG hoặc PNG",
+  1017: "Không tải được ảnh lên, vui lòng thử lại sau",
 };
 
 // location-service (50xx)

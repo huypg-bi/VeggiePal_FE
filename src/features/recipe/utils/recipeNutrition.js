@@ -1,91 +1,36 @@
-const GRAMS_PER_UNIT = {
-  G: 1,
-  GR: 1,
-  GAM: 1,
-  GRAM: 1,
-  GRAMS: 1,
-  KG: 1000,
-  KILO: 1000,
-  KILOGRAM: 1000,
-  KILOGRAMS: 1000,
-  MG: 0.001,
-  MILLIGRAM: 0.001,
-  MILLIGRAMS: 0.001,
-};
+const GRAM_UNITS = new Set(["G", "GR", "GAM", "GRAM", "GRAMS", "KG", "KILO", "KILOGRAM", "KILOGRAMS", "MG"]);
 
-// Tên dễ đọc cho các đơn vị không quy đổi được (dùng trong gợi ý "chưa tính được dinh dưỡng").
-const UNIT_LABELS = {
-  TBSP: "muỗng canh",
-  TABLESPOON: "muỗng canh",
-  TSP: "muỗng cà phê",
-  TEASPOON: "muỗng cà phê",
-  PIECE: "quả / củ / miếng",
-  PIECES: "quả / củ / miếng",
-  PCS: "quả / củ / miếng",
-};
-
-function gramFactor(unit) {
-  return GRAMS_PER_UNIT[String(unit ?? "").trim().toUpperCase()] ?? null;
-}
-
-/** Số gram của một nguyên liệu trong công thức; null nếu không quy đổi được. */
-export function toGrams(quantity, unit) {
-  const factor = gramFactor(unit);
-  const amount = Number(quantity);
-  if (factor == null || !Number.isFinite(amount) || amount <= 0) return null;
-  return amount * factor;
-}
-
-/** Đơn vị này có quy đổi được ra gram (để tính kcal) không: gram, kg, mg. */
+/** Đơn vị khối lượng (gram, kg, mg): BE luôn quy đổi được, các đơn vị khác chỉ quy đổi được với một số nguyên liệu quen thuộc. */
 export function isGramUnit(unit) {
-  return gramFactor(unit) !== null;
+  return GRAM_UNITS.has(String(unit ?? "").trim().toUpperCase());
 }
 
-const round1 = (value) => Math.round(value * 10) / 10;
+/**
+ * Đọc dinh dưỡng mỗi khẩu phần do BE tính (`recipe.nutritionPerServing`).
+ * Trả { nutrition: { kcal, protein, carbs, fat } | null, gap: string | null }; thiếu quy đổi thì không hiện số
+ * (BE bỏ dòng đó khỏi tổng nên con số sẽ thấp hơn thật) mà nêu tên nguyên liệu chưa tính được.
+ */
+export function readRecipeNutrition(recipe) {
+  const perServing = recipe?.nutritionPerServing;
+  if (!perServing || (recipe.ingredients ?? []).length === 0) return { nutrition: null, gap: null };
 
-function hasNutritionData(item) {
-  return [item.caloriesPer100g, item.proteinPer100g, item.carbsPer100g, item.fatPer100g].every(
-    (value) => value != null && Number.isFinite(Number(value)),
-  );
-}
-
-export function calcRecipeNutrition(recipe) {
-  const items = recipe?.ingredients ?? [];
-  if (items.length === 0) return null;
-
-  let kcal = 0;
-  let protein = 0;
-  let carbs = 0;
-  let fat = 0;
-  for (const item of items) {
-    const grams = toGrams(item.quantity, item.unit);
-    if (grams == null || !hasNutritionData(item)) return null;
-
-    const per100g = grams / 100;
-    kcal += per100g * Number(item.caloriesPer100g);
-    protein += per100g * Number(item.proteinPer100g);
-    carbs += per100g * Number(item.carbsPer100g);
-    fat += per100g * Number(item.fatPer100g);
+  if (!perServing.complete) {
+    const names = perServing.missingIngredients ?? [];
+    return {
+      nutrition: null,
+      gap: names.length > 0 ? `Chưa tính được dinh dưỡng vì chưa quy đổi được số lượng của: ${names.join(", ")}.` : null,
+    };
   }
 
-  const servings = recipe.servings > 0 ? recipe.servings : 1;
   return {
-    kcal: Math.round(kcal / servings),
-    protein: round1(protein / servings),
-    carbs: round1(carbs / servings),
-    fat: round1(fat / servings),
+    nutrition: {
+      kcal: Math.round(Number(perServing.calories)),
+      protein: Number(perServing.protein),
+      carbs: Number(perServing.carbs),
+      fat: Number(perServing.fat),
+    },
+    gap: null,
   };
-}
-
-export function nutritionGapHint(recipe) {
-  const units = new Set();
-  for (const item of recipe?.ingredients ?? []) {
-    if (gramFactor(item.unit) !== null) continue;
-    const raw = String(item.unit ?? "").trim();
-    units.add(UNIT_LABELS[raw.toUpperCase()] ?? (raw.toLowerCase() || "đơn vị khác"));
-  }
-  if (units.size === 0) return null;
-  return `Chưa tính được dinh dưỡng vì có nguyên liệu tính bằng ${[...units].join(", ")} (hiện chỉ quy đổi được gram, kg, mg).`;
 }
 
 /** Tổng thời gian chuẩn bị + nấu (phút); 0 nếu BE không có dữ liệu. */
