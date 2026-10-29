@@ -385,6 +385,8 @@ Tổng cộng 334 mục từ 200 file.
 > chưa có tài khoản thì tạo mới). Hiện thẳng nút thật của Google (cần để lấy ID token).
 > Không được làm mờ / trong suốt nút này (opacity < 1): iframe của Google có cơ chế chống
 > clickjacking và bỏ qua cú bấm, nên bấm không có phản hồi gì (không popup, không request).
+> Cao 40px như nút kính mờ, rộng bằng khung form (Google chỉ cho 200 - 400px nên khung rộng hơn 400px thì
+> nút nằm giữa) và co giãn theo khung: `ResizeObserver` đo lại sau 150ms khi đổi cỡ.
 > `onError(message)`: để form cha hiện lỗi trong khung lỗi của nó.
 
 **Gắn với:** `function GoogleButtonBody({ status }) {`

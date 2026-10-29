@@ -23,12 +23,12 @@ export default function GoogleSignInButton({ onError }) {
 
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID} locale="vi">
-      <GoogleButtonWithOverlay onError={onError} />
+      <GoogleButton onError={onError} />
     </GoogleOAuthProvider>
   );
 }
 
-function GoogleButtonWithOverlay({ onError }) {
+function GoogleButton({ onError }) {
   const navigate = useNavigate();
   const location = useLocation();
   const setAuth = useAuthStore((s) => s.setAuth);
@@ -41,9 +41,22 @@ function GoogleButtonWithOverlay({ onError }) {
   // trang người dùng muốn vào trước khi bị đá về /login (nếu có)
   const from = location.state?.from?.pathname;
 
+  // Đo bề rộng khung và đo lại (chờ 150ms) mỗi khi khung đổi cỡ để nút co giãn theo.
   useLayoutEffect(() => {
-    const measured = Math.round(wrapperRef.current?.offsetWidth ?? 0);
-    setWidth(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, measured)));
+    const el = wrapperRef.current;
+    if (!el) return undefined;
+    const measure = () => setWidth(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, Math.round(el.offsetWidth))));
+    measure();
+    let timer;
+    const observer = new ResizeObserver(() => {
+      clearTimeout(timer);
+      timer = setTimeout(measure, 150);
+    });
+    observer.observe(el);
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+    };
   }, []);
 
   const handleSuccess = async ({ credential }) => {

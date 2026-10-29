@@ -48,7 +48,7 @@ npm test          # node --test "src/**/*.test.js" — chỉ chạy khi đang c�
 - `VITE_MAPBOX_TOKEN`, `VITE_MAPBOX_STYLE` — token và style (`mapbox://styles/...`) cho bản đồ ở `/map`. Thiếu token thì trang hiện thông báo thay vì bản đồ.
 - `VITE_GOOGLE_CLIENT_ID` — OAuth Client ID (Web) cho "Tiếp tục với Google" ở `/login` và `/register`. **Phải trùng `GOOGLE_CLIENT_ID` của identity-service**, và origin của FE (vd `http://localhost:5173`) phải nằm trong "Authorized JavaScript origins" của Client ID đó. Thiếu biến thì bấm nút sẽ báo chưa cấu hình.
 - Biến phải có tiền tố `VITE_`. Không hardcode URL API trong code.
-- Deploy Vercel: `vercel.json` ở gốc FE rewrite mọi đường dẫn về `/index.html` (SPA), nếu thiếu thì refresh ở route con trả 404. Đổi biến môi trường trên Vercel phải Redeploy vì Vite nhúng biến lúc build.
+- Deploy Vercel: `vercel.json` ở gốc FE rewrite mọi đường dẫn (trừ `/assets/`) về `/index.html` (SPA), nếu thiếu thì refresh ở route con trả 404; `/assets/*` (có hash) được cache 1 năm `immutable`. Đổi biến môi trường trên Vercel phải Redeploy vì Vite nhúng biến lúc build.
 
 ---
 

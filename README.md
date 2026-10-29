@@ -123,7 +123,7 @@ Giao diện chạy tại: http://localhost:5173
 
 ### 5. Deploy lên Vercel
 - Import repo vào Vercel (preset Vite), thêm các biến `VITE_*` ở Settings → Environment Variables (`VITE_VEGGIEPAL_API_BASE_URL` phải gồm `/api`), sửa biến xong phải Redeploy vì Vite nhúng biến lúc build.
-- `vercel.json` có rewrite mọi đường dẫn về `index.html` để refresh hoặc mở thẳng route con (`/login`, `/recipes/...`) không bị 404 (app là SPA dùng React Router).
+- `vercel.json` có rewrite mọi đường dẫn (trừ `/assets/`) về `index.html` để refresh hoặc mở thẳng route con (`/login`, `/recipes/...`) không bị 404 (app là SPA dùng React Router); file thiếu trong `/assets/` vẫn trả 404 để chunk JS cũ không nhận nhầm HTML. File trong `/assets/` có hash nên được cache 1 năm (`immutable`).
 - Origin của FE phải nằm trong CORS của BE và trong "Authorized JavaScript origins" của Google OAuth Client ID.
 
 ---
