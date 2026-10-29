@@ -22,6 +22,16 @@ export const AUTH_ERROR_MESSAGES = {
 };
 
 // identity-service (10xx) + nutrition-service (20xx), dùng cho hồ sơ, chỉ số sức khỏe, dị ứng
+export const ADMIN_USER_ERROR_MESSAGES = {
+  1007: "Không tìm thấy người dùng",
+  1008: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
+  1009: "Bạn không có quyền quản trị người dùng",
+  1018: "Dữ liệu không hợp lệ (ví dụ: mở khóa tài khoản không bị khóa)",
+  1024: "Bạn không thể thao tác lên tài khoản của chính mình",
+  1025: "Không thể thao tác lên tài khoản quản trị viên khác",
+  1026: "Vui lòng nhập lý do khóa (tối đa 500 ký tự)",
+};
+
 const INVALID_DATA = "Dữ liệu chưa hợp lệ, vui lòng kiểm tra lại";
 const HEIGHT_INVALID = "Chiều cao 50 đến 250 cm, tối đa 1 chữ số thập phân";
 const WEIGHT_INVALID = "Cân nặng 20 đến 300 kg, tối đa 1 chữ số thập phân";

@@ -47,6 +47,7 @@
 - **📍 Bản đồ xanh (Map):** Tìm kiếm và xem danh sách các nhà hàng, quán ăn chay *(Mock Data)*.
 - **🤖 Trợ lý Bông Cải (AI Chatbot):** Giao diện hỏi đáp kiến thức dinh dưỡng chay, quản lý nhiều đoạn chat *(API thật: ai-service, có chế độ dùng thử cho khách; giới hạn lượt/ngày: khách 3 lượt, FREE 5, PLUS 20, PRO 50; mở cuộc trò chuyện của người khác trả 404)*.
 - **🎨 Giao diện & Trải nghiệm:** Landing page hiện đại, hỗ trợ chuyển đổi chế độ Sáng/Tối (Light/Dark Mode).
+- **🛡️ Quản trị hệ thống (Admin):** Màn hình quản lý người dùng (`/admin/users`: tìm kiếm email/họ tên, lọc theo trạng thái và vai trò, khóa tài khoản kèm lý do, mở khóa tài khoản, nâng quyền Quản trị viên), quản lý danh mục và nguyên liệu, duyệt nội dung bài viết/video/bình luận, giám sát AI và thống kê doanh thu gói thành viên.
 - **💳 Gói thành viên & Thanh toán (Payment & Subscriptions):** Xem bảng giá các gói thành viên (FREE, PLUS, PRO), thanh toán qua cổng payOS VietQR, polling kiểm tra webhook kích hoạt gói tức thì, quản lý lịch sử thanh toán và thời hạn sử dụng *(API thật: payment-service)*. Trang thanh toán tự dựng `/checkout/:orderId`: FE tự vẽ mã VietQR bằng `qrcode.react`, đếm ngược hết hạn, polling trạng thái đơn, huỷ/tạo lại đơn.
 
 ---
@@ -127,7 +128,7 @@ Giao diện chạy tại: http://localhost:5173
 src/
 ├── app/            # App, provider (Query + Router), routes
 ├── components/ui/  # Component shadcn/ui (button, dialog, dropdown-menu, select ...)
-├── features/       # auth, home, meal-planner, payment, profile, video, restaurant-map, chatbot
+├── features/       # admin, auth, home, meal-planner, payment, profile, video, restaurant-map, chatbot
 ├── lib/            # queryClient, schema zod, cn
 ├── shared/         # apiClient (axios), errorMessages (bảng dịch mã lỗi BE), Reveal, ThemeToggle, ScrollToTop (về đầu trang khi đổi route), SelectField (dropdown chọn giá trị), themeStore
 └── styles/         # globals.css (Tailwind + design token)
@@ -165,12 +166,16 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | `GET` | `/nutrition/me/health-records/latest` | Chỉ số sức khỏe mới nhất |
 | `PUT` | `/nutrition/me/health-records/:id` | Sửa một bản ghi chỉ số sức khỏe trong lịch sử |
 | `GET` | `/ai/admin/monitoring/summary`, `/logs/search`, `/models`, `/limits` | Giám sát AI (chỉ ADMIN): tổng hợp, nhật ký, model, giới hạn |
-| `GET` / `PUT` / `DELETE` | `/ai/admin/moderation`, `/ai/admin/moderation/:id` | Kiểm duyệt nội dung (chỉ ADMIN): hàng đợi / duyệt hoặc từ chối / bỏ qua ca (nội dung gốc không đổi trạng thái) |
+| `GET` / `PUT` / `DELETE` | `/ai/admin/moderation`, `/ai/admin/moderation/:id`, `/ai/admin/monitoring/logs/search?feature=MODERATION` | Kiểm duyệt nội dung (chỉ ADMIN): hàng đợi chờ duyệt, nhật ký gọi AI kiểm duyệt; tab đã xử lý chờ BE B05 |
 | `POST` | `/ai/videos/process` | Gửi tệp video bóc tách công thức AI (multipart ≤ 100MB, ≤ 30 phút, cần đăng nhập) |
 | `POST` | `/ai/videos/process-existing` | Bóc tách công thức từ video đã đăng (`{ videoId }`, trừ lượt theo gói) |
 | `GET` | `/ai/videos/by-video/:videoId` | Xem công thức AI của video (công khai permitAll, mã 6026 cho YouTube, 6022 đang xử lý) |
 | `GET` | `/ai/videos` | Lịch sử các lượt bóc tách video của tôi (phân trang dạng `items`) |
 | `GET` | `/admin/payments/summary`, `/statistics`, `/revenue`, `/orders`, `/orders/:id` | Thống kê thanh toán (chỉ ADMIN): tổng quan, phân bố, doanh thu theo ngày / tháng, danh sách và chi tiết đơn hàng |
+| `GET` | `/admin/users` | Danh sách người dùng (chỉ ADMIN): tìm kiếm email/họ tên, lọc status / role, phân trang |
+| `PUT` | `/admin/users/:id/lock` | Khóa tài khoản người dùng (chỉ ADMIN, bắt buộc nhập lý do tối đa 500 ký tự) |
+| `PUT` | `/admin/users/:id/unlock` | Mở khóa tài khoản đang bị BLOCKED (chỉ ADMIN) |
+| `PUT` | `/admin/users/:id/role` | Nâng quyền tài khoản người dùng lên ADMIN (chỉ ADMIN) |
 | `GET` | `/ai/meal-plans/nutrition-target` | Mục tiêu calo / macro BE tính theo hồ sơ cho `goalType` (`LOSE` / `MAINTAIN` / `GAIN`), hiện ở form tạo thực đơn |
 | `GET` | `/ai/meal-plans/:id` | Một thực đơn (lấy mới khi mở hộp thoại "Lịch sử") |
 | `GET` | `/nutrition/me/diary?date=` | Nhật ký một ngày: bữa đã ăn, tổng dinh dưỡng, nước, vận động |
