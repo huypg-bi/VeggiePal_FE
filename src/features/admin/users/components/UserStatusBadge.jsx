@@ -11,7 +11,7 @@ export default function UserStatusBadge({ status, className }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium whitespace-nowrap",
+        "inline-flex items-center rounded-full border px-3 py-1 text-xs font-medium whitespace-nowrap shadow-2xs",
         config.className,
         className
       )}
