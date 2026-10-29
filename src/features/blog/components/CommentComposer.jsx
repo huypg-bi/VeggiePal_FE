@@ -13,6 +13,8 @@ const fieldClass =
 
 export default function CommentComposer({
   blogId,
+  targetType = "BLOG",
+  targetId,
   parentCommentId,
   commentId,
   initialContent = "",
@@ -21,6 +23,7 @@ export default function CommentComposer({
   onDone,
   onCancel,
 }) {
+  const resolvedTargetId = targetId ?? blogId;
   const fieldId = useId();
   const isEdit = commentId != null;
   const createComment = useCreateComment();
@@ -40,12 +43,28 @@ export default function CommentComposer({
   const onSubmit = async ({ content }) => {
     try {
       if (isEdit) {
-        await updateComment.mutateAsync({ commentId, blogId, content });
+        await updateComment.mutateAsync({
+          commentId,
+          targetType,
+          targetId: resolvedTargetId,
+          blogId: resolvedTargetId,
+          content,
+        });
         toast.success("Đã cập nhật bình luận");
       } else {
-        await createComment.mutateAsync({ blogId, parentCommentId, content });
-        // BE kiểm duyệt ngay khi gửi và không báo kết quả, nên nói rõ để người dùng không hoang mang.
-        toast.success("Đã gửi bình luận. Nếu chưa thấy hiện ra, bình luận đang chờ kiểm duyệt.");
+        await createComment.mutateAsync({
+          targetType,
+          targetId: resolvedTargetId,
+          blogId: resolvedTargetId,
+          parentCommentId,
+          content,
+        });
+        // Video kiểm duyệt đồng bộ; blog có thể duyệt bất đồng bộ nên thông báo cho khớp.
+        toast.success(
+          targetType === "VIDEO"
+            ? "Đã gửi bình luận"
+            : "Đã gửi bình luận. Nếu chưa thấy hiện ra, bình luận đang chờ kiểm duyệt."
+        );
       }
       reset({ content: "" });
       onDone?.();

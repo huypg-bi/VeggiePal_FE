@@ -4,18 +4,24 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { useRequireLogin } from "@/features/auth/hooks/useRequireLogin";
+import { selectIsAuthenticated, useAuthStore } from "@/features/auth/store/authStore";
 import { formatCompactNumber, formatTimeAgo, getInitials } from "@/features/blog/utils/blogFormat";
 import { useVideoRecipe } from "@/features/video/hooks/useVideoRecipe";
+import { useVoteVideo } from "@/features/video/hooks/useVideoVotes";
+import { cn } from "@/lib/utils";
 import FallbackImage from "@/shared/components/FallbackImage";
 
 const scrollToAiCard = () => {
   document.getElementById("ai-summary-card")?.scrollIntoView({ behavior: "smooth" });
 };
 
-export default function VideoMetaHeader({ video, author }) {
+export default function VideoMetaHeader({ video, author, myVote }) {
   const [descExpanded, setDescExpanded] = useState(false);
   const recipe = useVideoRecipe(video);
   const { requireLogin } = useRequireLogin();
+  const userId = useAuthStore((s) => s.user?.id);
+  const isAuthenticated = useAuthStore(selectIsAuthenticated);
+  const voteMutation = useVoteVideo();
 
   if (!video) {
     return (
@@ -33,12 +39,24 @@ export default function VideoMetaHeader({ video, author }) {
   }
 
   const authorName = author?.fullName ?? "Thành viên VeggiePal";
+  const isOwnVideo = isAuthenticated && userId === video.authorId;
+  const liked = myVote === 1;
+  const disliked = myVote === -1;
+  const score = video.voteScore ?? 0;
 
-  const handleVoteNotice = () => {
-    toast.info("Tính năng bình chọn video đang được phát triển.");
+  const handleVote = (value) => {
+    if (!requireLogin()) return;
+    if (isOwnVideo) {
+      toast.info("Bạn không thể bình chọn video của chính mình");
+      return;
+    }
+    voteMutation.mutate(
+      { videoId: video.id, value },
+      { onError: (error) => toast.error(error.message) }
+    );
   };
 
-  // Nút AI theo trạng thái công thức của video (xem useVideoRecipe): đã có kết quả thì cuộn tới thẻ AI (khách và thành viên đều xem được), chưa có thì bóc tách (trừ 1 lượt của thành viên), YouTube thì khóa, khách thì mời đăng nhập để bóc tách.
+  // Nút AI theo trạng thái công thức của video: đã có thì cuộn tới thẻ AI, chưa thì bóc tách.
   const aiStatus = recipe.status;
   const aiBusy = aiStatus === "processing";
   const aiDisabled = aiBusy || aiStatus === "loading" || aiStatus === "unsupported";
@@ -94,26 +112,48 @@ export default function VideoMetaHeader({ video, author }) {
           </Button>
         </div>
 
-        {/* Nút thích / không thích tĩnh (BE chưa hỗ trợ targetType=VIDEO) */}
+        {/* Nút thích / không thích */}
         <div className="flex items-center rounded-full border border-border bg-card">
           <button
             type="button"
-            onClick={handleVoteNotice}
-            title="Bình chọn video (sắp có)"
-            className="flex items-center gap-1.5 rounded-l-full px-3.5 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface"
+            onClick={() => handleVote(1)}
+            disabled={voteMutation.isPending}
+            title={
+              isOwnVideo
+                ? "Bạn không thể bình chọn video của chính mình"
+                : liked
+                  ? "Bỏ thích video"
+                  : "Thích video"
+            }
+            aria-pressed={liked}
+            className={cn(
+              "flex items-center gap-1.5 rounded-l-full px-3.5 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface disabled:opacity-60",
+              liked && "bg-brand-soft font-bold text-brand"
+            )}
           >
-            <ThumbsUp className="size-3.5" />
-            Thích
+            <ThumbsUp className={cn("size-3.5", liked && "fill-current text-brand")} />
+            {score > 0 ? formatCompactNumber(score) : "Thích"}
           </button>
           <div className="h-4 w-px bg-border" />
           <button
             type="button"
-            onClick={handleVoteNotice}
-            title="Bình chọn video (sắp có)"
+            onClick={() => handleVote(-1)}
+            disabled={voteMutation.isPending}
+            title={
+              isOwnVideo
+                ? "Bạn không thể bình chọn video của chính mình"
+                : disliked
+                  ? "Bỏ không thích"
+                  : "Không thích"
+            }
+            aria-pressed={disliked}
             aria-label="Không thích"
-            className="rounded-r-full px-3 py-1.5 text-ink transition hover:bg-surface"
+            className={cn(
+              "rounded-r-full px-3 py-1.5 text-ink transition hover:bg-surface disabled:opacity-60",
+              disliked && "bg-destructive/10 font-bold text-destructive"
+            )}
           >
-            <ThumbsDown className="size-3.5" />
+            <ThumbsDown className={cn("size-3.5", disliked && "fill-current text-destructive")} />
           </button>
         </div>
       </div>

@@ -13,12 +13,14 @@ import {
   Sandwich,
   Soup,
   Sprout,
+  ThumbsUp,
   Utensils,
   Video as VideoIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { formatCompactNumber, formatTimeAgo, getInitials } from "@/features/blog/utils/blogFormat";
+import { cn } from "@/lib/utils";
 import FallbackImage from "@/shared/components/FallbackImage";
 import Reveal from "@/shared/components/Reveal";
 import SelectField from "@/shared/components/SelectField";
@@ -45,6 +47,7 @@ function getCategoryIcon(name) {
 export default function TrendingVideoGrid({
   videos = [],
   authors,
+  myVotes,
   isPending,
   isError,
   error,
@@ -125,6 +128,7 @@ export default function TrendingVideoGrid({
             {videos.map((video, index) => {
               const author = authors?.get(video.authorId);
               const authorName = author?.fullName ?? "Thành viên VeggiePal";
+              const myVote = myVotes?.get(video.id);
 
               return (
                 <Reveal key={video.id} delay={index * 60}>
@@ -173,9 +177,25 @@ export default function TrendingVideoGrid({
                         <p className="mt-1 truncate text-xs text-subtle">
                           {authorName}
                         </p>
-                        <p className="mt-0.5 text-xs text-subtle">
-                          {formatCompactNumber(video.viewCount)} lượt xem •{" "}
-                          {formatTimeAgo(video.publishedAt ?? video.createdAt)}
+                        <p className="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs text-subtle">
+                          <span>{formatCompactNumber(video.viewCount)} lượt xem</span>
+                          <span>•</span>
+                          <span>{formatTimeAgo(video.publishedAt ?? video.createdAt)}</span>
+                          {video.voteScore != null && (
+                            <>
+                              <span>•</span>
+                              <span
+                                className={cn(
+                                  "inline-flex items-center gap-1",
+                                  myVote === 1 && "font-semibold text-brand",
+                                  myVote === -1 && "font-semibold text-destructive",
+                                )}
+                              >
+                                <ThumbsUp className={cn("size-3", myVote === 1 && "fill-current text-brand")} />
+                                {formatCompactNumber(video.voteScore)}
+                              </span>
+                            </>
+                          )}
                         </p>
                       </div>
                     </div>

@@ -8,7 +8,14 @@ import CommentItem from "@/features/blog/components/CommentItem";
 import { useComments } from "@/features/blog/hooks/useComments";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-export default function CommentSection({ blogId }) {
+export default function CommentSection({
+  blogId,
+  targetType = "BLOG",
+  targetId,
+  isPublished = true,
+}) {
+  const resolvedTargetId = targetId ?? blogId;
+  const isVideo = targetType === "VIDEO";
   const { isAuthenticated } = useRequireLogin();
   const location = useLocation();
   const {
@@ -20,8 +27,12 @@ export default function CommentSection({ blogId }) {
     hasNextPage,
     fetchNextPage,
     isFetchingNextPage,
-  } = useComments(blogId);
+  } = useComments(resolvedTargetId, { targetType });
   const { data: authors } = usePublicUsers(comments.map((c) => c.authorId));
+
+  if (!isPublished) {
+    return null;
+  }
 
   return (
     <section className="rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
@@ -32,7 +43,11 @@ export default function CommentSection({ blogId }) {
 
       <div className="mt-4">
         {isAuthenticated ? (
-          <CommentComposer blogId={blogId} />
+          <CommentComposer
+            targetType={targetType}
+            targetId={resolvedTargetId}
+            blogId={resolvedTargetId}
+          />
         ) : (
           <p className="rounded-2xl bg-surface px-4 py-3 text-sm text-subtle">
             <Link
@@ -57,7 +72,11 @@ export default function CommentSection({ blogId }) {
           Đang tải bình luận...
         </p>
       ) : comments.length === 0 ? (
-        <p className="mt-5 text-sm text-subtle">Chưa có bình luận nào cho bài viết này.</p>
+        <p className="mt-5 text-sm text-subtle">
+          {isVideo
+            ? "Chưa có bình luận nào cho video này."
+            : "Chưa có bình luận nào cho bài viết này."}
+        </p>
       ) : (
         <>
           <ul className="mt-5 space-y-5">
