@@ -173,6 +173,9 @@ export default function AdminModerationScreen() {
   };
 
   // Lọc danh sách theo từ khóa tìm kiếm và loại nội dung
+  const authorIds = useMemo(() => activeCases.map((c) => c.authorId).filter(Boolean), [activeCases]);
+  const { data: userMap } = usePublicUsers(authorIds);
+
   const filteredCases = useMemo(() => {
     return activeCases.filter((c) => {
       // Lọc theo loại

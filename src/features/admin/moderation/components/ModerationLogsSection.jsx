@@ -111,17 +111,16 @@ export default function ModerationLogsSection() {
           onValueChange={handleSelectStatus}
           className="h-10"
         />
-
         <input
           type="text"
           inputMode="numeric"
+          pattern="[0-9]*"
           value={userText}
           onChange={handleUserChange}
           placeholder="ID tác giả"
           aria-label="Lọc theo ID tác giả"
           className={cn(fieldClass, "w-36 placeholder:text-subtle")}
         />
-
         <label className="flex items-center gap-2 text-sm text-subtle">
           Từ
           <input
@@ -133,7 +132,6 @@ export default function ModerationLogsSection() {
             className={fieldClass}
           />
         </label>
-
         <label className="flex items-center gap-2 text-sm text-subtle">
           Đến
           <input
