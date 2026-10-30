@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Ban, Check, ExternalLink, Loader2, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { UserDisplayName } from "@/shared/components/UserDisplayName";
 import {
   Dialog,
   DialogContent,
@@ -95,9 +96,11 @@ export default function ReviewDecisionDialog({
               </div>
             )}
             {item.authorId != null && (
-              <div className="flex justify-between">
-                <span>Mã tác giả:</span>
-                <span className="font-mono font-semibold text-ink">#{item.authorId}</span>
+              <div className="flex justify-between items-center">
+                <span>Tác giả:</span>
+                <span className="font-semibold text-ink">
+                  <UserDisplayName userId={item.authorId} />
+                </span>
               </div>
             )}
             {item.content && (

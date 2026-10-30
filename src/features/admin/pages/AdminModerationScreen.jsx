@@ -38,6 +38,8 @@ import {
 } from "@/features/admin/moderation/hooks/useModeration";
 import { moderationKeys } from "@/features/admin/moderation/queryKeys";
 import { cn } from "@/lib/utils";
+import UserDisplayName from "@/shared/components/UserDisplayName";
+import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
 // Nhãn và badge tương ứng cho loại nội dung (BLOG, VIDEO, COMMENT)
 const CONTENT_TYPE_MAP = {
@@ -164,6 +166,9 @@ export default function AdminModerationScreen() {
   };
 
   // Lọc danh sách theo từ khóa tìm kiếm và loại nội dung
+  const authorIds = useMemo(() => activeCases.map((c) => c.authorId).filter(Boolean), [activeCases]);
+  const { data: userMap } = usePublicUsers(authorIds);
+
   const filteredCases = useMemo(() => {
     return activeCases.filter((c) => {
       // Lọc theo loại
@@ -469,7 +474,7 @@ export default function AdminModerationScreen() {
                   <th scope="col" className="px-4 py-3.5">Mã Case</th>
                   <th scope="col" className="px-4 py-3.5">Loại</th>
                   <th scope="col" className="px-4 py-3.5">ID Gốc</th>
-                  <th scope="col" className="px-4 py-3.5">Mã Tác Giả</th>
+                  <th scope="col" className="px-4 py-3.5">Tác giả</th>
                   <th scope="col" className="px-4 py-3.5">Nội dung bị gắn cờ</th>
                   <th scope="col" className="px-4 py-3.5">Danh mục vi phạm</th>
                   <th scope="col" className="px-4 py-3.5">Lý do từ AI</th>
@@ -530,11 +535,11 @@ export default function AdminModerationScreen() {
                       </td>
 
                       {/* Mã tác giả (authorId) */}
-                      <td className="px-4 py-4 font-mono text-xs text-subtle">
+                      <td className="px-4 py-4 text-xs font-medium text-ink">
                         {c.authorId != null ? (
-                          <span className="font-semibold text-ink">#{c.authorId}</span>
+                          <UserDisplayName userId={c.authorId} userMap={userMap} />
                         ) : (
-                          <span>—</span>
+                          <span className="text-subtle">—</span>
                         )}
                       </td>
 
