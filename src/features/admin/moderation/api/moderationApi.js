@@ -2,12 +2,13 @@ import apiClient from "@/shared/api/apiClient";
 
 function toMessage(res, fallbackMessage) {
   const code = res.data?.code;
-  if (code === 6012) return "Nội dung đã bị xóa, không thể áp dụng quyết định";
-  if (code === 6013) return "Case đã được xử lý";
-  if (res.status === 401) return "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại";
-  if (res.status === 403) return "Bạn không có quyền thực hiện kiểm duyệt nội dung";
-  if (res.status === 404) return "Không tìm thấy yêu cầu kiểm duyệt này";
-  if (res.status === 400) return "Dữ liệu quyết định kiểm duyệt không hợp lệ";
+  if (code === 6000) return "Tham s? l?c ki?m duy?t kh?ng h?p l?";
+  if (code === 6012) return "N?i dung ?? b? x?a, kh?ng th? ?p d?ng quy?t ??nh";
+  if (code === 6013) return "Case ?? ???c x? l?";
+  if (res.status === 401) return "Phi?n ??ng nh?p ?? h?t h?n, vui l?ng ??ng nh?p l?i";
+  if (res.status === 403) return "B?n kh?ng c? quy?n th?c hi?n ki?m duy?t n?i dung";
+  if (res.status === 404) return "Kh?ng t?m th?y y?u c?u ki?m duy?t n?y";
+  if (res.status === 400) return "D? li?u quy?t ??nh ki?m duy?t kh?ng h?p l?";
   return res.data?.message || fallbackMessage;
 }
 
@@ -24,7 +25,30 @@ function unwrap(res, fallbackMessage) {
 
 export async function getPendingModerationCases() {
   const res = await apiClient.get("/ai/admin/moderation");
-  return unwrap(res, "Không lấy được danh sách hàng đợi kiểm duyệt") ?? [];
+  return unwrap(res, "Kh?ng l?y ???c danh s?ch h?ng ??i ki?m duy?t") ?? [];
+}
+
+/** L?y l?ch s? c?c ca ki?m duy?t ?? x? l? (GET /ai/admin/moderation/history). */
+export async function getModerationHistory(params = {}) {
+  const cleanParams = {};
+  if (params.contentType) cleanParams.contentType = params.contentType;
+  if (params.decision) cleanParams.decision = params.decision;
+  if (params.reviewer) cleanParams.reviewer = params.reviewer;
+  if (params.from) cleanParams.from = params.from;
+  if (params.to) cleanParams.to = params.to;
+  if (params.page != null) cleanParams.page = params.page;
+  if (params.size != null) cleanParams.size = params.size;
+
+  const res = await apiClient.get("/ai/admin/moderation/history", { params: cleanParams });
+  return (
+    unwrap(res, "Kh?ng l?y ???c l?ch s? ki?m duy?t") ?? {
+      items: [],
+      totalElements: 0,
+      totalPages: 0,
+      page: 0,
+      size: 20,
+    }
+  );
 }
 
 export async function reviewModerationCase(id, { decision, reason }) {
@@ -32,12 +56,12 @@ export async function reviewModerationCase(id, { decision, reason }) {
     decision,
     reason: reason?.trim() || undefined,
   });
-  return unwrap(res, "Không thể cập nhật quyết định kiểm duyệt");
+  return unwrap(res, "Kh?ng th? c?p nh?t quy?t ??nh ki?m duy?t");
 }
 
 export async function dismissModerationCase(id, { reason } = {}) {
   const res = await apiClient.delete(`/ai/admin/moderation/${id}`, {
     params: { reason: reason?.trim() || undefined },
   });
-  return unwrap(res, "Không thể bỏ qua case kiểm duyệt");
+  return unwrap(res, "Kh?ng th? b? qua case ki?m duy?t");
 }

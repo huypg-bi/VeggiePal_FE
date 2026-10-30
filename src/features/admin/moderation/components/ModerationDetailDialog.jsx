@@ -1,10 +1,13 @@
 import {
+  AlertTriangle,
   Ban,
+  Bot,
   Check,
   ExternalLink,
   FileText,
   MessageSquare,
   Percent,
+  Shield,
   ShieldAlert,
   Video,
   X,
@@ -20,6 +23,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
+import UserDisplayName from "@/shared/components/UserDisplayName";
 
 const CONTENT_TYPE_MAP = {
   BLOG: { label: "Bài viết", icon: FileText, className: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
@@ -66,6 +70,7 @@ export default function ModerationDetailDialog({
 
   const hasExternalId = item.externalContentId != null;
   const isBlog = item.contentType === "BLOG";
+  const isHandled = Boolean(item.decision && item.decision !== "REVIEW_REQUIRED");
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -78,7 +83,9 @@ export default function ModerationDetailDialog({
             <DialogTitle>Chi tiết kiểm duyệt #{item.caseId}</DialogTitle>
           </div>
           <DialogDescription>
-            Xem xét nội dung vi phạm thực tế và quyết định phê duyệt hoặc từ chối nội dung.
+            {isHandled
+              ? "Xem chi tiết nội dung và kết quả xử lý kiểm duyệt đã thực hiện."
+              : "Xem xét nội dung vi phạm thực tế và quyết định phê duyệt hoặc từ chối nội dung."}
           </DialogDescription>
         </DialogHeader>
 
@@ -125,9 +132,9 @@ export default function ModerationDetailDialog({
             </div>
 
             <div>
-              <span className="text-xs text-subtle">Mã tác giả:</span>
-              <p className="mt-1 font-mono text-sm font-semibold text-ink">
-                {item.authorId != null ? `#${item.authorId}` : "—"}
+              <span className="text-xs text-subtle">Tác giả:</span>
+              <p className="mt-1 text-sm font-semibold text-ink">
+                {item.authorId != null ? <UserDisplayName userId={item.authorId} /> : "—"}
               </p>
             </div>
 
@@ -139,10 +146,39 @@ export default function ModerationDetailDialog({
               </div>
             </div>
 
+            {isHandled && (
+              <>
+                <div>
+                  <span className="text-xs text-subtle">Quyết định:</span>
+                  <p className="mt-1 text-sm font-bold text-ink">
+                    {item.decision}
+                  </p>
+                </div>
+                <div>
+                  <span className="text-xs text-subtle">Người duyệt:</span>
+                  <p className="mt-1 text-sm font-semibold text-ink flex items-center gap-1">
+                    {item.reviewedBy != null ? (
+                      <>
+                        <Shield className="size-3 text-blue-600" />
+                        <UserDisplayName userId={item.reviewedBy} />
+                      </>
+                    ) : (
+                      <>
+                        <Bot className="size-3 text-purple-600" />
+                        Hệ thống AI
+                      </>
+                    )}
+                  </p>
+                </div>
+              </>
+            )}
+
             <div className="col-span-2">
-              <span className="text-xs text-subtle">Thời gian phát hiện:</span>
+              <span className="text-xs text-subtle">
+                {item.reviewedAt ? "Thời gian quyết định:" : "Thời gian phát hiện:"}
+              </span>
               <p className="mt-1 text-xs text-subtle">
-                {formatDateTime(item.createdAt)}
+                {formatDateTime(item.reviewedAt || item.createdAt)}
               </p>
             </div>
           </div>
@@ -161,52 +197,39 @@ export default function ModerationDetailDialog({
                   </span>
                 ))
               ) : (
-                <span className="text-xs text-subtle">Không có danh mục cụ thể</span>
+                <span className="text-xs text-subtle italic">Không có danh mục nào bị gắn cờ</span>
               )}
             </div>
           </div>
 
-          {/* Nội dung văn bản bị gắn cờ */}
+          {/* Lý do từ AI hoặc người duyệt */}
+          {item.reason && (
+            <div>
+              <span className="text-xs font-semibold text-ink">
+                {item.reviewedBy ? "Lý do quyết định:" : "Lý do từ AI:"}
+              </span>
+              <p className="mt-1 rounded-xl border border-border bg-surface p-3 text-xs leading-relaxed text-body">
+                {item.reason}
+              </p>
+            </div>
+          )}
+
+          {/* Nội dung bị gắn cờ */}
           <div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-ink">Nội dung văn bản bị gắn cờ:</span>
-              {item.authorId != null && (
-                <span className="text-[11px] text-subtle">
-                  Tác giả: <strong className="font-mono text-ink">#{item.authorId}</strong>
-                </span>
-              )}
-            </div>
-            <div className="mt-1.5 max-h-48 overflow-y-auto whitespace-pre-wrap rounded-2xl border border-destructive/20 bg-destructive/5 p-3.5 text-xs leading-relaxed text-body selection:bg-destructive/20">
-              {item.content ? (
-                <p className="italic text-ink">"{item.content}"</p>
-              ) : (
-                <p className="italic text-subtle">Không có nội dung văn bản đính kèm.</p>
-              )}
+            <span className="text-xs font-semibold text-ink">Nội dung bị gắn cờ:</span>
+            <div className="mt-1.5 max-h-48 overflow-y-auto rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-xs italic text-body">
+              {item.content || <span className="text-subtle not-italic">Không có nội dung văn bản</span>}
             </div>
           </div>
 
-          {/* Lý do từ AI */}
-          <div>
-            <span className="text-xs font-semibold text-ink">Lý do từ AI Moderation:</span>
-            <div className="mt-1.5 rounded-2xl border border-border bg-card p-3 text-xs leading-relaxed text-body">
-              {item.reason || "Cần quản trị viên kiểm tra thủ công nội dung này."}
-            </div>
-          </div>
-
-          {/* Xem trước toàn bộ bài viết gốc (Admin có quyền xem bài chưa đăng) */}
+          {/* Liên kết mở nội dung gốc */}
           {hasExternalId && isBlog && (
-            <div className="flex items-start justify-between gap-3 rounded-2xl border border-border bg-surface p-3.5 text-xs">
-              <div className="space-y-0.5">
-                <span className="font-semibold text-ink">Bài viết gốc #{item.externalContentId}:</span>
-                <p className="text-subtle">
-                  Quản trị viên có thể xem trực tiếp toàn bộ bài viết trên trang chi tiết (bao gồm cả bài viết chưa xuất bản).
-                </p>
-              </div>
+            <div className="flex justify-end pt-1">
               <a
                 href={`/blog/${item.externalContentId}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 font-medium text-ink shadow-sm transition hover:bg-surface hover:text-brand"
+                className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:underline"
               >
                 <span>Mở bài viết</span>
                 <ExternalLink className="size-3.5 text-subtle" />
@@ -215,10 +238,12 @@ export default function ModerationDetailDialog({
           )}
         </div>
 
-        <p className="text-[11px] leading-relaxed text-subtle">
-          <strong className="text-ink">Bỏ qua</strong>: chỉ đưa ca ra khỏi hàng đợi, nội dung gốc không bị đổi trạng thái
-          (khác với <strong className="text-ink">Từ chối</strong>).
-        </p>
+        {!isHandled && (
+          <p className="text-[11px] leading-relaxed text-subtle">
+            <strong className="text-ink">Bỏ qua</strong>: chỉ đưa ca ra khỏi hàng đợi, nội dung gốc không bị đổi trạng thái
+            (khác với <strong className="text-ink">Từ chối</strong>).
+          </p>
+        )}
 
         <DialogFooter className="gap-2 sm:gap-0">
           <Button
@@ -229,45 +254,51 @@ export default function ModerationDetailDialog({
             Đóng
           </Button>
 
-          <Button
-            type="button"
-            variant="outline"
-            title="Chỉ đưa ca ra khỏi hàng đợi, nội dung gốc không bị đổi trạng thái"
-            onClick={() => {
-              onOpenChange(false);
-              onDismiss(item);
-            }}
-            className="gap-1"
-          >
-            <Ban className="size-3.5" />
-            Bỏ qua
-          </Button>
+          {!isHandled && onDismiss && (
+            <Button
+              type="button"
+              variant="outline"
+              title="Chỉ đưa ca ra khỏi hàng đợi, nội dung gốc không bị đổi trạng thái"
+              onClick={() => {
+                onOpenChange(false);
+                onDismiss(item);
+              }}
+              className="gap-1 cursor-pointer"
+            >
+              <Ban className="size-3.5" />
+              Bỏ qua
+            </Button>
+          )}
 
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={() => {
-              onOpenChange(false);
-              onReject(item);
-            }}
-            className="gap-1"
-          >
-            <X className="size-3.5" />
-            Từ chối
-          </Button>
+          {!isHandled && onReject && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                onOpenChange(false);
+                onReject(item);
+              }}
+              className="gap-1 cursor-pointer"
+            >
+              <X className="size-3.5" />
+              Từ chối
+            </Button>
+          )}
 
-          <Button
-            type="button"
-            variant="default"
-            onClick={() => {
-              onOpenChange(false);
-              onApprove(item);
-            }}
-            className="gap-1"
-          >
-            <Check className="size-3.5" />
-            Duyệt nội dung
-          </Button>
+          {!isHandled && onApprove && (
+            <Button
+              type="button"
+              variant="default"
+              onClick={() => {
+                onOpenChange(false);
+                onApprove(item);
+              }}
+              className="gap-1 cursor-pointer"
+            >
+              <Check className="size-3.5" />
+              Duyệt nội dung
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

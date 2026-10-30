@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Info, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,8 @@ import {
 } from "@/features/admin/monitoring/utils/monitoringFormat";
 import { cn } from "@/lib/utils";
 import SelectField from "@/shared/components/SelectField";
+import UserDisplayName from "@/shared/components/UserDisplayName";
+import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
 const PAGE_SIZE = 20;
 const USER_DEBOUNCE_MS = 400;
@@ -83,6 +85,8 @@ export default function ModerationLogsSection() {
 
   const hasActiveFilters = Boolean(status || userId || fromDate || toDate);
   const items = data?.items ?? [];
+  const userIds = useMemo(() => items.map((l) => l.userId).filter(Boolean), [items]);
+  const { data: userMap } = usePublicUsers(userIds);
 
   return (
     <div className="flex flex-col gap-4">
@@ -94,7 +98,7 @@ export default function ModerationLogsSection() {
             • Tab này hiển thị nhật ký các lượt gọi AI kiểm duyệt tự động (thời gian, tác giả, model, token, độ trễ và trạng thái).
           </p>
           <p className="leading-relaxed">
-            • Lịch sử ca kiểm duyệt hoàn chỉnh (kèm quyết định APPROVED / REJECTED, lý do, độ tin cậy và ca admin đã xử lý) đang chờ Backend hoàn thành theo <strong className="text-ink">task B05</strong>.
+            • Để xem lịch sử các ca kiểm duyệt hoàn chỉnh (kèm quyết định, lý do, độ tin cậy và người duyệt), vui lòng chuyển sang tab <strong className="text-ink">Đã xử lý</strong>.
           </p>
         </div>
       </div>
@@ -180,7 +184,13 @@ export default function ModerationLogsSection() {
                 {items.map((log) => (
                   <tr key={log.id} className="align-top text-body transition-colors hover:bg-surface/50">
                     <td className="whitespace-nowrap px-4 py-3 tabular-nums">{formatDateTime(log.createdAt)}</td>
-                    <td className="px-3 py-3 font-medium text-ink">{describeCaller(log)}</td>
+                    <td className="px-3 py-3 text-xs font-semibold text-ink">
+                      {log.userId != null ? (
+                        <UserDisplayName userId={log.userId} userMap={userMap} />
+                      ) : (
+                        describeCaller(log, userMap)
+                      )}
+                    </td>
                     <td className="px-3 py-3 font-mono text-xs">{log.model}</td>
                     <td className="whitespace-nowrap px-3 py-3 text-right tabular-nums">
                       {formatNumber(log.promptTokens)} / {formatNumber(log.completionTokens)}
