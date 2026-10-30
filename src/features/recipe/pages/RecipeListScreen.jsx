@@ -9,14 +9,20 @@ import { useRecipeNutrition } from "@/features/recipe/hooks/useRecipeNutrition";
 import { useRecipeFeed } from "@/features/recipe/hooks/useRecipes";
 import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
+import SelectField from "@/shared/components/SelectField";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
 const PAGE_SIZE = 12;
 const SEARCH_DEBOUNCE_MS = 400;
+const SORT_OPTIONS = [
+  { value: undefined, label: "Mới nhất" },
+  { value: "popular", label: "Được lưu nhiều nhất" },
+];
 
 export default function RecipeListScreen() {
   const [searchParams, setSearchParams] = useSearchParams();
   const keyword = (searchParams.get("q") ?? "").trim();
+  const sort = searchParams.get("sort") === "popular" ? "popular" : undefined;
 
   const [text, setText] = useState(keyword);
   const timerRef = useRef(undefined);
@@ -25,8 +31,28 @@ export default function RecipeListScreen() {
   const pushKeyword = (value) => {
     clearTimeout(timerRef.current);
     const next = value.trim();
-    // replace: gõ tìm kiếm không nên làm đầy lịch sử trình duyệt.
-    setSearchParams(next ? { q: next } : {}, { replace: true });
+    // replace: gõ tìm kiếm không nên làm đầy lịch sử trình duyệt; giữ nguyên kiểu sắp xếp đang chọn.
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev);
+        if (next) params.set("q", next);
+        else params.delete("q");
+        return params;
+      },
+      { replace: true },
+    );
+  };
+
+  const handleSortChange = (value) => {
+    setSearchParams(
+      (prev) => {
+        const params = new URLSearchParams(prev);
+        if (value) params.set("sort", value);
+        else params.delete("sort");
+        return params;
+      },
+      { replace: true },
+    );
   };
 
   const handleChange = (event) => {
@@ -47,7 +73,7 @@ export default function RecipeListScreen() {
   };
 
   const { recipes, isPending, isError, error, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useRecipeFeed({ keyword, size: PAGE_SIZE });
+    useRecipeFeed({ keyword, sort, size: PAGE_SIZE });
   const { nutritionById } = useRecipeNutrition(recipes);
   const { data: authors } = usePublicUsers(recipes.map((r) => r.userId));
 
@@ -59,27 +85,36 @@ export default function RecipeListScreen() {
         <Reveal>
           <RecipeBanner />
         </Reveal>
-        <form onSubmit={handleSubmit} role="search" className="relative">
-          <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-subtle" />
-          <input
-            type="search"
-            value={text}
-            onChange={handleChange}
-            placeholder="Tìm công thức theo tên hoặc mô tả..."
-            aria-label="Tìm công thức"
-            className="h-11 w-full rounded-full border border-border bg-card pl-10 pr-10 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 [&::-webkit-search-cancel-button]:hidden"
+        <div className="flex flex-wrap items-center gap-3">
+          <form onSubmit={handleSubmit} role="search" className="relative min-w-56 flex-1">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-subtle" />
+            <input
+              type="search"
+              value={text}
+              onChange={handleChange}
+              placeholder="Tìm công thức theo tên hoặc mô tả..."
+              aria-label="Tìm công thức"
+              className="h-11 w-full rounded-full border border-border bg-card pl-10 pr-10 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 [&::-webkit-search-cancel-button]:hidden"
+            />
+            {text && (
+              <button
+                type="button"
+                onClick={handleClear}
+                aria-label="Xóa từ khóa"
+                className="absolute right-3 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-full text-subtle transition hover:bg-surface hover:text-ink"
+              >
+                <X className="size-4" />
+              </button>
+            )}
+          </form>
+          <SelectField
+            aria-label="Sắp xếp công thức"
+            options={SORT_OPTIONS}
+            value={sort}
+            onValueChange={handleSortChange}
+            active={sort !== undefined}
           />
-          {text && (
-            <button
-              type="button"
-              onClick={handleClear}
-              aria-label="Xóa từ khóa"
-              className="absolute right-3 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-full text-subtle transition hover:bg-surface hover:text-ink"
-            >
-              <X className="size-4" />
-            </button>
-          )}
-        </form>
+        </div>
 
         {isError ? (
           <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">

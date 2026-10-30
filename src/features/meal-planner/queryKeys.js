@@ -2,6 +2,7 @@
 export const mealPlanKeys = {
   list: ["meal-plans", "list"],
   nutritionTarget: (goalType) => ["meal-plans", "nutrition-target", goalType],
+  usage: ["meal-plans", "usage"],
   detail: (planId) => ["meal-plans", "detail", planId],
   versions: (planId) => ["meal-plans", "versions", planId],
   version: (planId, version) => ["meal-plans", "version", planId, version],

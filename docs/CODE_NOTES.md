@@ -382,14 +382,17 @@ Tổng cộng 334 mục từ 200 file.
 **Gắn với:** `export default function GoogleSignInButton({ onError }) {`
 
 > Nút "Tiếp tục với Google" dùng chung cho màn đăng nhập và đăng ký (BE gộp hai luồng:
-> chưa có tài khoản thì tạo mới). Giữ nguyên nút kính mờ của app; nút thật của Google
-> (cần để lấy ID token) được phủ lên trên, trong suốt, nên bấm vào đâu cũng đúng nút Google.
+> chưa có tài khoản thì tạo mới). Hiện thẳng nút thật của Google (cần để lấy ID token).
+> Không được làm mờ / trong suốt nút này (opacity < 1): iframe của Google có cơ chế chống
+> clickjacking và bỏ qua cú bấm, nên bấm không có phản hồi gì (không popup, không request).
+> Cao 40px như nút kính mờ, rộng bằng khung form (Google chỉ cho 200 - 400px nên khung rộng hơn 400px thì
+> nút nằm giữa) và co giãn theo khung: `ResizeObserver` đo lại sau 150ms khi đổi cỡ.
 > `onError(message)`: để form cha hiện lỗi trong khung lỗi của nó.
 
 **Gắn với:** `function GoogleButtonBody({ status }) {`
 
-> Phần nhìn thấy được. Khi chưa phủ được nút Google lên trên (thiếu cấu hình / chưa tải xong script)
-> thì bấm vào sẽ báo lý do thay vì im lặng.
+> Nút kính mờ của app, chỉ hiện khi chưa có nút Google thật (thiếu cấu hình / chưa tải xong script /
+> đang đăng nhập) để bấm vào sẽ báo lý do thay vì im lặng.
 
 ### features/auth/components/ProtectedRoute.jsx
 
@@ -590,7 +593,7 @@ Tổng cộng 334 mục từ 200 file.
 
 > Comment APIs (blog-service qua api-gateway).
 > Công khai (không cần token):
->  GET /comments?targetType=BLOG&targetId=&page=&size=   (comment cấp 1, cũ nhất trước)
+>  GET /comments?targetType=BLOG|VIDEO&targetId=&page=&size=   (comment cấp 1, cũ nhất trước)
 >  GET /comments/:id/replies?page=&size=                  (reply của một comment, cũ nhất trước)
 > Cần đăng nhập:
 >  POST   /comments        body { targetType, targetId, parentCommentId?, content }
@@ -605,6 +608,7 @@ Tổng cộng 334 mục từ 200 file.
 > - Comment mới/sửa đi qua kiểm duyệt: có thể bị ẩn hoặc chờ duyệt mà response vẫn trả bình thường  
 >  (không có field status) -> UI không được giả định comment vừa gửi sẽ hiện ngay trong danh sách.  
 > - Nội dung tối đa 500 từ và 5000 ký tự.  
+> - Bình luận video được kiểm duyệt đồng bộ; khi ai-service không phản hồi thì BE trả 503 / 3050 (MODERATION_UNAVAILABLE). Chỉ bình luận được trên nội dung đã PUBLISHED.  
 > Page: { items, page, size, totalElements, totalPages }
 
 ### features/blog/components/AuthorAvatar.jsx
@@ -673,12 +677,13 @@ Tổng cộng 334 mục từ 200 file.
 
 ### features/blog/components/ThumbnailPicker.jsx
 
-**Gắn với:** `export default function ThumbnailPicker({ currentUrl, onChange }) {`
+**Gắn với:** `export default function ThumbnailPicker({`
 
-> Chọn ảnh bìa (JPEG/PNG/WEBP ≤ 5MB). Chỉ giữ file trong bộ nhớ; việc tải lên do form cha làm
+> Chọn ảnh (mặc định là ảnh bìa blog: JPEG/PNG/WEBP ≤ 5MB; form công thức truyền `acceptTypes`, `validate`, `label`, `hint` riêng vì BE chỉ nhận JPEG/PNG). Chỉ giữ file trong bộ nhớ; việc tải lên do form cha làm
 > sau khi bài đã được tạo (BE tải ảnh qua endpoint riêng cần blogId).  
 > - currentUrl: ảnh bìa hiện có của bài (chế độ sửa), hiện khi chưa chọn ảnh mới  
 > - onChange(file | null): file đã qua kiểm tra, hoặc null khi bỏ chọn
+> - acceptTypes / validate(file) -> message | null / label / hint: đổi luật kiểm tra và chữ hiển thị
 
 ### features/blog/components/VoteButton.jsx
 
@@ -779,8 +784,8 @@ Tổng cộng 334 mục từ 200 file.
 > Bài viết của tôi ở mọi trạng thái (GET /blogs/me) dạng "Xem thêm".
 > status: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED" | "BANNED", bỏ trống = tất cả.
 > Trả về query của React Query + `posts` (mảng phẳng) + `total`.
-> Danh sách (BlogSummaryResponse) không có `aiReviewInProgress`, nên cứ còn bài PENDING thì tự làm mới
-> mỗi 3 giây (tối đa 3 phút) để bài đang chờ AI tự đổi trạng thái.
+> `GET /blogs/me` có `aiReviewInProgress` và `moderationReason` (danh sách công khai thì không), nên chỉ tự làm mới
+> mỗi 3 giây (tối đa 3 phút) khi còn bài `needsReviewPolling` (PENDING mà AI còn đang xét); bài đã chờ admin thì dừng.
 
 ### features/blog/hooks/useReviewPolling.js
 
@@ -865,7 +870,11 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export const isAiReviewing = (blog) => blog?.status === "PENDING" && blog.aiReviewInProgress === true;`
 
-> Chỉ BlogResponse chi tiết mới có cờ `aiReviewInProgress`; danh sách thì không nên không dùng được hàm này.
+> Cờ `aiReviewInProgress` có ở BlogResponse chi tiết và ở `GET /blogs/me`; danh sách công khai không có nên không dùng hàm này ở đó.
+
+**Gắn với:** `export const needsReviewPolling = (blog) => blog?.status === "PENDING" && blog.aiReviewInProgress !== false;`
+
+> Bài của tôi còn cần hỏi lại BE. Cờ thiếu (BE cũ) coi như chưa biết nên vẫn poll; `false` nghĩa là đang chờ admin nên dừng.
 
 **Gắn với:** `export function nextReviewPollInterval(active, since, now) {`
 
@@ -920,6 +929,12 @@ Tổng cộng 334 mục từ 200 file.
 
 > Cập nhật cache React Query sau khi vote, để không phải tải lại cả feed.
 > `vote` là VoteResponse của BE: { blogId, myVote: 1 | -1 | null, voteScore }.
+
+### features/video/utils/videoVoteCache.js
+
+**Gắn với:** `export function applyVoteToMyVideoVotes(list, vote) {`
+
+> Cập nhật điểm voteScore và trạng thái myVote vào cache React Query của feed và chi tiết video sau khi vote.
 
 ## features/chatbot
 
@@ -1167,7 +1182,12 @@ Tổng cộng 334 mục từ 200 file.
 >  GET /ai/meal-plans/:id/versions/:version  một phiên bản cũ (6017 khi không có số phiên bản đó)
 >  GET /ai/meal-plans/:id/versions  các bản cũ đã được thay thế, mới nhất trước:  
 >    [{ id, mealPlanId, version, name, goal, plan, changeSummary, createdAt }]. Mỗi lần cập nhật theo sức khỏe hoặc  
->    sửa thủ công, BE lưu bản trước đó ở đây (đổi món bằng AI `/replace` thì không tạo phiên bản). Chưa có API khôi phục.  
+>    sửa thủ công hoặc khôi phục, BE lưu bản trước đó ở đây (đổi món bằng AI `/replace` thì không tạo phiên bản).  
+> 
+ POST /ai/meal-plans/:id/versions/:version/restore  đưa bản cũ thành phiên bản mới (không body, trả MealPlan; không tốn lượt).  
+   BE lưu bản đang dùng vào lịch sử (ghi chú "Trước khi khôi phục phiên bản N") và kiểm tra lại từng món theo dị ứng / món chay  
+   hiện tại: 6018 / 6019 (dịch riêng bằng `MEAL_PLAN_RESTORE_ERROR_MESSAGES`), 6017 không có phiên bản đó.  
+ GET /ai/meal-plans/usage  lượt tạo thực đơn của tháng: { planCode, limit, used, remaining, periodStart, resetsOn (YYYY-MM-DD) }  
 > 
 >  GET /ai/meal-plans/nutrition-target?goalType=  mục tiêu calo / macro BE tính từ hồ sơ (xem getNutritionTarget)  
 > 
@@ -1260,7 +1280,13 @@ Tổng cộng 334 mục từ 200 file.
 **Trong:** `AiMealSuggestion` · **Gắn với:** `const { subscription } = useMySubscription();`
 
 > Gói quy định số thực đơn được tạo mỗi tháng (BE báo lỗi 6003 khi hết). Chưa biết gói (đang tải / lỗi) thì
-> không chặn, để BE quyết định; BE chưa có API số lượt đã dùng nên chỉ hiện được tổng lượt của gói.
+> không chặn, để BE quyết định.
+
+**Trong:** `AiMealSuggestion` · **Gắn với:** `const { data: usage } = useMealPlanUsage();`
+
+> Số lượt lấy từ `GET /ai/meal-plans/usage` (BE tính bằng đúng bộ kiểm tra hạn mức của lúc tạo nên khớp với 6003). `limit = 0` là gói không có lượt
+> (mời nâng cấp), `remaining = 0` là đã dùng hết (khóa nút, báo ngày `resetsOn`). Chưa tải được usage thì dùng `mealPlansPerMonth` của gói
+> và không khóa vì hết lượt, để BE quyết định. Tạo thực đơn xong thì làm mới `mealPlanKeys.usage`.
 
 **Trong:** `AiMealSuggestion` · **Gắn với:** `const { profile, loading: profileLoading, error: profileError } = useProfile();`
 
@@ -1381,10 +1407,12 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export default function PlanVersionsButton({ plan }) {`
 
-> Nút "Lịch sử" + hộp thoại liệt kê các phiên bản cũ của một thực đơn (chỉ xem, BE chưa có API khôi phục).
+> Nút "Lịch sử" + hộp thoại liệt kê các phiên bản cũ của một thực đơn; mỗi bản có "Xem nội dung" và "Khôi phục".
 > Đầu hộp thoại là phiên bản hiện tại lấy mới từ server (GET /ai/meal-plans/:id); bấm "Xem nội dung" ở một phiên bản
 > cũ để xem 7 ngày của bản đó (GET /ai/meal-plans/:id/versions/:version).
-> BE chỉ lưu phiên bản khi thực đơn được cập nhật theo sức khỏe hoặc sửa thủ công; đổi món bằng AI thì không.
+> BE chỉ lưu phiên bản khi thực đơn được cập nhật theo sức khỏe, sửa thủ công hoặc khôi phục; đổi món bằng AI thì không.
+> "Khôi phục" hỏi xác nhận ngay trong dòng (`confirmVersion`), khôi phục tạo phiên bản mới = `version + 1` chứ không quay số phiên bản lại;
+> sau khi xong cache danh sách và chi tiết thực đơn được ghi đè, lịch sử tải lại. Nhật ký ăn uống đã ghi không đổi.
 > `plan` là một MealPlan trong danh sách của useMealPlans (có `version` hiện tại).
 
 ### features/meal-planner/components/StatsGrid.jsx
@@ -1593,8 +1621,14 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export function planDayDate(plan, dayKey) {`
 
-> Ngày cụ thể của một thứ trong thực đơn, tính theo tuần chứa ngày tạo (`plan.createdAt`).
-> Trả null khi thiếu createdAt / thứ lạ.
+> Ngày cụ thể của một thứ trong thực đơn, tính theo tuần chứa ngày tạo (`planCreatedDate`).
+> Trả null khi thiếu ngày tạo / thứ lạ.
+
+**Gắn với:** `export function planCreatedDate(plan) {`
+
+> Ngày tạo thực đơn: ưu tiên `plan.createdOn` ("YYYY-MM-DD", giờ Việt Nam) vì nutrition-service kiểm tra tuần của bữa ăn
+> theo đúng ngày này (lỗi 2017). `createdAt` không kèm múi giờ nên parse theo giờ máy có thể lệch tuần khi thực đơn được
+> tạo quanh nửa đêm Chủ nhật / thứ Hai; chỉ dùng `createdAt` khi BE chưa trả `createdOn`.
 
 ## features/my-content
 
@@ -1840,7 +1874,14 @@ Tổng cộng 334 mục từ 200 file.
 
 > Thẻ đầu trang cá nhân (ảnh bìa, ảnh đại diện, danh hiệu, gói tài khoản, nút sửa hồ sơ và 5 chỉ số).
 > - Số người theo dõi và đang theo dõi lấy từ API thật `GET /users/{id}/follow-stats` qua `useFollowStats`, bấm vào ô mở `FollowListDialog` để xem danh sách và theo dõi / bỏ theo dõi.
-> - Lượt lưu công thức giữ mock có nhãn "đợi BE làm" (chờ BE phát triển theo D21.2).
+> - Ô thứ tư là "Công thức đã lưu": tổng số từ `GET /recipes/favorites` (`useFavoriteRecipes({ size: 1 })`, chỉ cần `totalElements`). BE chưa có số lượt lưu mà công thức của tôi nhận được nên không hiện chỉ số đó.
+
+### features/profile/components/FavoritesCard.jsx
+
+**Gắn với:** `export default function FavoritesCard() {`
+
+> Thẻ "Công Thức Đã Lưu" ở cột trái trang cá nhân: lưới công thức tôi đã lưu (`GET /recipes/favorites`, lưu gần nhất trước), bấm mở công thức.
+> Mặc định 6 mục; "Xem tất cả" nâng lên 30 mục mới lưu gần nhất (chưa có trang riêng). BE chỉ trả công thức đang đăng nên công thức đã bị ẩn tự biến mất.
 > - Thẻ BMI lấy từ bản ghi sức khỏe mới nhất, bài viết & video lấy từ tổng thực tế blog và recipe của người dùng.
 
 ### features/profile/hooks/useAllergyDraft.js
@@ -1993,7 +2034,7 @@ Tổng cộng 334 mục từ 200 file.
 **Gắn với:** `const EMPTY_PAGE = {`
 
 > Recipe APIs (recipe-service qua api-gateway) — GET công khai, không cần token.
->  GET /recipes?keyword=&page=&size=
+>  GET /recipes?keyword=&sort=&page=&size=   (sort=popular: được lưu nhiều nhất trước, còn lại mới nhất trước)
 >  GET /recipes/:id   (công thức đã đăng ai cũng đọc được; bản nháp / đang ẩn (DRAFT, HIDDEN) chỉ chủ công thức  
 >    và ADMIN đọc được khi kèm token hợp lệ, người khác nhận 404 (4100) -> dùng để nạp form sửa.  
 >    Token hỏng / hết hạn bị bỏ qua, không làm 401. Công thức ARCHIVED (đã xóa) vẫn đọc được để thực đơn  
@@ -2023,8 +2064,21 @@ Tổng cộng 334 mục từ 200 file.
 > RecipeRequest: { title, description?, imageUrl?, servings, prepTime?, cookTime?,  
 >   ingredients: [{ ingredientId, quantity, unit, note? }], steps: [{ stepNumber, instruction }] }
 > Giới hạn cột ở BE (BE không tự kiểm tra, vượt sẽ lỗi 500): title 200, description 2000,
-> imageUrl 500 (chỉ là chuỗi URL, recipe-service chưa có API tải ảnh lên), unit 30, note 300,
+> imageUrl 500 (PUT: bỏ trống / null / blank thì BE giữ ảnh hiện tại, khác link hiện tại thì lỗi 4119; đổi ảnh qua API tải ảnh lên), unit 30, note 300,
 > instruction 2000, quantity tối đa 2 chữ số thập phân. BE tự IN HOA unit.
+
+**Gắn với:** `export async function uploadRecipeImage(id, file) {`
+
+> POST /recipes/:id/image (multipart, field `file`): JPEG hoặc PNG ≤ 5MB, chủ công thức hoặc ADMIN. BE kiểm tra cả
+> chữ ký tệp, tải lên Cloudinary, ghi `imageUrl` và chỉ xóa ảnh Cloudinary cũ của chính công thức này sau khi commit (link dán tay thì để nguyên). Lỗi 4116 / 4117 / 4118 / 1017.
+
+**Gắn với:** `export async function getFavoriteRecipeIds() {`
+
+> Yêu thích công thức (cần đăng nhập, mọi API trả lỗi 401 với khách):
+>  GET /recipes/favorites/ids  id các công thức tôi đã lưu, để tô trái tim ở danh sách công khai
+>  GET /recipes/favorites?page&size  công thức đã lưu, lưu gần nhất trước, chỉ gồm công thức đang PUBLISHED
+>  POST|DELETE /recipes/:id/favorite  lưu / bỏ lưu, gọi lặp không lỗi, trả { recipeId, favorited, favoriteCount }
+> BE chỉ cho lưu công thức đã đăng (404 / 4100 với bản nháp), nhưng bỏ lưu được cả công thức đã bị ẩn.
 
 ### features/recipe/components/IngredientPicker.jsx
 
@@ -2042,6 +2096,15 @@ Tổng cộng 334 mục từ 200 file.
 
 > Thẻ công thức dùng chung (trang chủ, trang danh sách công thức).
 > `nutrition` là { kcal, protein, ... } hoặc null/undefined (chưa tính được); `author` là { fullName, avatarUrl } hoặc undefined.
+> Nút lưu ở góc ảnh là `RecipeFavoriteButton`; số lượt lưu (`favoriteCount`) hiện cạnh dòng dinh dưỡng khi lớn hơn 0.
+
+### features/recipe/components/RecipeFavoriteButton.jsx
+
+**Gắn với:** `export default function RecipeFavoriteButton({ recipe, variant = "overlay" }) {`
+
+> Nút lưu / bỏ lưu công thức. `overlay`: nút tròn đè lên ảnh thẻ; `full`: nút có chữ và số lượt lưu ở trang chi tiết.
+> Trạng thái đã lưu lấy từ một lần gọi `GET /recipes/favorites/ids` cho cả danh sách (không gọi từng công thức); chưa tải xong
+> thì khóa nút để khỏi POST nhầm lên công thức đã lưu; khách bấm thì dẫn tới đăng nhập. Ẩn với công thức chưa PUBLISHED vì BE từ chối.
 
 ### features/recipe/components/RecipeForm.jsx
 
@@ -2050,7 +2113,10 @@ Tổng cộng 334 mục từ 200 file.
 > Form tạo / sửa công thức.  
 > - Tạo mới (không có `recipe`): "Lưu nháp" hoặc "Lưu và đăng".  
 > - Sửa (`recipe` là RecipeResponse): "Lưu thay đổi" (không đổi trạng thái);  
->  công thức chưa đăng có thêm "Lưu và đăng".
+>  công thức chưa đăng có thêm "Lưu và đăng".  
+> - Ảnh: chọn tệp (`ThumbnailPicker`) hoặc dán link (chỉ khi tạo mới; khi sửa ẩn ô link và không gửi `imageUrl` vì BE giữ ảnh hiện tại
+>  và trả 4119 nếu link khác, nên đổi ảnh khi sửa chỉ bằng tải tệp). Tệp chỉ được tải lên sau khi công thức đã lưu (BE cần id), ngay trước bước đăng,  
+>  và ghi đè link. Tải ảnh lỗi thì công thức vẫn được lưu; nếu đang bấm "Lưu và đăng" thì dừng ở bản nháp để sửa lại, giống form bài viết.
 
 ### features/recipe/components/RecipeStepsEditor.jsx
 
@@ -2072,17 +2138,24 @@ Tổng cộng 334 mục từ 200 file.
 > Trả về query của React Query + `recipes` (mảng phẳng) + `total`.
 > recipe-service trả danh sách ở field `content` (khác blog-service dùng `items`).
 
+### features/recipe/hooks/useRecipeFavorites.js
+
+**Gắn với:** `export function useSetRecipeFavorite() {`
+
+> mutate({ recipeId, favorite }): `favorite = true` gọi POST, `false` gọi DELETE (BE không có toggle).
+> BE trả luôn `favoriteCount` mới nên ghi thẳng vào mọi danh sách / chi tiết đang có trong cache gốc `recipes` (`patchFavoriteCount`),
+> cập nhật tập id đã lưu và đánh dấu cũ các trang "công thức đã lưu". Khóa cache của phần này nằm ngoài gốc `recipes`
+> (`recipeFavoriteKeys`) để lưu / bỏ lưu không làm tải lại mọi danh sách công khai.
+
 ### features/recipe/hooks/useRecipeNutrition.js
 
 **Gắn với:** `export function useRecipeNutrition(recipes) {`
 
-> Dinh dưỡng mỗi khẩu phần của danh sách công thức.
-> BE đã nhúng dinh dưỡng trên 100g vào từng nguyên liệu của công thức (cả danh sách lẫn chi tiết) nên chỉ cần
-> cộng lại tại chỗ, không còn gọi API riêng cho từng nguyên liệu.  
-> 
-> Trả về:  
-> - nutritionById: Map\<recipeId, { kcal, protein, carbs, fat } | null>, null nghĩa là chưa tính được  
-> - gapById: Map\<recipeId, string> chỉ có với công thức chưa tính được vì đơn vị (ml, muỗng, quả...), kèm lý do
+> Dinh dưỡng mỗi khẩu phần của danh sách công thức, đọc từ `recipe.nutritionPerServing` do BE tính sẵn (xem `readRecipeNutrition`).
+>
+> Trả về:
+> - nutritionById: Map\<recipeId, { kcal, protein, carbs, fat } | null>, null nghĩa là chưa tính được
+> - gapById: Map\<recipeId, string> chỉ có với công thức BE chưa quy đổi hết nguyên liệu, kèm tên nguyên liệu
 
 ### features/recipe/hooks/useRecipes.js
 
@@ -2091,11 +2164,10 @@ Tổng cộng 334 mục từ 200 file.
 > Danh sách công thức đã publish (GET /recipes). params: { keyword, page, size }.
 > Giữ dữ liệu trang cũ trong lúc tải trang/từ khóa mới để danh sách không bị nháy.
 
-**Gắn với:** `export function useRecipeFeed({ keyword, size = 12 } = {}) {`
+**Gắn với:** `export function useRecipeFeed({ keyword, sort, size = 12 } = {}) {`
 
-> Feed công thức đã đăng dạng "Xem thêm" (GET /recipes), lọc theo từ khóa.
+> Feed công thức đã đăng dạng "Xem thêm" (GET /recipes), lọc theo từ khóa, `sort="popular"` để xếp theo lượt lưu.
 > Trả về query của React Query + `recipes` (mảng phẳng) + `total`.
-> recipe-service trả danh sách ở field `content` (khác blog-service dùng `items`).
 
 ### features/recipe/pages/RecipeDetailScreen.jsx
 
@@ -2119,6 +2191,7 @@ Tổng cộng 334 mục từ 200 file.
 
 > Trang duyệt công thức (route /recipes), công khai: lưới công thức đã đăng, mới nhất trước,
 > tìm theo từ khóa (BE tìm trong tên và mô tả). Từ khóa nằm trên URL (?q=) để chia sẻ/quay lại được.
+> Ô "Sắp xếp" chọn Mới nhất hoặc Được lưu nhiều nhất (?sort=popular); đổi từ khóa và đổi kiểu sắp xếp giữ nguyên nhau trên URL.
 
 ### features/recipe/schema.js
 
@@ -2136,39 +2209,39 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export const UNIT_OPTIONS = [`
 
-> Đơn vị cho chọn. BE lưu chuỗi tự do và tự IN HOA. Chỉ GRAM / G / KG quy đổi được ra gram
-> để tính kcal (xem recipeNutrition.js), các đơn vị còn lại thì công thức sẽ không có kcal.
+> Đơn vị cho chọn. BE lưu chuỗi tự do và tự IN HOA. GRAM / KG luôn quy đổi được ra gram; ml, muỗng, quả chỉ quy đổi
+> được với một số nguyên liệu quen thuộc (BE có bảng khối lượng riêng / cân nặng mỗi quả), không thì công thức chưa có kcal.
 
-**Gắn với:** `export function formValuesToPayload(values) {`
+**Gắn với:** `export function validateRecipeImage(file) {`
+
+> Luật ảnh công thức của BE: chỉ JPEG / PNG (khác blog, không nhận WEBP), tối đa 5MB.
+
+**Gắn với:** `export function formValuesToPayload(values, { isEdit = false } = {}) {`
 
 > Giá trị form (đã qua recipeSchema) -> RecipeRequest gửi lên BE.  
+> - `isEdit`: không đưa `imageUrl` vào payload để BE giữ nguyên ảnh (xem RecipeForm)  
 > - thứ tự bước = vị trí trong danh sách (stepNumber bắt đầu từ 1)  
 > - thời gian để trống -> null; quantity đổi dấu phẩy thành dấu chấm rồi ép số
 
+### features/recipe/utils/recipeFavorite.js
+
+**Gắn với:** `export function patchFavoriteCount(data, recipeId, favoriteCount) {`
+
+> Ghi `favoriteCount` mới của một công thức vào dữ liệu cache: nhận chi tiết (một công thức), một trang `{ items }`
+> hoặc danh sách vô hạn `{ pages }`; không khớp thì trả nguyên dữ liệu cũ.
+
 ### features/recipe/utils/recipeNutrition.js
 
-**Gắn với:** `const GRAMS_PER_UNIT = {`
+**Gắn với:** `export function readRecipeNutrition(recipe) {`
 
-> BE không trả kcal / đạm của cả công thức, nhưng mỗi nguyên liệu trong `recipe.ingredients[]` đã kèm sẵn
-> dinh dưỡng trên 100g (caloriesPer100g, proteinPer100g, carbsPer100g, fatPer100g) -> FE chỉ cần cộng lại,
-> không phải gọi thêm GET /ingredients/:id cho từng nguyên liệu.
+> Đọc dinh dưỡng MỖI KHẨU PHẦN do BE tính (`recipe.nutritionPerServing`, cả danh sách lẫn chi tiết): { kcal (làm tròn), protein, carbs, fat }.
+> BE tự quy đổi muỗng / quả / ml ra gram, FE không còn tính lại. Khi `complete = false` BE bỏ các nguyên liệu không quy đổi được
+> (`missingIngredients`) khỏi tổng nên con số sẽ thấp hơn thật; FE khi đó không hiện số mà nêu tên các nguyên liệu đó.
+> Công thức không có nguyên liệu hoặc thiếu trường (BE cũ) thì trả nutrition = null, gap = null.
 
-**Gắn với:** `const GRAMS_PER_UNIT = {`
+**Gắn với:** `export function isGramUnit(unit) {`
 
-> Hệ số quy đổi về gram. BE lưu đơn vị IN HOA và chỉ quy đổi được các đơn vị khối lượng; ml, muỗng, quả...
-> cần biết khối lượng riêng của nguyên liệu nên FE không tự suy ra được.
-
-**Gắn với:** `export function calcRecipeNutrition(recipe) {`
-
-> Dinh dưỡng MỖI KHẨU PHẦN của công thức: { kcal, protein, carbs, fat } (kcal làm tròn, còn lại 1 số lẻ).
-> Dữ liệu lấy từ chính `recipe.ingredients[]` do BE trả.
-> Trả null nếu có bất kỳ nguyên liệu nào chưa tính được (thiếu dữ liệu hoặc đơn vị không quy đổi được),
-> vì cộng thiếu sẽ ra con số thấp hơn thực tế và gây hiểu nhầm. Lý do xem `nutritionGapHint`.
-
-**Gắn với:** `export function nutritionGapHint(recipe) {`
-
-> Lý do chưa tính được dinh dưỡng vì đơn vị: liệt kê các đơn vị không quy đổi được ra gram.
-> Trả null nếu mọi nguyên liệu đều quy đổi được (khi đó nếu vẫn không tính được là do thiếu dữ liệu khác).
+> Đơn vị khối lượng (gram, kg, mg) mà BE luôn quy đổi được; form dùng để nhắc khi chọn đơn vị khác.
 
 ### features/recipe/utils/recipeSafety.js
 
@@ -2193,10 +2266,17 @@ Tổng cộng 334 mục từ 200 file.
 > }
 > Kết quả xếp theo khoảng cách tăng dần, không phân trang. radiusKm tối đa 10.
 > Lỗi: 1018 thiếu/sai kiểu tham số, 5001 tọa độ ngoài phạm vi, 5002 bán kính ngoài (0, 10].
+>  GET /restaurants/search?q=&lat=&lng=[&veganOnly=false]  tìm theo tên, xem `searchRestaurants`  
 
 **Gắn với:** `export async function getNearbyRestaurants({`
 
 > GET /restaurants/nearby — quán chay trong bán kính `radiusKm` (tối đa 10), gần nhất trước.
+
+**Gắn với:** `export async function searchRestaurants({ q, lat, lng, veganOnly = false }) {`
+
+> GET /restaurants/search — tìm quán theo TÊN (không tìm theo địa chỉ), công khai, tối đa 20 quán, không phân trang và không theo bán kính.
+> q phải 2 - 100 ký tự (ngoài khoảng: 400 / 5003). Thứ tự: quán có tên bắt đầu bằng q trước, rồi gần nhất (hoặc A-Z khi không có lat / lng); không phân biệt hoa thường và dấu.
+> Có lat / lng thì mỗi quán kèm `distanceKm`, không thì null (`formatDistance` trả chuỗi rỗng nên thẻ không hiện khoảng cách).
 
 ### features/restaurant-map/components/MapPanel.jsx
 
@@ -2206,14 +2286,16 @@ Tổng cộng 334 mục từ 200 file.
 > - restaurants: quán đang hiện trong danh sách (đã lọc), vẽ thành chấm; > 50 quán thì gom cụm  
 > - location / isDefaultLocation / radiusKm: tâm tìm kiếm (chấm xanh là vị trí thật) và vòng bán kính  
 > - selectedId / onSelect(id | null): quán đang chọn (có ghim lớn và popup), đồng bộ với danh sách  
-> - onLocate / locating: nút "Vị trí của tôi" xin định vị lại
+> - onLocate / locating: nút "Vị trí của tôi" xin định vị lại  
+> - searchMode: đang hiện kết quả tìm theo tên. Quán có thể nằm ngoài vòng bán kính nên ẩn vòng và `fitBounds` vừa các kết quả mới (chỉ khi tập kết quả đổi);
+>   thoát chế độ này thì bay về vòng bán kính như bình thường
 
 ### features/restaurant-map/components/MapSearchBar.jsx
 
 **Gắn với:** `export default function MapSearchBar({ keyword, onKeywordChange }) {`
 
-> Thanh tìm kiếm quán. BE chưa tìm theo tên nên từ khóa lọc ngay trên danh sách đã tải.  
-> - keyword / onKeywordChange: ô tìm kiếm (lọc theo tên hoặc địa chỉ)
+> Thanh tìm kiếm quán. Từ khóa đủ 2 ký tự thì màn hình gọi BE tìm theo tên (xem RestaurantMapScreen), ít hơn thì chỉ lọc trên danh sách quanh đây.  
+> - keyword / onKeywordChange: ô tìm kiếm (tối đa 100 ký tự, khớp giới hạn của BE)
 
 ### features/restaurant-map/components/RestaurantList.jsx
 
@@ -2222,7 +2304,8 @@ Tổng cộng 334 mục từ 200 file.
 > Danh sách quán bên trái bản đồ. Toàn bộ dữ liệu và state nằm ở RestaurantMapScreen.  
 > - restaurants: quán đã lọc và sắp xếp, hiện 5 quán một lần ("Xem thêm" để mở rộng)  
 > - resetKey: đổi giá trị này thì số quán đang hiện quay lại 5  
-> - isRefreshing: đang tải lại (đổi bán kính) trong khi vẫn hiện kết quả cũ
+> - isRefreshing: đang tải lại (đổi bán kính) trong khi vẫn hiện kết quả cũ  
+> - searchTerm: từ khóa đang được BE tìm (null khi không tìm theo tên); có giá trị thì tiêu đề đổi thành "N quán khớp ..." và ô bán kính bị khóa vì BE không xét bán kính
 
 **Trong:** `RestaurantList` · **Gắn với:** `useEffect(() => {`
 
@@ -2236,6 +2319,12 @@ Tổng cộng 334 mục từ 200 file.
 > Quán chay quanh một điểm (GET /restaurants/nearby), gần nhất trước.
 > params: { lat, lng, radiusKm, veganOnly }. Trả về query của React Query + `restaurants`
 > (mảng, luôn có giá trị). Đổi bán kính thì giữ kết quả cũ trong lúc tải để danh sách không nháy trống.
+
+### features/restaurant-map/hooks/useSearchRestaurants.js
+
+**Gắn với:** `export function useSearchRestaurants({ q, lat, lng, veganOnly = false }) {`
+
+> Tìm quán theo tên (GET /restaurants/search). `q` null thì không gọi (enabled = false). Giữ kết quả cũ trong lúc tải từ khóa mới để danh sách không nháy trống.
 
 ### features/restaurant-map/hooks/useUserLocation.js
 
@@ -2258,14 +2347,16 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export default function RestaurantMapScreen() {`
 
-> Trang Bản đồ quán chay (location-service: GET /restaurants/nearby).
+> Trang Bản đồ quán chay (location-service: GET /restaurants/nearby và GET /restaurants/search).
 > Màn hình giữ toàn bộ state; danh sách và bản đồ cùng đọc một mảng quán đã lọc.
+> `searchTerm` = từ khóa đã cắt khoảng trắng, dài 2 - 100 ký tự và đứng yên 400 ms (gõ dở thì null, danh sách quanh đây lọc ngay trên máy);
+> có `searchTerm` thì danh sách / bản đồ / trạng thái tải lấy từ kết quả tìm theo tên, không thì từ danh sách quanh đây. Hai truy vấn dùng chung khóa cache theo từ khóa và tọa độ làm tròn.
 
 ### features/restaurant-map/queryKeys.js
 
 **Gắn với:** `const round = (n) => Math.round(n * 1e4) / 1e4;`
 
-> Khóa cache React Query của feature restaurant-map.
+> Khóa cache React Query của feature restaurant-map (`nearby` và `search`).
 > Tọa độ làm tròn 4 chữ số thập phân (~11 m) để GPS nhích nhẹ không gọi lại API.
 
 ### features/restaurant-map/utils/mapConfig.js
@@ -2274,6 +2365,10 @@ Tổng cộng 334 mục từ 200 file.
 
 > Màu marker: paint của Mapbox không đọc được token CSS, nên lặp lại giá trị
 > `--brand` trong globals.css cho từng theme.
+
+**Gắn với:** `export const MIN_SEARCH_LENGTH = 2;`
+
+> Độ dài từ khóa BE chấp nhận khi tìm quán theo tên (2 - 100 ký tự; ngoài khoảng là lỗi 5003).
 
 **Gắn với:** `export function zoomForRadius(radiusKm) {`
 
@@ -2286,6 +2381,10 @@ Tổng cộng 334 mục từ 200 file.
 > Tọa độ theo [kinh độ, vĩ độ]; vòng khép kín (điểm cuối trùng điểm đầu).
 
 ### features/restaurant-map/utils/restaurantFormat.js
+
+**Gắn với:** `export function getSearchTerm(keyword) {`
+
+> Từ khóa đã cắt khoảng trắng nếu dài 2 - 100 ký tự (đủ để gọi BE tìm theo tên), ngắn hoặc dài hơn thì null.
 
 **Gắn với:** `export function sortRestaurants(restaurants, sort) {`
 
@@ -2335,6 +2434,19 @@ Tổng cộng 334 mục từ 200 file.
 
 > DELETE /videos/:id — chủ xóa thật, admin xóa người khác thì video bị BANNED.
 
+**Gắn với:** `export async function voteVideo(id, value = 1) {`
+
+> POST /videos/:id/vote — thích (value = 1) hoặc không thích (value = -1) một video đã xuất bản.
+> Gửi cùng giá trị lần hai thì BE hủy vote (toggle). Trả VoteResponse { videoId, myVote, voteScore }.
+
+**Gắn với:** `export async function removeVideoVote(id) {`
+
+> DELETE /videos/:id/vote — bỏ vote rõ ràng; gọi lặp lại không lỗi. Trả VoteResponse với myVote = null.
+
+**Gắn với:** `export async function getMyVideoVotes(videoIds) {`
+
+> GET /videos/me/votes?videoIds=1,2,3 — lấy trạng thái vote của tôi trên tối đa 100 video mỗi lượt gọi (chunk tự động).
+
 ### features/video/api/videoJobApi.js
 
 **Gắn với:** `export async function processVideo(file, { onUploadProgress } = {}) {`
@@ -2370,13 +2482,6 @@ Tổng cộng 334 mục từ 200 file.
 > Thẻ "Tóm tắt công thức nấu ăn (AI Summary)" ở trang xem video: công thức AI bóc tách từ chính video này
 > (GET /ai/videos/by-video/:id, công khai dùng chung cho mọi người nên xem không tốn lượt). Chưa có thì mời bóc tách
 > (POST /ai/videos/process-existing, trừ 1 lượt của gói). Nút ở tiêu đề (VideoMetaHeader) dùng chung trạng thái này.
-
-### features/video/components/CommentsHeader.jsx
-
-**Gắn với:** `export default function CommentsHeader() {`
-
-> BE từ chối targetType=VIDEO với mã lỗi UNSUPPORTED_TARGET_TYPE.
-> Vì vậy phần bình luận được hiển thị thông báo trạng thái tĩnh, không gọi API bình luận để tránh lỗi.
 
 ### features/video/components/NutritionFactsCard.jsx
 
@@ -2503,6 +2608,17 @@ Tổng cộng 334 mục từ 200 file.
 
 > Chi tiết video đã xuất bản (GET /videos/:id).
 > BE tăng 1 lượt xem mỗi lần gọi, nên tắt refetch khi focus để không tăng lượt xem ảo.
+
+### features/video/hooks/useVideoVotes.js
+
+**Gắn với:** `export function useMyVideoVotes(videoIds) {`
+
+> Lấy danh sách vote của tôi trên các video hiển thị (tối đa 100 id mỗi đợt, chunk tự động).
+> Trả Map<videoId, myVote> (1: Thích, -1: Không thích, null: chưa vote).
+
+**Gắn với:** `export function useVoteVideo() {`
+
+> Mutation bình chọn video dạng toggle (POST /videos/:id/vote). Cập nhật cache React Query cho feed, chi tiết và myVotes.
 
 ### features/video/pages/VideoFormScreen.jsx
 

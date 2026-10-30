@@ -355,10 +355,18 @@ export function defaultPlanName(date = new Date()) {
   return `Thực đơn ${formatDayMonth(start)} - ${formatDayMonth(end)}`;
 }
 
+// Ngày tạo thực đơn: ưu tiên createdOn của BE (giờ Việt Nam, đúng mốc BE kiểm tra tuần), thiếu thì dùng createdAt.
+export function planCreatedDate(plan) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(plan?.createdOn ?? ""));
+  if (match) return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  const created = new Date(plan?.createdAt);
+  return Number.isNaN(created.getTime()) ? null : created;
+}
+
 export function planDayDate(plan, dayKey) {
   const index = DAY_ORDER.indexOf(normalizeDay(dayKey));
-  const created = new Date(plan?.createdAt);
-  if (index === -1 || Number.isNaN(created.getTime())) return null;
+  const created = planCreatedDate(plan);
+  if (index === -1 || !created) return null;
   const start = weekStart(created);
   return new Date(start.getFullYear(), start.getMonth(), start.getDate() + index);
 }
@@ -393,6 +401,12 @@ export function formatDateTime(iso) {
 export function replacePlanInList(list, updated) {
   if (!Array.isArray(list)) return list;
   return list.map((plan) => (plan.id === updated.id ? updated : plan));
+}
+
+/** "2026-11-01" -> "01/11/2026"; tách chuỗi thay vì dùng Date để không lệch ngày theo múi giờ. */
+export function formatIsoDate(iso) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso ?? "");
+  return match ? `${match[3]}/${match[2]}/${match[1]}` : "";
 }
 
 /** "YYYY-MM-DD" theo giờ máy người dùng (không dùng toISOString vì nó đổi sang UTC và có thể lệch ngày). */

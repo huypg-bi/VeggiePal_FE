@@ -73,6 +73,7 @@ export default function RestaurantList({
   isDefaultLocation,
   onResetLocation,
   hasKeyword,
+  searchTerm,
 }) {
   // Số quán đang hiện gắn với resetKey: bộ lọc đổi thì tự về PAGE_SIZE, không cần effect.
   const [limitState, setLimitState] = useState({
@@ -205,14 +206,18 @@ export default function RestaurantList({
             <h2 className="text-lg font-bold leading-tight text-ink">
               {isLoading
                 ? "Đang tìm quán chay..."
-                : `${restaurants.length} Điểm Ăn Chay Tuyệt Vời`}
+                : searchTerm
+                  ? `${restaurants.length} quán khớp “${searchTerm}”`
+                  : `${restaurants.length} Điểm Ăn Chay Tuyệt Vời`}
             </h2>
             <p className="flex items-center gap-1.5 text-xs text-subtle">
               {isRefreshing && <Loader2 className="size-3 animate-spin" />}
               <span className="truncate">
-                {isDefaultLocation
-                  ? "Quanh Quận 1 (vị trí mặc định)"
-                  : "Quanh vị trí của bạn"}
+                {searchTerm
+                  ? "Tìm theo tên trên toàn bản đồ, tối đa 20 quán"
+                  : isDefaultLocation
+                    ? "Quanh Quận 1 (vị trí mặc định)"
+                    : "Quanh vị trí của bạn"}
               </span>
             </p>
           </div>
@@ -224,6 +229,8 @@ export default function RestaurantList({
             options={RADIUS_DROPDOWN_OPTIONS}
             value={radiusKm}
             onValueChange={onRadiusChange}
+            // Tìm theo tên không giới hạn bán kính nên khóa ô này.
+            disabled={Boolean(searchTerm)}
             className="h-9 px-3 shadow-sm"
           />
           <SelectField

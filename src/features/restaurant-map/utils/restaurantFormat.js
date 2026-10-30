@@ -1,5 +1,7 @@
 // Hàm thuần cho trang Bản đồ quán chay. Không import "@/" để test bằng node:test.
 
+import { MAX_SEARCH_LENGTH, MIN_SEARCH_LENGTH } from "./mapConfig.js";
+
 /** 0.53 → "530 m", 1.14 → "1.1 km", 2 → "2 km". Rỗng nếu không phải số. */
 export function formatDistance(km) {
   if (typeof km !== "number" || !Number.isFinite(km) || km < 0) return "";
@@ -28,6 +30,12 @@ export function normalizeText(text) {
     .replace(/đ/gi, "d")
     .toLowerCase()
     .trim();
+}
+
+/** Từ khóa đã cắt khoảng trắng nếu đủ dài để gọi BE tìm theo tên; ngắn hơn thì null (chỉ lọc trên danh sách đã tải). */
+export function getSearchTerm(keyword) {
+  const term = String(keyword ?? "").trim();
+  return term.length >= MIN_SEARCH_LENGTH && term.length <= MAX_SEARCH_LENGTH ? term : null;
 }
 
 /** Lọc quán theo từ khóa trong tên hoặc địa chỉ (không phân biệt dấu). Từ khóa rỗng → giữ nguyên. */

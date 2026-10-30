@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Eye, Loader2, PlaySquare } from "lucide-react";
+import { Eye, Loader2, PlaySquare, ThumbsUp } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -156,10 +156,16 @@ function VideoRow({ video }) {
         <p className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-subtle">
           <span>{formatTimeAgo(video.publishedAt ?? video.createdAt)}</span>
           {isPublished ? (
-            <span className="flex items-center gap-1">
-              <Eye className="size-3.5" />
-              {formatCompactNumber(video.viewCount)} lượt xem
-            </span>
+            <>
+              <span className="flex items-center gap-1">
+                <Eye className="size-3.5" />
+                {formatCompactNumber(video.viewCount)} lượt xem
+              </span>
+              <span className="flex items-center gap-1">
+                <ThumbsUp className="size-3.5" />
+                {(video.voteScore ?? 0).toLocaleString("vi-VN")}
+              </span>
+            </>
           ) : (
             info.hint && <span>{info.hint}</span>
           )}

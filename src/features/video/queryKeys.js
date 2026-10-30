@@ -8,6 +8,8 @@ export const videoKeys = {
   ],
   detail: (id) => ["videos", "detail", id],
   mine: (status, size) => ["videos", "mine", { status: status || undefined, size }],
+  myVotes: ["videos", "my-votes"],
+  myVoteList: (ids) => ["videos", "my-votes", ids],
   // Job bóc tách công thức (ai-service); tách khỏi `all` để đăng video không làm tải lại danh sách job.
   jobsRoot: ["video-jobs"],
   jobsList: ["video-jobs", "list"],

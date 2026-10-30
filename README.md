@@ -42,9 +42,10 @@
 - **👤 Hồ sơ cá nhân (Profile):** Quản lý thông tin cá nhân, cập nhật ảnh đại diện, đổi mật khẩu, xem số người theo dõi & đang theo dõi thật và danh sách theo dõi.
 - **📊 Sức khỏe & Dị ứng (Nutrition):** Ghi nhận chiều cao/cân nặng, theo dõi lịch sử BMI, chọn danh mục thực phẩm dị ứng.
 - **🥗 Thực đơn dinh dưỡng (Meal Planner):** AI lên thực đơn 7 ngày × 3 bữa theo mục tiêu giảm / duy trì / tăng cân (BE tự tính calo từ chỉ số sức khỏe, ngày sinh, giới tính, mức vận động, hoặc tự đặt mục tiêu riêng), nguyên liệu sẵn có và khẩu vị; xem theo ngày, đổi món, chuyển giữa các thực đơn đã lưu; đánh dấu bữa đã ăn, ghi nước uống và vận động vào nhật ký ăn uống, thẻ calo trong ngày tính theo bữa đã ăn *(API thật; bữa phụ chưa có, lời khuyên hằng ngày vẫn là Mock Data)*.
+- **🍲 Công thức (Recipe):** Duyệt công thức món chay đã đăng (tìm theo tên / mô tả, sắp xếp mới nhất hoặc được lưu nhiều nhất), xem chi tiết kèm dinh dưỡng mỗi khẩu phần do BE tính sẵn và cảnh báo nguyên liệu dễ dị ứng / không thuần chay, lưu công thức yêu thích (thẻ "Công Thức Đã Lưu" ở trang cá nhân), tạo công thức với ảnh tải lên (JPEG / PNG ≤ 5MB) hoặc link ảnh, sửa công thức thì đổi ảnh bằng tải lên *(API thật)*.
 - **📝 Cộng đồng (Blog):** Đăng và đọc bài viết (tối đa 50.000 ký tự; bài được AI kiểm duyệt nền nên đăng xong ở trạng thái chờ, trang chi tiết tự cập nhật khi AI xét xong), bình luận, thả tim, tìm kiếm / sắp xếp / lọc danh mục, theo dõi tác giả, xem tab "Đang theo dõi" và danh sách người theo dõi *(API thật; bảng vàng, chủ đề và thử thách tuần vẫn là Mock Data)*.
 - **🎥 Khám phá video (Videos):** Xem và đăng tải video nấu món chay (tệp .mp4 hoặc liên kết YouTube), phân trang và lọc theo danh mục, quản lý video cá nhân kèm kiểm duyệt tự động *(API thật; kênh gợi ý và thông tin dinh dưỡng gắn nhãn "Dữ liệu mẫu", bình luận và vote chờ BE)*. Tab "Bóc tách" ở trang Nội dung của tôi cho AI bóc tách nguyên liệu và các bước làm từ video (tệp ≤ 100MB, ≤ 30 phút, lịch sử `GET /ai/videos` phân trang dạng `items` theo lượt của gói thành viên). Ở trang xem video, nút "Bóc tách công thức AI" ở `VideoMetaHeader` và thẻ `AiSummaryCard` hiển thị công thức AI dùng chung cho video tải lên (`POST /ai/videos/process-existing`, xem công khai qua `GET /ai/videos/by-video/:videoId`, khách chưa đăng nhập vẫn xem được kết quả có sẵn; video YouTube hiện "chưa hỗ trợ" mã 6026 và khóa nút; hàng đợi đầy trả 6025 "hệ thống đang bận") *(API thật)*.
-- **📍 Bản đồ xanh (Map):** Tìm kiếm và xem danh sách các nhà hàng, quán ăn chay *(Mock Data)*.
+- **📍 Bản đồ xanh (Map):** Xem quán ăn chay quanh vị trí của bạn trên bản đồ Mapbox (chọn bán kính 1 - 10 km, sắp theo gần nhất hoặc đánh giá cao), tìm quán theo tên (từ 2 ký tự) trên toàn bản đồ *(API thật)*.
 - **🤖 Trợ lý Bông Cải (AI Chatbot):** Giao diện hỏi đáp kiến thức dinh dưỡng chay, quản lý nhiều đoạn chat *(API thật: ai-service, có chế độ dùng thử cho khách; giới hạn lượt/ngày: khách 3 lượt, FREE 5, PLUS 20, PRO 50; mở cuộc trò chuyện của người khác trả 404)*.
 - **🎨 Giao diện & Trải nghiệm:** Landing page hiện đại, hỗ trợ chuyển đổi chế độ Sáng/Tối (Light/Dark Mode).
 - **🛡️ Quản trị hệ thống (Admin):** Màn hình quản lý người dùng (`/admin/users`: tìm kiếm email/họ tên, lọc theo trạng thái và vai trò, khóa tài khoản kèm lý do, mở khóa tài khoản, nâng quyền Quản trị viên), quản lý danh mục và nguyên liệu, duyệt nội dung bài viết/video/bình luận, giám sát AI và thống kê doanh thu gói thành viên.
@@ -120,6 +121,11 @@ Giao diện chạy tại: http://localhost:5173
 | `npm run lint` | Kiểm tra code với ESLint |
 | `npm test` | Chạy test tạm (`*.test.js`). Repo không giữ file test lâu dài: viết để kiểm tra, test xong thì xóa |
 
+### 5. Deploy lên Vercel
+- Import repo vào Vercel (preset Vite), thêm các biến `VITE_*` ở Settings → Environment Variables (`VITE_VEGGIEPAL_API_BASE_URL` phải gồm `/api`), sửa biến xong phải Redeploy vì Vite nhúng biến lúc build.
+- `vercel.json` có rewrite mọi đường dẫn (trừ `/assets/`) về `index.html` để refresh hoặc mở thẳng route con (`/login`, `/recipes/...`) không bị 404 (app là SPA dùng React Router); file thiếu trong `/assets/` vẫn trả 404 để chunk JS cũ không nhận nhầm HTML. File trong `/assets/` có hash nên được cache 1 năm (`immutable`).
+- Origin của FE phải nằm trong CORS của BE và trong "Authorized JavaScript origins" của Google OAuth Client ID.
+
 ---
 
 ## 📁 Cấu trúc thư mục
@@ -159,6 +165,11 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | `GET` | `/blogs/feed/following` | Feed bài của những người tôi theo dõi (phân trang, cần đăng nhập) |
 | `GET` | `/videos`, `/videos/:id`, `/videos/me` | Danh sách video đã duyệt (phân trang dạng `items`, lọc danh mục) / Chi tiết video / Video của tôi |
 | `POST` / `PUT` / `DELETE` | `/videos`, `/videos/:id` | Đăng video (tệp .mp4 ≤ 30MB hoặc YouTube link) / Sửa / Xóa video |
+| `GET` | `/recipes`, `/recipes/:id` | Danh sách công thức đã đăng (`keyword`, `sort=popular`, phân trang dạng `items`) / Chi tiết (kèm `nutritionPerServing`, `favoriteCount`) |
+| `POST` | `/recipes/:id/image` | Tải / đổi ảnh công thức (multipart `file`, JPEG / PNG ≤ 5MB, chủ hoặc ADMIN); `PUT /recipes/:id` không đổi ảnh (link khác trả 4119) |
+| `GET` | `/recipes/favorites`, `/recipes/favorites/ids` | Công thức tôi đã lưu (phân trang) / id các công thức đã lưu |
+| `POST` / `DELETE` | `/recipes/:id/favorite` | Lưu / bỏ lưu công thức (gọi lặp không lỗi, trả `favoriteCount` mới) |
+| `GET` | `/restaurants/nearby`, `/restaurants/search` | Quán chay quanh một điểm (`lat`, `lng`, `radiusKm` ≤ 10) / Tìm quán theo tên (`q` 2 - 100 ký tự, tối đa 20 quán, không theo bán kính; công khai) |
 | `POST` | `/users/me/avatar` | Tải ảnh đại diện |
 | `GET` | `/nutrition/allergens` | Danh mục dị ứng |
 | `GET` / `PUT` | `/nutrition/me/allergies` | Xem / cập nhật dị ứng |

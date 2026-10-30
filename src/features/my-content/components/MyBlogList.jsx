@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/variants/button-variants";
 import { useDeleteBlog, useSubmitBlog } from "@/features/blog/hooks/useBlogMutations";
 import { useMyBlogs } from "@/features/blog/hooks/useMyBlogs";
+import { isAiReviewing } from "@/features/blog/utils/blogModeration";
 import { formatCompactNumber, formatTimeAgo } from "@/features/blog/utils/blogFormat";
 import { describeBlogOutcome } from "@/features/blog/utils/blogForm";
 import StatusBadge from "@/features/my-content/components/StatusBadge";
@@ -154,6 +155,11 @@ function BlogRow({ post }) {
             info.hint && <span>{info.hint}</span>
           )}
         </p>
+
+        {isAiReviewing(post) && <p className="mt-1 text-xs text-subtle">AI đang kiểm duyệt bài viết...</p>}
+        {post.status === "REJECTED" && post.moderationReason && (
+          <p className="mt-1 text-xs text-destructive">Lý do từ chối: {post.moderationReason}</p>
+        )}
       </div>
     </>
   );

@@ -9,6 +9,7 @@ import AuthorAvatar from "@/features/blog/components/AuthorAvatar";
 import { FALLBACK_AUTHOR_NAME, formatTimeAgo } from "@/features/blog/utils/blogFormat";
 import StatusBadge from "@/features/my-content/components/StatusBadge";
 import { getRecipeStatusInfo } from "@/features/my-content/utils/statusInfo";
+import RecipeFavoriteButton from "@/features/recipe/components/RecipeFavoriteButton";
 import { useRecipe } from "@/features/recipe/hooks/useRecipes";
 import { useRecipeNutrition } from "@/features/recipe/hooks/useRecipeNutrition";
 import { formatIngredientAmount, sortSteps } from "@/features/recipe/utils/recipeFormat";
@@ -94,6 +95,7 @@ function RecipeArticle({ recipe, author, nutrition, nutritionGap, canManage, isL
           </p>
         </div>
         <div className="ml-auto flex shrink-0 items-center gap-2">
+          <RecipeFavoriteButton recipe={recipe} variant="full" />
           {showStatus && <StatusBadge info={getRecipeStatusInfo(recipe.status)} />}
           {canManage && (
             <Link

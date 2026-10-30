@@ -8,23 +8,23 @@ function useInvalidateComments() {
   return () => queryClient.invalidateQueries({ queryKey: blogKeys.comments });
 }
 
-/** Gửi bình luận mới hoặc phản hồi. mutate({ blogId, parentCommentId?, content }). */
+// Gửi bình luận mới hoặc phản hồi cho bài viết / video.
 export function useCreateComment() {
   const invalidate = useInvalidateComments();
   return useMutation({ mutationFn: createComment, onSuccess: invalidate });
 }
 
-/** Sửa bình luận của mình. mutate({ commentId, blogId, content }). */
+// Sửa bình luận của mình cho bài viết / video.
 export function useUpdateComment() {
   const invalidate = useInvalidateComments();
   return useMutation({
-    mutationFn: ({ commentId, blogId, content }) =>
-      updateComment(commentId, { blogId, content }),
+    mutationFn: ({ commentId, blogId, targetType, targetId, content }) =>
+      updateComment(commentId, { blogId, targetType, targetId, content }),
     onSuccess: invalidate,
   });
 }
 
-/** Xóa bình luận (chủ comment hoặc ADMIN). mutate(commentId). */
+// Xóa bình luận (chủ comment hoặc ADMIN).
 export function useDeleteComment() {
   const invalidate = useInvalidateComments();
   return useMutation({ mutationFn: deleteComment, onSuccess: invalidate });

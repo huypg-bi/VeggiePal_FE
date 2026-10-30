@@ -40,12 +40,14 @@ function calorieStat(dayTotals, target, dayLong, diary) {
   const hasMin = Number.isFinite(min) && min > 0;
   const planned = dayTotals ? toRounded(dayTotals.calories) : null;
   const mealCount = diary?.meals?.length ?? 0;
+  // hasMeals do BE trả; thiếu thì suy từ số bữa đã ghi
+  const hasMeals = diary?.hasMeals ?? mealCount > 0;
 
   // Có thực đơn (hoặc đã ghi bữa) và nhật ký đã tải: hiện calo thực ăn ghi trong nhật ký, đặt cạnh thực đơn / mục tiêu.
-  if (diary && (dayTotals || mealCount > 0)) {
+  if (diary && (dayTotals || hasMeals)) {
     const eaten = toRounded(diary.nutrition?.calories);
     let caption = `Thực đơn ${dayLong} ${(planned ?? 0).toLocaleString("en-US")} kcal`;
-    if (mealCount > 0) {
+    if (hasMeals) {
       const goal = hasMin && hasMax
         ? `mục tiêu ${min.toLocaleString("en-US")} - ${max.toLocaleString("en-US")} kcal`
         : hasMax

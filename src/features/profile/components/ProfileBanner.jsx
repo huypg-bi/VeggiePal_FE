@@ -18,6 +18,7 @@ import FollowListDialog from "@/features/blog/components/FollowListDialog";
 import { useChallenge } from "@/features/blog/hooks/useChallenge";
 import { useFollowStats } from "@/features/blog/hooks/useFollow";
 import { CHALLENGE_BADGE_NAME } from "@/features/blog/utils/challenge";
+import { useFavoriteRecipes } from "@/features/recipe/hooks/useRecipeFavorites";
 import { useProfileStats } from "@/features/profile/hooks/useProfileStats";
 import { useMySubscription } from "@/features/payment/hooks/useMySubscription";
 import { formatDate } from "@/features/payment/utils/paymentFormat";
@@ -36,6 +37,8 @@ export default function ProfileBanner({ profile }) {
   const authUser = useAuthStore((s) => s.user);
   const userId = profile?.id ?? authUser?.id;
   const { data: followStats, isLoading: isFollowStatsLoading } = useFollowStats(userId);
+  // Chỉ cần tổng số nên xin 1 mục.
+  const { data: favoritePage, isPending: isFavoritesPending } = useFavoriteRecipes({ size: 1 });
 
   const displayName = profile?.fullName?.trim() || "Người dùng VeggiePal";
   const avatarUrl = profile?.avatarUrl || DEFAULT_AVATAR;
@@ -43,6 +46,7 @@ export default function ProfileBanner({ profile }) {
   const { latest } = stats;
   const totalPosts = stats.loading ? "…" : stats.blogTotal + stats.recipeTotal;
   const followersCount = isFollowStatsLoading && !followStats ? "…" : (followStats?.followers ?? 0).toLocaleString("vi-VN");
+  const savedRecipesCount = isFavoritesPending ? "…" : (favoritePage?.totalElements ?? 0).toLocaleString("vi-VN");
   const followingCount = isFollowStatsLoading && !followStats ? "…" : (followStats?.following ?? 0).toLocaleString("vi-VN");
 
   return (
@@ -179,19 +183,14 @@ export default function ProfileBanner({ profile }) {
             </div>
           </button>
 
-          {/* 4. Lượt lưu công thức: giữ mock có nhãn (chờ BE D21.2) */}
+          {/* 4. Công thức đã lưu: tổng số trong GET /recipes/favorites */}
           <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-rose-50 text-rose-700 dark:bg-rose-950/60 dark:text-rose-400">
               <Bookmark className="h-5 w-5" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-base font-bold text-ink">12.4k</span>
-                <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-subtle">
-                  đợi BE làm
-                </span>
-              </div>
-              <div className="text-xs text-subtle">Lượt lưu công thức</div>
+              <div className="text-base font-bold text-ink">{savedRecipesCount}</div>
+              <div className="text-xs text-subtle">Công thức đã lưu</div>
             </div>
           </div>
 
