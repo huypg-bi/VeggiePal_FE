@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ModerationDetailDialog from "@/features/admin/moderation/components/ModerationDetailDialog";
 import ReviewDecisionDialog from "@/features/admin/moderation/components/ReviewDecisionDialog";
+import ModerationHistorySection from "@/features/admin/moderation/components/ModerationHistorySection";
 import ModerationLogsSection from "@/features/admin/moderation/components/ModerationLogsSection";
 import { MOCK_MODERATION_CASES } from "@/features/admin/moderation/data/mockModerationData";
 import {
@@ -100,6 +101,12 @@ export default function AdminModerationScreen() {
 
   // Danh sách thực tế hiển thị: Khi BE đã trả dữ liệu thật, luôn ưu tiên hiển thị dữ liệu thật
   const activeCases = hasRealData ? realCases : (isMockMode ? mockCases : realCases);
+
+  // Lấy danh sách authorId để phân giải tên hiển thị người dùng (user nào chưa active thì fallback sang #id)
+  const authorIds = useMemo(() => {
+    return Array.from(new Set(activeCases.map((c) => c.authorId).filter(Boolean)));
+  }, [activeCases]);
+  const { data: userMap } = usePublicUsers(authorIds);
 
   // Bộ lọc và tìm kiếm
   const [searchQuery, setSearchQuery] = useState("");
@@ -186,6 +193,8 @@ export default function AdminModerationScreen() {
         const matchCaseId = String(c.caseId).includes(query);
         const matchExternalId = c.externalContentId != null && String(c.externalContentId).includes(query);
         const matchAuthorId = c.authorId != null && String(c.authorId).includes(query);
+        const author = userMap?.get(Number(c.authorId)) ?? userMap?.get(String(c.authorId));
+        const matchAuthorName = author?.fullName && author.fullName.toLowerCase().includes(query);
         const matchContent = c.content && c.content.toLowerCase().includes(query);
         const matchReason = c.reason && c.reason.toLowerCase().includes(query);
         const matchCategories = c.categories && c.categories.some((cat) => cat.toLowerCase().includes(query));
@@ -194,7 +203,7 @@ export default function AdminModerationScreen() {
         return (
           matchCaseId ||
           matchExternalId ||
-          matchAuthorId ||
+          matchAuthorId || matchAuthorName ||
           matchContent ||
           matchReason ||
           matchCategories ||
@@ -204,7 +213,7 @@ export default function AdminModerationScreen() {
 
       return true;
     });
-  }, [activeCases, searchQuery, typeFilter]);
+  }, [activeCases, searchQuery, typeFilter, userMap]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -324,9 +333,6 @@ export default function AdminModerationScreen() {
         >
           <CheckCircle2 className="size-4" />
           <span>Đã xử lý</span>
-          <span className="rounded-full bg-surface px-1.5 py-0.5 text-[10px] font-medium text-subtle border border-border">
-            Chờ BE
-          </span>
         </button>
       </div>
 
@@ -535,11 +541,12 @@ export default function AdminModerationScreen() {
                       </td>
 
                       {/* Mã tác giả (authorId) */}
-                      <td className="px-4 py-4 text-xs font-medium text-ink">
+                      {/* Tác giả */}
+                      <td className="px-4 py-4 text-xs font-semibold text-ink">
                         {c.authorId != null ? (
                           <UserDisplayName userId={c.authorId} userMap={userMap} />
                         ) : (
-                          <span className="text-subtle">—</span>
+                          <span className="text-subtle font-normal">—</span>
                         )}
                       </td>
 
@@ -671,40 +678,9 @@ export default function AdminModerationScreen() {
       {activeTab === "logs" && <ModerationLogsSection />}
 
       {/* Tab đã xử lý (chờ BE B05) */}
+      {/* Tab đã xử lý */}
       {activeTab === "history" && (
-        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card p-12 text-center shadow-sm">
-          <div className="flex size-14 items-center justify-center rounded-2xl bg-brand/10 text-brand">
-            <CheckCircle2 className="size-7" />
-          </div>
-          <h3 className="mt-4 font-heading text-lg font-bold text-ink">
-            Lịch sử kiểm duyệt (Chờ Backend - B05)
-          </h3>
-          <p className="mt-2 max-w-lg text-sm text-subtle leading-relaxed">
-            Tính năng xem lịch sử các ca đã duyệt, từ chối bởi AI và Admin (kèm quyết định, lý do, độ tin cậy và người duyệt) đang chờ Backend hoàn thành endpoint <code className="rounded bg-surface px-1.5 py-0.5 font-mono text-xs text-ink">GET /ai/admin/moderation/history</code> (Task B05 trong BACKEND_COMPLETION_TASKS.md).
-          </p>
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => handleTabChange("logs")}
-              className="gap-2 text-xs"
-            >
-              <History className="size-3.5" />
-              Xem nhật ký gọi AI
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              size="sm"
-              onClick={() => handleTabChange("queue")}
-              className="gap-2 text-xs"
-            >
-              <ShieldAlert className="size-3.5" />
-              Về hàng đợi chờ duyệt
-            </Button>
-          </div>
-        </div>
+        <ModerationHistorySection onViewDetail={(item) => setDetailItem(item)} isMockMode={isMockMode} />
       )}
 
       {/* Dialog chi tiết case kiểm duyệt */}

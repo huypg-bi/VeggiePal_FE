@@ -151,6 +151,17 @@ export default function UsageLogsSection() {
           />
         </div>
 
+        {/* Ô bật/tắt "Hiện cả kiểm duyệt" */}
+        <label className="flex items-center gap-2 text-xs font-medium text-subtle cursor-pointer select-none rounded-full border border-border bg-surface px-3 py-2 transition hover:text-ink">
+          <input
+            type="checkbox"
+            checked={includeModeration}
+            onChange={(e) => handleToggleModeration(e.target.checked)}
+            className="size-4 rounded border-border accent-brand cursor-pointer"
+          />
+          Hiện cả kiểm duyệt
+        </label>
+
         {hasActiveFilters && (
           <Button
             type="button"

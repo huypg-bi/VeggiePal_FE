@@ -257,7 +257,7 @@ Tổng cộng 334 mục từ 200 file.
 > - Giao diện 3 tab điều hướng qua URL param (?tab=queue | logs | history).  
 > - Tab "Hàng đợi kiểm duyệt" (mặc định): Hàng đợi các case cần duyệt (REVIEW_REQUIRED, cũ nhất trước); hiển thị caseId, loại nội dung (BLOG, VIDEO, COMMENT), externalContentId, authorId, content (nội dung bị gắn cờ), categories, reason, confidence; hỗ trợ chế độ Mock Data để test giao diện và luồng duyệt/từ chối ngay cả khi BE chưa có dữ liệu.  
 > - Tab "Nhật ký kiểm duyệt" (ModerationLogsSection): Xem lịch sử các lượt gọi AI kiểm duyệt (GET /ai/admin/monitoring/logs/search?feature=MODERATION) gồm thời gian, tác giả, model, prompt/completion tokens, độ trễ ms, trạng thái thành công/thất bại và bộ lọc theo trạng thái, userId, khoảng ngày.  
-> - Tab "Đã xử lý": Giao diện giữ chỗ thông báo tính năng xem lịch sử các ca đã duyệt/từ chối bởi AI và Admin kèm quyết định, lý do, độ tin cậy và người duyệt (chờ Backend hoàn thành endpoint GET /ai/admin/moderation/history theo task B05).
+> - Tab "Đã xử lý" (ModerationHistorySection): Xem lịch sử toàn bộ các ca kiểm duyệt đã được xử lý bởi AI hoặc Admin (GET /ai/admin/moderation/history theo task B05). Hiển thị nội dung bị gắn cờ, quyết định, lý do, độ tin cậy, người duyệt (AI hoặc Admin hiển thị tên thật qua UserDisplayName nếu active), thời gian duyệt; hỗ trợ bộ lọc theo loại nội dung, quyết định, người duyệt, khoảng thời gian và phân trang; tích hợp chế độ dữ liệu mẫu khi chưa có dữ liệu thật.
 
 ### features/admin/moderation/components/ModerationLogsSection.jsx
 

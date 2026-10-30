@@ -176,8 +176,8 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | `GET` / `POST` | `/nutrition/me/health-records` | Lịch sử / ghi chỉ số sức khỏe |
 | `GET` | `/nutrition/me/health-records/latest` | Chỉ số sức khỏe mới nhất |
 | `PUT` | `/nutrition/me/health-records/:id` | Sửa một bản ghi chỉ số sức khỏe trong lịch sử |
-| `GET` | `/ai/admin/monitoring/summary`, `/logs/search`, `/models`, `/limits` | Giám sát AI (chỉ ADMIN): tổng hợp, nhật ký, model, giới hạn |
-| `GET` / `PUT` / `DELETE` | `/ai/admin/moderation`, `/ai/admin/moderation/:id`, `/ai/admin/monitoring/logs/search?feature=MODERATION` | Kiểm duyệt nội dung (chỉ ADMIN): hàng đợi chờ duyệt, nhật ký gọi AI kiểm duyệt; tab đã xử lý chờ BE B05 |
+| `GET` | `/ai/admin/monitoring/summary`, `/logs/search`, `/models`, `/limits` | Giám sát AI (chỉ ADMIN): tổng hợp, nhật ký, model, giới hạn (hỗ trợ `excludeFeature` loại trừ kiểm duyệt theo task B06) |
+| `GET` / `PUT` / `DELETE` | `/ai/admin/moderation`, `/ai/admin/moderation/:id`, `/ai/admin/moderation/history`, `/ai/admin/monitoring/logs/search?feature=MODERATION` | Kiểm duyệt nội dung (chỉ ADMIN): hàng đợi chờ duyệt, lịch sử các ca đã xử lý (`GET /ai/admin/moderation/history` theo task B05), nhật ký gọi AI kiểm duyệt |
 | `POST` | `/ai/videos/process` | Gửi tệp video bóc tách công thức AI (multipart ≤ 100MB, ≤ 30 phút, cần đăng nhập) |
 | `POST` | `/ai/videos/process-existing` | Bóc tách công thức từ video đã đăng (`{ videoId }`, trừ lượt theo gói) |
 | `GET` | `/ai/videos/by-video/:videoId` | Xem công thức AI của video (công khai permitAll, mã 6026 cho YouTube, 6022 đang xử lý) |

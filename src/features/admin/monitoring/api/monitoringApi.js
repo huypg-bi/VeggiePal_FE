@@ -16,15 +16,32 @@ function unwrap(res, fallbackMessage) {
 }
 
 /** GET /ai/admin/monitoring/summary */
-export async function getUsageSummary(days = 7) {
-  const res = await apiClient.get("/ai/admin/monitoring/summary", { params: { days } });
+export async function getUsageSummary(days = 7, excludeFeature) {
+  const d = typeof days === "object" ? (days.days ?? 7) : days;
+  const ef = typeof days === "object" ? days.excludeFeature : excludeFeature;
+  const res = await apiClient.get("/ai/admin/monitoring/summary", {
+    params: {
+      days: d,
+      excludeFeature: (ef && ef !== "NONE") ? ef : undefined,
+    },
+  });
   return unwrap(res, "Không lấy được số liệu tổng hợp");
 }
 
-export async function searchUsageLogs({ feature, status, userId, from, to, page = 0, size = 20 } = {}) {
+export async function searchUsageLogs({
+  feature,
+  excludeFeature,
+  status,
+  userId,
+  from,
+  to,
+  page = 0,
+  size = 20,
+} = {}) {
   const res = await apiClient.get("/ai/admin/monitoring/logs/search", {
     params: {
       feature: feature || undefined,
+      excludeFeature: (excludeFeature && excludeFeature !== "NONE") ? excludeFeature : undefined,
       status: status || undefined,
       userId: userId || undefined,
       from: from || undefined,

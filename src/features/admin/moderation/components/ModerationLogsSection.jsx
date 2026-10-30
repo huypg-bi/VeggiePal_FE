@@ -98,7 +98,7 @@ export default function ModerationLogsSection() {
             • Tab này hiển thị nhật ký các lượt gọi AI kiểm duyệt tự động (thời gian, tác giả, model, token, độ trễ và trạng thái).
           </p>
           <p className="leading-relaxed">
-            • Lịch sử ca kiểm duyệt hoàn chỉnh (kèm quyết định APPROVED / REJECTED, lý do, độ tin cậy và ca admin đã xử lý) đang chờ Backend hoàn thành theo <strong className="text-ink">task B05</strong>.
+            • Để xem lịch sử các ca kiểm duyệt hoàn chỉnh (kèm quyết định, lý do, độ tin cậy và người duyệt), vui lòng chuyển sang tab <strong className="text-ink">Đã xử lý</strong>.
           </p>
         </div>
       </div>
@@ -182,7 +182,7 @@ export default function ModerationLogsSection() {
                 {items.map((log) => (
                   <tr key={log.id} className="align-top text-body transition-colors hover:bg-surface/50">
                     <td className="whitespace-nowrap px-4 py-3 tabular-nums">{formatDateTime(log.createdAt)}</td>
-                    <td className="px-3 py-3 font-medium text-ink">
+                    <td className="px-3 py-3 text-xs font-semibold text-ink">
                       {log.userId != null ? (
                         <UserDisplayName userId={log.userId} userMap={userMap} />
                       ) : (
