@@ -1,5 +1,4 @@
 import {
-  AlertTriangle,
   Ban,
   Bot,
   Check,

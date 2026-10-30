@@ -27,14 +27,4 @@ export default function UserDisplayName({ userId, userMap, className, fallback =
   );
 }
 
-/**
- * Hàm tiện ích lấy tên người dùng dưới dạng chuỗi thuần từ userMap.
- */
-export function getUserDisplayName(userId, userMap, fallback = "—") {
-  if (userId == null) return fallback;
-  const numId = Number(userId);
-  const user = userMap?.get(numId) ?? userMap?.get(String(userId));
-  return user?.fullName?.trim() ? user.fullName : `#${userId}`;
-}
-
 export { UserDisplayName };

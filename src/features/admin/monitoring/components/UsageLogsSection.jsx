@@ -27,7 +27,7 @@ const toOptions = (labels, allLabel) => [
 const FEATURE_OPTIONS = toOptions(FEATURE_LABELS, "Mọi tác vụ");
 const STATUS_OPTIONS = toOptions(STATUS_LABELS, "Mọi trạng thái");
 
-export default function UsageLogsSection() {
+export default function UsageLogsSection({ includeModeration = false, onToggleModeration }) {
   const [feature, setFeature] = useState("");
   const [status, setStatus] = useState("");
   const [userText, setUserText] = useState("");
@@ -44,6 +44,7 @@ export default function UsageLogsSection() {
   const { data, isPending, isError, error, isFetching } = useUsageLogs(
     {
       feature,
+      excludeFeature: includeModeration ? undefined : "MODERATION",
       status,
       userId,
       from: toIsoDateTime(fromDate),
@@ -156,7 +157,7 @@ export default function UsageLogsSection() {
           <input
             type="checkbox"
             checked={includeModeration}
-            onChange={(e) => handleToggleModeration(e.target.checked)}
+            onChange={(e) => onToggleModeration?.(e.target.checked)}
             className="size-4 rounded border-border accent-brand cursor-pointer"
           />
           Hiện cả kiểm duyệt
