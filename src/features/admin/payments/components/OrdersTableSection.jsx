@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ChevronLeft, ChevronRight, Eye } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,8 @@ import {
 } from "@/features/admin/payments/utils/adminPaymentFormat";
 import { cn } from "@/lib/utils";
 import SelectField from "@/shared/components/SelectField";
+import UserDisplayName from "@/shared/components/UserDisplayName";
+import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
 const PAGE_SIZE = 20;
 const STATUS_OPTIONS = toOptions(STATUS_LABELS, "Mọi trạng thái");
@@ -60,7 +62,10 @@ function OrderDetailDialog({ orderId, onClose }) {
         ) : (
           <dl className="max-h-[60vh] overflow-y-auto">
             <DetailRow label="Mã đơn" value={data.orderCode} />
-            <DetailRow label="Người dùng" value={data.userId != null ? `#${data.userId}` : null} />
+            <DetailRow
+              label="Người dùng"
+              value={data.userId != null ? <UserDisplayName userId={data.userId} /> : null}
+            />
             <DetailRow label="Gói" value={PLAN_LABELS[data.planCode] ?? data.planCode} />
             <DetailRow label="Số tiền" value={formatVnd(data.amount)} />
             <DetailRow label="Trạng thái" value={<StatusBadge status={data.status} />} />
@@ -98,6 +103,8 @@ export default function OrdersTableSection({ filters, enabled }) {
   }
 
   const items = data?.items ?? [];
+  const userIds = useMemo(() => items.map((o) => o.userId).filter(Boolean), [items]);
+  const { data: userMap } = usePublicUsers(userIds);
 
   return (
     <section aria-label="Danh sách đơn hàng" className="flex flex-col gap-4">
@@ -143,7 +150,9 @@ export default function OrdersTableSection({ filters, enabled }) {
                 {items.map((order) => (
                   <tr key={order.id} className="text-body">
                     <td className="px-4 py-3 font-mono text-xs">{order.orderCode}</td>
-                    <td className="px-3 py-3">#{order.userId}</td>
+                    <td className="px-3 py-3 font-medium text-ink">
+                      <UserDisplayName userId={order.userId} userMap={userMap} />
+                    </td>
                     <td className="px-3 py-3 font-medium text-ink">{PLAN_LABELS[order.planCode] ?? order.planCode}</td>
                     <td className="whitespace-nowrap px-3 py-3 text-right tabular-nums">{formatVnd(order.amount)}</td>
                     <td className="px-3 py-3">
@@ -159,7 +168,7 @@ export default function OrdersTableSection({ filters, enabled }) {
                         aria-label={`Xem chi tiết đơn ${order.orderCode}`}
                         onClick={() => setSelectedId(order.id)}
                       >
-                        <Eye className="size-4" />
+                        <Eye className="size-3.5" />
                         Chi tiết
                       </Button>
                     </td>
@@ -172,7 +181,7 @@ export default function OrdersTableSection({ filters, enabled }) {
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3 text-sm text-subtle">
             <span>
               {formatNumber(data.totalElements)} đơn • Trang {data.page + 1}/{Math.max(data.totalPages, 1)}
-              {isFetching && " • Đang tải..."}
+              {isFetching && " • Đang cập nhật..."}
             </span>
             <div className="flex gap-2">
               <Button

@@ -1,3 +1,4 @@
+import { Cpu, ShieldCheck } from "lucide-react";
 import { useAiLimits, useAiModels } from "@/features/admin/monitoring/hooks/useMonitoring";
 import {
   LIMIT_LABELS,
@@ -13,12 +14,14 @@ export default function ModelsLimitsSection() {
   return (
     <section aria-label="Cấu hình AI" className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <InfoCard
+        icon={Cpu}
         title="Model đang dùng"
         query={models}
         rows={Object.entries(MODEL_LABELS).map(([key, label]) => [label, models.data?.[key] ?? "—"])}
         mono
       />
       <InfoCard
+        icon={ShieldCheck}
         title="Giới hạn sử dụng"
         query={limits}
         rows={Object.entries(LIMIT_LABELS).map(([key, [label, unit]]) => [
@@ -30,24 +33,27 @@ export default function ModelsLimitsSection() {
   );
 }
 
-function InfoCard({ title, query, rows, mono }) {
+function InfoCard({ icon: Icon, title, query, rows, mono }) {
   return (
-    <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
-      <h2 className="font-heading text-lg font-bold text-ink">{title}</h2>
+    <div className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+      <div className="flex items-center gap-2.5">
+        {Icon && <Icon className="size-5 text-brand" />}
+        <h2 className="font-heading text-lg font-bold text-ink">{title}</h2>
+      </div>
       {query.isError ? (
-        <p className="mt-3 rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{query.error.message}</p>
+        <p className="mt-4 rounded-2xl bg-destructive/10 p-3 text-sm text-destructive">{query.error.message}</p>
       ) : query.isPending ? (
-        <div aria-hidden className="mt-3 h-32 animate-pulse rounded-2xl bg-surface" />
+        <div aria-hidden className="mt-4 h-36 animate-pulse rounded-2xl bg-surface" />
       ) : (
-        <dl className="mt-3 divide-y divide-border text-sm">
+        <dl className="mt-4 divide-y divide-border text-sm">
           {rows.map(([label, value]) => (
-            <div key={label} className="flex items-center justify-between gap-4 py-2">
-              <dt className="text-subtle">{label}</dt>
+            <div key={label} className="flex items-center justify-between gap-4 py-2.5">
+              <dt className="text-subtle font-medium text-xs">{label}</dt>
               <dd
                 className={
                   mono
-                    ? "break-all text-right font-mono text-xs text-ink"
-                    : "text-right font-semibold tabular-nums text-ink"
+                    ? "break-all text-right font-mono text-xs font-semibold text-ink"
+                    : "text-right font-semibold tabular-nums text-xs text-ink"
                 }
               >
                 {value}
@@ -56,7 +62,7 @@ function InfoCard({ title, query, rows, mono }) {
           ))}
         </dl>
       )}
-      <p className="mt-3 text-xs text-subtle">Chỉ xem, được cấu hình trên máy chủ.</p>
+      <p className="mt-3 text-[11px] text-subtle italic">Chỉ xem, được cấu hình trên máy chủ.</p>
     </div>
   );
 }
