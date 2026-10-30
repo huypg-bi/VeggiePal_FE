@@ -2,6 +2,7 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 
 import { getMyBlogs } from "@/features/blog/api/blogApi";
 import { useReviewPollInterval } from "@/features/blog/hooks/useReviewPolling";
+import { needsReviewPolling } from "@/features/blog/utils/blogModeration";
 import { blogKeys } from "@/features/blog/queryKeys";
 import { flattenPages, getNextPageNumber } from "@/shared/utils/paging";
 
@@ -12,8 +13,8 @@ export function useMyBlogs({ status, size = 10 } = {}) {
     queryFn: ({ pageParam }) => getMyBlogs({ status, page: pageParam, size }),
     initialPageParam: 0,
     getNextPageParam: getNextPageNumber,
-    // Danh sách không có cờ aiReviewInProgress nên cứ còn bài PENDING thì hỏi lại (có giới hạn thời gian).
-    refetchInterval: (q) => pollInterval(flattenPages(q.state.data).some((post) => post.status === "PENDING")),
+    // Chỉ hỏi lại khi còn bài AI đang xét (aiReviewInProgress), có giới hạn thời gian.
+    refetchInterval: (q) => pollInterval(flattenPages(q.state.data).some(needsReviewPolling)),
   });
 
   return {

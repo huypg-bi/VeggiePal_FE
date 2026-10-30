@@ -72,6 +72,8 @@ export const DIARY_ERROR_MESSAGES = {
   2013: "Không tìm thấy bản ghi này trong nhật ký, có thể nó đã bị xóa",
   2014: "Thực đơn hoặc bữa ăn này không có trong ngày đã chọn",
   2015: "Chưa lấy được thực đơn để ghi bữa ăn, vui lòng thử lại sau",
+  2016: "Chưa đến ngày này nên chưa ghi được vào nhật ký",
+  2017: "Chỉ ghi được bữa ăn của thực đơn trong tuần thực đơn được tạo",
 };
 
 // blog-service (30xx): danh mục, bài viết, ảnh bìa, bình luận, vote, kiểm duyệt
@@ -192,6 +194,7 @@ export const RECIPE_ERROR_MESSAGES = {
   4116: "Vui lòng chọn ảnh cho công thức",
   4117: "Ảnh công thức không được vượt quá 5MB",
   4118: "Ảnh công thức phải là JPEG hoặc PNG",
+  4119: "Muốn đổi ảnh công thức, hãy tải ảnh lên thay vì dán link khác",
   1017: "Không tải được ảnh lên, vui lòng thử lại sau",
 };
 
@@ -235,6 +238,8 @@ export const MEAL_PLAN_ERROR_MESSAGES = {
   6017: "Không tìm thấy phiên bản này của thực đơn",
   6018: "Món này không phải món thuần chay, bạn chọn món khác nhé",
   6019: "Món này chứa thành phần gây dị ứng của bạn, bạn chọn món khác nhé",
+  6027: "Món này không còn khả dụng (đã bị ẩn hoặc xóa), bạn chọn món khác nhé",
+  6028: "Món này chưa tính được dinh dưỡng, bạn chọn món khác nhé",
   6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
 };
 
@@ -242,6 +247,8 @@ export const MEAL_PLAN_ERROR_MESSAGES = {
 export const MEAL_PLAN_RESTORE_ERROR_MESSAGES = {
   6018: "Phiên bản này có món không còn là món thuần chay nên chưa khôi phục được",
   6019: "Phiên bản này có món chứa thành phần gây dị ứng của bạn (dị ứng đã đổi sau khi lưu bản này) nên chưa khôi phục được",
+  6027: "Phiên bản này có món không còn khả dụng (đã bị ẩn hoặc xóa) nên chưa khôi phục được",
+  6028: "Phiên bản này có món chưa tính được dinh dưỡng nên chưa khôi phục được",
 };
 
 // ai-service (60xx), bóc tách công thức từ video

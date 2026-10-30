@@ -42,7 +42,7 @@ export function recipeToFormValues(recipe) {
   return {
     title: recipe.title ?? "",
     description: recipe.description ?? "",
-    imageUrl: recipe.imageUrl ?? "",
+    imageUrl: "",
     servings: String(recipe.servings ?? 1),
     prepTime: recipe.prepTime == null ? "" : String(recipe.prepTime),
     cookTime: recipe.cookTime == null ? "" : String(recipe.cookTime),
@@ -57,11 +57,12 @@ export function recipeToFormValues(recipe) {
   };
 }
 
-export function formValuesToPayload(values) {
+/** Khi sửa (`isEdit`) không gửi imageUrl: BE giữ ảnh hiện tại và chỉ đổi ảnh qua POST /recipes/:id/image (khác link thì 4119). */
+export function formValuesToPayload(values, { isEdit = false } = {}) {
   return {
     title: values.title.trim(),
     description: values.description.trim() || null,
-    imageUrl: values.imageUrl.trim() || null,
+    ...(isEdit ? {} : { imageUrl: values.imageUrl.trim() || null }),
     servings: Number(values.servings),
     prepTime: values.prepTime.trim() === "" ? null : Number(values.prepTime),
     cookTime: values.cookTime.trim() === "" ? null : Number(values.cookTime),

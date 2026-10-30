@@ -83,7 +83,7 @@ export default function RecipeForm({ recipe }) {
 
   const save = (publish) =>
     handleSubmit(async (values) => {
-      const payload = formValuesToPayload(values);
+      const payload = formValuesToPayload(values, { isEdit });
 
       try {
         const saved = isEdit
@@ -166,25 +166,28 @@ export default function RecipeForm({ recipe }) {
           />
         </div>
 
-        <div>
-          <label htmlFor={`${idPrefix}-image`} className={labelClass}>
-            Hoặc dán link ảnh (không bắt buộc)
-          </label>
-          <input
-            id={`${idPrefix}-image`}
-            type="url"
-            inputMode="url"
-            placeholder="https://..."
-            aria-invalid={Boolean(errors.imageUrl)}
-            className={inputClass}
-            {...register("imageUrl")}
-          />
-          {errors.imageUrl ? (
-            <p className={errorClass}>{errors.imageUrl.message}</p>
-          ) : (
-            <p className="mt-1.5 text-xs text-subtle">Nếu bạn chọn ảnh tải lên, ảnh đó sẽ được dùng thay cho link.</p>
-          )}
-        </div>
+        {/* Sửa công thức chỉ đổi ảnh bằng tải lên; BE từ chối link ảnh khác (4119) */}
+        {!isEdit && (
+          <div>
+            <label htmlFor={`${idPrefix}-image`} className={labelClass}>
+              Hoặc dán link ảnh (không bắt buộc)
+            </label>
+            <input
+              id={`${idPrefix}-image`}
+              type="url"
+              inputMode="url"
+              placeholder="https://..."
+              aria-invalid={Boolean(errors.imageUrl)}
+              className={inputClass}
+              {...register("imageUrl")}
+            />
+            {errors.imageUrl ? (
+              <p className={errorClass}>{errors.imageUrl.message}</p>
+            ) : (
+              <p className="mt-1.5 text-xs text-subtle">Nếu bạn chọn ảnh tải lên, ảnh đó sẽ được dùng thay cho link.</p>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
