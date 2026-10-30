@@ -355,10 +355,18 @@ export function defaultPlanName(date = new Date()) {
   return `Thực đơn ${formatDayMonth(start)} - ${formatDayMonth(end)}`;
 }
 
+// Ngày tạo thực đơn: ưu tiên createdOn của BE (giờ Việt Nam, đúng mốc BE kiểm tra tuần), thiếu thì dùng createdAt.
+export function planCreatedDate(plan) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(plan?.createdOn ?? ""));
+  if (match) return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  const created = new Date(plan?.createdAt);
+  return Number.isNaN(created.getTime()) ? null : created;
+}
+
 export function planDayDate(plan, dayKey) {
   const index = DAY_ORDER.indexOf(normalizeDay(dayKey));
-  const created = new Date(plan?.createdAt);
-  if (index === -1 || Number.isNaN(created.getTime())) return null;
+  const created = planCreatedDate(plan);
+  if (index === -1 || !created) return null;
   const start = weekStart(created);
   return new Date(start.getFullYear(), start.getMonth(), start.getDate() + index);
 }

@@ -188,6 +188,8 @@ Tất cả câu trả lời trong cột Đề xuất là gợi ý để thảo l
 
 Các task dưới đây ghi ngày 29/10/2026, sau khi đọc source BE ở các commit `f450216` (recipe), `3d1c450` (thực đơn AI), `baa2322` (tìm quán). Mọi mục đều đã đối chiếu với source, trừ B14 được ghi rõ là chưa đo.
 
+**Cập nhật 30/10/2026:** đọc lại commit `fd2d1e1` thấy BE đã sửa B07 (mã mới 6027 / 6028), B08, B09 (khôi phục cả `name`, `goal`, `goalType`), B10, B11, B12, B13 (mã mới 4119) và có test đo truy vấn cho B14; `23d0651` sửa B02 (mã 2016 / 2017, thực đơn có `createdOn`). FE đã theo các thay đổi ở mã lỗi, form sửa công thức và `planDayDate`.
+
 ### B07 — Thực đơn AI: lỗi khi đọc lại công thức bị trả sai mã `6002` ("không tìm thấy thực đơn")
 
 **Service:** ai-service · ghi 29/10/2026 · mức: trung bình.
@@ -270,3 +272,13 @@ Các task dưới đây ghi ngày 29/10/2026, sau khi đọc source BE ở các 
 **BE cần làm:** bật log thống kê Hibernate cho `GET /recipes?size=100` và `GET /recipes/favorites?size=100`, đếm số truy vấn; nếu tăng theo số công thức thì thêm `@EntityGraph` hoặc `hibernate.default_batch_fetch_size`.
 
 **Hoàn thành khi:** có số truy vấn đo được cho hai endpoint trên; nếu đã tối ưu thì số truy vấn không tăng tuyến tính theo kích thước trang và có test đếm truy vấn.
+
+### B15 — Công thức: không còn cách gỡ ảnh đã có
+
+**Service:** recipe-service · ghi 30/10/2026 · mức: thấp, cần chốt hành vi.
+
+**Hiện trạng:** từ `fd2d1e1`, `PUT /recipes/{id}` coi `imageUrl` bỏ trống, null hoặc blank là "giữ ảnh hiện tại" (`RecipeService.update`), còn link khác ảnh hiện tại trả `4119`. Ảnh chỉ đổi được bằng `POST /recipes/{id}/image`, và không có endpoint nào để xóa ảnh. Chủ công thức đã có ảnh thì không thể bỏ ảnh đi.
+
+**BE cần làm:** chốt có cần gỡ ảnh không; nếu cần thì thêm `DELETE /recipes/{id}/image` (chủ hoặc ADMIN, xóa tệp Cloudinary của chính công thức đó sau commit, gọi lặp không lỗi), hoặc một giá trị rõ ràng trong `PUT` để xóa ảnh.
+
+**Hoàn thành khi:** có test: gỡ ảnh đặt `imageUrl` về null và xóa tệp Cloudinary đúng một lần; gọi lặp vẫn thành công; người khác gọi bị từ chối.

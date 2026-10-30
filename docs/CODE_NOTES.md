@@ -784,8 +784,8 @@ Tổng cộng 334 mục từ 200 file.
 > Bài viết của tôi ở mọi trạng thái (GET /blogs/me) dạng "Xem thêm".
 > status: "DRAFT" | "PENDING" | "PUBLISHED" | "REJECTED" | "BANNED", bỏ trống = tất cả.
 > Trả về query của React Query + `posts` (mảng phẳng) + `total`.
-> Danh sách (BlogSummaryResponse) không có `aiReviewInProgress`, nên cứ còn bài PENDING thì tự làm mới
-> mỗi 3 giây (tối đa 3 phút) để bài đang chờ AI tự đổi trạng thái.
+> `GET /blogs/me` có `aiReviewInProgress` và `moderationReason` (danh sách công khai thì không), nên chỉ tự làm mới
+> mỗi 3 giây (tối đa 3 phút) khi còn bài `needsReviewPolling` (PENDING mà AI còn đang xét); bài đã chờ admin thì dừng.
 
 ### features/blog/hooks/useReviewPolling.js
 
@@ -870,7 +870,11 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export const isAiReviewing = (blog) => blog?.status === "PENDING" && blog.aiReviewInProgress === true;`
 
-> Chỉ BlogResponse chi tiết mới có cờ `aiReviewInProgress`; danh sách thì không nên không dùng được hàm này.
+> Cờ `aiReviewInProgress` có ở BlogResponse chi tiết và ở `GET /blogs/me`; danh sách công khai không có nên không dùng hàm này ở đó.
+
+**Gắn với:** `export const needsReviewPolling = (blog) => blog?.status === "PENDING" && blog.aiReviewInProgress !== false;`
+
+> Bài của tôi còn cần hỏi lại BE. Cờ thiếu (BE cũ) coi như chưa biết nên vẫn poll; `false` nghĩa là đang chờ admin nên dừng.
 
 **Gắn với:** `export function nextReviewPollInterval(active, since, now) {`
 
@@ -1617,8 +1621,14 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export function planDayDate(plan, dayKey) {`
 
-> Ngày cụ thể của một thứ trong thực đơn, tính theo tuần chứa ngày tạo (`plan.createdAt`).
-> Trả null khi thiếu createdAt / thứ lạ.
+> Ngày cụ thể của một thứ trong thực đơn, tính theo tuần chứa ngày tạo (`planCreatedDate`).
+> Trả null khi thiếu ngày tạo / thứ lạ.
+
+**Gắn với:** `export function planCreatedDate(plan) {`
+
+> Ngày tạo thực đơn: ưu tiên `plan.createdOn` ("YYYY-MM-DD", giờ Việt Nam) vì nutrition-service kiểm tra tuần của bữa ăn
+> theo đúng ngày này (lỗi 2017). `createdAt` không kèm múi giờ nên parse theo giờ máy có thể lệch tuần khi thực đơn được
+> tạo quanh nửa đêm Chủ nhật / thứ Hai; chỉ dùng `createdAt` khi BE chưa trả `createdOn`.
 
 ## features/my-content
 
@@ -2054,13 +2064,13 @@ Tổng cộng 334 mục từ 200 file.
 > RecipeRequest: { title, description?, imageUrl?, servings, prepTime?, cookTime?,  
 >   ingredients: [{ ingredientId, quantity, unit, note? }], steps: [{ stepNumber, instruction }] }
 > Giới hạn cột ở BE (BE không tự kiểm tra, vượt sẽ lỗi 500): title 200, description 2000,
-> imageUrl 500 (chỉ là chuỗi URL, recipe-service chưa có API tải ảnh lên), unit 30, note 300,
+> imageUrl 500 (PUT: bỏ trống / null / blank thì BE giữ ảnh hiện tại, khác link hiện tại thì lỗi 4119; đổi ảnh qua API tải ảnh lên), unit 30, note 300,
 > instruction 2000, quantity tối đa 2 chữ số thập phân. BE tự IN HOA unit.
 
 **Gắn với:** `export async function uploadRecipeImage(id, file) {`
 
 > POST /recipes/:id/image (multipart, field `file`): JPEG hoặc PNG ≤ 5MB, chủ công thức hoặc ADMIN. BE kiểm tra cả
-> chữ ký tệp, tải lên Cloudinary, ghi `imageUrl` và xóa ảnh Cloudinary cũ (link dán tay thì để nguyên). Lỗi 4116 / 4117 / 4118 / 1017.
+> chữ ký tệp, tải lên Cloudinary, ghi `imageUrl` và chỉ xóa ảnh Cloudinary cũ của chính công thức này sau khi commit (link dán tay thì để nguyên). Lỗi 4116 / 4117 / 4118 / 1017.
 
 **Gắn với:** `export async function getFavoriteRecipeIds() {`
 
@@ -2104,7 +2114,8 @@ Tổng cộng 334 mục từ 200 file.
 > - Tạo mới (không có `recipe`): "Lưu nháp" hoặc "Lưu và đăng".  
 > - Sửa (`recipe` là RecipeResponse): "Lưu thay đổi" (không đổi trạng thái);  
 >  công thức chưa đăng có thêm "Lưu và đăng".  
-> - Ảnh: chọn tệp (`ThumbnailPicker`) hoặc dán link. Tệp chỉ được tải lên sau khi công thức đã lưu (BE cần id), ngay trước bước đăng,  
+> - Ảnh: chọn tệp (`ThumbnailPicker`) hoặc dán link (chỉ khi tạo mới; khi sửa ẩn ô link và không gửi `imageUrl` vì BE giữ ảnh hiện tại
+>  và trả 4119 nếu link khác, nên đổi ảnh khi sửa chỉ bằng tải tệp). Tệp chỉ được tải lên sau khi công thức đã lưu (BE cần id), ngay trước bước đăng,  
 >  và ghi đè link. Tải ảnh lỗi thì công thức vẫn được lưu; nếu đang bấm "Lưu và đăng" thì dừng ở bản nháp để sửa lại, giống form bài viết.
 
 ### features/recipe/components/RecipeStepsEditor.jsx
@@ -2205,9 +2216,10 @@ Tổng cộng 334 mục từ 200 file.
 
 > Luật ảnh công thức của BE: chỉ JPEG / PNG (khác blog, không nhận WEBP), tối đa 5MB.
 
-**Gắn với:** `export function formValuesToPayload(values) {`
+**Gắn với:** `export function formValuesToPayload(values, { isEdit = false } = {}) {`
 
 > Giá trị form (đã qua recipeSchema) -> RecipeRequest gửi lên BE.  
+> - `isEdit`: không đưa `imageUrl` vào payload để BE giữ nguyên ảnh (xem RecipeForm)  
 > - thứ tự bước = vị trí trong danh sách (stepNumber bắt đầu từ 1)  
 > - thời gian để trống -> null; quantity đổi dấu phẩy thành dấu chấm rồi ép số
 
