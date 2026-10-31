@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Loader2, Plus, Undo2 } from "lucide-react";
+import { Loader2, Pencil, Plus, Undo2 } from "lucide-react";
 import { toast } from "sonner";
 
 import iconRun from "@/assets/img/icon_run.png";
 import iconWater from "@/assets/img/icon_water.png";
 import { Button } from "@/components/ui/button";
 import ActivityDialog from "@/features/meal-planner/components/ActivityDialog";
+import WaterDialog from "@/features/meal-planner/components/WaterDialog";
 import { useAddWater, useDeleteWater } from "@/features/meal-planner/hooks/useDiary";
 import { formatLiters, WATER_GOAL_ML, WATER_QUICK_AMOUNTS } from "@/features/meal-planner/utils/mealPlan";
 
@@ -37,6 +38,7 @@ function CardShell({ icon, label, badge, value, unit, action, caption, children 
 }
 
 export function WaterCard({ diary, date, isFutureDay }) {
+  const [open, setOpen] = useState(false);
   const addWater = useAddWater();
   const deleteWater = useDeleteWater();
   const entries = diary?.water ?? [];
@@ -63,6 +65,7 @@ export function WaterCard({ diary, date, isFutureDay }) {
   };
 
   return (
+    <>
     <CardShell
       icon={iconWater}
       label="Nước & Khoáng"
@@ -100,7 +103,22 @@ export function WaterCard({ diary, date, isFutureDay }) {
           {deleteWater.isPending ? <Loader2 className="animate-spin" /> : <Undo2 />}
         </Button>
       )}
+      {entries.length > 0 && (
+        <Button
+          type="button"
+          size="icon-sm"
+          variant="ghost"
+          aria-label="Xem và sửa các lần uống"
+          title="Xem và sửa các lần uống"
+          disabled={disabled}
+          onClick={() => setOpen(true)}
+        >
+          <Pencil />
+        </Button>
+      )}
     </CardShell>
+    {open && <WaterDialog date={date} entries={entries} onClose={() => setOpen(false)} />}
+    </>
   );
 }
 

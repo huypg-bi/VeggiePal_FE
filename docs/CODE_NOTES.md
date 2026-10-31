@@ -1148,8 +1148,10 @@ Tổng cộng 334 mục từ 200 file.
 >  PUT    /nutrition/me/diary/meal-plans/:planId/meals/:mealType xác nhận đã ăn { date, servings? }
 >  DELETE /nutrition/me/diary/meal-plans/:planId/meals/:mealType?date=  bỏ xác nhận
 >  POST   /nutrition/me/diary/water                               { date, milliliters }
+>  PUT    /nutrition/me/diary/water/:id                           { date, milliliters } sửa một lần uống
 >  DELETE /nutrition/me/diary/water/:id
 >  POST   /nutrition/me/diary/activities                          { date, activityType, minutes }
+>  PUT    /nutrition/me/diary/activities/:id                      { date, activityType, minutes } sửa một hoạt động
 >  DELETE /nutrition/me/diary/activities/:id
 > DailySummary: { date, timezone, meals, nutrition, water, totalWaterMl, activities, totalActivityMinutes }
 > MealEntry: { id, date, source, mealPlanId, mealType, recipeId, title, servings,

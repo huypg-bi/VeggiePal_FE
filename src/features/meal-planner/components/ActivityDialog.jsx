@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, Trash2 } from "lucide-react";
+import { Loader2, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useAddActivity, useDeleteActivity } from "@/features/meal-planner/hooks/useDiary";
+import { useAddActivity, useDeleteActivity, useUpdateActivity } from "@/features/meal-planner/hooks/useDiary";
 import { cn } from "@/lib/utils";
 
 // Gợi ý nhanh; loại vận động là chuỗi tự do (tối đa 100 ký tự) nên vẫn gõ loại khác được.
@@ -20,25 +20,45 @@ const ACTIVITY_PRESETS = ["Đi bộ", "Chạy bộ", "Đạp xe", "Yoga", "Bơi 
 const TYPE_MAX = 100;
 const MINUTES_MAX = 1440;
 
-/** Ghi thêm và xóa các hoạt động của một ngày. `entries` là `diary.activities` của ngày đó (cập nhật sau mỗi lần ghi). */
+/** Ghi thêm, sửa và xóa các hoạt động của một ngày. `entries` là `diary.activities` của ngày đó (cập nhật sau mỗi lần ghi). */
 export default function ActivityDialog({ date, entries, onClose }) {
   const [activityType, setActivityType] = useState("");
   const [minutes, setMinutes] = useState("");
+  // Id hoạt động đang sửa; null là đang thêm mới.
+  const [editingId, setEditingId] = useState(null);
   const add = useAddActivity();
+  const update = useUpdateActivity();
   const remove = useDeleteActivity();
 
   const type = activityType.trim();
   const minutesNumber = Number(minutes);
   const minutesValid = Number.isInteger(minutesNumber) && minutesNumber >= 1 && minutesNumber <= MINUTES_MAX;
-  const canSubmit = type.length > 0 && minutesValid && !add.isPending;
+  const saving = add.isPending || update.isPending;
+  const canSubmit = type.length > 0 && minutesValid && !saving;
+  const isEditing = editingId !== null;
 
-  const handleAdd = async (event) => {
+  const resetForm = () => {
+    setEditingId(null);
+    setActivityType("");
+    setMinutes("");
+  };
+
+  const handleStartEdit = (entry) => {
+    setEditingId(entry.id);
+    setActivityType(entry.activityType);
+    setMinutes(String(entry.minutes));
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (!canSubmit) return;
     try {
-      await add.mutateAsync({ date, activityType: type, minutes: minutesNumber });
-      setActivityType("");
-      setMinutes("");
+      if (isEditing) {
+        await update.mutateAsync({ id: editingId, date, activityType: type, minutes: minutesNumber });
+      } else {
+        await add.mutateAsync({ date, activityType: type, minutes: minutesNumber });
+      }
+      resetForm();
     } catch (err) {
       toast.error(err.message);
     }
@@ -47,6 +67,7 @@ export default function ActivityDialog({ date, entries, onClose }) {
   const handleDelete = async (id) => {
     try {
       await remove.mutateAsync({ date, id });
+      if (id === editingId) resetForm();
     } catch (err) {
       toast.error(err.message);
     }
@@ -56,13 +77,13 @@ export default function ActivityDialog({ date, entries, onClose }) {
     <Dialog open onOpenChange={(next) => !next && onClose()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Ghi vận động</DialogTitle>
+          <DialogTitle>{isEditing ? "Sửa vận động" : "Ghi vận động"}</DialogTitle>
           <DialogDescription>
-            Thêm hoạt động bạn đã làm trong ngày. Vận động chỉ để theo dõi, không trừ vào calo đã ăn.
+            Thêm hoặc chỉnh hoạt động bạn đã làm trong ngày. Vận động chỉ để theo dõi, không trừ vào calo đã ăn.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleAdd} className="flex flex-col gap-3">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <div className="flex flex-wrap gap-2">
             {ACTIVITY_PRESETS.map((preset) => (
               <button
@@ -105,10 +126,17 @@ export default function ActivityDialog({ date, entries, onClose }) {
           {minutes !== "" && !minutesValid && (
             <p className="text-xs text-destructive">Số phút phải là số nguyên từ 1 đến {MINUTES_MAX}.</p>
           )}
-          <Button type="submit" disabled={!canSubmit} className="self-start">
-            {add.isPending && <Loader2 className="size-4 animate-spin" />}
-            Thêm
-          </Button>
+          <div className="flex gap-2">
+            <Button type="submit" disabled={!canSubmit}>
+              {saving && <Loader2 className="size-4 animate-spin" />}
+              {isEditing ? "Lưu" : "Thêm"}
+            </Button>
+            {isEditing && (
+              <Button type="button" variant="ghost" disabled={saving} onClick={resetForm}>
+                Hủy sửa
+              </Button>
+            )}
+          </div>
         </form>
 
         <section>
@@ -120,11 +148,24 @@ export default function ActivityDialog({ date, entries, onClose }) {
               {entries.map((entry) => (
                 <li
                   key={entry.id}
-                  className="flex items-center justify-between gap-2 rounded-xl bg-surface px-3 py-2 text-sm"
+                  className={cn(
+                    "flex items-center justify-between gap-2 rounded-xl bg-surface px-3 py-2 text-sm",
+                    entry.id === editingId && "ring-2 ring-brand/40",
+                  )}
                 >
                   <span className="min-w-0 flex-1 truncate text-ink">
                     {entry.activityType} · {entry.minutes} phút
                   </span>
+                  <Button
+                    type="button"
+                    size="icon-sm"
+                    variant="ghost"
+                    aria-label={`Sửa ${entry.activityType}`}
+                    disabled={saving}
+                    onClick={() => handleStartEdit(entry)}
+                  >
+                    <Pencil />
+                  </Button>
                   <Button
                     type="button"
                     size="icon-sm"

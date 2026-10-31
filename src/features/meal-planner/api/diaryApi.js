@@ -44,6 +44,11 @@ export async function addWater({ date, milliliters }) {
   return unwrap(res, "Không ghi được lượng nước");
 }
 
+export async function updateWater({ id, date, milliliters }) {
+  const res = await apiClient.put(`/nutrition/me/diary/water/${id}`, { date, milliliters });
+  return unwrap(res, "Không sửa được lượng nước");
+}
+
 export async function deleteWater(id) {
   const res = await apiClient.delete(`/nutrition/me/diary/water/${id}`);
   unwrap(res, "Không xóa được lần uống nước");
@@ -52,6 +57,11 @@ export async function deleteWater(id) {
 export async function addActivity({ date, activityType, minutes }) {
   const res = await apiClient.post("/nutrition/me/diary/activities", { date, activityType, minutes });
   return unwrap(res, "Không ghi được hoạt động");
+}
+
+export async function updateActivity({ id, date, activityType, minutes }) {
+  const res = await apiClient.put(`/nutrition/me/diary/activities/${id}`, { date, activityType, minutes });
+  return unwrap(res, "Không sửa được hoạt động");
 }
 
 export async function deleteActivity(id) {
