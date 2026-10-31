@@ -417,7 +417,7 @@ export function toDateKey(date) {
   return `${y}-${m}-${d}`;
 }
 
-/** `date` có nằm sau hôm nay không (so theo ngày, bỏ qua giờ). BE chưa chặn ngày tương lai (task B02) nên FE tự chặn. */
+/** `date` có nằm sau hôm nay không (so theo ngày, bỏ qua giờ). BE đã chặn ngày tương lai (2016), FE khóa nút sẵn để khỏi gọi thừa. */
 export function isFutureDate(date, now = new Date()) {
   const day = new Date(date.getFullYear(), date.getMonth(), date.getDate());
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());

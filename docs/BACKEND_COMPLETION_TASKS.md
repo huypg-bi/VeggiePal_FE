@@ -16,6 +16,8 @@ Recipe và AI hiện trả cả `items` lẫn `content` (cùng nội dung) để
 
 **Tình trạng phía FE (28/10/2026):** FE đã đọc `items` ở blog, meal-planner, recipe, nguyên liệu và trang chủ. Danh sách bóc tách video (`useVideoJobs`) cũng đã chuyển sang `items`. Hiện không còn nơi nào ở FE đọc `content` hay `first` / `last`, nên BE có thể gỡ alias của cả recipe-service và ai-service khi phối hợp phát hành (cần chốt với các client khác nếu có).
 
+**Cập nhật 31/10/2026:** `BACKEND_CHANGES.md` ghi BE đã gỡ mảng `content` của recipe-service và ai-service ngày 29/10/2026 (task A07), ai-service nay chỉ đọc `items`. FE không đọc `content` nên không cần sửa gì thêm; mục này coi như đã xong.
+
 ### I01 — Mô tả endpoint cho API sẵn có
 
 `BACKEND_CHANGES.md` đã có bảng endpoint, body và mã lỗi cho API nhật ký và theo dõi mới. Còn thiếu bảng tương tự (đường dẫn, auth, request/response, mã lỗi) cho các API sẵn có:

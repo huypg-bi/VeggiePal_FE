@@ -8,6 +8,8 @@ import {
   deleteActivity,
   deleteWater,
   getDiary,
+  updateActivity,
+  updateWater,
 } from "@/features/meal-planner/api/diaryApi";
 import { diaryKeys } from "@/features/meal-planner/queryKeys";
 
@@ -37,11 +39,17 @@ export const useCancelMeal = () => useDiaryMutation(cancelMeal);
 /** mutate({ date, milliliters }) */
 export const useAddWater = () => useDiaryMutation(addWater);
 
+/** mutate({ id, date, milliliters }) */
+export const useUpdateWater = () => useDiaryMutation(updateWater);
+
 /** mutate({ date, id }) */
 export const useDeleteWater = () => useDiaryMutation(({ id }) => deleteWater(id));
 
 /** mutate({ date, activityType, minutes }) */
 export const useAddActivity = () => useDiaryMutation(addActivity);
+
+/** mutate({ id, date, activityType, minutes }) */
+export const useUpdateActivity = () => useDiaryMutation(updateActivity);
 
 /** mutate({ date, id }) */
 export const useDeleteActivity = () => useDiaryMutation(({ id }) => deleteActivity(id));

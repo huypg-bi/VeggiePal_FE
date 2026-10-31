@@ -191,8 +191,8 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | `GET` | `/ai/meal-plans/:id` | Một thực đơn (lấy mới khi mở hộp thoại "Lịch sử") |
 | `GET` | `/nutrition/me/diary?date=` | Nhật ký một ngày: bữa đã ăn, tổng dinh dưỡng, nước, vận động |
 | `PUT` / `DELETE` | `/nutrition/me/diary/meal-plans/:planId/meals/:mealType` | Đánh dấu / bỏ đánh dấu một bữa của thực đơn là đã ăn (`{date, servings?}`) |
-| `POST` / `DELETE` | `/nutrition/me/diary/water`, `/nutrition/me/diary/water/:id` | Ghi / xóa một lần uống nước (`{date, milliliters}`) |
-| `POST` / `DELETE` | `/nutrition/me/diary/activities`, `/nutrition/me/diary/activities/:id` | Ghi / xóa một hoạt động (`{date, activityType, minutes}`) |
+| `POST` / `PUT` / `DELETE` | `/nutrition/me/diary/water`, `/nutrition/me/diary/water/:id` | Ghi / sửa / xóa một lần uống nước (`{date, milliliters}`) |
+| `POST` / `PUT` / `DELETE` | `/nutrition/me/diary/activities`, `/nutrition/me/diary/activities/:id` | Ghi / sửa / xóa một hoạt động (`{date, activityType, minutes}`) |
 | `GET` | `/ai/meal-plans/favorites`, `/ai/meal-plans/favorites/:id` | Danh sách thực đơn yêu thích (phân trang) / một thực đơn yêu thích |
 | `GET` | `/ai/meal-plans/:id/versions`, `/ai/meal-plans/:id/versions/:version` | Lịch sử phiên bản / nội dung một phiên bản cũ |
 | `POST` | `/ai/chat/guest-sessions` | Tạo phiên dùng thử cho khách (mỗi khách 1 phiên, lưu `sessionStorage`) |
