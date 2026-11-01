@@ -985,6 +985,10 @@ Tổng cộng 334 mục từ 200 file.
 > - Đã đăng nhập: lịch sử hội thoại lưu ở BE (sidebar, nhiều lượt).  
 > - Chưa đăng nhập: chế độ dùng thử, không có sidebar, giới hạn số lượt hỏi.
 
+**Gắn với:** `// Trên màn hình web hẹp (< 1024px), sidebar mặc định thu gọn để ưu tiên không gian đọc nội dung chat.`
+
+> Sidebar lịch sử hội thoại tự động thu gọn khi chiều rộng màn hình dưới 1024px để dành trọn không gian cho ô nhập và nội dung trả lời dài. Nút chuyển đổi trên header và thanh công cụ cho phép mở lại sidebar khi cần.
+
 ### features/chatbot/queryKeys.js
 
 **Gắn với:** `export const chatbotKeys = {`
@@ -2337,6 +2341,11 @@ Tổng cộng 334 mục từ 200 file.
 > `searchTerm` = từ khóa đã cắt khoảng trắng, dài 2 - 100 ký tự và đứng yên 400 ms (gõ dở thì null, danh sách quanh đây lọc ngay trên máy);
 > có `searchTerm` thì danh sách / bản đồ / trạng thái tải lấy từ kết quả tìm theo tên, không thì từ danh sách quanh đây. Hai truy vấn dùng chung khóa cache theo từ khóa và tọa độ làm tròn.
 
+**Gắn với:** `// Bộ chuyển đổi chế độ xem danh sách / bản đồ trên màn hình dưới lg (< 1024px).`
+
+> Khi màn hình dưới 1024px (chia đôi trình duyệt hoặc màn hình nhỏ), thay vì xếp dọc làm người dùng phải cuộn qua danh sách dài mới tới bản đồ,
+> giao diện cung cấp thanh chuyển đổi [Danh sách | Bản đồ]. Chọn quán từ danh sách tự động chuyển sang chế độ bản đồ để định vị nhanh.
+
 ### features/restaurant-map/queryKeys.js
 
 **Gắn với:** `const round = (n) => Math.round(n * 1e4) / 1e4;`
@@ -2748,6 +2757,12 @@ Tổng cộng 334 mục từ 200 file.
 
 > Đăng nhập (POST /auth/login) không trả avatarUrl nên header tự nạp hồ sơ một lần
 > rồi giữ trong cache; đổi avatar ở trang hồ sơ ghi thẳng vào cache này nên header đổi theo.
+
+**Gắn với:** `// Panel điều hướng thu gọn cho màn hình dưới lg (< 1024px).`
+
+> Thanh điều hướng chính chuyển sang dạng menu thu gọn (Hamburger button) khi độ rộng màn hình dưới 1024px
+> (laptop màn hình nhỏ hoặc chia đôi cửa sổ trình duyệt). Khi mở ra, panel hiển thị đầy đủ 7 mục điều hướng
+> có biểu tượng, nhận biết trang hiện tại và tự động đóng khi bấm chuyển trang.
 
 ### shared/components/ConfirmDialog.jsx
 

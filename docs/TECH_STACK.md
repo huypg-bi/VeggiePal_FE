@@ -185,7 +185,7 @@ Luôn dùng class Tailwind map tới token (đã khai báo trong `@theme inline`
 - **Header**: `sticky top-4 z-30`, pill `rounded-full border border-border bg-card/90 shadow-sm backdrop-blur`. Bên phải: khách thấy icon vương miện (Gói dịch vụ) + chữ Đăng Nhập / Đăng Ký; người đã đăng nhập thấy chuông + **icon avatar mở dropdown** (shadcn `DropdownMenu`: hồ sơ, nội dung của tôi, gói, lịch sử thanh toán, đăng xuất). Nút `ThemeToggle` không nằm trên header mà là nút tròn nổi ở góc dưới bên phải màn hình (`fixed bottom-6 right-6`, render trong `AppHeader`, đặt ngoài pill vì `backdrop-blur` làm `fixed` bị kẹt trong pill). Avatar ở nút và đầu menu lấy từ `useProfile` (cache `profileKeys.me`, `staleTime` 5 phút) vì `/auth/login` không trả `avatarUrl`; đổi avatar ở `/profile/edit` ghi thẳng vào cache đó nên header đổi theo ngay, ảnh rỗng/lỗi thì hiện icon người.
 - **Khung nội dung trang**: `mx-auto w-full max-w-6xl` (hoặc `max-w-[1280px]`) `px-4 sm:px-6 lg:px-8`, nền trang `bg-canvas`, `min-h-dvh`.
 - Icon: `lucide-react`, kích thước `size-4` / `size-5`; trong `<Button>` dùng `size-*` thay vì `h-* w-*`.
-- Responsive: mobile-first, breakpoint `sm/md/lg` của Tailwind (nav ẩn dưới `lg`).
+- Responsive: mobile-first, breakpoint sm/md/lg/xl của Tailwind (màn hình dưới lg tự chuyển sang nút Hamburger mở panel điều hướng thu gọn; trang bản đồ có thanh chuyển đổi Danh sách / Bản đồ; chatbot tự thu gọn sidebar trên màn hình < 1024px).
 - Tôn trọng `prefers-reduced-motion` (đã xử lý trong `globals.css`).
 
 ### 4.4. Button — luôn dùng `@/components/ui/button`
