@@ -13,7 +13,6 @@ import {
   ShieldCheck,
   Unlock,
   User,
-  Users,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -98,18 +97,7 @@ export default function AdminUsersScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Tiêu đề & giới thiệu chức năng */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <Users className="size-6 text-brand" />
-            <h1 className="font-heading text-3xl font-bold text-ink">Người dùng</h1>
-          </div>
-          <p className="mt-1 text-sm text-subtle">
-            Quản lý tài khoản thành viên, phân quyền quản trị và thực hiện khóa hoặc mở khóa tài khoản.
-          </p>
-        </div>
-      </div>
+
 
       {/* Thanh tìm kiếm và bộ lọc */}
       <div className="flex flex-wrap items-center gap-3 rounded-3xl border border-border bg-card p-3.5 shadow-xs">

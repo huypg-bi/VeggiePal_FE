@@ -1,51 +1,18 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { Activity, RefreshCw } from "lucide-react";
-import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 
-import { Button } from "@/components/ui/button";
 import ModelsLimitsSection from "@/features/admin/monitoring/components/ModelsLimitsSection";
 import UsageLogsSection from "@/features/admin/monitoring/components/UsageLogsSection";
 import UsageSummarySection from "@/features/admin/monitoring/components/UsageSummarySection";
-import { monitoringKeys } from "@/features/admin/monitoring/queryKeys";
 import { DAY_OPTIONS } from "@/features/admin/monitoring/utils/monitoringFormat";
 import { cn } from "@/lib/utils";
 
 export default function AdminAiMonitoringScreen() {
   const [days, setDays] = useState(7);
-  const queryClient = useQueryClient();
-  const fetching = useIsFetching({ queryKey: monitoringKeys.all }) > 0;
+
 
   return (
     <div className="flex flex-col gap-8">
-      {/* Tiêu đề & giới thiệu chức năng */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <Activity className="size-6 text-brand" />
-            <h1 className="font-heading text-3xl font-bold text-ink">Giám sát AI</h1>
-          </div>
-          <p className="mt-1 text-sm text-subtle">
-            Theo dõi lượt dùng, token, độ trễ và lỗi của các tính năng AI (chatbot, thực đơn, gợi ý, video). AI kiểm duyệt
-            xem ở{" "}
-            <Link to="/admin/moderation?tab=logs" className="font-semibold text-brand hover:underline">
-              trang Kiểm duyệt
-            </Link>
-            .
-          </p>
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={fetching}
-          onClick={() => queryClient.invalidateQueries({ queryKey: monitoringKeys.all })}
-          className="gap-2 rounded-xl border-border px-3.5 shadow-2xs hover:bg-surface cursor-pointer"
-        >
-          <RefreshCw className={cn("size-3.5", fetching && "animate-spin")} />
-          Làm mới
-        </Button>
-      </div>
+
 
       {/* Khoảng thời gian và thẻ thống kê */}
       <div className="flex flex-col gap-4">

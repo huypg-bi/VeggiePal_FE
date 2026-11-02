@@ -7,7 +7,6 @@ import {
   Pencil,
   Plus,
   RotateCcw,
-  Salad,
   Search,
   Trash2,
   TriangleAlert,
@@ -110,17 +109,7 @@ export default function AdminIngredientsScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Tiêu đề & giới thiệu chức năng */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <Salad className="size-6 text-brand" />
-            <h1 className="font-heading text-3xl font-bold text-ink">Nguyên liệu</h1>
-          </div>
-          <p className="mt-1 text-sm text-subtle">
-            Danh mục nguyên liệu và dinh dưỡng trên 100g, dùng để người dùng soạn công thức và tính kcal.
-          </p>
-        </div>
+      <div className="flex justify-end">
         <Button
           type="button"
           onClick={() => setFormTarget({ mode: "create" })}

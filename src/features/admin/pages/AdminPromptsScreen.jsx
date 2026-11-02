@@ -1,19 +1,14 @@
 import { useSearchParams } from "react-router-dom";
-import { RefreshCw, ScrollText } from "lucide-react";
-import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 
-import { Button } from "@/components/ui/button";
 import PromptDetail from "@/features/admin/prompts/components/PromptDetail";
 import { usePrompts } from "@/features/admin/prompts/hooks/usePrompts";
-import { promptKeys } from "@/features/admin/prompts/queryKeys";
 import { versionLabel } from "@/features/admin/prompts/utils/promptFormat";
 import { cn } from "@/lib/utils";
 
 // Quản lý prompt AI (ai-service /ai/admin/prompts): soạn nháp, chạy thử, publish, kích hoạt lại và khôi phục mặc định.
 export default function AdminPromptsScreen() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const queryClient = useQueryClient();
-  const fetching = useIsFetching({ queryKey: promptKeys.all }) > 0;
+
   const { data: prompts = [], isPending, isError, error } = usePrompts();
 
   const selected = prompts.find((p) => p.key === searchParams.get("key")) ?? prompts[0] ?? null;
@@ -22,29 +17,7 @@ export default function AdminPromptsScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <ScrollText className="size-6 text-brand" />
-            <h1 className="font-heading text-3xl font-bold text-ink">Prompt AI</h1>
-          </div>
-          <p className="mt-1 text-sm text-subtle">
-            Chỉnh các chỉ dẫn gửi cho AI mà không cần deploy lại. Bản nháp không ảnh hưởng người dùng, chỉ bản đã publish và
-            kích hoạt mới chạy thật. Luôn chạy thử trước khi publish.
-          </p>
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={fetching}
-          onClick={() => queryClient.invalidateQueries({ queryKey: promptKeys.all })}
-          className="gap-2 rounded-xl"
-        >
-          <RefreshCw className={cn("size-3.5", fetching && "animate-spin")} />
-          Làm mới
-        </Button>
-      </div>
+
 
       {isError ? (
         <p role="alert" className="rounded-2xl bg-destructive/10 p-4 text-sm text-destructive">
