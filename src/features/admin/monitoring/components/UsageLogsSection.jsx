@@ -24,10 +24,14 @@ const toOptions = (labels, allLabel) => [
   ...Object.entries(labels).map(([value, label]) => ({ value, label })),
 ];
 
-const FEATURE_OPTIONS = toOptions(FEATURE_LABELS, "Mọi tác vụ");
+// Kiểm duyệt có trang riêng (/admin/moderation) nên không đưa vào bộ lọc tác vụ ở đây.
+const FEATURE_OPTIONS = toOptions(
+  Object.fromEntries(Object.entries(FEATURE_LABELS).filter(([key]) => key !== "MODERATION")),
+  "Mọi tác vụ",
+);
 const STATUS_OPTIONS = toOptions(STATUS_LABELS, "Mọi trạng thái");
 
-export default function UsageLogsSection({ includeModeration = false, onToggleModeration }) {
+export default function UsageLogsSection() {
   const [feature, setFeature] = useState("");
   const [status, setStatus] = useState("");
   const [userText, setUserText] = useState("");
@@ -44,7 +48,7 @@ export default function UsageLogsSection({ includeModeration = false, onToggleMo
   const { data, isPending, isError, error, isFetching } = useUsageLogs(
     {
       feature,
-      excludeFeature: includeModeration ? undefined : "MODERATION",
+      excludeFeature: "MODERATION",
       status,
       userId,
       from: toIsoDateTime(fromDate),
@@ -151,17 +155,6 @@ export default function UsageLogsSection({ includeModeration = false, onToggleMo
             className="h-10 rounded-full border border-border bg-surface px-3 text-xs text-ink outline-none transition focus:border-brand/40 focus:ring-2 focus:ring-brand/15"
           />
         </div>
-
-        {/* Ô bật/tắt "Hiện cả kiểm duyệt" */}
-        <label className="flex items-center gap-2 text-xs font-medium text-subtle cursor-pointer select-none rounded-full border border-border bg-surface px-3 py-2 transition hover:text-ink">
-          <input
-            type="checkbox"
-            checked={includeModeration}
-            onChange={(e) => onToggleModeration?.(e.target.checked)}
-            className="size-4 rounded border-border accent-brand cursor-pointer"
-          />
-          Hiện cả kiểm duyệt
-        </label>
 
         {hasActiveFilters && (
           <Button
