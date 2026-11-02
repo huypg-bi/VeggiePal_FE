@@ -219,7 +219,7 @@ export default function SupportScreen() {
       setContactEmail("");
       setContactContent("");
       toast.success(
-        "Yêu cầu hỗ trợ của bạn đã được gửi thành công. Đội ngũ VeggiePal sẽ phản hồi sớm nhất qua email!"
+        "Yêu cầu hỗ trợ / Báo cáo sự cố của bạn đã được gửi thành công. Đội ngũ VeggiePal sẽ kiểm tra và phản hồi sớm nhất qua email!"
       );
     }, 600);
   };
@@ -505,17 +505,17 @@ export default function SupportScreen() {
             <div className="max-w-2xl">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-soft px-3 py-1 text-xs font-semibold text-brand">
                 <MessageSquareWarning className="size-3.5" />
-                Kênh liên hệ hỗ trợ
+                Liên hệ hỗ trợ & Báo cáo sự cố
               </span>
               <h2
                 id="contact-heading"
                 className="mt-3 font-heading text-2xl font-bold tracking-tight text-ink sm:text-3xl"
               >
-                Vẫn cần sự trợ giúp thêm?
+                Liên hệ hỗ trợ hoặc Báo cáo sự cố
               </h2>
               <p className="mt-1 text-sm text-subtle leading-relaxed">
-                Nếu không tìm thấy câu trả lời phù hợp trong kho tài liệu, đội ngũ
-                chăm sóc khách hàng và Trợ lý AI VeggiePal luôn sẵn sàng hỗ trợ bạn.
+                Nếu bạn cần giải đáp thêm ngoài kho tài liệu hoặc gặp sự cố kỹ thuật trong quá trình trải nghiệm,
+                hãy liên hệ với đội ngũ VeggiePal qua các kênh dưới đây hoặc gửi biểu mẫu báo cáo.
               </p>
             </div>
 
@@ -619,13 +619,13 @@ export default function SupportScreen() {
               </div>
             </div>
 
-            {/* Form gửi câu hỏi trực tuyến */}
+            {/* Form gửi câu hỏi trực tuyến hoặc báo cáo sự cố */}
             <div className="mt-8 rounded-2xl border border-border bg-surface/60 p-6 sm:p-8">
               <h3 className="font-heading text-lg font-bold text-ink">
-                Gửi biểu mẫu yêu cầu hỗ trợ
+                Gửi yêu cầu hỗ trợ & Báo cáo sự cố
               </h3>
               <p className="mt-1 text-xs text-subtle">
-                Điền thông tin sự cố để nhân viên kỹ thuật kiểm tra và phản hồi sớm nhất.
+                Điền thông tin thắc mắc hoặc mô tả sự cố gặp phải để đội ngũ hỗ trợ kỹ thuật kiểm tra và phản hồi sớm nhất.
               </p>
 
               <form onSubmit={handleContactSubmit} className="mt-5 space-y-4">
@@ -678,7 +678,7 @@ export default function SupportScreen() {
                     disabled={isSubmitting}
                     className="rounded-xl bg-brand px-6 text-xs font-semibold text-brand-foreground shadow-xs hover:bg-brand/90 cursor-pointer"
                   >
-                    {isSubmitting ? "Đang gửi..." : "Gửi yêu cầu hỗ trợ"}
+                    {isSubmitting ? "Đang gửi..." : "Gửi yêu cầu / Báo cáo sự cố"}
                   </Button>
                 </div>
               </form>

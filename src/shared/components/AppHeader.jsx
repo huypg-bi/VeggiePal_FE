@@ -11,7 +11,6 @@ import {
   Home,
   LogOut,
   Menu,
-  MessageSquareWarning,
   Map,
   ShieldCheck,
   Users,
@@ -76,7 +75,6 @@ const NAV_ITEMS = [
 
 const PROFILE_MENU_ITEMS = [
   { id: "help", label: "Trợ giúp và hỗ trợ", icon: CircleHelp, to: "/support" },
-  { id: "report", label: "Báo cáo sự cố", icon: MessageSquareWarning, to: "/support#contact" },
 ];
 
 export default function AppHeader() {
