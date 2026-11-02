@@ -100,7 +100,7 @@ export default function ModerationHistorySection({ onViewDetail }) {
     { enabled: !rangeInvalid }
   );
 
-  const items = data?.items ?? [];
+  const items = useMemo(() => data?.items ?? [], [data]);
   const totalElements = data?.totalElements ?? 0;
   const totalPages = Math.max(data?.totalPages ?? 1, 1);
 

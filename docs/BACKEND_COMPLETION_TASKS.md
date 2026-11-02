@@ -293,3 +293,13 @@ Các task dưới đây ghi ngày 29/10/2026, sau khi đọc source BE ở các 
 **BE cần làm:** chốt có cần gỡ ảnh không; nếu cần thì thêm `DELETE /recipes/{id}/image` (chủ hoặc ADMIN, xóa tệp Cloudinary của chính công thức đó sau commit, gọi lặp không lỗi), hoặc một giá trị rõ ràng trong `PUT` để xóa ảnh.
 
 **Hoàn thành khi:** có test: gỡ ảnh đặt `imageUrl` về null và xóa tệp Cloudinary đúng một lần; gọi lặp vẫn thành công; người khác gọi bị từ chối.
+
+### B16 — Video: `GET /videos` chưa có tham số tìm kiếm theo từ khóa
+
+**Service:** blog-service · ghi 02/11/2026 · mức: trung bình (chưa đo hiệu năng).
+
+**Hiện trạng:** `GET /videos` (`VideoController.getPublishedVideos`) chỉ nhận `categoryId`, `page`, `size`. Blog thì có `keyword` (tìm theo tiêu đề và nội dung, tiêu đề xếp trước, không phân biệt dấu nhờ collation `ai_ci`). Trang `/videos` có ô tìm video theo tiêu đề nhưng BE không tìm giúp, nên FE phải tải toàn bộ các trang (tối đa 100 video mỗi lần) rồi tự lọc, càng nhiều video càng chậm.
+
+**BE cần làm:** thêm tham số `keyword` (tùy chọn) cho `GET /videos`, tìm theo `title` (và `description` nếu muốn), không phân biệt dấu như blog, xếp video khớp tiêu đề trước. Không dùng `@Lob` cho cột cần `lower()` / `like` (xem ghi chú trong `CLAUDE.md` của BE).
+
+**Hoàn thành khi:** `GET /videos?keyword=nấm` chỉ trả video đã `PUBLISHED` có "nấm" trong tiêu đề, kết hợp được với `categoryId` và phân trang; có test trên MySQL thật (`BlogServiceIntegrationTests`) cho trường hợp có dấu và không dấu.

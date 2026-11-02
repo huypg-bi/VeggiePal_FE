@@ -56,6 +56,7 @@ export default function TrendingVideoGrid({
   isFetchingNextPage,
   onClearFilter,
   hasFilter,
+  keyword = "",
   categories = [],
   activeCategoryId,
   onCategoryChange,
@@ -73,7 +74,7 @@ export default function TrendingVideoGrid({
     <section className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-xl font-bold text-ink sm:text-2xl">
-          Video nấu ăn mới nhất
+          {keyword ? `Kết quả cho “${keyword}”` : "Video nấu ăn mới nhất"}
         </h2>
         {categories.length > 0 && (
           <SelectField
@@ -101,13 +102,15 @@ export default function TrendingVideoGrid({
         <div className="rounded-3xl border border-border bg-card p-8 text-center text-subtle">
           <PlaySquare className="mx-auto size-12 text-subtle/50" />
           <h3 className="mt-3 font-heading text-lg font-bold text-ink">
-            {hasFilter
-              ? "Không có video nào trong danh mục này"
-              : "Chưa có video nào được đăng"}
+            {keyword
+              ? `Không có video nào có “${keyword}” trong tiêu đề`
+              : hasFilter
+                ? "Không có video nào trong danh mục này"
+                : "Chưa có video nào được đăng"}
           </h3>
           <p className="mt-1 text-sm">
             {hasFilter
-              ? "Hãy thử chọn danh mục khác hoặc xóa bộ lọc."
+              ? "Hãy thử từ khóa hoặc danh mục khác, hoặc xóa bộ lọc."
               : "Hãy là người đầu tiên chia sẻ công thức nấu ăn bằng video nhé!"}
           </p>
           {hasFilter && onClearFilter && (

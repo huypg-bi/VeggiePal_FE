@@ -102,7 +102,7 @@ export default function OrdersTableSection({ filters, enabled }) {
     setPage(0);
   }
 
-  const items = data?.items ?? [];
+  const items = useMemo(() => data?.items ?? [], [data]);
   const userIds = useMemo(() => items.map((o) => o.userId).filter(Boolean), [items]);
   const { data: userMap } = usePublicUsers(userIds);
 

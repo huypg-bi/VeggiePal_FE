@@ -67,7 +67,7 @@ export default function RevenueChartSection({ filters, enabled }) {
 
   const { data, isPending, isError, error } = usePaymentRevenue(filters, groupBy, { enabled });
 
-  const points = data?.points ?? [];
+  const points = useMemo(() => data?.points ?? [], [data]);
 
   // Tự động đo kích thước khung hiển thị biểu đồ
   useEffect(() => {
