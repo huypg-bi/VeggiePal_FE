@@ -1,6 +1,3 @@
-// Cập nhật cache React Query sau khi vote, để không phải tải lại cả feed.
-// `vote` là VoteResponse của BE: { blogId, myVote: 1 | -1 | null, voteScore }.
-
 /** Cache "vote của tôi" (mảng { blogId, myVote }): ghi đè phần tử của blog đó, thêm nếu chưa có. */
 export function applyVoteToMyVotes(list, vote) {
   if (!list) return list;

@@ -1,17 +1,9 @@
-/**
- * Tiện ích tính toán toạ độ SVG và chỉ số xu hướng cho BmiTrackerCard.
- * Tách hàm thuần để dễ dàng kiểm thử bằng node:test.
- */
-
 const DEFAULT_WIDTH = 500;
 const DEFAULT_HEIGHT = 120;
 const PADDING_X = 10;
 const PADDING_TOP = 20;
 const PADDING_BOTTOM = 35;
 
-/**
- * Format nhãn ngày hiển thị dưới trục hoành của biểu đồ (VD: "12/05" hoặc "Tháng 05").
- */
 export function formatAxisDate(iso) {
   if (!iso) return "—";
   try {
@@ -25,10 +17,6 @@ export function formatAxisDate(iso) {
   }
 }
 
-/**
- * Tính toạ độ SVG (line & area path) từ danh sách bản ghi đã sắp xếp theo thời gian (cũ -> mới).
- * Yêu cầu tối thiểu 2 điểm. Nếu ít hơn 2 điểm, trả về null.
- */
 export function calcChartPoints(records, metric = "bmi", width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT) {
   if (!Array.isArray(records) || records.length < 2) {
     return null;
@@ -63,9 +51,6 @@ export function calcChartPoints(records, metric = "bmi", width = DEFAULT_WIDTH, 
   return { points, linePath, areaPath };
 }
 
-/**
- * Tính độ lệch, số ngày và câu nhận xét xu hướng giữa bản ghi đầu và bản ghi mới nhất.
- */
 export function calcTrendAnalysis(records, metric = "bmi") {
   if (!Array.isArray(records) || records.length < 2) {
     return null;

@@ -10,7 +10,7 @@ import MealPlannerScreen from "@/features/meal-planner/pages/MealPlannerScreen";
 import RestaurantMapScreen from "@/features/restaurant-map/pages/RestaurantMapScreen";
 import VideoHomeScreen from "@/features/video/pages/VideoHomeScreen";
 import VideoWatchScreen from "@/features/video/pages/VideoWatchScreen";
-// import VideoFormScreen from "@/features/video/pages/VideoFormScreen";
+import VideoFormScreen from "@/features/video/pages/VideoFormScreen";
 import ProfileScreen from "@/features/profile/pages/ProfileScreen";
 import EditProfileScreen from "@/features/profile/pages/EditProfileScreen";
 import ChatbotScreen from "@/features/chatbot/pages/ChatbotScreen";
@@ -18,8 +18,10 @@ import BlogScreen from "@/features/blog/pages/BlogScreen";
 import BlogDetailScreen from "@/features/blog/pages/BlogDetailScreen";
 import AdminLayout from "@/features/admin/components/AdminLayout";
 import AdminCategoriesScreen from "@/features/admin/pages/AdminCategoriesScreen";
+import AdminUsersScreen from "@/features/admin/pages/AdminUsersScreen";
 import AdminDashboardScreen from "@/features/admin/pages/AdminDashboardScreen";
 import AdminAiMonitoringScreen from "@/features/admin/pages/AdminAiMonitoringScreen";
+import AdminPaymentsScreen from "@/features/admin/pages/AdminPaymentsScreen";
 import AdminModerationScreen from "@/features/admin/pages/AdminModerationScreen";
 import AdminIngredientsScreen from "@/features/admin/pages/AdminIngredientsScreen";
 import BlogFormScreen from "@/features/blog/pages/BlogFormScreen";
@@ -54,6 +56,15 @@ export default function AppRoutes() {
       />
       <Route path="/forgot-password" element={<AuthScreen />} />
       <Route path="/verify-otp" element={<AuthScreen />} />
+      <Route path="/reset-password" element={<AuthScreen />} />
+      <Route
+        path="/verify-email"
+        element={
+          <RedirectIfAuthenticated>
+            <AuthScreen />
+          </RedirectIfAuthenticated>
+        }
+      />
       <Route path="/" element={<HomeScreen />} />
 
       {/* Blog công khai với khách (BE cho GET /blogs không cần token) */}
@@ -114,7 +125,22 @@ export default function AppRoutes() {
 
       {/* Video công khai với khách (BE cho GET /videos và GET /videos/:id không cần token) */}
       <Route path="/videos" element={<VideoHomeScreen />} />
-      {/* Tạm tắt /videos/new và /videos/:videoId/edit vì chưa có VideoFormScreen */}
+      <Route
+        path="/videos/new"
+        element={
+          <ProtectedRoute>
+            <VideoFormScreen />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/videos/:videoId/edit"
+        element={
+          <ProtectedRoute>
+            <VideoFormScreen />
+          </ProtectedRoute>
+        }
+      />
       <Route path="/videos/:videoId" element={<VideoWatchScreen />} />
 
       {/* --- NHÓM PROFILE --- */}
@@ -187,10 +213,12 @@ export default function AppRoutes() {
       <Route element={<AdminRoute />}>
         <Route element={<AdminLayout />}>
           <Route path="/admin" element={<AdminDashboardScreen />} />
+          <Route path="/admin/users" element={<AdminUsersScreen />} />
           <Route path="/admin/categories" element={<AdminCategoriesScreen />} />
           <Route path="/admin/ingredients" element={<AdminIngredientsScreen />} />
           <Route path="/admin/moderation" element={<AdminModerationScreen />} />
           <Route path="/admin/ai-monitoring" element={<AdminAiMonitoringScreen />} />
+          <Route path="/admin/payments" element={<AdminPaymentsScreen />} />
         </Route>
       </Route>
 

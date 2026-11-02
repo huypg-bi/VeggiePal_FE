@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Heart, ShieldAlert } from "lucide-react";
 
 import AppHeader from "@/shared/components/AppHeader";
-import AppFooter from "@/shared/components/AppFooter";
 import Reveal from "@/shared/components/Reveal";
 import { useProfile } from "@/features/profile/hooks/useProfile";
 
@@ -34,7 +33,7 @@ export default function ProfileScreen() {
 
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
           {/* Cột trái (4/12) */}
-          <div className="space-y-5 lg:col-span-4">
+          <div className="space-y-5 lg:col-span-4 lg:sticky lg:top-24 lg:self-start">
             <Reveal><DailyNutritionCard /></Reveal>
             <Reveal><FavoritesCard /></Reveal>
             <Reveal><GreenBadgesCard /></Reveal>
@@ -80,8 +79,6 @@ export default function ProfileScreen() {
           </div>
         </div>
       </main>
-
-      <AppFooter />
     </div>
   );
 }

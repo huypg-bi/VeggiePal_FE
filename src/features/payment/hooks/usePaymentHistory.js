@@ -4,9 +4,6 @@ import { useAuthStore, selectIsAuthenticated } from "@/features/auth/store/authS
 import { getHistory } from "@/features/payment/api/paymentApi";
 import { paymentKeys } from "@/features/payment/queryKeys";
 
-/**
- * Lấy lịch sử giao dịch thanh toán của người dùng (chỉ gọi khi đã đăng nhập).
- */
 export function usePaymentHistory() {
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
 

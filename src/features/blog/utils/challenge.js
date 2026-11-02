@@ -1,9 +1,3 @@
-// Thử thách "7 Ngày Sống Thuần Chay Tươi Mới". Chưa có API nên tiến độ lưu ở localStorage theo từng
-// user (xem useChallenge). File này chỉ chứa logic thuần để test được; khi BE có API thì thay phần lưu.
-//
-// Luật: người dùng tự bắt đầu ở lần check-in đầu tiên. Mỗi ngày check-in được một lần, cần 7 ngày
-// liên tiếp. Bỏ lỡ một ngày thì đứt chuỗi và lần check-in kế tiếp bắt đầu lại từ ngày 1.
-
 export const CHALLENGE_DAYS = 7;
 export const CHALLENGE_BADGE_NAME = "Trái Tim Xanh Veggie";
 
@@ -49,11 +43,6 @@ export function parseRecord(raw) {
   }
 }
 
-/**
- * Tiến độ hiển thị tại ngày `today`.
- * - completed: đã đủ 7 ngày (huy hiệu giữ mãi)
- * - broken: từng check-in nhưng đã lỡ ít nhất một ngày -> hiện 0, lần check-in sau bắt đầu lại
- */
 export function readProgress(record, today) {
   if (record.completedAt) {
     return { days: CHALLENGE_DAYS, checkedToday: false, completed: true, broken: false };

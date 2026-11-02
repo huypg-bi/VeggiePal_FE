@@ -32,12 +32,3 @@ export function getInitials(name) {
   const letters = words.length === 1 ? words[0][0] : words[0][0] + words[words.length - 1][0];
   return letters.toUpperCase();
 }
-
-/** Rút gọn nội dung bài viết thành đoạn trích `max` ký tự, cắt ở ranh giới từ. */
-export function makeExcerpt(content, max = 220) {
-  const text = String(content ?? "").replace(/\s+/g, " ").trim();
-  if (text.length <= max) return text;
-  const cut = text.slice(0, max);
-  const lastSpace = cut.lastIndexOf(" ");
-  return `${cut.slice(0, lastSpace > max * 0.6 ? lastSpace : max).trimEnd()}…`;
-}

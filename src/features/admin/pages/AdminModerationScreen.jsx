@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   AlertTriangle,
+  Ban,
   Check,
   CheckCircle2,
   Clock,
@@ -8,6 +10,7 @@ import {
   Eye,
   FileText,
   Filter,
+  History,
   Info,
   MessageSquare,
   Percent,
@@ -26,13 +29,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ModerationDetailDialog from "@/features/admin/moderation/components/ModerationDetailDialog";
 import ReviewDecisionDialog from "@/features/admin/moderation/components/ReviewDecisionDialog";
+import ModerationHistorySection from "@/features/admin/moderation/components/ModerationHistorySection";
+import ModerationLogsSection from "@/features/admin/moderation/components/ModerationLogsSection";
 import { MOCK_MODERATION_CASES } from "@/features/admin/moderation/data/mockModerationData";
 import {
+  useDismissModeration,
   usePendingModerationCases,
   useReviewModeration,
 } from "@/features/admin/moderation/hooks/useModeration";
 import { moderationKeys } from "@/features/admin/moderation/queryKeys";
 import { cn } from "@/lib/utils";
+import UserDisplayName from "@/shared/components/UserDisplayName";
+import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
 // Nhãn và badge tương ứng cho loại nội dung (BLOG, VIDEO, COMMENT)
 const CONTENT_TYPE_MAP = {
@@ -61,16 +69,28 @@ function formatDateTime(isoString) {
   }
 }
 
-/**
- * Trang kiểm duyệt nội dung của Admin (/admin/moderation):
- * - Hàng đợi các case cần duyệt (REVIEW_REQUIRED, cũ nhất trước).
- * - Hiển thị: caseId, loại nội dung (BLOG, VIDEO, COMMENT), externalContentId, authorId, content (nội dung bị gắn cờ), categories, reason, confidence.
- * - Hỗ trợ chế độ Mock Data để test giao diện và luồng duyệt/từ chối ngay cả khi BE chưa có dữ liệu.
- */
 export default function AdminModerationScreen() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "queue";
+
+  const handleTabChange = (tab) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (tab === "queue") {
+          next.delete("tab");
+        } else {
+          next.set("tab", tab);
+        }
+        return next;
+      },
+      { replace: true }
+    );
+  };
   const queryClient = useQueryClient();
   const { data: realCases = [], isPending, isError, error, isFetching } = usePendingModerationCases();
   const reviewMutation = useReviewModeration();
+  const dismissMutation = useDismissModeration();
 
   // Kiểm tra BE đã trả về dữ liệu thật chưa
   const hasRealData = realCases.length > 0;
@@ -82,6 +102,12 @@ export default function AdminModerationScreen() {
   // Danh sách thực tế hiển thị: Khi BE đã trả dữ liệu thật, luôn ưu tiên hiển thị dữ liệu thật
   const activeCases = hasRealData ? realCases : (isMockMode ? mockCases : realCases);
 
+  // Lấy danh sách authorId để phân giải tên hiển thị người dùng (user nào chưa active thì fallback sang #id)
+  const authorIds = useMemo(() => {
+    return Array.from(new Set(activeCases.map((c) => c.authorId).filter(Boolean)));
+  }, [activeCases]);
+  const { data: userMap } = usePublicUsers(authorIds);
+
   // Bộ lọc và tìm kiếm
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL"); // ALL, BLOG, VIDEO, COMMENT
@@ -89,7 +115,7 @@ export default function AdminModerationScreen() {
   // Modal quyết định duyệt / từ chối
   const [activeModal, setActiveModal] = useState({
     item: null,
-    decision: null, // "APPROVED" | "REJECTED"
+    decision: null, // "APPROVED" | "REJECTED" | "DISMISSED"
   });
 
   // Modal xem chi tiết
@@ -103,21 +129,25 @@ export default function AdminModerationScreen() {
         toast.success(
           decision === "APPROVED"
             ? `[Demo Test] Đã duyệt thành công case #${id}${reason ? ` (Lý do: ${reason})` : ""}`
-            : `[Demo Test] Đã từ chối thành công case #${id}${reason ? ` (Lý do: ${reason})` : ""}`
+            : decision === "DISMISSED"
+              ? `[Demo Test] Đã bỏ qua case #${id}${reason ? ` (Lý do: ${reason})` : ""}`
+              : `[Demo Test] Đã từ chối thành công case #${id}${reason ? ` (Lý do: ${reason})` : ""}`
         );
         setActiveModal({ item: null, decision: null });
       }, 300);
       return;
     }
 
-    reviewMutation.mutate(
+    (decision === "DISMISSED" ? dismissMutation : reviewMutation).mutate(
       { id, decision, reason },
       {
         onSuccess: () => {
           toast.success(
             decision === "APPROVED"
               ? `Đã duyệt thành công case #${id}`
-              : `Đã từ chối thành công case #${id}`
+              : decision === "DISMISSED"
+                ? `Đã bỏ qua case #${id}, nội dung gốc không bị thay đổi`
+                : `Đã từ chối thành công case #${id}`
           );
           setActiveModal({ item: null, decision: null });
         },
@@ -160,6 +190,8 @@ export default function AdminModerationScreen() {
         const matchCaseId = String(c.caseId).includes(query);
         const matchExternalId = c.externalContentId != null && String(c.externalContentId).includes(query);
         const matchAuthorId = c.authorId != null && String(c.authorId).includes(query);
+        const author = userMap?.get(Number(c.authorId)) ?? userMap?.get(String(c.authorId));
+        const matchAuthorName = author?.fullName && author.fullName.toLowerCase().includes(query);
         const matchContent = c.content && c.content.toLowerCase().includes(query);
         const matchReason = c.reason && c.reason.toLowerCase().includes(query);
         const matchCategories = c.categories && c.categories.some((cat) => cat.toLowerCase().includes(query));
@@ -168,7 +200,7 @@ export default function AdminModerationScreen() {
         return (
           matchCaseId ||
           matchExternalId ||
-          matchAuthorId ||
+          matchAuthorId || matchAuthorName ||
           matchContent ||
           matchReason ||
           matchCategories ||
@@ -178,7 +210,7 @@ export default function AdminModerationScreen() {
 
       return true;
     });
-  }, [activeCases, searchQuery, typeFilter]);
+  }, [activeCases, searchQuery, typeFilter, userMap]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -204,6 +236,7 @@ export default function AdminModerationScreen() {
           </p>
         </div>
 
+        {activeTab === "queue" && (
         <div className="flex items-center gap-2">
           {/* Nút bật/tắt Mock Mode chỉ hiển thị khi BE chưa có dữ liệu thật */}
           {!hasRealData && (
@@ -247,8 +280,61 @@ export default function AdminModerationScreen() {
             Làm mới
           </Button>
         </div>
+        )}
       </div>
 
+      {/* Tabs chuyển đổi giữa hàng đợi, nhật ký và lịch sử */}
+      <div className="flex border-b border-border gap-2">
+        <button
+          type="button"
+          onClick={() => handleTabChange("queue")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition",
+            activeTab === "queue"
+              ? "border-brand text-brand"
+              : "border-transparent text-subtle hover:text-ink hover:border-border"
+          )}
+        >
+          <ShieldAlert className="size-4" />
+          <span>Hàng đợi kiểm duyệt</span>
+          {activeCases.length > 0 && (
+            <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-semibold text-warning">
+              {activeCases.length}
+            </span>
+          )}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleTabChange("logs")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition",
+            activeTab === "logs"
+              ? "border-brand text-brand"
+              : "border-transparent text-subtle hover:text-ink hover:border-border"
+          )}
+        >
+          <History className="size-4" />
+          <span>Nhật ký kiểm duyệt</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => handleTabChange("history")}
+          className={cn(
+            "flex items-center gap-2 border-b-2 px-4 py-2.5 text-sm font-medium transition",
+            activeTab === "history"
+              ? "border-brand text-brand"
+              : "border-transparent text-subtle hover:text-ink hover:border-border"
+          )}
+        >
+          <CheckCircle2 className="size-4" />
+          <span>Đã xử lý</span>
+        </button>
+      </div>
+
+      {activeTab === "queue" && (
+        <>
       {/* Thông tin giải thích cơ chế kiểm duyệt */}
       <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 text-xs text-subtle shadow-sm">
         <Info className="mt-0.5 size-4 shrink-0 text-brand" />
@@ -391,7 +477,7 @@ export default function AdminModerationScreen() {
                   <th scope="col" className="px-4 py-3.5">Mã Case</th>
                   <th scope="col" className="px-4 py-3.5">Loại</th>
                   <th scope="col" className="px-4 py-3.5">ID Gốc</th>
-                  <th scope="col" className="px-4 py-3.5">Mã Tác Giả</th>
+                  <th scope="col" className="px-4 py-3.5">Tác giả</th>
                   <th scope="col" className="px-4 py-3.5">Nội dung bị gắn cờ</th>
                   <th scope="col" className="px-4 py-3.5">Danh mục vi phạm</th>
                   <th scope="col" className="px-4 py-3.5">Lý do từ AI</th>
@@ -452,11 +538,12 @@ export default function AdminModerationScreen() {
                       </td>
 
                       {/* Mã tác giả (authorId) */}
-                      <td className="px-4 py-4 font-mono text-xs text-subtle">
+                      {/* Tác giả */}
+                      <td className="px-4 py-4 text-xs font-semibold text-ink">
                         {c.authorId != null ? (
-                          <span className="font-semibold text-ink">#{c.authorId}</span>
+                          <UserDisplayName userId={c.authorId} userMap={userMap} />
                         ) : (
-                          <span>—</span>
+                          <span className="text-subtle font-normal">—</span>
                         )}
                       </td>
 
@@ -530,6 +617,18 @@ export default function AdminModerationScreen() {
                           <Button
                             type="button"
                             size="sm"
+                            variant="outline"
+                            onClick={() => setActiveModal({ item: c, decision: "DISMISSED" })}
+                            className="h-8 gap-1 rounded-xl px-2.5 text-xs text-subtle hover:text-ink"
+                            title="Chỉ đưa ca ra khỏi hàng đợi, nội dung gốc không bị đổi trạng thái"
+                          >
+                            <Ban className="size-3.5" />
+                            Bỏ qua
+                          </Button>
+
+                          <Button
+                            type="button"
+                            size="sm"
                             variant="default"
                             onClick={() =>
                               setActiveModal({
@@ -569,12 +668,27 @@ export default function AdminModerationScreen() {
         </div>
       )}
 
+        </>
+      )}
+
+      {/* Tab nhật ký kiểm duyệt */}
+      {activeTab === "logs" && <ModerationLogsSection />}
+
+      {/* Tab đã xử lý (chờ BE B05) */}
+      {/* Tab đã xử lý */}
+      {activeTab === "history" && (
+        <ModerationHistorySection onViewDetail={(item) => setDetailItem(item)} isMockMode={isMockMode} />
+      )}
+
       {/* Dialog chi tiết case kiểm duyệt */}
       <ModerationDetailDialog
         open={Boolean(detailItem)}
         item={detailItem}
         onOpenChange={(open) => {
           if (!open) setDetailItem(null);
+        }}
+        onDismiss={(item) => {
+          setActiveModal({ item, decision: "DISMISSED" });
         }}
         onApprove={(item) => {
           setActiveModal({ item, decision: "APPROVED" });
@@ -589,7 +703,7 @@ export default function AdminModerationScreen() {
         open={Boolean(activeModal.item && activeModal.decision)}
         item={activeModal.item}
         decision={activeModal.decision}
-        loading={!isMockMode && reviewMutation.isPending}
+        loading={!isMockMode && (reviewMutation.isPending || dismissMutation.isPending)}
         onOpenChange={(open) => {
           if (!open) setActiveModal({ item: null, decision: null });
         }}

@@ -2,9 +2,6 @@ import { FALLBACK_AUTHOR_NAME, getInitials } from "@/features/blog/utils/blogFor
 import { cn } from "@/lib/utils";
 import FallbackImage from "@/shared/components/FallbackImage";
 
-// Avatar tác giả: ảnh nếu có, không thì chữ cái đầu của tên trên nền brand nhạt.
-// `author` là { fullName, avatarUrl } từ usePublicUsers, có thể undefined.
-
 export default function AuthorAvatar({ author, className = "size-11 text-sm" }) {
   const name = author?.fullName ?? FALLBACK_AUTHOR_NAME;
 

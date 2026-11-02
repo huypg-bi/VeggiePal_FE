@@ -1,59 +1,19 @@
 import apiClient from "@/shared/api/apiClient";
+import { RECIPE_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
-/**
- * Recipe APIs (recipe-service qua api-gateway) — GET công khai, không cần token.
- *   GET /recipes?keyword=&page=&size=
- *   GET /recipes/:id   (BE không lọc trạng thái nên bản nháp cũng đọc được -> dùng để nạp form sửa)
- * Cần đăng nhập:
- *   POST   /recipes             tạo (luôn là DRAFT)
- *   PUT    /recipes/:id         sửa (chủ công thức hoặc ADMIN), không đổi trạng thái
- *   POST   /recipes/:id/publish đăng (DRAFT/HIDDEN -> PUBLISHED, không kiểm duyệt)
- *   DELETE /recipes/:id
- *   GET    /recipes/me
- * Recipe: { id, userId, title, description, imageUrl, servings, prepTime, cookTime,
- *   status, ingredients: [{ ingredientId, ingredientName, quantity, unit, note }],
- *   steps: [{ stepNumber, instruction }], createdAt, updatedAt, publishedAt }
- * status: "DRAFT" | "PUBLISHED" | "HIDDEN"
- * Page: { content, page, size, totalElements, totalPages, first, last }
- * userId là id tác giả -> lấy tên qua usePublicUsers (GET /users/batch).
- */
-
-const EMPTY_PAGE = {
-  content: [],
-  page: 0,
-  size: 10,
-  totalElements: 0,
-  totalPages: 0,
-  first: true,
-  last: true,
-};
-
-// BE trả message tiếng Anh theo ErrorCode; các lỗi người dùng hay gặp khi lưu công thức được đổi
-// sang tiếng Việt theo `code`. Lỗi lạ dùng message của BE.
-const VI_MESSAGES = {
-  1001: "Dữ liệu không hợp lệ, vui lòng kiểm tra lại các trường đã nhập",
-  1002: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
-  1003: "Bạn không có quyền thực hiện thao tác này",
-  4003: "Có nguyên liệu không tồn tại",
-  4004: "Có nguyên liệu bị chọn trùng, mỗi nguyên liệu chỉ được thêm một lần",
-  4100: "Công thức không tồn tại",
-  4101: "Vui lòng nhập tên công thức",
-  4102: "Bạn không thể chỉnh sửa công thức này",
-  4103: "Công thức này đã được đăng rồi",
-  4104: "Có nguyên liệu đã ngừng sử dụng, vui lòng chọn nguyên liệu khác",
-};
+const EMPTY_PAGE = { items: [], page: 0, size: 10, totalElements: 0, totalPages: 0 };
 
 function unwrap(res, fallbackMessage) {
   if (res.status >= 400) {
-    throw new Error(VI_MESSAGES[res.data?.code] ?? res.data?.message ?? fallbackMessage);
+    throw new Error(RECIPE_ERROR_MESSAGES[res.data?.code] ?? res.data?.message ?? fallbackMessage);
   }
   return res.data?.result;
 }
 
-/** GET /recipes — công thức đã publish, mới nhất trước. keyword "" coi như không lọc. */
-export async function getRecipes({ keyword, page = 0, size = 10 } = {}) {
+/** GET /recipes — công thức đã publish, mới nhất trước (sort="popular": được lưu nhiều nhất trước). keyword "" coi như không lọc. */
+export async function getRecipes({ keyword, sort, page = 0, size = 10 } = {}) {
   const res = await apiClient.get("/recipes", {
-    params: { keyword: keyword?.trim() || undefined, page, size },
+    params: { keyword: keyword?.trim() || undefined, sort: sort || undefined, page, size },
   });
   return unwrap(res, "Không lấy được danh sách công thức") ?? EMPTY_PAGE;
 }
@@ -64,21 +24,10 @@ export async function getRecipe(id) {
   return unwrap(res, "Không lấy được công thức");
 }
 
-/**
- * GET /recipes/me — công thức của tôi ở mọi trạng thái (DRAFT/PUBLISHED/HIDDEN). Cần đăng nhập.
- * Page cùng dạng với getRecipes: { content, page, size, totalElements, totalPages, ... }
- */
 export async function getMyRecipes({ page = 0, size = 10 } = {}) {
   const res = await apiClient.get("/recipes/me", { params: { page, size } });
   return unwrap(res, "Không lấy được công thức của bạn") ?? EMPTY_PAGE;
 }
-
-// ---- Tạo / sửa / đăng / xóa công thức --------------------------------------------------------
-// RecipeRequest: { title, description?, imageUrl?, servings, prepTime?, cookTime?,
-//   ingredients: [{ ingredientId, quantity, unit, note? }], steps: [{ stepNumber, instruction }] }
-// Giới hạn cột ở BE (BE không tự kiểm tra, vượt sẽ lỗi 500): title 200, description 2000,
-// imageUrl 500 (chỉ là chuỗi URL, recipe-service chưa có API tải ảnh lên), unit 30, note 300,
-// instruction 2000, quantity tối đa 2 chữ số thập phân. BE tự IN HOA unit.
 
 /** POST /recipes — tạo công thức ở trạng thái DRAFT. */
 export async function createRecipe(payload) {
@@ -102,4 +51,38 @@ export async function publishRecipe(id) {
 export async function deleteRecipe(id) {
   const res = await apiClient.delete(`/recipes/${id}`);
   unwrap(res, "Xóa công thức thất bại");
+}
+
+/** POST /recipes/:id/image — tải / thay ảnh công thức (JPEG hoặc PNG ≤ 5MB), trả RecipeResponse có imageUrl mới. */
+export async function uploadRecipeImage(id, file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await apiClient.post(`/recipes/${id}/image`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return unwrap(res, "Tải ảnh công thức thất bại");
+}
+
+/** GET /recipes/favorites/ids — id các công thức tôi đã lưu (để tô trái tim ở danh sách công khai). */
+export async function getFavoriteRecipeIds() {
+  const res = await apiClient.get("/recipes/favorites/ids");
+  return unwrap(res, "Không lấy được danh sách công thức đã lưu") ?? [];
+}
+
+/** GET /recipes/favorites — công thức tôi đã lưu, lưu gần nhất trước (BE chỉ trả công thức đang PUBLISHED). */
+export async function getFavoriteRecipes({ page = 0, size = 12 } = {}) {
+  const res = await apiClient.get("/recipes/favorites", { params: { page, size } });
+  return unwrap(res, "Không lấy được công thức đã lưu") ?? EMPTY_PAGE;
+}
+
+/** POST /recipes/:id/favorite — lưu công thức (gọi lặp không lỗi). Trả { recipeId, favorited, favoriteCount }. */
+export async function favoriteRecipe(id) {
+  const res = await apiClient.post(`/recipes/${id}/favorite`);
+  return unwrap(res, "Không lưu được công thức");
+}
+
+/** DELETE /recipes/:id/favorite — bỏ lưu (gọi lặp không lỗi). Trả { recipeId, favorited, favoriteCount }. */
+export async function unfavoriteRecipe(id) {
+  const res = await apiClient.delete(`/recipes/${id}/favorite`);
+  return unwrap(res, "Không bỏ lưu được công thức");
 }

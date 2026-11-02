@@ -12,10 +12,6 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-/**
- * Hộp thoại xác nhận hành động nguy hiểm (xóa). Cha giữ state `open`.
- * `loading` khóa nút trong lúc đang gọi API; cha tự đóng hộp thoại khi thành công.
- */
 export default function ConfirmDialog({
   open,
   onOpenChange,

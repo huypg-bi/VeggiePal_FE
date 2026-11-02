@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/variants/button-variants";
 import { useDeleteBlog, useSubmitBlog } from "@/features/blog/hooks/useBlogMutations";
 import { useMyBlogs } from "@/features/blog/hooks/useMyBlogs";
+import { isAiReviewing } from "@/features/blog/utils/blogModeration";
 import { formatCompactNumber, formatTimeAgo } from "@/features/blog/utils/blogFormat";
 import { describeBlogOutcome } from "@/features/blog/utils/blogForm";
 import StatusBadge from "@/features/my-content/components/StatusBadge";
@@ -20,8 +21,6 @@ import { cn } from "@/lib/utils";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
 import FallbackImage from "@/shared/components/FallbackImage";
 
-// Tab "Bài viết": lọc theo trạng thái (GET /blogs/me?status=) + danh sách "Xem thêm",
-// mỗi dòng có Sửa / Gửi duyệt / Xóa tùy trạng thái.
 export default function MyBlogList() {
   const [status, setStatus] = useState("");
   const { posts, total, isPending, isError, error, hasNextPage, fetchNextPage, isFetchingNextPage } =
@@ -156,20 +155,21 @@ function BlogRow({ post }) {
             info.hint && <span>{info.hint}</span>
           )}
         </p>
+
+        {isAiReviewing(post) && <p className="mt-1 text-xs text-subtle">AI đang kiểm duyệt bài viết...</p>}
+        {post.status === "REJECTED" && post.moderationReason && (
+          <p className="mt-1 text-xs text-destructive">Lý do từ chối: {post.moderationReason}</p>
+        )}
       </div>
     </>
   );
 
   return (
     <li className="rounded-3xl border border-border bg-card p-4 shadow-sm">
-      {isPublished ? (
-        // Chỉ bài đã đăng mới có trang đọc công khai.
-        <Link to={`/blog/${post.id}`} className="flex gap-4">
-          {summary}
-        </Link>
-      ) : (
-        <div className="flex gap-4">{summary}</div>
-      )}
+      {/* Chủ bài đọc được cả bài chưa đăng (trang đọc sẽ hiện nhãn trạng thái). */}
+      <Link to={`/blog/${post.id}`} className="flex gap-4">
+        {summary}
+      </Link>
 
       <div className="mt-3 flex flex-wrap justify-end gap-2 border-t border-border pt-3">
         {canEditBlog(post.status) && (

@@ -1,63 +1,83 @@
 import { Link } from "react-router-dom";
-import { BadgeCheck, BookOpen, PenLine, ShieldCheck, Sprout } from "lucide-react";
+import { BadgeCheck, BookOpen, PenLine, ShieldCheck, Sparkles } from "lucide-react";
 
-import mascot from "@/assets/img/icon_admin_page_3.png";
-import { buttonVariants } from "@/components/ui/variants/button-variants";
-import { broccoliQuote, communityStats } from "@/features/blog/data/mockBlog";
+import communityIllustration from "@/assets/img/icon_community_banner.png";
+import tag from "@/assets/img/tag.png";
+import { communityStats } from "@/features/blog/data/mockBlog";
 
 const STAT_ICONS = { book: BookOpen, check: BadgeCheck, shield: ShieldCheck };
 
 export default function CommunityHero() {
   return (
-    <section className="flex flex-col gap-5 rounded-3xl border border-border bg-gradient-to-br from-brand-soft to-card p-5 shadow-sm sm:p-6 lg:flex-row lg:items-center lg:justify-between">
-      <div className="min-w-0">
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/80 px-3 py-1 text-xs text-subtle">
-          <Sprout className="size-3.5 text-brand" />
-          Không Gian Sống Lành &amp; Kết Nối Đam Mê Thuần Chay
-        </span>
+    <section className="relative overflow-hidden rounded-[32px] border border-border/40 bg-gradient-to-br from-brand-soft/40 via-card to-brand-soft/20 px-6 py-5 sm:px-8 sm:py-6 lg:pr-6 shadow-sm">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-20 -top-24 h-72 w-72 rounded-full bg-brand-2/25 blur-3xl dark:bg-brand-2/30"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-16 bottom-0 h-80 w-80 rounded-full bg-brand-2/30 blur-3xl dark:bg-brand-2/35"
+      />
 
-        <h1 className="mt-3 font-heading text-3xl font-bold text-ink sm:text-4xl">
-          Cộng Đồng Bếp Xanh <span className="text-brand">VeggiePal</span>
-        </h1>
-        <p className="mt-2 max-w-xl text-sm leading-relaxed text-body">
-          Nơi hơn 45.000 tín đồ thuần chay cùng Bé Bông Cải sẽ chia sẻ dinh dưỡng
-          WFPB, biến tấu công thức ấm lòng và lan toả lối sống không rác thải.
-        </p>
+      <div className="relative flex flex-col items-center gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-8">
+        <div className="flex max-w-2xl flex-col items-center gap-3 text-center lg:items-start lg:text-left">
+          <img
+            src={tag}
+            alt="Đồng hành cùng bạn"
+            className="h-16 w-auto select-none sm:h-20"
+            draggable={false}
+          />
 
-        <ul className="mt-4 flex flex-wrap gap-2">
-          {communityStats.map(({ id, icon, value, label }) => {
-            const Icon = STAT_ICONS[icon];
-            return (
-              <li
-                key={id}
-                className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-body"
-              >
-                <Icon className="size-3.5 text-brand" />
-                <b className="text-ink">{value}</b> {label}
-              </li>
-            );
-          })}
-        </ul>
+          <h1 className="text-2xl font-bold leading-tight text-ink sm:text-3xl lg:text-4xl">
+            Cộng đồng Bếp Xanh
+          </h1>
 
-      </div>
+          <p className="max-w-lg text-xs leading-relaxed text-subtle sm:text-sm">
+            Nơi các tín đồ thuần chay cùng sẻ chia dinh dưỡng, lan toả lối sống
+            xanh lành và cùng nhau thắp sáng tình yêu thương qua từng bữa ăn!
+          </p>
 
-      <div className="flex shrink-0 flex-col gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-sm lg:max-w-md">
-        <div className="flex items-center gap-3">
-          <img src={mascot} alt="Bé Bông Cải" className="size-14 shrink-0 object-contain" draggable={false} />
-          <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-subtle">
-              {broccoliQuote.label}
-            </p>
-            <p className="font-heading text-base font-bold text-ink">{broccoliQuote.quote}</p>
-            <p className="text-xs text-subtle">{broccoliQuote.hint}</p>
+          <ul className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
+            {communityStats.map(({ id, icon, value, label }) => {
+              const Icon = STAT_ICONS[icon];
+              return (
+                <li
+                  key={id}
+                  className="flex items-center gap-1.5 rounded-full border border-border/70 bg-card/80 px-3 py-1 text-xs text-body backdrop-blur-sm"
+                >
+                  <Icon className="size-3.5 text-brand" />
+                  <b className="text-ink">{value}</b> {label}
+                </li>
+              );
+            })}
+          </ul>
+
+          <div className="mt-2 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+            <Link
+              to="/blog/new"
+              className="flex items-center gap-2 rounded-full bg-brand px-5 py-2.5 text-sm font-semibold text-brand-foreground shadow-sm transition hover:bg-brand/90"
+            >
+              <PenLine className="size-4" />
+              Viết bài chia sẻ
+            </Link>
+            <Link
+              to="/recipes"
+              className="flex items-center gap-2 rounded-full bg-brand-soft px-5 py-2.5 text-sm font-semibold text-brand transition hover:brightness-95"
+            >
+              <Sparkles className="size-4 text-brand" />
+              Khám phá món chay
+            </Link>
           </div>
         </div>
 
-        {/* /blog/new cần đăng nhập: khách bấm sẽ được đưa sang trang đăng nhập rồi quay lại. */}
-        <Link to="/blog/new" className={`${buttonVariants({ variant: "default", size: "md" })} w-full`}>
-          <PenLine className="size-4" />
-          Viết bài chia sẻ
-        </Link>
+        <div className="relative flex shrink-0 items-center justify-center lg:justify-end lg:-mr-2">
+          <img
+            src={communityIllustration}
+            alt="Cộng đồng Bé Bông Cải cùng nâng trái tim yêu thương"
+            className="h-56 w-auto shrink-0 select-none drop-shadow-md sm:h-64 md:h-72 lg:h-[290px] xl:h-[310px] object-contain"
+            draggable={false}
+          />
+        </div>
       </div>
     </section>
   );

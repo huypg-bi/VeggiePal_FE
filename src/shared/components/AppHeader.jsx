@@ -10,6 +10,7 @@ import {
   FileText,
   Home,
   LogOut,
+  Menu,
   MessageSquareWarning,
   Map,
   ShieldCheck,
@@ -21,6 +22,7 @@ import {
   Crown,
   Receipt,
   Sparkles,
+  X,
 } from "lucide-react";
 
 import logo from "@/assets/img/logo.png";
@@ -35,8 +37,32 @@ import {
 import { useAuthStore, selectIsAuthenticated } from "@/features/auth/store/authStore";
 import { useMySubscription } from "@/features/payment/hooks/useMySubscription";
 import { formatDate } from "@/features/payment/utils/paymentFormat";
+import { useProfile } from "@/features/profile/hooks/useProfile";
+import FallbackImage from "@/shared/components/FallbackImage";
 import ThemeToggle from "@/shared/components/ThemeToggle";
 import { cn } from "@/lib/utils";
+
+const PROFILE_STALE_MS = 5 * 60 * 1000;
+
+// Avatar tròn: ảnh nếu có (hoặc ảnh lỗi) thì rơi về icon người trên nền brand.
+function UserAvatar({ src, name, className, iconClassName }) {
+  return (
+    <span
+      className={cn(
+        "grid shrink-0 place-items-center overflow-hidden rounded-full border border-border bg-surface text-ink",
+        className
+      )}
+    >
+      <FallbackImage
+        src={src}
+        alt={name || "Ảnh đại diện"}
+        className="size-full object-cover"
+        draggable={false}
+        fallback={<UserRound className={iconClassName} />}
+      />
+    </span>
+  );
+}
 
 const NAV_ITEMS = [
   { id: "home", label: "Trang Chủ", icon: Home, to: "/" },
@@ -55,29 +81,52 @@ const PROFILE_MENU_ITEMS = [
 
 export default function AppHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const location = useLocation();
   const { subscription } = useMySubscription();
+  const { profile } = useProfile({ enabled: isAuthenticated, staleTime: PROFILE_STALE_MS });
 
-  const displayName = user?.fullName?.trim();
-  const displayEmail = user?.email;
+  const displayName = (profile?.fullName ?? user?.fullName)?.trim();
+  const displayEmail = profile?.email ?? user?.email;
+  const avatarUrl = profile?.avatarUrl ?? user?.avatarUrl;
+
+  // Đóng panel điều hướng thu gọn khi người dùng chuyển đường dẫn.
+  const [prevPathname, setPrevPathname] = useState(location.pathname);
+  if (prevPathname !== location.pathname) {
+    setPrevPathname(location.pathname);
+    setMobileNavOpen(false);
+  }
 
   return (
-    <header className="sticky top-4 z-30 mb-4 px-6 sm:px-8">
-      <div className="mx-auto flex w-full max-w-[1560px] items-center gap-4 rounded-full border border-border bg-card/90 px-6 py-1 shadow-sm backdrop-blur">
-        <Link to="/" className="flex shrink-0 items-center gap-2">
-          <img src={logo} alt="VeggiePal" className="h-12 w-auto mt-1 mb-1" />
-        </Link>
+    <header className="sticky top-4 z-30 mb-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex w-full max-w-[1560px] items-center justify-between gap-2 sm:gap-4 rounded-full border border-border bg-card/90 px-4 sm:px-6 py-1 shadow-sm backdrop-blur lg:grid lg:grid-cols-[auto_1fr_auto]">
+        <div className="flex items-center justify-start gap-2">
+          {/* Nút bật tắt menu điều hướng thu gọn trên màn hình dưới lg (< 1024px). */}
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setMobileNavOpen((open) => !open)}
+            aria-label={mobileNavOpen ? "Đóng điều hướng" : "Mở điều hướng"}
+            className="lg:hidden text-ink"
+          >
+            {mobileNavOpen ? <X className="size-5" /> : <Menu className="size-5" />}
+          </Button>
+          <Link to="/" className="flex shrink-0 items-center gap-2">
+            <img src={logo} alt="VeggiePal" className="h-10 sm:h-12 w-auto mt-1 mb-1" />
+          </Link>
+        </div>
 
-        <nav className="ml-auto hidden items-center gap-1 lg:flex">
+        <nav className="hidden items-center justify-center gap-0.5 lg:flex xl:gap-1">
           {NAV_ITEMS.map(({ id, label, icon: Icon, to }) => (
             <Link
               key={id}
               to={to}
               className={cn(
-                "flex items-center gap-1.5 rounded-full px-3.5 py-2 font-display-serif text-base font-medium transition",
+                "flex items-center gap-1.5 rounded-full px-2 py-1.5 font-display-serif text-xs font-medium transition xl:px-3.5 xl:py-2 xl:text-sm 2xl:text-base",
                 // Trang con (vd /blog/5) cũng tính là đang ở mục cha (/blog).
                 location.pathname === to ||
                   (to !== "/" && location.pathname.startsWith(`${to}/`))
@@ -91,7 +140,7 @@ export default function AppHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center justify-end gap-3">
+        <div className="flex items-center justify-end gap-2 sm:gap-3">
           {isAuthenticated && (
             <Button
               type="button"
@@ -105,25 +154,26 @@ export default function AppHeader() {
             </Button>
           )}
 
-          <ThemeToggle />
-
+          {/* Khách: icon gói dịch vụ + chữ Đăng nhập / Đăng ký. */}
           {!isAuthenticated && (
-            <div className="flex shrink-0 items-center gap-2">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               <Link
                 to="/pricing"
-                className="hidden text-sm font-semibold text-brand transition hover:opacity-80 sm:block px-3 py-1.5 rounded-full bg-brand-soft"
+                aria-label="Gói dịch vụ"
+                title="Gói dịch vụ"
+                className="grid size-9 place-items-center rounded-full bg-amber-500/10 text-amber-600 transition hover:bg-amber-500/20 dark:text-amber-400"
               >
-                Gói Dịch Vụ
+                <Crown className="size-5" />
               </Link>
               <Link
                 to="/login"
-                className="hidden text-sm font-medium text-subtle transition hover:text-ink sm:block"
+                className="px-2 text-sm font-medium text-subtle transition hover:text-ink"
               >
                 Đăng Nhập
               </Link>
               <Link
                 to="/register"
-                className="rounded-full bg-brand px-4 py-1.5 text-sm font-medium text-brand-foreground transition hover:opacity-90"
+                className="rounded-full bg-brand px-3 sm:px-4 py-1.5 text-xs sm:text-sm font-medium text-brand-foreground transition hover:opacity-90"
               >
                 Đăng Ký
               </Link>
@@ -134,9 +184,14 @@ export default function AppHeader() {
             <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
               <DropdownMenuTrigger
                 aria-label="Menu tài khoản"
-                className="relative grid size-9 place-items-center rounded-full bg-brand text-brand-foreground outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-brand/50"
+                className="relative size-9 rounded-full outline-none transition hover:opacity-90 focus-visible:ring-2 focus-visible:ring-brand/50"
               >
-                <UserRound className="h-5 w-5" />
+                <UserAvatar
+                  src={avatarUrl}
+                  name={displayName}
+                  className="size-9"
+                  iconClassName="size-5"
+                />
                 <span className="absolute -bottom-0.5 -right-0.5 grid size-4 place-items-center rounded-full bg-card text-ink shadow ring-1 ring-border">
                   <ChevronDown
                     className={cn(
@@ -153,9 +208,12 @@ export default function AppHeader() {
                 className="w-80 rounded-2xl p-3 shadow-xl"
               >
                 <div className="flex items-center gap-3 px-1 py-1.5">
-                  <span className="grid size-12 shrink-0 place-items-center rounded-full bg-brand text-brand-foreground">
-                    <UserRound className="h-6 w-6" />
-                  </span>
+                  <UserAvatar
+                    src={avatarUrl}
+                    name={displayName}
+                    className="size-12"
+                    iconClassName="size-6"
+                  />
                   <div className="min-w-0">
                     <p className="truncate text-lg font-bold text-ink">
                       {displayName}
@@ -207,7 +265,7 @@ export default function AppHeader() {
                   <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#E8ECFB] text-ink dark:bg-brand-soft">
                     <FileText className="h-4 w-4" />
                   </span>
-                  <span className="flex-1 text-sm font-medium text-ink">Bài viết của tôi</span>
+                  <span className="flex-1 text-sm font-medium text-ink">Nội dung của tôi</span>
                   <ChevronRight className="h-4 w-4 text-subtle" />
                 </DropdownMenuItem>
 
@@ -270,6 +328,46 @@ export default function AppHeader() {
           )}
         </div>
       </div>
+
+      {/* Panel điều hướng thu gọn cho màn hình dưới lg (< 1024px). */}
+      {mobileNavOpen && (
+        <div className="mx-auto mt-2 w-full max-w-[1560px] rounded-3xl border border-border bg-card/95 p-3.5 shadow-xl backdrop-blur lg:hidden animate-in fade-in-0 slide-in-from-top-2 duration-150">
+          <nav className="grid grid-cols-1 gap-1 sm:grid-cols-2">
+            {NAV_ITEMS.map(({ id, label, icon: Icon, to }) => {
+              const isActive =
+                location.pathname === to ||
+                (to !== "/" && location.pathname.startsWith(`${to}/`));
+              return (
+                <Link
+                  key={id}
+                  to={to}
+                  onClick={() => setMobileNavOpen(false)}
+                  className={cn(
+                    "flex items-center gap-3 rounded-2xl px-3.5 py-2.5 font-display-serif text-sm font-medium transition",
+                    isActive
+                      ? "bg-brand-soft text-brand font-semibold"
+                      : "text-subtle hover:bg-surface hover:text-ink"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "grid size-8 place-items-center rounded-xl",
+                      isActive
+                        ? "bg-brand text-brand-foreground"
+                        : "bg-surface text-subtle"
+                    )}
+                  >
+                    <Icon className="size-4" />
+                  </span>
+                  <span>{label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      )}
+
+      <ThemeToggle className="fixed bottom-6 right-6 z-40 size-11 border border-border bg-card text-ink shadow-lg hover:bg-brand-soft" />
     </header>
   );
 }

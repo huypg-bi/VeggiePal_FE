@@ -50,8 +50,8 @@ export default function RegisterForm({ onSwitchMode }) {
   const onSubmit = async ({ fullName, email, phone, password }) => {
     try {
       await registerUser({ fullName, email, phone, password });
-      toast.success("Đăng ký thành công! Hãy đăng nhập để tiếp tục.");
-      navigate("/login");
+      toast.success("Đăng ký thành công! Nhập mã xác minh vừa gửi tới email của bạn.");
+      navigate("/verify-email", { state: { email: email.trim().toLowerCase() } });
     } catch (err) {
       setError("root", { message: err.message || "Đăng ký thất bại" });
     }

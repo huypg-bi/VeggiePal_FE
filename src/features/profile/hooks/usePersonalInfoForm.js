@@ -5,20 +5,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { updateProfileSchema } from "@/lib/schema";
 import { useProfile, useUpdateProfile } from "@/features/profile/hooks/useProfile";
 
-// Form dùng tên `birthDate`, API dùng `dateOfBirth` -> tái sử dụng rule của schema gốc
-// nhưng đổi tên field ở đây, rồi map lại khi gửi lên server.
-const personalSchema = updateProfileSchema
-  .omit({ dateOfBirth: true })
-  .extend({ birthDate: updateProfileSchema.shape.dateOfBirth });
+const personalSchema = updateProfileSchema.pick({ fullName: true, phone: true });
 
-/**
- * Form thông tin cá nhân. Tách thành hook vì cả card lẫn nút "Lưu thông tin"
- * cuối trang đều cần dùng chung form + hàm lưu.
- */
 export function usePersonalInfoForm() {
   const { profile, loading, error } = useProfile();
   const updateProfile = useUpdateProfile();
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   // `values` giúp form tự đồng bộ lại mỗi khi hồ sơ trên server đổi (tải lần đầu / sau khi lưu).
   const serverValues = useMemo(
@@ -27,7 +19,6 @@ export function usePersonalInfoForm() {
         ? {
             fullName: profile.fullName || "",
             phone: profile.phone || "",
-            birthDate: profile.dateOfBirth ? String(profile.dateOfBirth).slice(0, 10) : "",
           }
         : undefined,
     [profile]
@@ -35,16 +26,14 @@ export function usePersonalInfoForm() {
 
   const form = useForm({
     resolver: zodResolver(personalSchema),
-    defaultValues: { fullName: "", phone: "", birthDate: "" },
+    defaultValues: { fullName: "", phone: "" },
     values: serverValues,
   });
 
-  // Gửi lên API: đổi birthDate -> dateOfBirth; phone "" nghĩa là xóa số điện thoại.
   const save = async (values) => {
     await updateProfile.mutateAsync({
       fullName: values.fullName.trim(),
       phone: values.phone?.trim() ?? "",
-      dateOfBirth: values.birthDate || null,
     });
   };
 

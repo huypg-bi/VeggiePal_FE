@@ -56,13 +56,6 @@ function MapNotice({ title, description }) {
   );
 }
 
-/**
- * Bản đồ Mapbox của trang quán chay.
- * - restaurants: quán đang hiện trong danh sách (đã lọc), vẽ thành chấm; > 50 quán thì gom cụm
- * - location / isDefaultLocation / radiusKm: tâm tìm kiếm (chấm xanh là vị trí thật) và vòng bán kính
- * - selectedId / onSelect(id | null): quán đang chọn (có ghim lớn và popup), đồng bộ với danh sách
- * - onLocate / locating: nút "Vị trí của tôi" xin định vị lại
- */
 export default function MapPanel({
   restaurants,
   location,
@@ -72,6 +65,7 @@ export default function MapPanel({
   onSelect,
   onLocate,
   locating,
+  searchMode = false,
 }) {
   const mapRef = useRef(null);
   const theme = useThemeStore((s) => s.theme);
@@ -89,14 +83,33 @@ export default function MapPanel({
   const selectedLng = selected?.longitude;
   const selectedLat = selected?.latitude;
 
-  // Tâm hoặc bán kính đổi thì bay về vòng tìm kiếm mới.
+  // Tâm hoặc bán kính đổi (hoặc vừa thoát chế độ tìm theo tên) thì bay về vòng tìm kiếm.
   useEffect(() => {
+    if (searchMode) return;
     mapRef.current?.flyTo({
       center: [location.lng, location.lat],
       zoom: zoomForRadius(radiusKm),
       duration: 1200,
     });
-  }, [location.lat, location.lng, radiusKm]);
+  }, [location.lat, location.lng, radiusKm, searchMode]);
+
+  // Tìm theo tên: quán có thể nằm ngoài vòng bán kính nên thu phóng vừa các kết quả mới.
+  const resultsKey = searchMode ? restaurants.map((r) => r.id).join(",") : "";
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!searchMode || !map || restaurants.length === 0) return;
+    const lngs = restaurants.map((r) => r.longitude);
+    const lats = restaurants.map((r) => r.latitude);
+    map.fitBounds(
+      [
+        [Math.min(...lngs), Math.min(...lats)],
+        [Math.max(...lngs), Math.max(...lats)],
+      ],
+      { padding: 60, maxZoom: 15, duration: 1000 },
+    );
+    // Chỉ chạy khi tập kết quả đổi, không phải mỗi lần danh sách được dựng lại.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resultsKey]);
 
   // Chọn quán (từ thẻ hoặc marker) thì bay tới quán, không zoom ra xa hơn mức đang xem.
   useEffect(() => {
@@ -189,23 +202,25 @@ export default function MapPanel({
           onClick={handleClick}
           onError={handleError}
         >
-          {/* Vòng bán kính tìm kiếm, nằm dưới các marker */}
-          <Source id="search-radius" type="geojson" data={radiusCircle}>
-            <Layer
-              id="search-radius-fill"
-              type="fill"
-              paint={{ "fill-color": colors.brand, "fill-opacity": 0.06 }}
-            />
-            <Layer
-              id="search-radius-line"
-              type="line"
-              paint={{
-                "line-color": colors.brand,
-                "line-width": 1.5,
-                "line-dasharray": [2, 2],
-              }}
-            />
-          </Source>
+          {/* Vòng bán kính tìm kiếm, nằm dưới các marker; tìm theo tên không theo bán kính nên ẩn */}
+          {!searchMode && (
+            <Source id="search-radius" type="geojson" data={radiusCircle}>
+              <Layer
+                id="search-radius-fill"
+                type="fill"
+                paint={{ "fill-color": colors.brand, "fill-opacity": 0.06 }}
+              />
+              <Layer
+                id="search-radius-line"
+                type="line"
+                paint={{
+                  "line-color": colors.brand,
+                  "line-width": 1.5,
+                  "line-dasharray": [2, 2],
+                }}
+              />
+            </Source>
+          )}
 
           {/* key: bật/tắt gom cụm phải dựng lại source vì Mapbox không đổi `cluster` khi đang chạy */}
           <Source

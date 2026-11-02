@@ -11,15 +11,10 @@ import { commentSchema } from "@/features/blog/schema";
 const fieldClass =
   "w-full resize-y rounded-2xl border border-border bg-surface px-3.5 py-2.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
 
-/**
- * Ô viết bình luận. Ba chế độ:
- * - bình luận mới:  <CommentComposer blogId />
- * - phản hồi:       <CommentComposer blogId parentCommentId />
- * - sửa:            <CommentComposer blogId commentId initialContent />
- * `onDone` chạy sau khi gửi thành công, `onCancel` (nếu có) hiện nút Hủy.
- */
 export default function CommentComposer({
   blogId,
+  targetType = "BLOG",
+  targetId,
   parentCommentId,
   commentId,
   initialContent = "",
@@ -28,6 +23,7 @@ export default function CommentComposer({
   onDone,
   onCancel,
 }) {
+  const resolvedTargetId = targetId ?? blogId;
   const fieldId = useId();
   const isEdit = commentId != null;
   const createComment = useCreateComment();
@@ -47,12 +43,28 @@ export default function CommentComposer({
   const onSubmit = async ({ content }) => {
     try {
       if (isEdit) {
-        await updateComment.mutateAsync({ commentId, blogId, content });
+        await updateComment.mutateAsync({
+          commentId,
+          targetType,
+          targetId: resolvedTargetId,
+          blogId: resolvedTargetId,
+          content,
+        });
         toast.success("Đã cập nhật bình luận");
       } else {
-        await createComment.mutateAsync({ blogId, parentCommentId, content });
-        // BE kiểm duyệt ngay khi gửi và không báo kết quả, nên nói rõ để người dùng không hoang mang.
-        toast.success("Đã gửi bình luận. Nếu chưa thấy hiện ra, bình luận đang chờ kiểm duyệt.");
+        await createComment.mutateAsync({
+          targetType,
+          targetId: resolvedTargetId,
+          blogId: resolvedTargetId,
+          parentCommentId,
+          content,
+        });
+        // Video kiểm duyệt đồng bộ; blog có thể duyệt bất đồng bộ nên thông báo cho khớp.
+        toast.success(
+          targetType === "VIDEO"
+            ? "Đã gửi bình luận"
+            : "Đã gửi bình luận. Nếu chưa thấy hiện ra, bình luận đang chờ kiểm duyệt."
+        );
       }
       reset({ content: "" });
       onDone?.();

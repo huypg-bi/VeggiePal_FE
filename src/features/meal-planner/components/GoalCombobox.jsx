@@ -3,11 +3,6 @@ import { Check, ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
-/**
- * Ô nhập kèm danh sách chọn nhanh: gõ tự do, hoặc bấm mũi tên (hay phím ↓) để chọn một mục có sẵn.
- * Dùng với react-hook-form qua <Controller>: truyền `value`, `onChange(text)`, `onBlur`, `inputRef` (field.ref).
- * `inputProps` được chuyển thẳng cho <input> (id, maxLength, placeholder, aria-invalid...).
- */
 export default function GoalCombobox({ value, onChange, onBlur, inputRef, options, className, ...inputProps }) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef(null);

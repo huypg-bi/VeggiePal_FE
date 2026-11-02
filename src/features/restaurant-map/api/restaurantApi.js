@@ -1,36 +1,15 @@
 import apiClient from "@/shared/api/apiClient";
-
-/**
- * Restaurant APIs (location-service qua api-gateway). Công khai, không cần token.
- *   GET /restaurants/nearby?lat=&lng=[&radiusKm=5][&veganOnly=false]
- *
- * Restaurant: {
- *   id, name, address, latitude, longitude, phoneNumber, rating,
- *   veganOnly, imageUrl (có thể null), distanceKm
- * }
- * Kết quả xếp theo khoảng cách tăng dần, không phân trang. radiusKm tối đa 10.
- * Lỗi: 1018 thiếu/sai kiểu tham số, 5001 tọa độ ngoài phạm vi, 5002 bán kính ngoài (0, 10].
- */
-
-// BE trả message tiếng Anh theo ErrorCode; đổi sang tiếng Việt theo `code`.
-const VI_MESSAGES = {
-  1018: "Dữ liệu tìm kiếm không hợp lệ",
-  5001: "Tọa độ không hợp lệ",
-  5002: "Bán kính tìm kiếm phải lớn hơn 0 và tối đa 10 km",
-};
+import { RESTAURANT_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
 function unwrap(res, fallbackMessage) {
   if (res.status >= 400) {
     throw new Error(
-      VI_MESSAGES[res.data?.code] ?? res.data?.message ?? fallbackMessage,
+      RESTAURANT_ERROR_MESSAGES[res.data?.code] ?? res.data?.message ?? fallbackMessage,
     );
   }
   return res.data?.result;
 }
 
-/**
- * GET /restaurants/nearby — quán chay trong bán kính `radiusKm` (tối đa 10), gần nhất trước.
- */
 export async function getNearbyRestaurants({
   lat,
   lng,
@@ -47,4 +26,21 @@ export async function getNearbyRestaurants({
     throw new Error("Không kết nối được máy chủ, vui lòng thử lại");
   }
   return unwrap(res, "Không lấy được danh sách quán chay") ?? [];
+}
+
+/**
+ * GET /restaurants/search — tìm quán theo tên (công khai, tối đa 20 quán, không giới hạn bán kính).
+ * q phải 2 - 100 ký tự (BE trả 400 / 5003 nếu không); quán khớp đầu tên đứng trước, rồi gần nhất.
+ * Có lat / lng thì mỗi quán kèm distanceKm, không thì distanceKm là null.
+ */
+export async function searchRestaurants({ q, lat, lng, veganOnly = false }) {
+  let res;
+  try {
+    res = await apiClient.get("/restaurants/search", {
+      params: { q, lat, lng, veganOnly },
+    });
+  } catch {
+    throw new Error("Không kết nối được máy chủ, vui lòng thử lại");
+  }
+  return unwrap(res, "Không tìm được quán chay") ?? [];
 }

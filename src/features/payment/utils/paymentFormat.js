@@ -1,16 +1,10 @@
 export const PENDING_ORDER_STORAGE_KEY = "veggiepal_pending_order_id";
 
-/**
- * Định dạng số tiền VNĐ (vd: 29.000đ).
- */
 export function formatVnd(amount) {
   if (amount == null) return "0đ";
   return `${Number(amount).toLocaleString("vi-VN")}đ`;
 }
 
-/**
- * Định dạng ngày giờ chuẩn Việt Nam (vd: 14:30 21/10/2026).
- */
 export function formatDateTime(isoString) {
   if (!isoString) return "—";
   try {
@@ -25,9 +19,6 @@ export function formatDateTime(isoString) {
   }
 }
 
-/**
- * Định dạng ngày (vd: 21/10/2026).
- */
 export function formatDate(isoString) {
   if (!isoString) return "—";
   try {
@@ -41,10 +32,6 @@ export function formatDate(isoString) {
   }
 }
 
-/**
- * Thông tin trạng thái đơn hàng:
- * Nhãn tiếng Việt và màu sắc dịu nhẹ (đặc biệt PENDING là "Chưa thanh toán" không quá gay gắt).
- */
 export function getPaymentStatusInfo(status) {
   switch (status) {
     case "PAID":
@@ -83,18 +70,12 @@ export function getPaymentStatusInfo(status) {
   }
 }
 
-/**
- * Đơn PENDING còn hạn (chưa quá expiredAt) -> có thể tiếp tục thanh toán.
- */
 export function isOrderResumable(order) {
   if (!order || order.status !== "PENDING") return false;
   if (!order.expiredAt) return false;
   return new Date(order.expiredAt).getTime() > Date.now();
 }
 
-/**
- * Tra tên ngân hàng từ mã BIN (các ngân hàng VietQR phổ biến).
- */
 const BANK_NAMES = {
   970415: "VietinBank",
   970436: "Vietcombank",
@@ -142,9 +123,6 @@ export function getBankName(bin) {
   return BANK_NAMES[String(bin)] ?? `Ngân hàng (BIN ${bin})`;
 }
 
-/**
- * Tên và badge hiển thị của các gói.
- */
 export const PLAN_DETAILS = {
   FREE: {
     name: "Gói Khám Phá",

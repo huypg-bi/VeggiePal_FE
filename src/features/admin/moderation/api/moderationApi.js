@@ -1,38 +1,14 @@
 import apiClient from "@/shared/api/apiClient";
 
-/**
- * AI Content Moderation APIs (ai-service qua api-gateway). Chỉ dành cho ADMIN.
- *
- * @typedef {"BLOG" | "VIDEO" | "COMMENT"} ContentType
- * @typedef {"APPROVED" | "REJECTED" | "REVIEW_REQUIRED" | "DISMISSED"} Decision
- *
- * @typedef {Object} ModerationResponse
- * @property {number} caseId - ID case kiểm duyệt (ai_moderation_cases.id)
- * @property {ContentType} contentType - Loại nội dung được kiểm duyệt
- * @property {number|null} externalContentId - ID bài viết/video/bình luận gốc
- * @property {number|null} authorId - ID tài khoản tạo nội dung
- * @property {string|null} content - Nội dung văn bản thực tế bị AI gắn cờ
- * @property {Decision} decision - Trạng thái/quyết định kiểm duyệt
- * @property {string[]} categories - Danh mục vi phạm (hate, spam, violence, harassment, ...)
- * @property {string|null} reason - Lý do giải thích từ AI hoặc ghi chú của Admin
- * @property {number} confidence - Độ tin cậy nhận diện của AI (0.0000 -> 1.0000)
- * @property {number|null} reviewedBy - ID của Admin xử lý case (null nếu chưa duyệt)
- * @property {string|null} reviewedAt - Thời điểm Admin xử lý (ISO-8601, null nếu chưa duyệt)
- * @property {string} createdAt - Thời điểm tạo case kiểm duyệt (ISO-8601)
- *
- * Error codes từ AI-Service:
- * - 6012 (MODERATION_TARGET_NOT_FOUND): "Nội dung đã bị xóa, không thể áp dụng quyết định"
- * - 6013 (MODERATION_CASE_STALE): "Case đã được xử lý" (không còn ở trạng thái REVIEW_REQUIRED)
- */
-
 function toMessage(res, fallbackMessage) {
   const code = res.data?.code;
-  if (code === 6012) return "Nội dung đã bị xóa, không thể áp dụng quyết định";
-  if (code === 6013) return "Case đã được xử lý";
-  if (res.status === 401) return "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại";
-  if (res.status === 403) return "Bạn không có quyền thực hiện kiểm duyệt nội dung";
-  if (res.status === 404) return "Không tìm thấy yêu cầu kiểm duyệt này";
-  if (res.status === 400) return "Dữ liệu quyết định kiểm duyệt không hợp lệ";
+  if (code === 6000) return "Tham s? l?c ki?m duy?t kh?ng h?p l?";
+  if (code === 6012) return "N?i dung ?? b? x?a, kh?ng th? ?p d?ng quy?t ??nh";
+  if (code === 6013) return "Case ?? ???c x? l?";
+  if (res.status === 401) return "Phi?n ??ng nh?p ?? h?t h?n, vui l?ng ??ng nh?p l?i";
+  if (res.status === 403) return "B?n kh?ng c? quy?n th?c hi?n ki?m duy?t n?i dung";
+  if (res.status === 404) return "Kh?ng t?m th?y y?u c?u ki?m duy?t n?y";
+  if (res.status === 400) return "D? li?u quy?t ??nh ki?m duy?t kh?ng h?p l?";
   return res.data?.message || fallbackMessage;
 }
 
@@ -47,30 +23,45 @@ function unwrap(res, fallbackMessage) {
   return res.data?.result;
 }
 
-/**
- * GET /ai/admin/moderation
- * Lấy danh sách case kiểm duyệt đang chờ (REVIEW_REQUIRED, sắp xếp cũ nhất trước).
- *
- * @returns {Promise<ModerationResponse[]>}
- */
 export async function getPendingModerationCases() {
   const res = await apiClient.get("/ai/admin/moderation");
-  return unwrap(res, "Không lấy được danh sách hàng đợi kiểm duyệt") ?? [];
+  return unwrap(res, "Kh?ng l?y ???c danh s?ch h?ng ??i ki?m duy?t") ?? [];
 }
 
-/**
- * PUT /ai/admin/moderation/{id}
- * Quản trị viên duyệt hoặc từ chối case kiểm duyệt kèm lý do.
- * Khi quyết định được lưu, BE tự động gọi sang blog-service để cập nhật trạng thái nội dung gốc.
- *
- * @param {number} id - Mã case kiểm duyệt (caseId)
- * @param {{ decision: "APPROVED" | "REJECTED", reason?: string }} payload
- * @returns {Promise<ModerationResponse>}
- */
+/** L?y l?ch s? c?c ca ki?m duy?t ?? x? l? (GET /ai/admin/moderation/history). */
+export async function getModerationHistory(params = {}) {
+  const cleanParams = {};
+  if (params.contentType) cleanParams.contentType = params.contentType;
+  if (params.decision) cleanParams.decision = params.decision;
+  if (params.reviewer) cleanParams.reviewer = params.reviewer;
+  if (params.from) cleanParams.from = params.from;
+  if (params.to) cleanParams.to = params.to;
+  if (params.page != null) cleanParams.page = params.page;
+  if (params.size != null) cleanParams.size = params.size;
+
+  const res = await apiClient.get("/ai/admin/moderation/history", { params: cleanParams });
+  return (
+    unwrap(res, "Kh?ng l?y ???c l?ch s? ki?m duy?t") ?? {
+      items: [],
+      totalElements: 0,
+      totalPages: 0,
+      page: 0,
+      size: 20,
+    }
+  );
+}
+
 export async function reviewModerationCase(id, { decision, reason }) {
   const res = await apiClient.put(`/ai/admin/moderation/${id}`, {
     decision,
     reason: reason?.trim() || undefined,
   });
-  return unwrap(res, "Không thể cập nhật quyết định kiểm duyệt");
+  return unwrap(res, "Kh?ng th? c?p nh?t quy?t ??nh ki?m duy?t");
+}
+
+export async function dismissModerationCase(id, { reason } = {}) {
+  const res = await apiClient.delete(`/ai/admin/moderation/${id}`, {
+    params: { reason: reason?.trim() || undefined },
+  });
+  return unwrap(res, "Kh?ng th? b? qua case ki?m duy?t");
 }

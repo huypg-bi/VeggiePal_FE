@@ -10,8 +10,6 @@ import {
   toDateKey,
 } from "@/features/blog/utils/challenge";
 
-// Tiến độ thử thách lưu ở localStorage (chưa có API). Truy cập storage có thể ném lỗi (chế độ
-// riêng tư, bị chặn dữ liệu), nên mọi lần đọc/ghi đều bọc try/catch và rơi về "chưa tham gia".
 const listeners = new Set();
 
 function subscribe(listener) {
@@ -41,12 +39,6 @@ function writeRaw(key, value) {
   listeners.forEach((listener) => listener());
 }
 
-/**
- * Tiến độ thử thách 7 ngày của user đang đăng nhập.
- * Trả { days, total, checkedToday, completed, broken, checkIn }.
- * `checkIn()` trả true khi lần check-in này vừa hoàn thành thử thách (để mở popup phần thưởng).
- * Khách chưa đăng nhập luôn ở 0 ngày.
- */
 export function useChallenge() {
   const userId = useAuthStore((s) => s.user?.id ?? null);
   const key = userId == null ? null : challengeStorageKey(userId);

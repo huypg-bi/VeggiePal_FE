@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 
 import AppHeader from "@/shared/components/AppHeader";
-import AppFooter from "@/shared/components/AppFooter";
 import Reveal from "@/shared/components/Reveal";
 import { Button } from "@/components/ui/button";
 import { useRequireLogin } from "@/features/auth/hooks/useRequireLogin";
@@ -242,8 +241,6 @@ export default function PricingScreen() {
           </div>
         </Reveal>
       </main>
-
-      <AppFooter />
 
       {/* Hộp thoại xác nhận đổi gói */}
       {confirmPlan && (

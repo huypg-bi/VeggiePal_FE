@@ -7,8 +7,6 @@ import {
 } from "@/features/ingredient/api/ingredientApi";
 import { ingredientKeys } from "@/features/ingredient/queryKeys";
 
-// Mọi thay đổi nguyên liệu làm mới toàn bộ cache "ingredients" (danh sách, chi tiết, và dinh dưỡng
-// đang dùng để tính kcal công thức).
 function useInvalidateIngredients() {
   const queryClient = useQueryClient();
   return () => queryClient.invalidateQueries({ queryKey: ingredientKeys.all });

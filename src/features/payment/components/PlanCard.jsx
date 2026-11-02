@@ -1,4 +1,4 @@
-import { Check, Sparkles, Zap, Bot, Utensils, Video, Loader2 } from "lucide-react";
+import { Check, Sparkles, Bot, Utensils, Video, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -57,7 +57,6 @@ export default function PlanCard({
           <h3 className="font-display-serif text-xl sm:text-2xl font-bold text-ink">
             {details.name}
           </h3>
-          {plan.code === "PRO" && <Zap className="size-5 text-amber-500 fill-amber-500" />}
         </div>
 
         <div className="mt-4 flex items-baseline gap-1">

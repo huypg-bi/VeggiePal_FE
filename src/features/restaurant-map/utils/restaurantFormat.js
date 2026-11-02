@@ -1,5 +1,7 @@
 // Hàm thuần cho trang Bản đồ quán chay. Không import "@/" để test bằng node:test.
 
+import { MAX_SEARCH_LENGTH, MIN_SEARCH_LENGTH } from "./mapConfig.js";
+
 /** 0.53 → "530 m", 1.14 → "1.1 km", 2 → "2 km". Rỗng nếu không phải số. */
 export function formatDistance(km) {
   if (typeof km !== "number" || !Number.isFinite(km) || km < 0) return "";
@@ -30,6 +32,12 @@ export function normalizeText(text) {
     .trim();
 }
 
+/** Từ khóa đã cắt khoảng trắng nếu đủ dài để gọi BE tìm theo tên; ngắn hơn thì null (chỉ lọc trên danh sách đã tải). */
+export function getSearchTerm(keyword) {
+  const term = String(keyword ?? "").trim();
+  return term.length >= MIN_SEARCH_LENGTH && term.length <= MAX_SEARCH_LENGTH ? term : null;
+}
+
 /** Lọc quán theo từ khóa trong tên hoặc địa chỉ (không phân biệt dấu). Từ khóa rỗng → giữ nguyên. */
 export function filterRestaurants(restaurants, keyword) {
   const needle = normalizeText(keyword);
@@ -42,10 +50,6 @@ export function filterRestaurants(restaurants, keyword) {
 export const SORT_NEAREST = "nearest";
 export const SORT_RATING = "rating";
 
-/**
- * Sắp xếp bản sao của danh sách. BE đã xếp theo khoảng cách nên "nearest" chỉ giữ thứ tự;
- * "rating" xếp rating giảm dần (không có rating xuống cuối), bằng nhau thì gần hơn trước.
- */
 export function sortRestaurants(restaurants, sort) {
   const copy = [...restaurants];
   if (sort !== SORT_RATING) return copy;
@@ -68,10 +72,6 @@ export function buildTelUrl(phoneNumber) {
   return digits ? `tel:${digits}` : null;
 }
 
-/**
- * Danh sách quán → GeoJSON FeatureCollection cho Mapbox source.
- * Tọa độ GeoJSON là [kinh độ, vĩ độ] — ngược với latitude/longitude của BE.
- */
 export function toGeoJSON(restaurants) {
   return {
     type: "FeatureCollection",

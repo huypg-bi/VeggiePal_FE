@@ -4,19 +4,25 @@ import { useAuthStore } from "@/features/auth/store/authStore";
 import AdviceCard from "@/features/meal-planner/components/AdviceCard";
 import AiMealSuggestion from "@/features/meal-planner/components/AiMealSuggestion";
 import HeroBanner from "@/features/meal-planner/components/HeroBanner";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 import MacroBalanceCard from "@/features/meal-planner/components/MacroBalanceCard";
 import StatsGrid from "@/features/meal-planner/components/StatsGrid";
 import TodayMeals from "@/features/meal-planner/components/TodayMeals";
+import { useDiary } from "@/features/meal-planner/hooks/useDiary";
 import { useMealPlans } from "@/features/meal-planner/hooks/useMealPlans";
-import { dayKeyOf, dayLabel, normalizeDay, sortedDays } from "@/features/meal-planner/utils/mealPlan";
+import {
+  dayKeyOf,
+  dayLabel,
+  isFutureDate,
+  normalizeDay,
+  planDayDate,
+  sortedDays,
+  toDateKey,
+} from "@/features/meal-planner/utils/mealPlan";
 import Reveal from "@/shared/components/Reveal";
 
 const EMPTY_PLANS = [];
 
-// Trang thực đơn (/meal-planner): tạo thực đơn 7 ngày bằng AI (ai-service) và xem/đổi món theo ngày.
-// Thẻ Nước & Vận Động, Bữa Phụ và nút tim vẫn là dữ liệu mẫu (BE chưa có), xem data/mockMealPlanner.js.
 export default function MealPlannerScreen() {
   const user = useAuthStore((s) => s.user);
   const firstName = user?.fullName?.trim().split(" ").at(-2);
@@ -37,6 +43,12 @@ export default function MealPlannerScreen() {
     days[0] ??
     null;
 
+  // Nhật ký theo ngày cụ thể của ngày đang xem; không có thực đơn thì xem nhật ký hôm nay.
+  const diaryDay = (plan && activeDay ? planDayDate(plan, activeDay.day) : null) ?? new Date();
+  const diaryDate = toDateKey(diaryDay);
+  const isFutureDay = isFutureDate(diaryDay);
+  const { data: diary } = useDiary(diaryDate);
+
   const handleSelectPlan = (planId) => {
     setSelectedPlanId(planId);
     setSelectedDayKey(null);
@@ -55,6 +67,9 @@ export default function MealPlannerScreen() {
         <HeroBanner userName={firstName + " " + secondName} />
         {/* StatsGrid và TodayMeals tự có <Reveal> cho từng thẻ nên không bọc thêm ở đây. */}
         <StatsGrid
+          diary={diary}
+          diaryDate={diaryDate}
+          isFutureDay={isFutureDay}
           dayTotals={activeDay?.nutritionTotals ?? null}
           target={plan?.plan?.constraints?.dailyNutritionTarget ?? null}
           dayLong={activeDay ? dayLabel(activeDay).long : undefined}
@@ -72,6 +87,9 @@ export default function MealPlannerScreen() {
           onRetry={refetch}
           onSelectPlan={handleSelectPlan}
           onSelectDay={setSelectedDayKey}
+          diary={diary}
+          diaryDate={diaryDate}
+          isFutureDay={isFutureDay}
         />
 
         <Reveal>
@@ -81,8 +99,6 @@ export default function MealPlannerScreen() {
           </section>
         </Reveal>
       </main>
-
-      <AppFooter />
     </div>
   );
 }

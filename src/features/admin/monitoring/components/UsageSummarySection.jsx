@@ -13,8 +13,8 @@ const TONE_CLASS = {
 };
 
 // Số liệu tổng hợp lượt dùng AI trong `days` ngày gần nhất (GET /ai/admin/monitoring/summary).
-export default function UsageSummarySection({ days }) {
-  const { data, isPending, isError, error } = useUsageSummary(days);
+export default function UsageSummarySection({ days, excludeFeature = "MODERATION" }) {
+  const { data, isPending, isError, error } = useUsageSummary(days, excludeFeature);
 
   if (isError) {
     return <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{error.message}</p>;

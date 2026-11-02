@@ -63,8 +63,11 @@ export function toIsoDateTime(dateValue, endOfDay = false) {
   return `${dateValue}T${endOfDay ? "23:59:59" : "00:00:00"}`;
 }
 
-/** Người gọi của một log: userId nếu là thành viên, "Khách" nếu là guest. */
-export function describeCaller(log) {
-  if (log.userId != null) return `#${log.userId}`;
-  return log.principalKey?.startsWith("guest:") ? "Khách" : "—";
+/** Người gọi của một log: tên user nếu active, userId nếu chưa active, "Khách" nếu là guest. */
+export function describeCaller(log, userMap) {
+  if (log?.userId != null) {
+    const user = userMap?.get(Number(log.userId)) ?? userMap?.get(String(log.userId));
+    return user?.fullName?.trim() ? user.fullName : `#${log.userId}`;
+  }
+  return log?.principalKey?.startsWith("guest:") ? "Khách" : "—";
 }

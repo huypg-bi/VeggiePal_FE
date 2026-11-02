@@ -4,6 +4,7 @@ import {
   createHealthRecord,
   getHealthRecords,
   getLatestHealthRecord,
+  updateHealthRecord,
 } from "@/features/profile/api/profileApi";
 import { profileKeys } from "@/features/profile/queryKeys";
 
@@ -24,14 +25,19 @@ export function useHealthRecordHistory({ size = 5 } = {}) {
   });
 }
 
-/**
- * Ghi nhận chỉ số mới. Xong thì làm mới cả "latest" lẫn "history"
- * (cùng tiền tố khóa); trả Promise nên mutation chờ refetch xong mới kết thúc.
- */
 export function useCreateHealthRecord() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createHealthRecord,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: profileKeys.healthRecords }),
+  });
+}
+
+export function useUpdateHealthRecord() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, heightCm, weightKg }) => updateHealthRecord(id, { heightCm, weightKg }),
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: profileKeys.healthRecords }),
   });

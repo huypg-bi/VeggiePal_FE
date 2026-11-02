@@ -1,6 +1,3 @@
-/**
- * React Query keys dành riêng cho tính năng payment & subscriptions.
- */
 export const paymentKeys = {
   all: ["payment"],
   plans: () => [...paymentKeys.all, "plans"],

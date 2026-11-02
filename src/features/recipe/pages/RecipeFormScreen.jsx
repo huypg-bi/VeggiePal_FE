@@ -3,11 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import RecipeForm from "@/features/recipe/components/RecipeForm";
 import { useRecipe } from "@/features/recipe/hooks/useRecipes";
-import AppFooter from "@/shared/components/AppFooter";
 import AppHeader from "@/shared/components/AppHeader";
 
-// Trang tạo công thức (/recipes/new) và sửa công thức (/recipes/:recipeId/edit), cần đăng nhập.
-// GET /recipes/:id của BE không lọc trạng thái nên nạp được cả bản nháp để sửa.
 export default function RecipeFormScreen() {
   const { recipeId } = useParams();
   const isEdit = recipeId !== undefined;
@@ -43,8 +40,6 @@ export default function RecipeFormScreen() {
         </h1>
         {body}
       </main>
-
-      <AppFooter />
     </div>
   );
 }

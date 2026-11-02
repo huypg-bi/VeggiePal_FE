@@ -32,10 +32,6 @@ const headingClass = {
   3: "text-sm font-semibold text-ink",
 };
 
-/**
- * Hiển thị nội dung AI trả về (markdown) thành tiêu đề / bảng / danh sách gọn gàng.
- * Render bằng React element, không dùng dangerouslySetInnerHTML nên an toàn với nội dung AI.
- */
 export default function ChatMarkdown({ content }) {
   const blocks = parseChatMarkdown(content);
 

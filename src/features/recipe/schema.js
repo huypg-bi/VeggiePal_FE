@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-// Giới hạn khớp cột của recipe-service (BE không tự kiểm tra, vượt sẽ lỗi 500).
+// Giới hạn khớp RecipeRequest của recipe-service (vượt thì BE trả 400 với mã 4110 - 4115); FE kiểm trước bằng zod.
 export const RECIPE_LIMITS = {
   title: 200,
   description: 2000,
@@ -30,8 +30,6 @@ const quantityField = z
     "Số lượng tối thiểu 0,01 và tối đa 2 số thập phân"
   );
 
-// Form tạo / sửa công thức. Số giữ dạng chuỗi vì lấy từ <input>, đổi sang số khi gửi
-// (xem formValuesToPayload ở utils/recipeForm.js).
 export const recipeSchema = z.object({
   title: z
     .string()

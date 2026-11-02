@@ -1,5 +1,3 @@
-// Công tắc bật/tắt gắn với react-hook-form: <ToggleField label="..." hint="..." {...register("active")} />
-// Dùng checkbox thật (ẩn) nên bàn phím và trình đọc màn hình hoạt động bình thường.
 export default function ToggleField({ label, hint, ref, ...inputProps }) {
   return (
     <label className="flex cursor-pointer items-start gap-3">

@@ -31,8 +31,6 @@ export default function ChatSidebar({
   onNewChat,
   onDeleteSession,
 }) {
-  // Một hộp thoại xác nhận dùng chung cho mọi dòng. Tách open và pendingDelete
-  // để tiêu đề không bị trống trong lúc hộp thoại đang mờ dần khi đóng.
   const [pendingDelete, setPendingDelete] = useState(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
 

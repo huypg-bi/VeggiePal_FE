@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Activity, RefreshCw } from "lucide-react";
 import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,6 @@ import { monitoringKeys } from "@/features/admin/monitoring/queryKeys";
 import { DAY_OPTIONS } from "@/features/admin/monitoring/utils/monitoringFormat";
 import { cn } from "@/lib/utils";
 
-// Trang giám sát AI (/admin/ai-monitoring): lượt dùng, token, độ trễ, lỗi của ai-service,
-// model đang dùng, giới hạn quota và nhật ký từng lượt gọi.
 export default function AdminAiMonitoringScreen() {
   const [days, setDays] = useState(7);
   const queryClient = useQueryClient();
@@ -19,11 +18,20 @@ export default function AdminAiMonitoringScreen() {
 
   return (
     <div className="flex flex-col gap-8">
+      {/* Tiêu đề & giới thiệu chức năng */}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-heading text-3xl font-bold text-ink">Giám sát AI</h1>
+          <div className="flex items-center gap-2.5">
+            <Activity className="size-6 text-brand" />
+            <h1 className="font-heading text-3xl font-bold text-ink">Giám sát AI</h1>
+          </div>
           <p className="mt-1 text-sm text-subtle">
-            Theo dõi lượt dùng, token, độ trễ và lỗi của các tính năng AI (chatbot, thực đơn, kiểm duyệt, gợi ý, video).
+            Theo dõi lượt dùng, token, độ trễ và lỗi của các tính năng AI (chatbot, thực đơn, gợi ý, video). AI kiểm duyệt
+            xem ở{" "}
+            <Link to="/admin/moderation?tab=logs" className="font-semibold text-brand hover:underline">
+              trang Kiểm duyệt
+            </Link>
+            .
           </p>
         </div>
         <Button
@@ -32,29 +40,36 @@ export default function AdminAiMonitoringScreen() {
           size="sm"
           disabled={fetching}
           onClick={() => queryClient.invalidateQueries({ queryKey: monitoringKeys.all })}
+          className="gap-2 rounded-xl border-border px-3.5 shadow-2xs hover:bg-surface cursor-pointer"
         >
-          <RefreshCw className={cn("size-4", fetching && "animate-spin")} />
+          <RefreshCw className={cn("size-3.5", fetching && "animate-spin")} />
           Làm mới
         </Button>
       </div>
 
-      <div className="flex flex-col gap-3">
-        <div role="group" aria-label="Khoảng thời gian tổng hợp" className="flex items-center gap-2">
-          {DAY_OPTIONS.map(({ value, label }) => (
-            <button
-              key={value}
-              type="button"
-              aria-pressed={days === value}
-              onClick={() => setDays(value)}
-              className={cn(
-                "rounded-full px-4 py-2 text-sm font-medium transition",
-                days === value ? "bg-brand text-brand-foreground" : "bg-surface text-subtle hover:text-ink",
-              )}
-            >
-              {label}
-            </button>
-          ))}
+      {/* Khoảng thời gian và thẻ thống kê */}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div role="group" aria-label="Khoảng thời gian tổng hợp" className="flex items-center gap-2">
+            {DAY_OPTIONS.map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={days === value}
+                onClick={() => setDays(value)}
+                className={cn(
+                  "rounded-full px-4 py-1.5 text-xs font-semibold transition cursor-pointer shadow-2xs",
+                  days === value
+                    ? "bg-brand text-brand-foreground shadow-xs"
+                    : "border border-border bg-card text-subtle hover:text-ink hover:bg-surface",
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
+
         <UsageSummarySection days={days} />
       </div>
 

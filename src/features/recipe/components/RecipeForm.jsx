@@ -1,26 +1,31 @@
-import { useId } from "react";
+import { useId, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Trash2 } from "lucide-react";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import ThumbnailPicker from "@/features/blog/components/ThumbnailPicker";
 import IngredientPicker from "@/features/recipe/components/IngredientPicker";
 import RecipeStepsEditor from "@/features/recipe/components/RecipeStepsEditor";
 import {
   useCreateRecipe,
   usePublishRecipe,
   useUpdateRecipe,
+  useUploadRecipeImage,
 } from "@/features/recipe/hooks/useRecipeMutations";
 import { RECIPE_LIMITS, recipeSchema } from "@/features/recipe/schema";
 import { isGramUnit } from "@/features/recipe/utils/recipeNutrition";
 import {
+  RECIPE_IMAGE_TYPES,
   UNIT_OPTIONS,
   emptyRecipeForm,
   formValuesToPayload,
   recipeToFormValues,
+  validateRecipeImage,
 } from "@/features/recipe/utils/recipeForm";
+import SelectField from "@/shared/components/SelectField";
 
 const fieldClass =
   "w-full rounded-xl border border-border bg-surface px-3.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
@@ -29,12 +34,6 @@ const labelClass = "mb-1.5 block text-sm font-semibold text-ink";
 const errorClass = "mt-1.5 text-xs text-destructive";
 const cardClass = "flex flex-col gap-5 rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6";
 
-/**
- * Form tạo / sửa công thức.
- * - Tạo mới (không có `recipe`): "Lưu nháp" hoặc "Lưu và đăng".
- * - Sửa (`recipe` là RecipeResponse): "Lưu thay đổi" (không đổi trạng thái);
- *   công thức chưa đăng có thêm "Lưu và đăng".
- */
 export default function RecipeForm({ recipe }) {
   const idPrefix = useId();
   const navigate = useNavigate();
@@ -44,6 +43,8 @@ export default function RecipeForm({ recipe }) {
   const createRecipe = useCreateRecipe();
   const updateRecipe = useUpdateRecipe();
   const publishRecipe = usePublishRecipe();
+  const uploadImage = useUploadRecipeImage();
+  const [imageFile, setImageFile] = useState(null);
 
   const {
     register,
@@ -69,14 +70,32 @@ export default function RecipeForm({ recipe }) {
       note: "",
     });
 
+  // Trả true nếu tải ảnh thành công; lỗi thì báo nhưng không chặn, vì công thức đã được lưu.
+  const uploadImageSafely = async (id) => {
+    try {
+      await uploadImage.mutateAsync({ id, file: imageFile });
+      return true;
+    } catch (error) {
+      toast.error(`Công thức đã được lưu nhưng tải ảnh thất bại: ${error.message}`);
+      return false;
+    }
+  };
+
   const save = (publish) =>
     handleSubmit(async (values) => {
-      const payload = formValuesToPayload(values);
+      const payload = formValuesToPayload(values, { isEdit });
 
       try {
         const saved = isEdit
           ? await updateRecipe.mutateAsync({ id: recipe.id, payload })
           : await createRecipe.mutateAsync(payload);
+
+        // Tải ảnh trước khi đăng để công thức vừa đăng đã có ảnh; ảnh lỗi thì giữ ở bản nháp để thử lại.
+        if (imageFile && !(await uploadImageSafely(saved.id)) && publish) {
+          toast.info("Công thức được lưu dưới dạng bản nháp, bạn có thể sửa và đăng lại sau.");
+          navigate("/my-content?tab=recipes");
+          return;
+        }
 
         if (publish) {
           try {
@@ -136,24 +155,39 @@ export default function RecipeForm({ recipe }) {
         </div>
 
         <div>
-          <label htmlFor={`${idPrefix}-image`} className={labelClass}>
-            Link ảnh (không bắt buộc)
-          </label>
-          <input
-            id={`${idPrefix}-image`}
-            type="url"
-            inputMode="url"
-            placeholder="https://..."
-            aria-invalid={Boolean(errors.imageUrl)}
-            className={inputClass}
-            {...register("imageUrl")}
+          <span className={labelClass}>Ảnh công thức (không bắt buộc)</span>
+          <ThumbnailPicker
+            currentUrl={recipe?.imageUrl}
+            onChange={setImageFile}
+            acceptTypes={RECIPE_IMAGE_TYPES}
+            validate={validateRecipeImage}
+            label="Ảnh công thức"
+            hint="JPEG hoặc PNG, tối đa 5MB"
           />
-          {errors.imageUrl ? (
-            <p className={errorClass}>{errors.imageUrl.message}</p>
-          ) : (
-            <p className="mt-1.5 text-xs text-subtle">Hiện chưa hỗ trợ tải ảnh lên, hãy dán link ảnh có sẵn.</p>
-          )}
         </div>
+
+        {/* Sửa công thức chỉ đổi ảnh bằng tải lên; BE từ chối link ảnh khác (4119) */}
+        {!isEdit && (
+          <div>
+            <label htmlFor={`${idPrefix}-image`} className={labelClass}>
+              Hoặc dán link ảnh (không bắt buộc)
+            </label>
+            <input
+              id={`${idPrefix}-image`}
+              type="url"
+              inputMode="url"
+              placeholder="https://..."
+              aria-invalid={Boolean(errors.imageUrl)}
+              className={inputClass}
+              {...register("imageUrl")}
+            />
+            {errors.imageUrl ? (
+              <p className={errorClass}>{errors.imageUrl.message}</p>
+            ) : (
+              <p className="mt-1.5 text-xs text-subtle">Nếu bạn chọn ảnh tải lên, ảnh đó sẽ được dùng thay cho link.</p>
+            )}
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
@@ -207,8 +241,9 @@ export default function RecipeForm({ recipe }) {
       <section className={cardClass}>
         <h2 className="font-heading text-lg font-bold text-ink">Nguyên liệu</h2>
         <p className="rounded-xl bg-brand-soft px-3 py-2 text-sm text-brand">
-          Chỉ cần chọn đơn vị <b>gram</b> hoặc <b>kg</b> là hệ thống tự tính kcal và đạm cho công thức.
-          Các đơn vị khác (ml, muỗng, quả...) vẫn lưu được nhưng công thức sẽ không có thông tin dinh dưỡng.
+          Chọn đơn vị <b>gram</b> hoặc <b>kg</b> là hệ thống luôn tự tính được kcal và đạm cho công thức.
+          Đơn vị khác (ml, muỗng, quả...) chỉ quy đổi được với một số nguyên liệu quen thuộc; nếu có nguyên liệu không
+          quy đổi được, công thức sẽ chưa có thông tin dinh dưỡng.
         </p>
 
         <IngredientPicker
@@ -247,17 +282,21 @@ export default function RecipeForm({ recipe }) {
                       />
                     </div>
                     <div>
-                      <select
-                        aria-label={`Đơn vị ${field.ingredientName}`}
-                        className={`${inputClass} bg-card`}
-                        {...register(`ingredients.${index}.unit`)}
-                      >
-                        {UNIT_OPTIONS.map(({ value, label }) => (
-                          <option key={value} value={value}>
-                            {label}
-                          </option>
-                        ))}
-                      </select>
+                      <Controller
+                        name={`ingredients.${index}.unit`}
+                        control={control}
+                        render={({ field: unitField }) => (
+                          <SelectField
+                            aria-label={`Đơn vị ${field.ingredientName}`}
+                            variant="field"
+                            className="bg-card"
+                            options={UNIT_OPTIONS}
+                            value={unitField.value}
+                            onValueChange={unitField.onChange}
+                            onBlur={unitField.onBlur}
+                          />
+                        )}
+                      />
                     </div>
                     <div className="col-span-2 sm:col-span-1">
                       <input
@@ -275,7 +314,7 @@ export default function RecipeForm({ recipe }) {
                   )}
                   {watchedIngredients?.[index] && !isGramUnit(watchedIngredients[index].unit) && (
                     <p className="mt-1.5 text-xs text-warning">
-                      Đơn vị này không quy đổi được ra gram nên không tính được kcal. Hãy chọn gram hoặc kg.
+                      Đơn vị này chỉ quy đổi được với một số nguyên liệu quen thuộc, nếu không công thức sẽ chưa có kcal. Chọn gram hoặc kg để chắc chắn tính được.
                     </p>
                   )}
                 </li>

@@ -4,18 +4,20 @@ import { getComments, getReplies } from "@/features/blog/api/commentApi";
 import { blogKeys } from "@/features/blog/queryKeys";
 import { flattenPages, getNextPageNumber } from "@/shared/utils/paging";
 
-/**
- * Comment cấp 1 của một bài (GET /comments) dạng "Xem thêm".
- * Trả về query của React Query + `comments` (mảng phẳng) + `total` (tổng số comment cấp 1).
- */
-export function useComments(blogId, { size = 20 } = {}) {
+// Lấy danh sách bình luận gốc của bài viết hoặc video theo targetType.
+export function useComments(target, options = {}) {
+  const isObject = typeof target === "object" && target !== null;
+  const targetType = isObject ? (target.targetType ?? "BLOG") : (options.targetType ?? "BLOG");
+  const targetId = isObject ? (target.targetId ?? target.blogId) : target;
+  const size = options.size ?? 20;
+
   const query = useInfiniteQuery({
-    queryKey: blogKeys.commentList(blogId, { size }),
+    queryKey: blogKeys.commentList(targetId, { targetType, size }),
     queryFn: ({ pageParam }) =>
-      getComments({ targetType: "BLOG", targetId: blogId, page: pageParam, size }),
+      getComments({ targetType, targetId, page: pageParam, size }),
     initialPageParam: 0,
     getNextPageParam: getNextPageNumber,
-    enabled: blogId != null,
+    enabled: targetId != null,
   });
 
   return {
@@ -25,10 +27,7 @@ export function useComments(blogId, { size = 20 } = {}) {
   };
 }
 
-/**
- * Reply của một comment (GET /comments/:id/replies). Chỉ truyền `enabled: true`
- * khi người dùng bấm "Xem phản hồi" để khỏi gọi API cho mọi comment ngay từ đầu.
- */
+// Lấy danh sách phản hồi con dưới một bình luận gốc.
 export function useReplies(commentId, { size = 20, enabled = true } = {}) {
   const query = useInfiniteQuery({
     queryKey: blogKeys.replies(commentId, { size }),

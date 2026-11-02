@@ -36,21 +36,16 @@ function clearGuestSession() {
   sessionStorage.removeItem(GUEST_STORAGE_KEY);
 }
 
-// Dùng lại phiên còn hạn để không tốn thêm lượt tạo phiên (BE giới hạn theo IP/ngày).
-async function ensureGuestSession() {
-  const stored = readGuestSession();
-  if (isGuestSessionValid(stored)) return stored.guestSession;
+async function ensureGuestSession(forceNew = false) {
+  if (!forceNew) {
+    const stored = readGuestSession();
+    if (isGuestSessionValid(stored)) return stored.guestSession;
+  }
   const created = await createGuestSession();
   sessionStorage.setItem(GUEST_STORAGE_KEY, JSON.stringify(created));
   return created.guestSession;
 }
 
-/**
- * State + hành động cho trang chatbot.
- * - Đã đăng nhập: hội thoại lưu ở BE (danh sách / chi tiết / gửi / xoá).
- *   `activeSessionId = null` nghĩa là đoạn chat mới — BE tự tạo hội thoại ở tin nhắn đầu.
- * - Chưa đăng nhập: chế độ khách, tin nhắn chỉ giữ trong bộ nhớ, bị giới hạn lượt hỏi.
- */
 export function useChatbot() {
   const isAuthenticated = useAuthStore(selectIsAuthenticated);
   const queryClient = useQueryClient();
@@ -77,8 +72,6 @@ export function useChatbot() {
   const memberSend = useMutation({
     mutationFn: async (variables) => {
       const reply = await sendChatMessage(variables);
-      // Đồng bộ lại trong mutationFn để dấu "đang trả lời" giữ tới khi tin nhắn
-      // thật đã có trong cache (tránh nháy mất tin nhắn giữa hai lần render).
       try {
         await Promise.all([
           queryClient.fetchQuery({
@@ -97,12 +90,27 @@ export function useChatbot() {
 
   const guestSend = useMutation({
     mutationFn: async (message) => {
-      const guestSession = await ensureGuestSession();
+      let guestSession = await ensureGuestSession();
       try {
         return await sendGuestMessage({ guestSession, message });
       } catch (error) {
-        // Phiên hỏng/hết hạn: xoá để lần gửi sau tạo phiên mới.
-        if (error.status === 401 || error.code === 6001) clearGuestSession();
+        // Khi chat khách gặp lỗi 401 (hoặc mã 6001): tự động tạo session mới và gửi lại một lần
+        const status = error.status ?? error.response?.status;
+        const code = error.code ?? error.response?.data?.code;
+        if (status === 401 || code === 6001) {
+          clearGuestSession();
+          try {
+            guestSession = await ensureGuestSession(true);
+            return await sendGuestMessage({ guestSession, message });
+          } catch (retryError) {
+            const retryStatus = retryError.status ?? retryError.response?.status;
+            const retryCode = retryError.code ?? retryError.response?.data?.code;
+            if (retryStatus === 401 || retryCode === 6001) {
+              clearGuestSession();
+            }
+            throw retryError;
+          }
+        }
         throw error;
       }
     },

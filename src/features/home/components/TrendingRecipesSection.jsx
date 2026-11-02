@@ -6,14 +6,14 @@ import { useRecipes } from "@/features/recipe/hooks/useRecipes";
 import Reveal from "@/shared/components/Reveal";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-// Số công thức hiển thị ở trang chủ (BE chưa có xếp hạng "được yêu thích" nên lấy mới nhất).
+// Số công thức hiển thị ở trang chủ, xếp theo số lượt lưu yêu thích (sort=popular của BE).
 const TRENDING_COUNT = 3;
 
 export default function TrendingRecipesSection() {
-  const { data, isPending, isError, error } = useRecipes({ size: TRENDING_COUNT });
-  const recipes = data?.content;
+  const { data, isPending, isError, error } = useRecipes({ size: TRENDING_COUNT, sort: "popular" });
+  const recipes = data?.items;
 
-  const { nutritionById, loading: nutritionLoading } = useRecipeNutrition(recipes);
+  const { nutritionById } = useRecipeNutrition(recipes);
   const { data: authors } = usePublicUsers(recipes?.map((r) => r.userId));
 
   return (
@@ -48,7 +48,6 @@ export default function TrendingRecipesSection() {
                 <RecipeCard
                   recipe={recipe}
                   nutrition={nutritionById.get(recipe.id)}
-                  nutritionLoading={nutritionLoading}
                   author={authors?.get(recipe.userId)}
                 />
               </Reveal>

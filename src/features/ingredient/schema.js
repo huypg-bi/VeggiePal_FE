@@ -14,8 +14,6 @@ const DECIMAL_MESSAGE = "Nhập số từ 0 trở lên, tối đa 2 số thập 
 const requiredNutrition = (label) =>
   z.string().trim().min(1, `Vui lòng nhập ${label}`).regex(DECIMAL_PATTERN, DECIMAL_MESSAGE);
 
-// Form tạo / sửa nguyên liệu của admin. Số giữ dạng chuỗi vì lấy từ <input>
-// (đổi sang số ở utils/ingredientForm.js). Chất xơ không bắt buộc, khớp BE.
 export const ingredientSchema = z.object({
   name: z
     .string()

@@ -1,7 +1,5 @@
 import { FileText, ShieldAlert, Heart } from 'lucide-react';
 
-import { useProfileStats } from '@/features/profile/hooks/useProfileStats';
-
 const tabClass = (active) =>
   `flex items-center gap-2 px-5 py-2 rounded-full text-xs md:text-sm font-semibold transition-all cursor-pointer ${
     active
@@ -10,8 +8,6 @@ const tabClass = (active) =>
   }`;
 
 export default function ProfileTabs({ activeTab, setActiveTab }) {
-  const { blogTotal, recipeTotal, loading } = useProfileStats();
-  const count = loading ? '…' : blogTotal + recipeTotal;
 
   return (
     <div className="flex items-center justify-center gap-2 mb-8">
@@ -22,7 +18,7 @@ export default function ProfileTabs({ activeTab, setActiveTab }) {
           className={tabClass(activeTab === 'posts')}
         >
           <FileText className="w-4 h-4 text-brand" />
-          Bài viết &amp; Video ({count})
+          Bài viết &amp; Video 
         </button>
 
         <button

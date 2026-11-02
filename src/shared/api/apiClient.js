@@ -1,16 +1,13 @@
 import axios from "axios";
 
+import { refreshSession } from "@/features/auth/api/refreshSession";
 import { useAuthStore } from "@/features/auth/store/authStore";
 
 const apiClient = axios.create({
     baseURL: import.meta.env.VITE_VEGGIEPAL_API_BASE_URL,
-    // axios mặc định throw khi gặp 4xx/5xx. Tắt đi để tự xử lý status trong code,
-    // giống hành vi của fetch (chỉ throw khi lỗi mạng).
     validateStatus: () => true,
 });
 
-// Lấy token từ store (không đọc thẳng localStorage, vì token có thể nằm ở
-// sessionStorage khi người dùng không tick "Ghi nhớ đăng nhập").
 function authHeader() {
     const { token } = useAuthStore.getState();
     return token ? { Authorization: `Bearer ${token}` } : {};
@@ -20,6 +17,21 @@ function authHeader() {
 apiClient.interceptors.request.use((config) => {
     Object.assign(config.headers, authHeader());
     return config;
+});
+
+// Access token chỉ sống 15 phút: gặp 401 thì làm mới bằng refresh token rồi gửi lại request đúng một lần.
+apiClient.interceptors.response.use(async (res) => {
+    const { config } = res;
+    const skip = config.skipAuthRefresh || config.authRetried || config.url?.startsWith("/auth/");
+    const { token, refreshToken } = useAuthStore.getState();
+    if (res.status !== 401 || skip || !refreshToken) return res;
+
+    // Request đi bằng token cũ mà request khác đã làm mới xong thì chỉ cần gửi lại, không đổi refresh token thêm lần nữa.
+    const alreadyRefreshed = config.headers?.Authorization !== `Bearer ${token}`;
+    if (!alreadyRefreshed && (await refreshSession()) !== "ok") return res;
+
+    config.authRetried = true;
+    return apiClient.request(config);
 });
 
 export default apiClient;

@@ -1,9 +1,16 @@
-// Chuyển đổi giữa dữ liệu form công thức (toàn chuỗi, theo <input>) và payload / RecipeResponse của BE.
-// Không import alias @/ để file test (node --test) chạy được.
 import { parseQuantity } from "../schema.js";
 
-// Đơn vị cho chọn. BE lưu chuỗi tự do và tự IN HOA. Chỉ GRAM / G / KG quy đổi được ra gram
-// để tính kcal (xem recipeNutrition.js), các đơn vị còn lại thì công thức sẽ không có kcal.
+export const RECIPE_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+export const RECIPE_IMAGE_TYPES = ["image/jpeg", "image/png"];
+
+/** Kiểm tra ảnh công thức theo luật của BE (chỉ JPEG / PNG, ≤ 5MB, không nhận WEBP). Trả message lỗi hoặc null nếu hợp lệ. */
+export function validateRecipeImage(file) {
+  if (!file) return null;
+  if (!RECIPE_IMAGE_TYPES.includes(file.type)) return "Ảnh công thức phải là JPEG hoặc PNG";
+  if (file.size > RECIPE_IMAGE_MAX_BYTES) return "Ảnh công thức không được vượt quá 5MB";
+  return null;
+}
+
 export const UNIT_OPTIONS = [
   { value: "GRAM", label: "gram" },
   { value: "KG", label: "kg" },
@@ -35,7 +42,7 @@ export function recipeToFormValues(recipe) {
   return {
     title: recipe.title ?? "",
     description: recipe.description ?? "",
-    imageUrl: recipe.imageUrl ?? "",
+    imageUrl: "",
     servings: String(recipe.servings ?? 1),
     prepTime: recipe.prepTime == null ? "" : String(recipe.prepTime),
     cookTime: recipe.cookTime == null ? "" : String(recipe.cookTime),
@@ -50,16 +57,12 @@ export function recipeToFormValues(recipe) {
   };
 }
 
-/**
- * Giá trị form (đã qua recipeSchema) -> RecipeRequest gửi lên BE.
- * - thứ tự bước = vị trí trong danh sách (stepNumber bắt đầu từ 1)
- * - thời gian để trống -> null; quantity đổi dấu phẩy thành dấu chấm rồi ép số
- */
-export function formValuesToPayload(values) {
+/** Khi sửa (`isEdit`) không gửi imageUrl: BE giữ ảnh hiện tại và chỉ đổi ảnh qua POST /recipes/:id/image (khác link thì 4119). */
+export function formValuesToPayload(values, { isEdit = false } = {}) {
   return {
     title: values.title.trim(),
     description: values.description.trim() || null,
-    imageUrl: values.imageUrl.trim() || null,
+    ...(isEdit ? {} : { imageUrl: values.imageUrl.trim() || null }),
     servings: Number(values.servings),
     prepTime: values.prepTime.trim() === "" ? null : Number(values.prepTime),
     cookTime: values.cookTime.trim() === "" ? null : Number(values.cookTime),

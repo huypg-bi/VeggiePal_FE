@@ -4,8 +4,9 @@ import { Info, Loader2, TriangleAlert, X } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/variants/button-variants";
 import AppHeader from "@/shared/components/AppHeader";
-import AppFooter from "@/shared/components/AppFooter";
 import { useChatbot } from "@/features/chatbot/hooks/useChatbot";
+import { useMySubscription } from "@/features/payment/hooks/useMySubscription";
+import { PLAN_DETAILS } from "@/features/payment/utils/paymentFormat";
 import ChatSidebar from "@/features/chatbot/components/ChatSidebar";
 import ChatHeader from "@/features/chatbot/components/ChatHeader";
 import ChatMessage from "@/features/chatbot/components/ChatMessage";
@@ -13,12 +14,6 @@ import ChatEmptyState from "@/features/chatbot/components/ChatEmptyState";
 import TypingIndicator from "@/features/chatbot/components/TypingIndicator";
 import ChatComposer from "@/features/chatbot/components/ChatComposer";
 
-/**
- * Trang chatbot dinh dưỡng (/chatbot).
- * Dùng ai-service thật qua @/features/chatbot/api/chatbotApi.js:
- * - Đã đăng nhập: lịch sử hội thoại lưu ở BE (sidebar, nhiều lượt).
- * - Chưa đăng nhập: chế độ dùng thử, không có sidebar, giới hạn số lượt hỏi.
- */
 export default function ChatbotScreen() {
   const {
     isAuthenticated,
@@ -36,8 +31,12 @@ export default function ChatbotScreen() {
     sendMessage,
   } = useChatbot();
 
+  const { subscription } = useMySubscription();
   const [draft, setDraft] = useState("");
-  const [collapsed, setCollapsed] = useState(false);
+  // Trên màn hình web hẹp (< 1024px), sidebar mặc định thu gọn để ưu tiên không gian đọc nội dung chat.
+  const [collapsed, setCollapsed] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 1024,
+  );
   const scrollRef = useRef(null);
 
   const activeSession = sessions.find((s) => s.id === activeSessionId);
@@ -57,6 +56,14 @@ export default function ChatbotScreen() {
     if (!ok) setDraft((current) => current || text);
   };
 
+  const handleSelectSession = (id) => {
+    selectSession(id);
+    // Đóng gọn sidebar khi chọn đoạn chat trên màn hình nhỏ để xem ngay tin nhắn.
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setCollapsed(true);
+    }
+  };
+
   return (
     <div className="min-h-dvh bg-canvas">
       <AppHeader />
@@ -69,7 +76,7 @@ export default function ChatbotScreen() {
               activeSessionId={activeSessionId}
               collapsed={collapsed}
               onToggleCollapsed={() => setCollapsed((c) => !c)}
-              onSelectSession={selectSession}
+              onSelectSession={handleSelectSession}
               onNewChat={startNewSession}
               onDeleteSession={deleteSession}
             />
@@ -79,6 +86,8 @@ export default function ChatbotScreen() {
             <ChatHeader
               title={activeSession?.title ?? "Cuộc trò chuyện dinh dưỡng"}
               onNewChat={startNewSession}
+              onToggleSidebar={() => setCollapsed((c) => !c)}
+              showSidebarToggle={isAuthenticated && collapsed}
             />
 
             {!isAuthenticated && (
@@ -96,6 +105,23 @@ export default function ChatbotScreen() {
                 >
                   Đăng nhập
                 </Link>
+              </div>
+            )}
+
+            {isAuthenticated && subscription && (
+              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-brand-soft px-6 py-2.5 text-xs text-brand">
+                <span>
+                  {PLAN_DETAILS[subscription.planCode]?.name ?? subscription.planCode}
+                  {" · "}
+                  {remainingRequests != null
+                    ? `còn ${remainingRequests}/${subscription.chatPerDay} lượt hỏi hôm nay`
+                    : `tối đa ${subscription.chatPerDay} lượt hỏi mỗi ngày`}
+                </span>
+                {subscription.planCode !== "PRO" && (
+                  <Link to="/pricing" className="font-semibold underline underline-offset-2">
+                    Nâng cấp để hỏi nhiều hơn
+                  </Link>
+                )}
               </div>
             )}
 
@@ -163,8 +189,6 @@ export default function ChatbotScreen() {
           </div>
         </div>
       </main>
-
-      <AppFooter />
     </div>
   );
 }

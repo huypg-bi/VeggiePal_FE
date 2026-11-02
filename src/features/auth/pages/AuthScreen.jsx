@@ -6,16 +6,17 @@ import LoginForm from "@/features/auth/components/LoginForm";
 import RegisterForm from "@/features/auth/components/RegisterForm";
 import ForgotPasswordForm from "@/features/auth/components/ForgotPasswordForm";
 import VerifyOtpForm from "@/features/auth/components/VerifyOtpForm";
+import ResetPasswordForm from "@/features/auth/components/ResetPasswordForm";
 import bg from "@/assets/img/bg.png";
 
 const MODE_BY_PATH = {
   "/register": "register",
   "/forgot-password": "forgot",
   "/verify-otp": "otp",
+  "/verify-email": "verifyEmail",
+  "/reset-password": "reset",
 };
 
-// 4 mode (login/register/quên mật khẩu/otp) dùng chung 1 khung ảnh+card,
-// URL quyết định mode nào hiển thị — không còn tách thành page riêng nữa.
 export default function AuthScreen() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -35,7 +36,9 @@ export default function AuthScreen() {
           <div key={mode} className="auth-form-enter w-full flex justify-center">
             {mode === "register" && <RegisterForm onSwitchMode={toLogin} />}
             {mode === "forgot" && <ForgotPasswordForm />}
-            {mode === "otp" && <VerifyOtpForm />}
+            {mode === "otp" && <VerifyOtpForm mode="reset" />}
+            {mode === "verifyEmail" && <VerifyOtpForm mode="verify-email" />}
+            {mode === "reset" && <ResetPasswordForm />}
             {mode === "login" && <LoginForm onSwitchMode={toRegister} />}
           </div>
         </div>
