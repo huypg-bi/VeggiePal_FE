@@ -82,47 +82,50 @@ export default function BlogScreen() {
           </aside>
 
           <div className="order-1 flex flex-col gap-6 lg:order-2">
-            {isAuthenticated && (
-              <div className="flex items-center gap-2">
-                <div role="tablist" className="flex items-center gap-2">
-                  {[
-                    { following: false, label: "Tất cả", icon: Rss },
-                    { following: true, label: "Đang theo dõi", icon: Users },
-                  ].map(({ following, label, icon: Icon }) => (
-                    <button
-                      key={label}
-                      type="button"
-                      role="tab"
-                      aria-selected={isFollowingTab === following}
-                      onClick={() => showFollowingTab(following)}
-                      className={cn(
-                        "flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition",
-                        isFollowingTab === following
-                          ? "bg-brand text-brand-foreground"
-                          : "bg-surface text-subtle hover:text-ink"
-                      )}
-                    >
-                      <Icon className="size-4" />
-                      {label}
-                    </button>
-                  ))}
+            {/* Thanh điều hướng tab & bộ lọc ghim cố định khi cuộn trang với hiệu ứng kính mờ trong suốt */}
+            <div className="sticky top-20 z-20 -mx-1 -my-1 flex flex-col gap-3 rounded-3xl bg-background/65 px-1 py-1.5 backdrop-blur-md sm:top-24 sm:gap-4 sm:py-2">
+              {isAuthenticated && (
+                <div className="flex items-center gap-2">
+                  <div role="tablist" className="flex items-center gap-2">
+                    {[
+                      { following: false, label: "Tất cả", icon: Rss },
+                      { following: true, label: "Đang theo dõi", icon: Users },
+                    ].map(({ following, label, icon: Icon }) => (
+                      <button
+                        key={label}
+                        type="button"
+                        role="tab"
+                        aria-selected={isFollowingTab === following}
+                        onClick={() => showFollowingTab(following)}
+                        className={cn(
+                          "flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition cursor-pointer",
+                          isFollowingTab === following
+                            ? "bg-brand text-brand-foreground shadow-xs"
+                            : "bg-surface/75 text-subtle hover:text-ink backdrop-blur-sm"
+                        )}
+                      >
+                        <Icon className="size-4" />
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="ml-auto"
+                    onClick={() => setShowFollowList(true)}
+                  >
+                    <ListChecks className="size-4" />
+                    Danh sách theo dõi
+                  </Button>
                 </div>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="ml-auto"
-                  onClick={() => setShowFollowList(true)}
-                >
-                  <ListChecks className="size-4" />
-                  Danh sách theo dõi
-                </Button>
-              </div>
-            )}
+              )}
 
-            {!isFollowingTab && (
-              <BlogFilterBar key={filterBarKey} filters={filters} onChange={updateFilters} />
-            )}
+              {!isFollowingTab && (
+                <BlogFilterBar key={filterBarKey} filters={filters} onChange={updateFilters} />
+              )}
+            </div>
 
             {isError ? (
               <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">

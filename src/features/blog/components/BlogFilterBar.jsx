@@ -47,7 +47,7 @@ export default function BlogFilterBar({ filters, onChange }) {
   ];
 
   return (
-    <section className="rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-5">
+    <section className="rounded-3xl border border-border bg-card/75 p-4 shadow-sm backdrop-blur-md sm:p-5">
       <div className="flex flex-wrap items-center gap-3">
         <form onSubmit={handleSubmit} role="search" className="relative min-w-56 flex-1">
           <Search className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-subtle" />
@@ -58,7 +58,7 @@ export default function BlogFilterBar({ filters, onChange }) {
             placeholder="Tìm theo tiêu đề hoặc nội dung..."
             aria-label="Tìm bài viết"
             className={cn(
-              "h-11 w-full rounded-full border border-border bg-surface pl-10 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 [&::-webkit-search-cancel-button]:hidden",
+              "h-11 w-full rounded-full border border-border bg-surface/75 pl-10 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 [&::-webkit-search-cancel-button]:hidden",
               // Chỉ chừa chỗ cho nút xóa khi đã có chữ, để placeholder được dùng hết bề ngang.
               text ? "pr-10" : "pr-4"
             )}
