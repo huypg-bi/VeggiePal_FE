@@ -33,7 +33,10 @@ export default function ChatbotScreen() {
 
   const { subscription } = useMySubscription();
   const [draft, setDraft] = useState("");
-  const [collapsed, setCollapsed] = useState(false);
+  // Trên màn hình web hẹp (< 1024px), sidebar mặc định thu gọn để ưu tiên không gian đọc nội dung chat.
+  const [collapsed, setCollapsed] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 1024,
+  );
   const scrollRef = useRef(null);
 
   const activeSession = sessions.find((s) => s.id === activeSessionId);
@@ -53,6 +56,14 @@ export default function ChatbotScreen() {
     if (!ok) setDraft((current) => current || text);
   };
 
+  const handleSelectSession = (id) => {
+    selectSession(id);
+    // Đóng gọn sidebar khi chọn đoạn chat trên màn hình nhỏ để xem ngay tin nhắn.
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setCollapsed(true);
+    }
+  };
+
   return (
     <div className="min-h-dvh bg-canvas">
       <AppHeader />
@@ -65,7 +76,7 @@ export default function ChatbotScreen() {
               activeSessionId={activeSessionId}
               collapsed={collapsed}
               onToggleCollapsed={() => setCollapsed((c) => !c)}
-              onSelectSession={selectSession}
+              onSelectSession={handleSelectSession}
               onNewChat={startNewSession}
               onDeleteSession={deleteSession}
             />
@@ -75,6 +86,8 @@ export default function ChatbotScreen() {
             <ChatHeader
               title={activeSession?.title ?? "Cuộc trò chuyện dinh dưỡng"}
               onNewChat={startNewSession}
+              onToggleSidebar={() => setCollapsed((c) => !c)}
+              showSidebarToggle={isAuthenticated && collapsed}
             />
 
             {!isAuthenticated && (
