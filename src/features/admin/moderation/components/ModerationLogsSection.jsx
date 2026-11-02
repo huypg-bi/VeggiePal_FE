@@ -132,13 +132,13 @@ export default function ModerationLogsSection() {
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3 rounded-3xl border border-border bg-card p-4 shadow-sm">
+      <div className="flex flex-wrap items-center gap-3 rounded-3xl border border-border bg-card p-3.5 shadow-xs">
         <SelectField
           aria-label="Lọc theo trạng thái"
           options={STATUS_OPTIONS}
           value={status}
           onValueChange={handleSelectStatus}
-          className="h-10"
+          className="h-10 min-w-40"
         />
         <input
           type="text"
@@ -150,31 +150,37 @@ export default function ModerationLogsSection() {
           aria-label="Lọc theo ID tác giả"
           className={cn(fieldClass, "w-36 placeholder:text-subtle")}
         />
-        <label className="flex items-center gap-2 text-sm text-subtle">
-          Từ
+        <div className="flex items-center gap-1.5 text-xs text-subtle font-medium">
+          <span>Từ</span>
           <input
             type="date"
             value={fromDate}
             max={toDate || undefined}
             onChange={handleDateChange(setFromDate)}
             aria-label="Từ ngày"
-            className={fieldClass}
+            className="h-10 rounded-full border border-border bg-surface px-3 text-xs text-ink outline-none transition focus:border-brand/40 focus:ring-2 focus:ring-brand/15"
           />
-        </label>
-        <label className="flex items-center gap-2 text-sm text-subtle">
-          Đến
+        </div>
+        <div className="flex items-center gap-1.5 text-xs text-subtle font-medium">
+          <span>Đến</span>
           <input
             type="date"
             value={toDate}
             min={fromDate || undefined}
             onChange={handleDateChange(setToDate)}
             aria-label="Đến ngày"
-            className={fieldClass}
+            className="h-10 rounded-full border border-border bg-surface px-3 text-xs text-ink outline-none transition focus:border-brand/40 focus:ring-2 focus:ring-brand/15"
           />
-        </label>
+        </div>
 
         {hasActiveFilters && (
-          <Button type="button" variant="ghost" size="sm" onClick={handleResetFilters} className="text-subtle">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={handleResetFilters}
+            className="text-subtle hover:text-ink cursor-pointer"
+          >
             <RotateCcw className="size-3.5" />
             Đặt lại
           </Button>
@@ -182,61 +188,89 @@ export default function ModerationLogsSection() {
       </div>
 
       {rangeInvalid ? (
-        <p className="rounded-xl bg-warning/15 px-3 py-2 text-sm text-warning">
+        <div className="rounded-2xl border border-warning/30 bg-warning/15 px-4 py-3 text-sm text-warning">
           Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.
-        </p>
+        </div>
       ) : isError ? (
-        <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{error.message}</p>
+        <div className="rounded-3xl border border-destructive/20 bg-destructive/10 p-4 text-sm text-destructive">
+          {error.message || "Không thể tải nhật ký AI kiểm duyệt"}
+        </div>
       ) : isPending ? (
-        <div aria-hidden className="h-64 animate-pulse rounded-3xl border border-border bg-card" />
+        <div aria-hidden className="h-72 animate-pulse rounded-3xl border border-border bg-card" />
       ) : items.length === 0 ? (
-        <p className="rounded-3xl border border-border bg-card p-6 text-sm text-subtle">
-          Không có lượt gọi AI kiểm duyệt nào khớp bộ lọc.
-        </p>
+        <div className="rounded-3xl border border-border bg-card p-8 text-center text-sm text-subtle">
+          Không có lượt gọi AI kiểm duyệt nào khớp bộ lọc hiện tại.
+        </div>
       ) : (
         <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[860px] text-left text-sm">
-              <thead className="bg-surface text-xs uppercase tracking-wide text-subtle">
-                <tr>
-                  <th className="px-4 py-3 font-semibold">Thời gian</th>
-                  <th className="px-3 py-3 font-semibold">Tác giả</th>
-                  <th className="px-3 py-3 font-semibold">Model AI</th>
-                  <th className="px-3 py-3 text-right font-semibold">Token vào/ra</th>
-                  <th className="px-3 py-3 text-right font-semibold">Độ trễ</th>
-                  <th className="px-3 py-3 font-semibold">Trạng thái</th>
+            <table className="w-full min-w-[860px] text-sm border-collapse">
+              <thead className="border-b border-border bg-surface/75 text-xs uppercase tracking-wider text-subtle font-semibold">
+                <tr className="divide-x divide-border">
+                  <th className="px-6 py-3.5 text-center">Thời gian</th>
+                  <th className="px-4 py-3.5 text-center">Tác giả</th>
+                  <th className="px-4 py-3.5 text-center">Model AI</th>
+                  <th className="px-4 py-3.5 text-center">Token (Vào / Ra)</th>
+                  <th className="px-4 py-3.5 text-center">Độ trễ</th>
+                  <th className="px-4 py-3.5 text-center">Trạng thái</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {items.map((log) => (
-                  <tr key={log.id} className="align-top text-body transition-colors hover:bg-surface/50">
-                    <td className="whitespace-nowrap px-4 py-3 tabular-nums">{formatDateTime(log.createdAt)}</td>
-                    <td className="px-3 py-3 text-xs font-semibold text-ink">
+                  <tr
+                    key={log.id}
+                    className="divide-x divide-border text-body transition-colors hover:bg-surface/50"
+                  >
+                    {/* Thời gian */}
+                    <td className="whitespace-nowrap px-6 py-4 text-center tabular-nums text-xs text-subtle font-medium">
+                      {formatDateTime(log.createdAt)}
+                    </td>
+
+                    {/* Tác giả */}
+                    <td className="px-4 py-4 text-center text-xs font-semibold text-ink">
                       {log.userId != null ? (
                         <UserDisplayName userId={log.userId} userMap={userMap} />
                       ) : (
                         describeCaller(log, userMap)
                       )}
                     </td>
-                    <td className="px-3 py-3 font-mono text-xs">{log.model}</td>
-                    <td className="whitespace-nowrap px-3 py-3 text-right tabular-nums">
-                      {formatNumber(log.promptTokens)} / {formatNumber(log.completionTokens)}
+
+                    {/* Model AI */}
+                    <td className="px-4 py-4 text-center font-mono text-xs text-subtle whitespace-nowrap">
+                      {log.model}
                     </td>
-                    <td className="whitespace-nowrap px-3 py-3 text-right tabular-nums">
-                      {formatNumber(log.latencyMs)} ms
+
+                    {/* Token */}
+                    <td className="whitespace-nowrap px-4 py-4 text-center tabular-nums text-xs font-medium text-ink">
+                      {formatNumber(log.promptTokens)}{" "}
+                      <span className="text-subtle font-normal">/</span>{" "}
+                      {formatNumber(log.completionTokens)}
                     </td>
-                    <td className="px-3 py-3">
-                      <span
-                        className={cn(
-                          "inline-flex rounded-full px-2 py-0.5 text-[11px] font-medium",
-                          log.status === "FAILED" ? "bg-destructive/10 text-destructive" : "bg-brand-soft text-brand",
-                        )}
-                      >
-                        {STATUS_LABELS[log.status] ?? log.status}
+
+                    {/* Độ trễ */}
+                    <td className="whitespace-nowrap px-4 py-4 text-center tabular-nums text-xs font-medium text-ink">
+                      <span className={cn(log.latencyMs > 3000 ? "text-amber-600 dark:text-amber-400 font-semibold" : "")}>
+                        {formatNumber(log.latencyMs)} ms
                       </span>
-                      {log.errorMessage && (
-                        <p className="mt-1 max-w-60 break-words text-xs text-subtle">{log.errorMessage}</p>
-                      )}
+                    </td>
+
+                    {/* Trạng thái */}
+                    <td className="px-4 py-4 text-center">
+                      <div className="flex flex-col items-center justify-center gap-1">
+                        <span
+                          className={cn(
+                            "inline-flex items-center justify-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-wide",
+                            log.status === "FAILED"
+                              ? "bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-900/50"
+                              : "bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-900/50"
+                          )}
+                        >
+                          {STATUS_LABELS[log.status] ?? log.status}
+                        </span>
+                        {log.errorMessage && (
+                          <p className="max-w-xs break-words text-[11px] text-destructive">{log.errorMessage}</p>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -244,10 +278,11 @@ export default function ModerationLogsSection() {
             </table>
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3 text-sm text-subtle">
-            <span>
+          {/* Phân trang */}
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-card px-6 py-3.5 text-sm text-subtle">
+            <span className="font-medium text-xs sm:text-sm">
               {formatNumber(data.totalElements)} lượt • Trang {data.page + 1}/{Math.max(data.totalPages, 1)}
-              {isFetching && " • Đang tải..."}
+              {isFetching && " • Đang cập nhật..."}
             </span>
             <div className="flex gap-2">
               <Button
@@ -256,6 +291,7 @@ export default function ModerationLogsSection() {
                 variant="outline"
                 disabled={data.page <= 0 || isFetching}
                 onClick={() => setPage((p) => Math.max(p - 1, 0))}
+                className="rounded-xl border-border px-3 text-xs font-medium hover:bg-surface cursor-pointer"
               >
                 <ChevronLeft className="size-4" />
                 Trước
@@ -266,6 +302,7 @@ export default function ModerationLogsSection() {
                 variant="outline"
                 disabled={data.page + 1 >= data.totalPages || isFetching}
                 onClick={() => setPage((p) => p + 1)}
+                className="rounded-xl border-border px-3 text-xs font-medium hover:bg-surface cursor-pointer"
               >
                 Sau
                 <ChevronRight className="size-4" />
