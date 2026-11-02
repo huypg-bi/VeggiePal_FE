@@ -12,9 +12,9 @@ const TONE_CLASS = {
   destructive: "bg-destructive/10 text-destructive",
 };
 
-// Số liệu tổng hợp lượt dùng AI trong `days` ngày gần nhất (GET /ai/admin/monitoring/summary).
-export default function UsageSummarySection({ days, excludeFeature = "MODERATION" }) {
-  const { data, isPending, isError, error } = useUsageSummary(days, excludeFeature);
+// Số liệu tổng hợp lượt dùng AI trong `days` ngày gần nhất (GET /ai/admin/monitoring/summary); `feature` chỉ lấy một tác vụ.
+export default function UsageSummarySection({ days, excludeFeature = "MODERATION", feature }) {
+  const { data, isPending, isError, error } = useUsageSummary(days, feature ? null : excludeFeature, feature);
 
   if (isError) {
     return <p className="rounded-xl bg-destructive/10 px-3 py-2 text-sm text-destructive">{error.message}</p>;

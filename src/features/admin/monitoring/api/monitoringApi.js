@@ -16,13 +16,12 @@ function unwrap(res, fallbackMessage) {
 }
 
 /** GET /ai/admin/monitoring/summary */
-export async function getUsageSummary(days = 7, excludeFeature) {
-  const d = typeof days === "object" ? (days.days ?? 7) : days;
-  const ef = typeof days === "object" ? days.excludeFeature : excludeFeature;
+export async function getUsageSummary(days = 7, excludeFeature, feature) {
   const res = await apiClient.get("/ai/admin/monitoring/summary", {
     params: {
-      days: d,
-      excludeFeature: (ef && ef !== "NONE") ? ef : undefined,
+      days,
+      feature: feature || undefined,
+      excludeFeature: excludeFeature && excludeFeature !== "NONE" ? excludeFeature : undefined,
     },
   });
   return unwrap(res, "Không lấy được số liệu tổng hợp");

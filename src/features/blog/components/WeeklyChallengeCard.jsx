@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { CalendarCheck, Check, Gift } from "lucide-react";
+import { CalendarCheck, Check, Gift, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { useRequireLogin } from "@/features/auth/hooks/useRequireLogin";
@@ -7,17 +8,36 @@ import ChallengeRewardDialog from "@/features/blog/components/ChallengeRewardDia
 import { useChallenge } from "@/features/blog/hooks/useChallenge";
 import { CHALLENGE_BADGE_NAME } from "@/features/blog/utils/challenge";
 
-// Thử thách 7 ngày: tiến độ lưu theo user ở localStorage (xem useChallenge), chưa có API.
+// Thử thách 7 ngày: tiến độ lưu ở identity-service (GET / POST /users/me/challenges/7-day).
 export default function WeeklyChallengeCard() {
-  const { days, total, checkedToday, completed, broken, checkIn } = useChallenge();
+  const { status, days, total, points, checkedToday, loading, error, join, checkIn } = useChallenge();
   const { requireLogin } = useRequireLogin();
   const [rewardOpen, setRewardOpen] = useState(false);
 
-  const handleCheckIn = () => {
+  const busy = join.isPending || checkIn.isPending;
+  const failed = status === "FAILED";
+  const completed = status === "COMPLETED";
+
+  const handleJoin = () => {
     if (!requireLogin()) return;
-    // Lần check-in thứ 7 -> mở popup mở khóa huy hiệu và voucher.
-    if (checkIn()) setRewardOpen(true);
+    join.mutate(undefined, {
+      onSuccess: () => toast.success("Đã bắt đầu thử thách 7 ngày, check-in ngay hôm nay nhé"),
+      onError: (err) => toast.error(err.message),
+    });
   };
+
+  const handleCheckIn = () => {
+    checkIn.mutate(undefined, {
+      onSuccess: (progress) => {
+        if (progress.status === "COMPLETED") setRewardOpen(true);
+        else if (progress.status === "FAILED") toast.warning("Bạn đã lỡ một ngày nên thử thách này thất bại");
+        else toast.success(`Đã check-in ${progress.completedDays}/${progress.totalDays} ngày (+10 điểm)`);
+      },
+      onError: (err) => toast.error(err.message),
+    });
+  };
+
+  const spinner = busy && <Loader2 className="size-4 animate-spin" />;
 
   return (
     <section className="rounded-3xl border border-border bg-card p-5 shadow-sm">
@@ -36,7 +56,7 @@ export default function WeeklyChallengeCard() {
       </h2>
       <p className="mt-1.5 text-xs leading-relaxed text-body">
         Check-in mỗi ngày trong 7 ngày liên tiếp để mở khóa huy hiệu độc quyền “{CHALLENGE_BADGE_NAME}”
-        và nhận voucher quán chay đối tác. Bỏ lỡ một ngày là chuỗi sẽ bắt đầu lại.
+        và nhận voucher quán chay đối tác. Bỏ lỡ một ngày là thử thách thất bại và bạn có thể bắt đầu lượt mới.
       </p>
 
       <div
@@ -52,19 +72,40 @@ export default function WeeklyChallengeCard() {
         />
       </div>
 
-      {broken && (
+      {status !== "NONE" && <p className="mt-2 text-[11px] text-subtle">{points} điểm tích lũy (10 điểm mỗi ngày)</p>}
+
+      {failed && (
         <p className="mt-2 text-[11px] text-subtle">
-          Bạn đã lỡ một ngày nên chuỗi đã đứt. Check-in hôm nay để bắt đầu lại từ ngày 1.
+          Bạn đã lỡ một ngày nên lượt này thất bại. Bắt đầu lượt mới để thử lại từ ngày 1.
         </p>
       )}
 
-      {completed ? (
-        <Button type="button" variant="soft" className="mt-4 w-full" onClick={() => setRewardOpen(true)}>
-          <Gift className="size-4" />
-          Xem phần thưởng
+      {error && <p className="mt-2 rounded-xl bg-destructive/10 px-3 py-2 text-xs text-destructive">{error}</p>}
+
+      {loading ? (
+        <div className="mt-4 flex items-center justify-center gap-2 text-xs text-subtle">
+          <Loader2 className="size-4 animate-spin text-brand" />
+          Đang tải tiến độ…
+        </div>
+      ) : completed ? (
+        <div className="mt-4 flex flex-col gap-2">
+          <Button type="button" variant="soft" className="w-full" onClick={() => setRewardOpen(true)}>
+            <Gift className="size-4" />
+            Xem phần thưởng
+          </Button>
+          <Button type="button" variant="ghost" className="w-full" disabled={busy} onClick={handleJoin}>
+            {spinner}
+            Tham gia lượt mới
+          </Button>
+        </div>
+      ) : status === "NONE" || failed ? (
+        <Button type="button" className="mt-4 w-full" disabled={busy} onClick={handleJoin}>
+          {spinner}
+          {failed ? "Bắt đầu lại thử thách" : "Tham gia thử thách"}
         </Button>
       ) : (
-        <Button type="button" className="mt-4 w-full" disabled={checkedToday} onClick={handleCheckIn}>
+        <Button type="button" className="mt-4 w-full" disabled={checkedToday || busy} onClick={handleCheckIn}>
+          {spinner}
           {checkedToday ? (
             <>
               <Check className="size-4" />

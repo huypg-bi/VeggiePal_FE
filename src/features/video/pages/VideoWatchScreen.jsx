@@ -74,7 +74,7 @@ export default function VideoWatchScreen() {
 
           <div className="flex flex-col gap-6">
             <Reveal>
-              <NutritionFactsCard />
+              <NutritionFactsCard video={video} />
             </Reveal>
             <Reveal>
               <SuggestedVideoList

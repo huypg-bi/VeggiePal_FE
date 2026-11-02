@@ -59,3 +59,21 @@ export async function changeUserRole(id, role) {
   const res = await apiClient.put(`/admin/users/${id}/role`, { role });
   return unwrap(res, "Không thể thay đổi vai trò người dùng");
 }
+
+// Lịch sử cấp và thu hồi huy hiệu của một người dùng (còn hiệu lực lẫn đã thu hồi).
+export async function getUserBadges(id) {
+  const res = await apiClient.get(`/admin/users/${id}/badges`);
+  return unwrap(res, "Không thể tải huy hiệu của người dùng") ?? [];
+}
+
+// Cấp huy hiệu xác minh (VERIFIED); gọi lại khi còn hiệu lực thì BE trả cùng huy hiệu.
+export async function grantVerificationBadge(id) {
+  const res = await apiClient.post(`/admin/users/${id}/badges/verification`);
+  return unwrap(res, "Không thể cấp huy hiệu xác minh");
+}
+
+// Thu hồi một huy hiệu kèm lý do bắt buộc (tối đa 500 ký tự).
+export async function revokeBadge(id, badgeId, reason) {
+  const res = await apiClient.post(`/admin/users/${id}/badges/${badgeId}/revoke`, { reason: reason?.trim() });
+  return unwrap(res, "Không thể thu hồi huy hiệu");
+}
