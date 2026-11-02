@@ -542,15 +542,13 @@ export default function SupportScreen() {
                   </p>
                 </div>
                 <div className="mt-5">
-                  <Button
-                    asChild
-                    className="w-full gap-2 rounded-xl bg-brand font-semibold text-brand-foreground shadow-xs hover:bg-brand/90 cursor-pointer"
+                  <Link
+                    to="/chatbot"
+                    className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 text-xs font-semibold text-white shadow-xs transition hover:bg-brand/90 cursor-pointer"
                   >
-                    <Link to="/chatbot">
-                      <MessageCircle className="size-4" />
-                      Chat với Bông Cải ngay
-                    </Link>
-                  </Button>
+                    <MessageCircle className="size-4 shrink-0" />
+                    <span>Chat với Bông Cải ngay</span>
+                  </Link>
                 </div>
               </div>
 
@@ -578,10 +576,10 @@ export default function SupportScreen() {
                 <div className="mt-5">
                   <a
                     href="mailto:support@veggiepal.vn"
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-xs font-semibold text-ink transition hover:bg-surface hover:text-brand cursor-pointer"
+                    className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 text-xs font-semibold text-ink transition hover:bg-surface hover:text-brand cursor-pointer"
                   >
-                    <Mail className="size-4" />
-                    support@veggiepal.vn
+                    <Mail className="size-4 shrink-0" />
+                    <span>support@veggiepal.vn</span>
                   </a>
                 </div>
               </div>
@@ -610,10 +608,10 @@ export default function SupportScreen() {
                 <div className="mt-5">
                   <a
                     href="tel:19008888"
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-border bg-card py-2.5 text-xs font-semibold text-ink transition hover:bg-surface hover:text-brand cursor-pointer"
+                    className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 text-xs font-semibold text-ink transition hover:bg-surface hover:text-brand cursor-pointer"
                   >
-                    <PhoneCall className="size-4" />
-                    Hotline: 1900 8888
+                    <PhoneCall className="size-4 shrink-0" />
+                    <span>Hotline: 1900 8888</span>
                   </a>
                 </div>
               </div>
