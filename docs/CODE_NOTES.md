@@ -106,6 +106,54 @@ Tổng cộng 334 mục từ 200 file.
 > Công tắc bật/tắt gắn với react-hook-form: \<ToggleField label="..." hint="..." {...register("active")} />
 > Dùng checkbox thật (ẩn) nên bàn phím và trình đọc màn hình hoạt động bình thường.
 
+### features/admin/content/components/BlogContentSection.jsx
+
+**Gắn với:** `export default function BlogContentSection() {`
+
+> Tab "Bài viết" của /admin/content: bài đã đăng (GET /blogs), từ khóa tìm ở BE, 10 bài mỗi trang.
+> Xóa bằng DELETE /blogs/:id qua `useDeleteBlog`; admin xóa bài người khác thì BE đặt BANNED (ẩn khỏi công khai, không khôi phục).
+
+### features/admin/content/components/ContentSearchBox.jsx
+
+**Gắn với:** `export default function ContentSearchBox({ placeholder, ariaLabel, onChange }) {`
+
+> Ô tìm dùng chung cho ba tab nội dung: gõ xong 400 ms (hoặc Enter) mới đẩy từ khóa lên tab cha, nút X xóa từ khóa.
+
+### features/admin/content/components/ContentTable.jsx
+
+**Gắn với:** `export default function ContentTable({`
+
+> Bảng nội dung đã đăng dùng chung cho bài viết / công thức / video. `columns` là các cột số liệu riêng của từng loại
+> (nằm giữa cột Tác giả và Ngày đăng). Nút "Xem" mở trang công khai ở tab mới để admin giữ nguyên chỗ đang quản lý;
+> nút "Xóa" mở hộp xác nhận rồi gọi `deleteMutation` của tab (các hook xóa có sẵn). Tên tác giả lấy một lượt qua `usePublicUsers`.
+> `page` bắt đầu từ 0. Tab cha tự xử lý trạng thái tải / lỗi / rỗng qua các props `isPending`, `isError`, `emptyText`.
+
+### features/admin/content/components/RecipeContentSection.jsx
+
+**Gắn với:** `export default function RecipeContentSection() {`
+
+> Tab "Công thức": công thức đã đăng (GET /recipes), từ khóa tìm ở BE, xóa bằng DELETE /recipes/:id (BE chuyển sang ARCHIVED).
+
+### features/admin/content/components/VideoContentSection.jsx
+
+**Gắn với:** `export default function VideoContentSection() {`
+
+> Tab "Video": BE chưa có tìm kiếm cho GET /videos (task B16) nên tải đủ mọi trang rồi lọc tiêu đề (`textIncludes`) và cắt 10 video
+> mỗi trang ở FE. Xóa hết video ở trang cuối thì `currentPage` tự lùi về trang trước.
+
+### features/admin/content/hooks/useAdminContent.js
+
+**Gắn với:** `async function fetchAllVideos() {`
+
+> Tải mọi trang video đã đăng (100 video mỗi lần, BE giới hạn 100) thành một mảng phẳng để lọc và phân trang ở FE.
+
+### features/admin/content/queryKeys.js
+
+**Gắn với:** `export const adminContentKeys = {`
+
+> Khóa cache của trang quản lý nội dung. Cố ý đặt dưới gốc cache của blog (`["blog","posts"]`), recipe (`["recipes"]`) và video (`["videos"]`)
+> để các hook xóa có sẵn (`useDeleteBlog`, `useDeleteRecipe`, `useDeleteVideo`) tự làm mới các bảng này mà không cần mã thêm.
+
 ### features/admin/moderation/api/moderationApi.js
 
 **Gắn với:** `function toMessage(res, fallbackMessage) {`
@@ -226,6 +274,13 @@ Tổng cộng 334 mục từ 200 file.
 
 > Trang giám sát AI (/admin/ai-monitoring): lượt dùng, token, độ trễ, lỗi của ai-service,
 > model đang dùng, giới hạn quota và nhật ký từng lượt gọi.
+
+### features/admin/pages/AdminContentScreen.jsx
+
+**Gắn với:** `export default function AdminContentScreen() {`
+
+> Trang quản lý nội dung của Admin (/admin/content): 3 tab Bài viết / Công thức / Video chọn qua URL (?tab=blogs | recipes | videos).
+> Chỉ liệt kê nội dung đã đăng công khai vì BE chưa có endpoint liệt kê mọi trạng thái cho admin; chỉ xem và xóa, không sửa.
 
 ### features/admin/pages/AdminDashboardScreen.jsx
 

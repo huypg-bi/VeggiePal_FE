@@ -303,3 +303,13 @@ Các task dưới đây ghi ngày 29/10/2026, sau khi đọc source BE ở các 
 **BE cần làm:** thêm tham số `keyword` (tùy chọn) cho `GET /videos`, tìm theo `title` (và `description` nếu muốn), không phân biệt dấu như blog, xếp video khớp tiêu đề trước. Không dùng `@Lob` cho cột cần `lower()` / `like` (xem ghi chú trong `CLAUDE.md` của BE).
 
 **Hoàn thành khi:** `GET /videos?keyword=nấm` chỉ trả video đã `PUBLISHED` có "nấm" trong tiêu đề, kết hợp được với `categoryId` và phân trang; có test trên MySQL thật (`BlogServiceIntegrationTests`) cho trường hợp có dấu và không dấu.
+
+### B17 — Admin chưa có endpoint liệt kê nội dung ở mọi trạng thái
+
+**Service:** blog-service, recipe-service · ghi 02/11/2026 · mức: trung bình, cần chốt phạm vi.
+
+**Hiện trạng:** `GET /blogs`, `GET /videos` và `GET /recipes` chỉ trả nội dung `PUBLISHED`. `GET /blogs/me`, `/videos/me`, `/recipes/me` chỉ trả nội dung của chính người gọi. Admin sửa / xóa được nội dung người khác (`PUT` / `DELETE` đã nhận cờ admin) nhưng không có cách liệt kê nội dung chưa đăng, bị từ chối hoặc đã gỡ (`DRAFT`, `PENDING`, `REJECTED`, `BANNED`, `HIDDEN`, `ARCHIVED`), cũng không lọc được theo tác giả. Admin chỉ mở được từng mục khi biết sẵn id (`GET /blogs/:id`, `GET /recipes/:id`). Admin gỡ nội dung là một chiều: không có API mở khóa `BANNED` hay khôi phục `ARCHIVED`.
+
+**BE cần làm:** thêm endpoint chỉ cho `ROLE_ADMIN`, ví dụ `GET /admin/blogs`, `GET /admin/videos`, `GET /admin/recipes`, có phân trang, lọc theo `status`, `authorId`, `keyword`. Nếu cần, thêm API mở khóa nội dung `BANNED` / khôi phục `ARCHIVED` (chốt có cho phép không).
+
+**Hoàn thành khi:** admin liệt kê được nội dung ở từng trạng thái, lọc theo tác giả; người không phải admin gọi bị 403; có test phân quyền và lọc.
