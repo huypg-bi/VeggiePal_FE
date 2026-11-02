@@ -691,7 +691,7 @@ Tổng cộng 334 mục từ 200 file.
 **Gắn với:** `export const communityStats = [`
 
 > Dữ liệu demo cho các khối phụ của trang Cộng đồng (/blog) mà BE chưa có API:
-> số liệu cộng đồng, lời nhắn Bé Bông Cải, bảng vàng, chủ đề hot, thử thách.
+> số liệu cộng đồng và lời nhắn Bé Bông Cải.
 > Bài viết đã lấy từ API thật (useBlogFeed), không còn nằm ở đây.
 
 ### features/blog/hooks/useBlogMutations.js
@@ -823,8 +823,8 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export default function BlogScreen() {`
 
-> Trang Cộng đồng (route /blog). Bài viết lấy từ API thật (GET /blogs); bảng vàng,
-> chủ đề, thử thách... BE chưa có API nên vẫn dùng mock trong features/blog/data/mockBlog.js.
+> Trang Cộng đồng (route /blog). Bài viết lấy từ API thật (GET /blogs); số liệu cộng đồng và lời nhắn
+> Bé Bông Cải còn là mock trong features/blog/data/mockBlog.js. Cột trái là thử thách 7 ngày, cột phải là hỏi Bé Bông Cải.
 > Trên mobile bài viết lên trước, hai cột phụ xuống dưới (order-*); từ lg trở lên là 3 cột.
 
 ### features/blog/queryKeys.js
@@ -2491,13 +2491,6 @@ Tổng cộng 334 mục từ 200 file.
 > Gửi xong BE trả 202 ngay, kết quả hiện dần trong danh sách (tab "Bóc tách") nên hộp thoại đóng luôn.
 > Gói không có lượt bóc tách (videosPerMonth = 0, vd FREE) thì chặn sớm và mời nâng cấp.
 
-### features/video/components/VideoChannelBar.jsx
-
-**Gắn với:** `export default function VideoChannelBar() {`
-
-> Thanh kênh gợi ý phía trên trang video chính.
-> BE chưa có endpoint kênh / người sáng tạo riêng, nên các kênh ở đây được đánh dấu là dữ liệu mẫu.
-
 ### features/video/components/VideoForm.jsx
 
 **Gắn với:** `export default function VideoForm({ video, categories = [] }) {`
@@ -2522,11 +2515,12 @@ Tổng cộng 334 mục từ 200 file.
 > - sourceType === "YOUTUBE": dùng \<iframe> với videoUrl là embed URL do BE trả về.  
 > - sourceType === "UPLOAD": dùng thẻ \<video> HTML5 với videoUrl là tệp .mp4.
 
-### features/video/data/mockVideo.js
+### features/video/components/VideoSearchBar.jsx
 
-**Gắn với:** `export const videoChannels = [`
+**Gắn với:** `export default function VideoSearchBar({ keyword, onChange }) {`
 
-> Dữ liệu mẫu tham khảo cho tính năng chưa có endpoint backend riêng (kênh ẩm thực đề xuất).
+> Ô tìm video ở đầu trang /videos, có biểu tượng video ở đầu ô. Gõ xong 300 ms (hoặc bấm Enter) mới đẩy từ khóa
+> lên URL (?q=) qua `onChange`; nút X xóa chữ và từ khóa. Lọc thật nằm ở VideoHomeScreen.
 
 ### features/video/hooks/useMyVideos.js
 
@@ -2623,7 +2617,9 @@ Tổng cộng 334 mục từ 200 file.
 **Gắn với:** `export default function VideoHomeScreen() {`
 
 > Trang video chính (route /videos, công khai): danh sách video đã duyệt (GET /videos),
-> hỗ trợ lọc theo danh mục trên URL (?category=) và phân trang "Xem thêm".
+> hỗ trợ lọc theo danh mục trên URL (?category=), tìm theo tiêu đề (?q=) và phân trang "Xem thêm".
+> BE chưa có tham số tìm kiếm cho video nên khi có từ khóa, FE tải nốt mọi trang còn lại rồi lọc theo tiêu đề
+> (`textIncludes`) và ẩn nút "Xem thêm"; chưa có kết quả mà còn trang chưa tải thì vẫn hiện khung chờ.
 
 ### features/video/pages/VideoWatchScreen.jsx
 
@@ -2850,3 +2846,10 @@ Tổng cộng 334 mục từ 200 file.
 
 > Gộp danh sách của mọi trang useInfiniteQuery thành một mảng phẳng.
 > `key` là tên field chứa danh sách: blog-service dùng "items", recipe-service dùng "content".
+
+### shared/utils/text.js
+
+**Gắn với:** `export function textIncludes(text, keyword) {`
+
+> Tìm từ khóa trong một đoạn chữ tiếng Việt. Từ khóa có dấu thì khớp đúng dấu ("nấm" không khớp "năm"),
+> từ khóa không dấu thì bỏ qua dấu ("nam" khớp "nấm"). Dùng cho ô tìm video ở /videos vì BE chưa có tham số tìm kiếm.

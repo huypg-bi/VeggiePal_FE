@@ -91,7 +91,7 @@ export default function UsageLogsSection() {
   };
 
   const hasActiveFilters = Boolean(feature || status || userId || fromDate || toDate);
-  const items = data?.items ?? [];
+  const items = useMemo(() => data?.items ?? [], [data]);
   const userIds = useMemo(() => items.map((l) => l.userId).filter(Boolean), [items]);
   const { data: userMap } = usePublicUsers(userIds);
 

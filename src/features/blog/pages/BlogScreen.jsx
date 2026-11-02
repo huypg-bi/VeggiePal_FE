@@ -9,8 +9,6 @@ import BlogFilterBar from "@/features/blog/components/BlogFilterBar";
 import BlogPostCard from "@/features/blog/components/BlogPostCard";
 import CommunityHero from "@/features/blog/components/CommunityHero";
 import FollowListDialog from "@/features/blog/components/FollowListDialog";
-import LeaderboardCard from "@/features/blog/components/LeaderboardCard";
-import TrendingTopicsCard from "@/features/blog/components/TrendingTopicsCard";
 import WeeklyChallengeCard from "@/features/blog/components/WeeklyChallengeCard";
 import { useMyVotes } from "@/features/blog/hooks/useBlogVotes";
 import { useBlogFeed, useFollowingFeed } from "@/features/blog/hooks/useBlogs";
@@ -77,8 +75,7 @@ export default function BlogScreen() {
 
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[250px_minmax(0,1fr)_300px]">
           <aside className="order-2 flex flex-col gap-6 lg:order-1 lg:sticky lg:top-24">
-            <LeaderboardCard />
-            <TrendingTopicsCard />
+            <WeeklyChallengeCard />
           </aside>
 
           <div className="order-1 flex flex-col gap-6 lg:order-2">
@@ -202,7 +199,6 @@ export default function BlogScreen() {
           </div>
 
           <aside className="order-3 flex flex-col gap-6 lg:sticky lg:top-24">
-            <WeeklyChallengeCard />
             <AskBroccoliCard />
           </aside>
         </div>

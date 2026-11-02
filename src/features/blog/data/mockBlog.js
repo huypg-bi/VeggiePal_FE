@@ -8,17 +8,3 @@ export const broccoliQuote = {
   quote: "“Ăn trọn vị, sống trọn an lành!”",
   hint: "Sẵn sàng phân tích dinh dưỡng cùng bạn",
 };
-
-export const leaderboard = [
-  { id: 1, name: "Bếp Chay Yên Vui", recipes: 38, likes: "4.8k", following: false },
-  { id: 2, name: "Minh Thuận", recipes: 29, likes: "3.2k", following: true },
-  { id: 3, name: "BS. Diệu Hiếu", articles: 14, likes: "2.9k", following: false },
-];
-
-export const trendingTopics = [
-  { id: "mealprep", tag: "MealPrepChay", count: "1.2k" },
-  { id: "diet", tag: "DiamCanLanhManh", count: "890" },
-  { id: "broccoli", tag: "BongCaiCare", count: "640" },
-  { id: "wfpb", tag: "WFPB_Vietnam", count: "2.4k" },
-  { id: "hat", tag: "SuaHatTuNhien", count: "520" },
-];
