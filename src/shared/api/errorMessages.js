@@ -314,3 +314,26 @@ export const PAYMENT_ERROR_MESSAGES = {
   6008: "Đơn hàng này không thể huỷ",
   6009: "Chưa huỷ được đơn, vui lòng thử lại",
 };
+
+// Quản lý prompt AI (ai-service, /ai/admin/prompts). Lỗi nghiệp vụ đều mang mã 6000 kèm câu tiếng Anh nên dịch thêm theo nội dung.
+export const PROMPT_ERROR_MESSAGES = {
+  6000: "Dữ liệu prompt không hợp lệ",
+  6001: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
+  6002: "Không tìm thấy prompt hoặc phiên bản này",
+  6004: "AI đang tạm thời quá tải, bạn thử lại sau ít phút",
+  6005: "Tính năng AI chưa được cấu hình trên máy chủ",
+  6007: "AI trả về kết quả không hợp lệ, bạn thử lại hoặc chỉnh lại prompt",
+  6999: "Máy chủ đang gặp lỗi, vui lòng thử lại sau ít phút",
+};
+
+export const PROMPT_MESSAGE_PATTERNS = [
+  [/^Only drafts can be edited/, "Chỉ sửa được bản nháp"],
+  [/^Only drafts can be published/, "Chỉ publish được bản nháp"],
+  [/^Only drafts can be previewed/, "Chỉ chạy thử được bản nháp"],
+  [/^Only published versions can be restored/, "Chỉ kích hoạt lại được bản đã publish"],
+  [/^sampleInput is required/, "Vui lòng nhập dữ liệu mẫu để chạy thử"],
+  [/^Prompt must contain/, "Prompt phải có từ 1 đến 30.000 ký tự"],
+  [/^Malformed template variable/, "Có biến {{...}} viết sai cú pháp"],
+  [/^Required variables:/, "Prompt phải giữ đúng và đủ các biến bắt buộc, không thêm biến lạ"],
+  [/^Expected variables:/, "Cần nhập đủ giá trị cho các biến của prompt"],
+];

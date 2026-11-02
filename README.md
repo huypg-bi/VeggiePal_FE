@@ -48,7 +48,7 @@
 - **📍 Bản đồ xanh (Map):** Xem quán ăn chay quanh vị trí của bạn trên bản đồ Mapbox (chọn bán kính 1 - 10 km, sắp theo gần nhất hoặc đánh giá cao), tìm quán theo tên (từ 2 ký tự) trên toàn bản đồ *(API thật)*.
 - **🤖 Trợ lý Bông Cải (AI Chatbot):** Giao diện hỏi đáp kiến thức dinh dưỡng chay, quản lý nhiều đoạn chat *(API thật: ai-service, có chế độ dùng thử cho khách; giới hạn lượt/ngày: khách 3 lượt, FREE 5, PLUS 20, PRO 50; mở cuộc trò chuyện của người khác trả 404)*.
 - **🎨 Giao diện & Trải nghiệm:** Landing page hiện đại, hỗ trợ chuyển đổi chế độ Sáng/Tối (Light/Dark Mode).
-- **🛡️ Quản trị hệ thống (Admin):** Màn hình quản lý người dùng (`/admin/users`: tìm kiếm email/họ tên, lọc theo trạng thái và vai trò, khóa tài khoản kèm lý do, mở khóa tài khoản, nâng quyền Quản trị viên, xem / cấp xác minh / thu hồi huy hiệu), quản lý danh mục và nguyên liệu, duyệt nội dung bài viết/video/bình luận, giám sát AI và thống kê doanh thu gói thành viên.
+- **🛡️ Quản trị hệ thống (Admin):** Màn hình quản lý người dùng (`/admin/users`: tìm kiếm email/họ tên, lọc theo trạng thái và vai trò, khóa tài khoản kèm lý do, mở khóa tài khoản, nâng quyền Quản trị viên, xem / cấp xác minh / thu hồi huy hiệu), quản lý danh mục và nguyên liệu, duyệt nội dung bài viết/video/bình luận, giám sát AI, quản lý prompt AI (soạn nháp, chạy thử, publish, khôi phục mặc định) và thống kê doanh thu gói thành viên.
 - **💳 Gói thành viên & Thanh toán (Payment & Subscriptions):** Xem bảng giá các gói thành viên (FREE, PLUS, PRO), thanh toán qua cổng payOS VietQR, polling kiểm tra webhook kích hoạt gói tức thì, quản lý lịch sử thanh toán và thời hạn sử dụng *(API thật: payment-service)*. Trang thanh toán tự dựng `/checkout/:orderId`: FE tự vẽ mã VietQR bằng `qrcode.react`, đếm ngược hết hạn, polling trạng thái đơn, huỷ/tạo lại đơn.
 
 ---
@@ -176,6 +176,7 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | `GET` / `POST` | `/nutrition/me/health-records` | Lịch sử / ghi chỉ số sức khỏe |
 | `GET` | `/nutrition/me/health-records/latest` | Chỉ số sức khỏe mới nhất |
 | `PUT` | `/nutrition/me/health-records/:id` | Sửa một bản ghi chỉ số sức khỏe trong lịch sử |
+| `GET` / `POST` / `PUT` | `/ai/admin/prompts`, `/ai/admin/prompts/:key/versions`, `/activations`, `/drafts`, `/drafts/:v/preview`, `/drafts/:v/publish`, `/versions/:v/activate` | Quản lý prompt AI (chỉ ADMIN): xem, tạo / sửa nháp, chạy thử, publish, kích hoạt lại |
 | `GET` | `/ai/admin/monitoring/summary`, `/logs/search`, `/models`, `/limits` | Giám sát AI (chỉ ADMIN): tổng hợp, nhật ký, model, giới hạn (hỗ trợ `excludeFeature` loại trừ kiểm duyệt theo task B06) |
 | `GET` / `PUT` / `DELETE` | `/ai/admin/moderation`, `/ai/admin/moderation/:id`, `/ai/admin/moderation/history`, `/ai/admin/monitoring/logs/search?feature=MODERATION` | Kiểm duyệt nội dung (chỉ ADMIN): hàng đợi chờ duyệt, lịch sử các ca đã xử lý (`GET /ai/admin/moderation/history` theo task B05), nhật ký gọi AI kiểm duyệt |
 | `POST` | `/ai/videos/process` | Gửi tệp video bóc tách công thức AI (multipart ≤ 100MB, ≤ 30 phút, cần đăng nhập) |
