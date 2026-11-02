@@ -16,13 +16,15 @@ import {
 import AppHeader from "@/shared/components/AppHeader";
 import Reveal from "@/shared/components/Reveal";
 import { Button } from "@/components/ui/button";
-import { useOrder, usePaymentHistory } from "@/features/payment/hooks";
+import { useMySubscription, useOrder, usePaymentHistory } from "@/features/payment/hooks";
 import { paymentKeys } from "@/features/payment/queryKeys";
 import {
   PENDING_ORDER_STORAGE_KEY,
   formatVnd,
   formatDateTime,
   PLAN_DETAILS,
+  PLAN_RANK,
+  planName,
 } from "@/features/payment/utils/paymentFormat";
 
 // Thời gian chờ tối đa cho polling webhook: 45 giây (mỗi 2.5s gọi 1 lần)
@@ -34,6 +36,7 @@ export default function PaymentSuccessScreen() {
   const queryClient = useQueryClient();
 
   const [isTimedOut, setIsTimedOut] = useState(false);
+  const { subscription } = useMySubscription();
 
   // 1. Lấy order id từ sessionStorage
   const [storedOrderId] = useState(() => {
@@ -100,6 +103,12 @@ export default function PaymentSuccessScreen() {
     }
   }, [isFailed]);
 
+  // Đơn gói thấp thanh toán sau khi đã nâng cấp: BE giữ gói cao và quy đổi thành ngày, không hạ cấp
+  const creditedToHigherPlan =
+    isPaid &&
+    Boolean(subscription) &&
+    (PLAN_RANK[subscription.planCode] ?? 0) > (PLAN_RANK[currentOrder?.planCode] ?? 0);
+
   const planInfo = useMemo(() => {
     return PLAN_DETAILS[currentOrder?.planCode] || {
       name: `Gói ${currentOrder?.planCode || ""}`,
@@ -148,8 +157,18 @@ export default function PaymentSuccessScreen() {
                     Chúc mừng bạn đã nâng cấp thành công!
                   </h2>
                   <p className="text-sm text-subtle max-w-md mx-auto">
-                    Tài khoản của bạn đã được kích hoạt quyền lợi <strong className="text-ink">{planInfo.name}</strong>.
-                    Bắt đầu trải nghiệm ngay hôm nay.
+                    {creditedToHigherPlan ? (
+                      <>
+                        Bạn đang dùng gói cao hơn nên <strong className="text-ink">{planInfo.name}</strong> được quy đổi
+                        thành ngày sử dụng của <strong className="text-ink">{planName(subscription.planCode)}</strong>,
+                        không làm đổi gói hiện tại.
+                      </>
+                    ) : (
+                      <>
+                        Tài khoản của bạn đã được kích hoạt quyền lợi{" "}
+                        <strong className="text-ink">{planInfo.name}</strong>. Bắt đầu trải nghiệm ngay hôm nay.
+                      </>
+                    )}
                   </p>
                 </div>
 
@@ -171,10 +190,16 @@ export default function PaymentSuccessScreen() {
                       <span className="text-subtle">Số tiền thanh toán</span>
                       <strong className="text-brand font-bold">{formatVnd(currentOrder.amount)}</strong>
                     </div>
-                    <div className="flex items-center justify-between">
+                    <div className={subscription?.expiresAt ? "flex items-center justify-between border-b border-border/60 pb-2" : "flex items-center justify-between"}>
                       <span className="text-subtle">Thời gian thanh toán</span>
                       <span className="text-ink">{formatDateTime(currentOrder.paidAt || currentOrder.createdAt)}</span>
                     </div>
+                    {subscription?.expiresAt && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-subtle">{planName(subscription.planCode)} dùng đến</span>
+                        <strong className="text-ink">{formatDateTime(subscription.expiresAt)}</strong>
+                      </div>
+                    )}
                   </div>
                 )}
 

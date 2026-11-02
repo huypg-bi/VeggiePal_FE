@@ -313,6 +313,7 @@ export const PAYMENT_ERROR_MESSAGES = {
   6007: "Thanh toán không thành công",
   6008: "Đơn hàng này không thể huỷ",
   6009: "Chưa huỷ được đơn, vui lòng thử lại",
+  6010: "Không thể mua gói thấp hơn khi gói hiện tại còn hiệu lực",
 };
 
 // Quản lý prompt AI (ai-service, /ai/admin/prompts). Lỗi nghiệp vụ đều mang mã 6000 kèm câu tiếng Anh nên dịch thêm theo nội dung.

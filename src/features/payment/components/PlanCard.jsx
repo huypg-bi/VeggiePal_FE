@@ -2,7 +2,7 @@ import { Check, Sparkles, Bot, Utensils, Video, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { formatVnd, PLAN_DETAILS } from "@/features/payment/utils/paymentFormat";
+import { formatDate, formatVnd, getPlanChange, PLAN_DETAILS } from "@/features/payment/utils/paymentFormat";
 
 export default function PlanCard({
   plan,
@@ -13,6 +13,8 @@ export default function PlanCard({
   const isFree = plan.code === "FREE" || plan.price <= 0;
   const isCurrentPlan = currentSubscription?.planCode === plan.code;
   const isActiveCurrentPlan = isCurrentPlan && !isFree;
+  const change = getPlanChange(currentSubscription?.planCode, currentSubscription?.expiresAt, plan.code);
+  const isBlockedDowngrade = !isFree && change === "DOWNGRADE";
 
   const details = PLAN_DETAILS[plan.code] || {
     name: `Gói ${plan.code}`,
@@ -132,6 +134,15 @@ export default function PlanCard({
           >
             {isCurrentPlan ? "Gói hiện tại của bạn" : "Gói miễn phí mặc định"}
           </Button>
+        ) : isBlockedDowngrade ? (
+          <div className="space-y-2 text-center">
+            <Button type="button" variant="outline" disabled className="w-full rounded-full font-medium text-subtle">
+              Đang dùng gói cao hơn
+            </Button>
+            <p className="text-xs text-subtle">
+              Bạn có thể mua gói này sau khi gói hiện tại hết hạn ({formatDate(currentSubscription?.expiresAt)}).
+            </p>
+          </div>
         ) : (
           <Button
             type="button"
@@ -149,11 +160,16 @@ export default function PlanCard({
                 Đang xử lý…
               </>
             ) : isActiveCurrentPlan ? (
-              "Gia hạn thêm 30 ngày"
+              `Gia hạn thêm ${plan.durationDays || 30} ngày`
             ) : (
               "Nâng cấp ngay"
             )}
           </Button>
+        )}
+        {!isFree && change === "UPGRADE" && (
+          <p className="mt-2 text-center text-xs text-subtle">
+            Thời hạn còn lại của gói hiện tại được quy đổi thành ngày của gói này.
+          </p>
         )}
       </div>
     </div>

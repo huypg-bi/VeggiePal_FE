@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Sparkles,
   ShieldCheck,
@@ -18,9 +19,11 @@ import { useRequireLogin } from "@/features/auth/hooks/useRequireLogin";
 import { usePlans, useMySubscription, useCheckout } from "@/features/payment/hooks";
 import PlanCard from "@/features/payment/components/PlanCard";
 import PlanConfirmDialog from "@/features/payment/components/PlanConfirmDialog";
+import { paymentKeys } from "@/features/payment/queryKeys";
 import {
   PENDING_ORDER_STORAGE_KEY,
   formatDateTime,
+  getPlanChange,
 } from "@/features/payment/utils/paymentFormat";
 
 export default function PricingScreen() {
@@ -28,6 +31,7 @@ export default function PricingScreen() {
   const { subscription, loading: loadingSub } = useMySubscription();
   const checkoutMutation = useCheckout();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { isAuthenticated, requireLogin } = useRequireLogin();
 
   const [confirmPlan, setConfirmPlan] = useState(null);
@@ -40,11 +44,9 @@ export default function PricingScreen() {
       return;
     }
 
-    // Nếu người dùng đang dùng gói trả phí khác gói muốn mua -> xác nhận
-    const currentCode = subscription?.planCode;
-    const isPaidCurrentPlan = currentCode && currentCode !== "FREE";
-
-    if (isPaidCurrentPlan && currentCode !== plan.code) {
+    // Gia hạn hoặc nâng cấp khi còn gói trả phí -> xem trước hạn dùng mới rồi mới xác nhận
+    const change = getPlanChange(subscription?.planCode, subscription?.expiresAt, plan.code);
+    if (change === "RENEW" || change === "UPGRADE") {
       setConfirmPlan(plan);
       return;
     }
@@ -66,6 +68,8 @@ export default function PricingScreen() {
       }
     } catch (err) {
       toast.error(err.message || "Không thể tạo giao dịch thanh toán");
+      // 6010: gói hiện tại đã đổi so với màn hình đang xem nên tải lại để nút hiển thị đúng
+      if (err.code === 6010) queryClient.invalidateQueries({ queryKey: paymentKeys.subscription() });
     } finally {
       setConfirmPlan(null);
       setSelectedPlanCode(null);
@@ -248,7 +252,6 @@ export default function PricingScreen() {
           open={Boolean(confirmPlan)}
           onOpenChange={(open) => !open && setConfirmPlan(null)}
           onConfirm={() => executeCheckout(confirmPlan.code)}
-          currentPlan={subscription?.planCode}
           targetPlan={confirmPlan.code}
           loading={isCheckoutLoading}
         />
