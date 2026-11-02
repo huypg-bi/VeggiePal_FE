@@ -1,26 +1,31 @@
 import { useMemo, useState } from "react";
-import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight, ExternalLink, Trash2 } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, ExternalLink, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { buttonVariants } from "@/components/ui/variants/button-variants";
+import ContentStatusDialog from "@/features/admin/content/components/ContentStatusDialog";
+import { canDeleteContent, canReviewContent } from "@/features/admin/content/utils/contentStatus";
+import StatusBadge from "@/features/my-content/components/StatusBadge";
 import { formatDate } from "@/features/payment/utils/paymentFormat";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
 import UserDisplayName from "@/shared/components/UserDisplayName";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-// Bảng nội dung đã đăng dùng chung cho bài viết / công thức / video: xem ở tab mới và xóa có xác nhận.
-// columns: [{ key, label, align?, render(item) }] là các cột số liệu riêng của từng loại, nằm giữa tác giả và ngày đăng.
+// Bảng nội dung ở mọi trạng thái dùng chung cho bài viết / công thức / video: xem ở tab mới, duyệt / từ chối kèm lý do
+// (chỉ khi có reviewMutation, tức bài viết và video) và xóa có xác nhận.
+// columns: [{ key, label, align?, render(item) }] là các cột số liệu riêng của từng loại, nằm giữa trạng thái và ngày.
 export default function ContentTable({
   items,
   columns,
   noun,
   deleteNote,
   getAuthorId,
-  getViewPath,
+  getViewHref,
   getPublishedAt,
+  getStatusInfo,
   deleteMutation,
+  reviewMutation,
   page,
   totalPages,
   totalElements,
@@ -32,6 +37,7 @@ export default function ContentTable({
   emptyText,
 }) {
   const [target, setTarget] = useState(null);
+  const [review, setReview] = useState(null);
   const userIds = useMemo(() => items.map(getAuthorId).filter(Boolean), [items, getAuthorId]);
   const { data: userMap } = usePublicUsers(userIds);
 
@@ -40,6 +46,15 @@ export default function ContentTable({
       onSuccess: () => {
         setTarget(null);
         toast.success(`Đã xóa ${noun}`);
+      },
+      onError: (err) => toast.error(err.message),
+    });
+
+  const handleReview = (payload) =>
+    reviewMutation.mutate(payload, {
+      onSuccess: () => {
+        setReview(null);
+        toast.success(payload.status === "PUBLISHED" ? `Đã duyệt ${noun}` : `Đã từ chối ${noun}`);
       },
       onError: (err) => toast.error(err.message),
     });
@@ -61,11 +76,12 @@ export default function ContentTable({
   return (
     <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] text-left text-sm">
+        <table className="w-full min-w-[980px] text-left text-sm">
           <thead className="bg-surface text-xs uppercase tracking-wide text-subtle">
             <tr>
               <th className="px-4 py-3 font-semibold">Tiêu đề</th>
               <th className="px-3 py-3 font-semibold">Tác giả</th>
+              <th className="px-3 py-3 font-semibold">Trạng thái</th>
               {columns.map((col) => (
                 <th
                   key={col.key}
@@ -74,7 +90,7 @@ export default function ContentTable({
                   {col.label}
                 </th>
               ))}
-              <th className="px-3 py-3 font-semibold">Ngày đăng</th>
+              <th className="px-3 py-3 font-semibold">Ngày</th>
               <th className="px-3 py-3" />
             </tr>
           </thead>
@@ -83,9 +99,17 @@ export default function ContentTable({
               <tr key={item.id} className="text-body">
                 <td className="max-w-xs px-4 py-3 font-medium text-ink">
                   <span className="line-clamp-2">{item.title}</span>
+                  {item.moderationReason && (
+                    <span className="mt-0.5 line-clamp-1 text-xs font-normal italic text-subtle">
+                      {item.moderationReason}
+                    </span>
+                  )}
                 </td>
                 <td className="px-3 py-3">
                   <UserDisplayName userId={getAuthorId(item)} userMap={userMap} />
+                </td>
+                <td className="px-3 py-3">
+                  <StatusBadge info={getStatusInfo(item.status)} />
                 </td>
                 {columns.map((col) => (
                   <td
@@ -98,8 +122,8 @@ export default function ContentTable({
                 <td className="whitespace-nowrap px-3 py-3 tabular-nums">{formatDate(getPublishedAt(item))}</td>
                 <td className="px-3 py-3">
                   <div className="flex justify-end gap-2">
-                    <Link
-                      to={getViewPath(item)}
+                    <a
+                      href={getViewHref(item)}
                       target="_blank"
                       rel="noreferrer"
                       aria-label={`Xem ${noun} “${item.title}”`}
@@ -107,18 +131,46 @@ export default function ContentTable({
                     >
                       <ExternalLink className="size-3.5" />
                       Xem
-                    </Link>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      aria-label={`Xóa ${noun} “${item.title}”`}
-                      className="text-destructive"
-                      onClick={() => setTarget(item)}
-                    >
-                      <Trash2 className="size-3.5" />
-                      Xóa
-                    </Button>
+                    </a>
+                    {reviewMutation && canReviewContent(item.status) && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        aria-label={`Duyệt ${noun} “${item.title}”`}
+                        className="text-brand"
+                        onClick={() => setReview({ item, decision: "PUBLISHED" })}
+                      >
+                        <Check className="size-3.5" />
+                        Duyệt
+                      </Button>
+                    )}
+                    {reviewMutation && item.status === "PENDING" && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        aria-label={`Từ chối ${noun} “${item.title}”`}
+                        className="text-destructive"
+                        onClick={() => setReview({ item, decision: "REJECTED" })}
+                      >
+                        <X className="size-3.5" />
+                        Từ chối
+                      </Button>
+                    )}
+                    {canDeleteContent(item.status) && (
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        aria-label={`Xóa ${noun} “${item.title}”`}
+                        className="text-destructive"
+                        onClick={() => setTarget(item)}
+                      >
+                        <Trash2 className="size-3.5" />
+                        Xóa
+                      </Button>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -164,6 +216,21 @@ export default function ContentTable({
         loading={deleteMutation.isPending}
         onConfirm={handleDelete}
       />
+
+      {reviewMutation && (
+        <ContentStatusDialog
+          key={`${review?.item.id}-${review?.decision}`}
+          item={review?.item}
+          decision={review?.decision}
+          noun={noun}
+          authorId={review ? getAuthorId(review.item) : undefined}
+          statusInfo={getStatusInfo(review?.item.status)}
+          open={review !== null}
+          onOpenChange={(open) => !open && setReview(null)}
+          loading={reviewMutation.isPending}
+          onConfirm={handleReview}
+        />
+      )}
     </div>
   );
 }

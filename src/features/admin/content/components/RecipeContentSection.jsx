@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
 
 import ContentSearchBox from "@/features/admin/content/components/ContentSearchBox";
+import ContentStatusFilter from "@/features/admin/content/components/ContentStatusFilter";
 import ContentTable from "@/features/admin/content/components/ContentTable";
 import { useAdminRecipes } from "@/features/admin/content/hooks/useAdminContent";
 import { formatCount } from "@/features/admin/content/utils/contentFormat";
+import { getRecipeStatusInfo, RECIPE_STATUS_FILTERS } from "@/features/my-content/utils/statusInfo";
 import { useDeleteRecipe } from "@/features/recipe/hooks/useRecipeMutations";
 
 const COLUMNS = [
@@ -12,14 +14,15 @@ const COLUMNS = [
 ];
 
 const getAuthorId = (recipe) => recipe.userId;
-const getViewPath = (recipe) => `/recipes/${recipe.id}`;
+const getViewHref = (recipe) => `/recipes/${recipe.id}`;
 const getPublishedAt = (recipe) => recipe.publishedAt ?? recipe.createdAt;
 
-// Tab "Công thức": công thức đã đăng (GET /recipes), tìm theo từ khóa ở BE.
+// Tab "Công thức": công thức ở mọi trạng thái (GET /admin/recipes), lọc trạng thái và tìm từ khóa ở BE; BE chưa có duyệt công thức nên chỉ xem và xóa.
 export default function RecipeContentSection() {
   const [keyword, setKeyword] = useState("");
+  const [status, setStatus] = useState("");
   const [page, setPage] = useState(0);
-  const { data, isPending, isFetching, isError, error } = useAdminRecipes({ keyword, page });
+  const { data, isPending, isFetching, isError, error } = useAdminRecipes({ status, keyword, page });
   const deleteRecipe = useDeleteRecipe();
   const items = useMemo(() => data?.items ?? [], [data]);
 
@@ -36,14 +39,23 @@ export default function RecipeContentSection() {
           setPage(0);
         }}
       />
+      <ContentStatusFilter
+        options={RECIPE_STATUS_FILTERS}
+        value={status}
+        onChange={(value) => {
+          setStatus(value);
+          setPage(0);
+        }}
+      />
       <ContentTable
         items={items}
         columns={COLUMNS}
         noun="công thức"
         deleteNote="sẽ bị gỡ khỏi trang công khai và không thể khôi phục."
         getAuthorId={getAuthorId}
-        getViewPath={getViewPath}
+        getViewHref={getViewHref}
         getPublishedAt={getPublishedAt}
+        getStatusInfo={getRecipeStatusInfo}
         deleteMutation={deleteRecipe}
         page={page}
         totalPages={data?.totalPages ?? 0}
@@ -53,7 +65,7 @@ export default function RecipeContentSection() {
         isFetching={isFetching}
         isError={isError}
         error={error}
-        emptyText={keyword ? "Không có công thức nào khớp từ khóa." : "Chưa có công thức nào được đăng."}
+        emptyText={keyword || status ? "Không có công thức nào khớp bộ lọc." : "Chưa có công thức nào."}
       />
     </section>
   );

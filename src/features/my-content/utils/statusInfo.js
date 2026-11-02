@@ -10,6 +10,7 @@ const RECIPE_STATUS = {
   DRAFT: { label: "Bản nháp", tone: "muted", hint: "Chưa đăng, chỉ mình bạn thấy" },
   PUBLISHED: { label: "Đã đăng", tone: "success", hint: "" },
   HIDDEN: { label: "Đang ẩn", tone: "danger", hint: "Công thức đang bị ẩn khỏi mọi người" },
+  ARCHIVED: { label: "Đã xóa", tone: "danger", hint: "Quản trị viên đã xóa công thức này" },
 };
 
 const VIDEO_STATUS = {
@@ -39,7 +40,13 @@ export const VIDEO_STATUS_FILTERS = [
   ...Object.entries(VIDEO_STATUS).map(([value, { label }]) => ({ value, label })),
 ];
 
-const UNKNOWN = { label: "Không rõ", tone: "muted", hint: "" };
+// Bộ lọc ở trang quản lý công thức của admin: "" = tất cả.
+export const RECIPE_STATUS_FILTERS = [
+  { value: "", label: "Tất cả" },
+  ...Object.entries(RECIPE_STATUS).map(([value, { label }]) => ({ value, label })),
+];
+
+const UNKNOWN ={ label: "Không rõ", tone: "muted", hint: "" };
 
 /** Thông tin hiển thị của một trạng thái bài viết; trạng thái lạ rơi về "Không rõ". */
 export function getBlogStatusInfo(status) {

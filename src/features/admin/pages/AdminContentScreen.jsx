@@ -12,7 +12,7 @@ const TABS = [
   { id: "videos", label: "Video", icon: Video, Section: VideoContentSection },
 ];
 
-// Trang quản lý nội dung (/admin/content): xem và xóa bài viết, công thức, video đã đăng; tab nằm trên URL (?tab=).
+// Trang quản lý nội dung (/admin/content): xem mọi trạng thái, duyệt / từ chối bài viết và video chờ, xóa; tab nằm trên URL (?tab=).
 export default function AdminContentScreen() {
   const [searchParams, setSearchParams] = useSearchParams();
   const active = TABS.find((tab) => tab.id === searchParams.get("tab")) ?? TABS[0];
@@ -23,7 +23,8 @@ export default function AdminContentScreen() {
       <div>
         <h1 className="font-heading text-3xl font-bold text-ink">Quản lý nội dung</h1>
         <p className="mt-1 text-sm text-subtle">
-          Xem và gỡ bài viết, công thức, video đã đăng công khai. Nội dung bị xóa không thể khôi phục.
+          Xem bài viết, công thức, video ở mọi trạng thái; duyệt hoặc từ chối bài viết và video chờ duyệt. Nội dung bị xóa
+          không thể khôi phục.
         </p>
       </div>
 
