@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Info, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useUsageLogs } from "@/features/admin/monitoring/hooks/useMonitoring";
+import { useAiModels, useUsageLogs } from "@/features/admin/monitoring/hooks/useMonitoring";
 import {
   describeCaller,
   formatDateTime,
@@ -87,6 +87,7 @@ export default function ModerationLogsSection() {
   const items = data?.items ?? [];
   const userIds = useMemo(() => items.map((l) => l.userId).filter(Boolean), [items]);
   const { data: userMap } = usePublicUsers(userIds);
+  const { data: models } = useAiModels();
 
   return (
     <div className="flex flex-col gap-4">
@@ -94,6 +95,11 @@ export default function ModerationLogsSection() {
         <Info className="mt-0.5 size-4 shrink-0 text-brand" />
         <div className="space-y-1">
           <p className="font-semibold text-ink">Nhật ký thực thi AI kiểm duyệt (Audit Logs):</p>
+          {models?.moderation && (
+            <p className="leading-relaxed">
+              • Model đang dùng: <span className="font-mono font-semibold text-ink">{models.moderation}</span>
+            </p>
+          )}
           <p className="leading-relaxed">
             • Tab này hiển thị nhật ký các lượt gọi AI kiểm duyệt tự động (thời gian, tác giả, model, token, độ trễ và trạng thái).
           </p>

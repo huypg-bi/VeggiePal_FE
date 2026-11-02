@@ -17,7 +17,9 @@ export default function ModelsLimitsSection() {
         icon={Cpu}
         title="Model đang dùng"
         query={models}
-        rows={Object.entries(MODEL_LABELS).map(([key, label]) => [label, models.data?.[key] ?? "—"])}
+        rows={Object.entries(MODEL_LABELS)
+          .filter(([key]) => key !== "moderation")
+          .map(([key, label]) => [label, models.data?.[key] ?? "—"])}
         mono
       />
       <InfoCard
