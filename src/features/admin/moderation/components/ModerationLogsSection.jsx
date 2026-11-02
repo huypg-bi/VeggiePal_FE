@@ -17,7 +17,7 @@ import SelectField from "@/shared/components/SelectField";
 import UserDisplayName from "@/shared/components/UserDisplayName";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 const USER_DEBOUNCE_MS = 400;
 
 const STATUS_OPTIONS = [

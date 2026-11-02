@@ -174,14 +174,6 @@ Tổng cộng 334 mục từ 200 file.
 > Dialog xác nhận quyết định duyệt (APPROVED) hoặc từ chối (REJECTED) case kiểm duyệt.
 > Yêu cầu/cho phép admin nhập lý do quyết định trước khi gửi request PUT /ai/admin/moderation/{id}.
 
-### features/admin/moderation/data/mockModerationData.js
-
-**Gắn với:** `export const MOCK_MODERATION_CASES = [`
-
-> Mock data dùng để kiểm thử giao diện và chức năng Admin Kiểm duyệt nội dung (AI Moderation).
-> Cấu trúc tương thích 100% với ModerationResponse từ AI-Service:
-> { caseId, contentType, externalContentId, authorId, content, decision, categories, reason, confidence, createdAt }
-
 ### features/admin/moderation/hooks/useModeration.js
 
 **Gắn với:** `export function useDismissModeration() {`
@@ -255,9 +247,9 @@ Tổng cộng 334 mục từ 200 file.
 
 > Trang kiểm duyệt nội dung của Admin (/admin/moderation):  
 > - Giao diện 3 tab điều hướng qua URL param (?tab=queue | logs | history).  
-> - Tab "Hàng đợi kiểm duyệt" (mặc định): Hàng đợi các case cần duyệt (REVIEW_REQUIRED, cũ nhất trước); hiển thị caseId, loại nội dung (BLOG, VIDEO, COMMENT), externalContentId, authorId, content (nội dung bị gắn cờ), categories, reason, confidence; hỗ trợ chế độ Mock Data để test giao diện và luồng duyệt/từ chối ngay cả khi BE chưa có dữ liệu.  
+> - Tab "Hàng đợi kiểm duyệt" (mặc định): Hàng đợi các case cần duyệt (REVIEW_REQUIRED, cũ nhất trước); hiển thị caseId, loại nội dung (BLOG, VIDEO, COMMENT), externalContentId, authorId, content (nội dung bị gắn cờ), categories, reason, confidence; cắt 10 ca mỗi trang ở FE vì BE không phân trang; duyệt / từ chối / bỏ qua gọi BE thật.  
 > - Tab "Nhật ký kiểm duyệt" (ModerationLogsSection): Xem lịch sử các lượt gọi AI kiểm duyệt (GET /ai/admin/monitoring/logs/search?feature=MODERATION) gồm thời gian, tác giả, model, prompt/completion tokens, độ trễ ms, trạng thái thành công/thất bại và bộ lọc theo trạng thái, userId, khoảng ngày.  
-> - Tab "Đã xử lý" (ModerationHistorySection): Xem lịch sử toàn bộ các ca kiểm duyệt đã được xử lý bởi AI hoặc Admin (GET /ai/admin/moderation/history theo task B05). Hiển thị nội dung bị gắn cờ, quyết định, lý do, độ tin cậy, người duyệt (AI hoặc Admin hiển thị tên thật qua UserDisplayName nếu active), thời gian duyệt; hỗ trợ bộ lọc theo loại nội dung, quyết định, người duyệt, khoảng thời gian và phân trang; tích hợp chế độ dữ liệu mẫu khi chưa có dữ liệu thật.
+> - Tab "Đã xử lý" (ModerationHistorySection): Xem lịch sử toàn bộ các ca kiểm duyệt đã được xử lý bởi AI hoặc Admin (GET /ai/admin/moderation/history theo task B05). Hiển thị nội dung bị gắn cờ, quyết định, lý do, độ tin cậy, người duyệt (AI hoặc Admin hiển thị tên thật qua UserDisplayName nếu active), thời gian duyệt; hỗ trợ bộ lọc theo loại nội dung, quyết định, người duyệt, khoảng thời gian và phân trang; lỗi tải thì hiện nút Thử lại.
 
 ### features/admin/moderation/components/ModerationLogsSection.jsx
 

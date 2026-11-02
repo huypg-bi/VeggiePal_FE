@@ -31,7 +31,7 @@ import {
 import { useAuthStore } from "@/features/auth/store/authStore";
 import SelectField from "@/shared/components/SelectField";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 const SEARCH_DEBOUNCE_MS = 400;
 
 // Màn hình quản lý danh sách và quyền hạn người dùng dành cho quản trị viên.
@@ -224,11 +224,10 @@ export default function AdminUsersScreen() {
                                 </span>
                               )}
                             </div>
-                            <div className="mt-0.5 flex items-center gap-1.5 text-xs text-subtle">
-                              <span className="truncate max-w-[200px]" title={user.email}>
+                            <div className="mt-0.5 flex flex-col gap-0.5 text-xs text-subtle">
+                              <span className="truncate max-w-[220px]" title={user.email}>
                                 {user.email}
                               </span>
-                              <span aria-hidden className="text-border">•</span>
                               {user.emailVerified ? (
                                 <span className="inline-flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400">
                                   <CheckCircle2 className="size-3.5 shrink-0" />
@@ -297,7 +296,7 @@ export default function AdminUsersScreen() {
                               <button
                                 type="button"
                                 onClick={() => setUnlockTarget(user)}
-                                className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300/80 bg-emerald-50/70 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100 hover:border-emerald-400 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 shadow-2xs cursor-pointer"
+                                className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-emerald-300/80 bg-emerald-50/70 px-3 py-1.5 text-xs font-semibold text-emerald-700 transition hover:bg-emerald-100 hover:border-emerald-400 dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 shadow-2xs cursor-pointer"
                                 title="Mở khóa tài khoản người dùng"
                               >
                                 <Unlock className="size-3.5 text-emerald-600 dark:text-emerald-400" />
@@ -307,7 +306,7 @@ export default function AdminUsersScreen() {
                               <button
                                 type="button"
                                 onClick={() => setLockTarget(user)}
-                                className="inline-flex items-center gap-1.5 rounded-xl border border-rose-300/80 bg-rose-50/70 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 hover:border-rose-400 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-400 shadow-2xs cursor-pointer"
+                                className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-rose-300/80 bg-rose-50/70 px-3 py-1.5 text-xs font-semibold text-rose-600 transition hover:bg-rose-100 hover:border-rose-400 dark:border-rose-800 dark:bg-rose-950/40 dark:text-rose-400 shadow-2xs cursor-pointer"
                                 title="Khóa tài khoản người dùng"
                               >
                                 <Lock className="size-3.5 text-rose-500 dark:text-rose-400" />
@@ -319,7 +318,7 @@ export default function AdminUsersScreen() {
                               type="button"
                               onClick={() => setRoleTarget(user)}
                               disabled={isBlocked}
-                              className="inline-flex items-center gap-1.5 rounded-xl border border-purple-300/80 bg-purple-50/70 px-3 py-1.5 text-xs font-semibold text-purple-700 transition hover:bg-purple-100 hover:border-purple-400 disabled:opacity-40 disabled:pointer-events-none dark:border-purple-800 dark:bg-purple-950/40 dark:text-purple-300 shadow-2xs cursor-pointer"
+                              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-purple-300/80 bg-purple-50/70 px-3 py-1.5 text-xs font-semibold text-purple-700 transition hover:bg-purple-100 hover:border-purple-400 disabled:opacity-40 disabled:pointer-events-none dark:border-purple-800 dark:bg-purple-950/40 dark:text-purple-300 shadow-2xs cursor-pointer"
                               title="Nâng quyền lên Quản trị viên"
                             >
                               <ShieldCheck className="size-3.5 text-purple-600 dark:text-purple-400" />
@@ -329,7 +328,7 @@ export default function AdminUsersScreen() {
                             <button
                               type="button"
                               onClick={() => setBadgeTarget(user)}
-                              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface shadow-2xs cursor-pointer"
+                              className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface shadow-2xs cursor-pointer"
                               title="Xem, cấp xác minh hoặc thu hồi huy hiệu"
                             >
                               <Award className="size-3.5 text-brand" />
