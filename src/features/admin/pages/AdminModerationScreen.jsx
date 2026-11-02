@@ -5,6 +5,8 @@ import {
   Ban,
   Check,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Clock,
   ExternalLink,
   Eye,
@@ -15,10 +17,8 @@ import {
   MessageSquare,
   Percent,
   RefreshCw,
-  RotateCcw,
   Search,
   ShieldAlert,
-  Sparkles,
   Video,
   X,
 } from "lucide-react";
@@ -31,7 +31,6 @@ import ModerationDetailDialog from "@/features/admin/moderation/components/Moder
 import ReviewDecisionDialog from "@/features/admin/moderation/components/ReviewDecisionDialog";
 import ModerationHistorySection from "@/features/admin/moderation/components/ModerationHistorySection";
 import ModerationLogsSection from "@/features/admin/moderation/components/ModerationLogsSection";
-import { MOCK_MODERATION_CASES } from "@/features/admin/moderation/data/mockModerationData";
 import {
   useDismissModeration,
   usePendingModerationCases,
@@ -41,6 +40,8 @@ import { moderationKeys } from "@/features/admin/moderation/queryKeys";
 import { cn } from "@/lib/utils";
 import UserDisplayName from "@/shared/components/UserDisplayName";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
+
+const QUEUE_PAGE_SIZE = 10;
 
 // Nhãn và badge tương ứng cho loại nội dung (BLOG, VIDEO, COMMENT)
 const CONTENT_TYPE_MAP = {
@@ -88,19 +89,9 @@ export default function AdminModerationScreen() {
     );
   };
   const queryClient = useQueryClient();
-  const { data: realCases = [], isPending, isError, error, isFetching } = usePendingModerationCases();
+  const { data: activeCases = [], isPending, isError, error, isFetching } = usePendingModerationCases();
   const reviewMutation = useReviewModeration();
   const dismissMutation = useDismissModeration();
-
-  // Kiểm tra BE đã trả về dữ liệu thật chưa
-  const hasRealData = realCases.length > 0;
-
-  // Chế độ dữ liệu mẫu để kiểm thử (chỉ hiển thị khi BE chưa có dữ liệu thật)
-  const [isMockMode, setIsMockMode] = useState(false);
-  const [mockCases, setMockCases] = useState(MOCK_MODERATION_CASES);
-
-  // Danh sách thực tế hiển thị: Khi BE đã trả dữ liệu thật, luôn ưu tiên hiển thị dữ liệu thật
-  const activeCases = hasRealData ? realCases : (isMockMode ? mockCases : realCases);
 
   // Lấy danh sách authorId để phân giải tên hiển thị người dùng (user nào chưa active thì fallback sang #id)
   const authorIds = useMemo(() => {
@@ -111,6 +102,7 @@ export default function AdminModerationScreen() {
   // Bộ lọc và tìm kiếm
   const [searchQuery, setSearchQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL"); // ALL, BLOG, VIDEO, COMMENT
+  const [queuePage, setQueuePage] = useState(0);
 
   // Modal quyết định duyệt / từ chối
   const [activeModal, setActiveModal] = useState({
@@ -122,22 +114,6 @@ export default function AdminModerationScreen() {
   const [detailItem, setDetailItem] = useState(null);
 
   const handleReviewConfirm = ({ id, decision, reason }) => {
-    if (!hasRealData && isMockMode) {
-      // Giả lập xử lý khi dùng dữ liệu mẫu
-      setTimeout(() => {
-        setMockCases((prev) => prev.filter((c) => c.caseId !== id));
-        toast.success(
-          decision === "APPROVED"
-            ? `[Demo Test] Đã duyệt thành công case #${id}${reason ? ` (Lý do: ${reason})` : ""}`
-            : decision === "DISMISSED"
-              ? `[Demo Test] Đã bỏ qua case #${id}${reason ? ` (Lý do: ${reason})` : ""}`
-              : `[Demo Test] Đã từ chối thành công case #${id}${reason ? ` (Lý do: ${reason})` : ""}`
-        );
-        setActiveModal({ item: null, decision: null });
-      }, 300);
-      return;
-    }
-
     (decision === "DISMISSED" ? dismissMutation : reviewMutation).mutate(
       { id, decision, reason },
       {
@@ -164,12 +140,7 @@ export default function AdminModerationScreen() {
   };
 
   const handleRefresh = () => {
-    if (!hasRealData && isMockMode) {
-      setMockCases(MOCK_MODERATION_CASES);
-      toast.info("Đã làm mới dữ liệu mẫu.");
-    } else {
-      queryClient.invalidateQueries({ queryKey: moderationKeys.all });
-    }
+    queryClient.invalidateQueries({ queryKey: moderationKeys.all });
   };
 
   // Lọc danh sách theo từ khóa tìm kiếm và loại nội dung
@@ -212,6 +183,10 @@ export default function AdminModerationScreen() {
     });
   }, [activeCases, searchQuery, typeFilter, userMap]);
 
+  const queueTotalPages = Math.max(Math.ceil(filteredCases.length / QUEUE_PAGE_SIZE), 1);
+  const currentQueuePage = Math.min(queuePage, queueTotalPages - 1);
+  const pageCases = filteredCases.slice(currentQueuePage * QUEUE_PAGE_SIZE, (currentQueuePage + 1) * QUEUE_PAGE_SIZE);
+
   return (
     <div className="flex flex-col gap-6">
       {/* Header */}
@@ -224,12 +199,6 @@ export default function AdminModerationScreen() {
                 {activeCases.length} chờ duyệt
               </span>
             )}
-            {!hasRealData && isMockMode && (
-              <span className="flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-600 dark:text-amber-400 border border-amber-500/20">
-                <Sparkles className="size-3" />
-                Chế độ Test Demo
-              </span>
-            )}
           </div>
           <p className="mt-1 text-sm text-subtle">
             Hàng đợi các nội dung nghi ngờ vi phạm hoặc cần con người kiểm duyệt (từ AI Moderation).
@@ -238,45 +207,8 @@ export default function AdminModerationScreen() {
 
         {activeTab === "queue" && (
         <div className="flex items-center gap-2">
-          {/* Nút bật/tắt Mock Mode chỉ hiển thị khi BE chưa có dữ liệu thật */}
-          {!hasRealData && (
-            <Button
-              type="button"
-              variant={isMockMode ? "secondary" : "outline"}
-              size="sm"
-              onClick={() => setIsMockMode((prev) => !prev)}
-              className="gap-1.5 text-xs"
-            >
-              <Sparkles className="size-3.5 text-amber-500" />
-              {isMockMode ? "Tắt dữ liệu mẫu" : "Dữ liệu mẫu (Demo)"}
-            </Button>
-          )}
-
-          {!hasRealData && isMockMode && (
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setMockCases(MOCK_MODERATION_CASES);
-                toast.info("Đã khôi phục dữ liệu mẫu ban đầu.");
-              }}
-              className="gap-1 text-xs"
-              title="Khôi phục lại dữ liệu mẫu"
-            >
-              <RotateCcw className="size-3.5" />
-              Khôi phục mẫu
-            </Button>
-          )}
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={!isMockMode && isFetching}
-            onClick={handleRefresh}
-          >
-            <RefreshCw className={cn("size-4", !isMockMode && isFetching && "animate-spin")} />
+          <Button type="button" variant="outline" size="sm" disabled={isFetching} onClick={handleRefresh}>
+            <RefreshCw className={cn("size-4", isFetching && "animate-spin")} />
             Làm mới
           </Button>
         </div>
@@ -349,8 +281,8 @@ export default function AdminModerationScreen() {
         </div>
       </div>
 
-      {/* Trạng thái lỗi (khi không bật mock mode) */}
-      {!isMockMode && isError && (
+      {/* Trạng thái lỗi */}
+      {isError && (
         <div
           role="alert"
           className="flex items-start gap-2 rounded-2xl bg-destructive/10 p-4 text-sm text-destructive"
@@ -358,25 +290,22 @@ export default function AdminModerationScreen() {
           <AlertTriangle className="size-5 shrink-0" />
           <div className="flex-1">
             <p>{error?.message || "Không thể tải danh sách kiểm duyệt từ Backend."}</p>
-            <p className="mt-1 text-xs text-destructive/80">
-              Bạn có thể nhấn nút <strong>"Dữ liệu mẫu (Demo)"</strong> phía trên để kiểm tra giao diện và chức năng duyệt/từ chối.
-            </p>
           </div>
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => setIsMockMode(true)}
+            onClick={handleRefresh}
             className="shrink-0 gap-1 bg-card text-xs text-ink"
           >
-            <Sparkles className="size-3.5 text-amber-500" />
-            Bật dữ liệu mẫu
+            <RefreshCw className="size-3.5" />
+            Thử lại
           </Button>
         </div>
       )}
 
       {/* Bộ lọc và tìm kiếm */}
-      {(!isPending || isMockMode) && activeCases.length > 0 && (
+      {!isPending && activeCases.length > 0 && (
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="relative min-w-60 flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-subtle" />
@@ -384,7 +313,10 @@ export default function AdminModerationScreen() {
               type="search"
               placeholder="Tìm theo mã case, ID gốc, tác giả, nội dung, lý do..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setQueuePage(0);
+              }}
               className="pl-9 text-xs rounded-xl"
             />
           </div>
@@ -402,7 +334,10 @@ export default function AdminModerationScreen() {
               <button
                 key={id}
                 type="button"
-                onClick={() => setTypeFilter(id)}
+                onClick={() => {
+                  setTypeFilter(id);
+                  setQueuePage(0);
+                }}
                 className={cn(
                   "rounded-full px-3 py-1 font-medium transition",
                   typeFilter === id
@@ -418,13 +353,13 @@ export default function AdminModerationScreen() {
       )}
 
       {/* Trạng thái đang tải */}
-      {!isMockMode && isPending ? (
+      {isPending ? (
         <div aria-hidden className="flex flex-col gap-3">
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className="h-28 animate-pulse rounded-3xl border border-border bg-card" />
           ))}
         </div>
-      ) : activeCases.length === 0 ? (
+      ) : isError && activeCases.length === 0 ? null : activeCases.length === 0 ? (
         /* Trạng thái rỗng */
         <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card p-12 text-center">
           <div className="flex size-12 items-center justify-center rounded-full bg-brand-soft text-brand">
@@ -434,34 +369,6 @@ export default function AdminModerationScreen() {
           <p className="mt-1 max-w-md text-sm text-subtle">
             Hiện tại không có nội dung nào cần kiểm duyệt thủ công.
           </p>
-          {!isMockMode && (
-            <div className="mt-5">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setIsMockMode(true)}
-                className="gap-2 rounded-xl text-xs"
-              >
-                <Sparkles className="size-4 text-amber-500" />
-                Nạp dữ liệu mẫu để test giao diện và chức năng
-              </Button>
-            </div>
-          )}
-          {isMockMode && (
-            <div className="mt-5">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setMockCases(MOCK_MODERATION_CASES)}
-                className="gap-2 rounded-xl text-xs"
-              >
-                <RotateCcw className="size-4" />
-                Nạp lại danh sách dữ liệu mẫu
-              </Button>
-            </div>
-          )}
         </div>
       ) : filteredCases.length === 0 ? (
         <div className="rounded-3xl border border-border bg-card p-8 text-center text-sm text-subtle">
@@ -487,7 +394,7 @@ export default function AdminModerationScreen() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {filteredCases.map((c) => {
+                {pageCases.map((c) => {
                   const typeMeta = CONTENT_TYPE_MAP[c.contentType] || {
                     label: c.contentType || "Chưa phân loại",
                     icon: ShieldAlert,
@@ -607,11 +514,11 @@ export default function AdminModerationScreen() {
                             size="sm"
                             variant="outline"
                             onClick={() => setDetailItem(c)}
-                            className="h-8 gap-1 rounded-xl px-2.5 text-xs text-subtle hover:text-ink"
+                            className="size-8 rounded-xl p-0 text-subtle hover:text-ink"
                             title="Xem chi tiết case kiểm duyệt"
+                            aria-label="Xem chi tiết case kiểm duyệt"
                           >
-                            <Eye className="size-3.5" />
-                            <span className="hidden sm:inline">Chi tiết</span>
+                            <Eye className="size-4" />
                           </Button>
 
                           <Button
@@ -665,6 +572,36 @@ export default function AdminModerationScreen() {
               </tbody>
             </table>
           </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-card px-6 py-3.5 text-sm text-subtle">
+            <span className="text-xs font-medium sm:text-sm">
+              {filteredCases.length} ca • Trang {currentQueuePage + 1}/{queueTotalPages}
+            </span>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={currentQueuePage <= 0}
+                onClick={() => setQueuePage(currentQueuePage - 1)}
+                className="gap-1 rounded-xl"
+              >
+                <ChevronLeft className="size-4" />
+                Trước
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={currentQueuePage + 1 >= queueTotalPages}
+                onClick={() => setQueuePage(currentQueuePage + 1)}
+                className="gap-1 rounded-xl"
+              >
+                Sau
+                <ChevronRight className="size-4" />
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -674,11 +611,8 @@ export default function AdminModerationScreen() {
       {/* Tab nhật ký kiểm duyệt */}
       {activeTab === "logs" && <ModerationLogsSection />}
 
-      {/* Tab đã xử lý (chờ BE B05) */}
       {/* Tab đã xử lý */}
-      {activeTab === "history" && (
-        <ModerationHistorySection onViewDetail={(item) => setDetailItem(item)} isMockMode={isMockMode} />
-      )}
+      {activeTab === "history" && <ModerationHistorySection onViewDetail={(item) => setDetailItem(item)} />}
 
       {/* Dialog chi tiết case kiểm duyệt */}
       <ModerationDetailDialog
@@ -703,7 +637,7 @@ export default function AdminModerationScreen() {
         open={Boolean(activeModal.item && activeModal.decision)}
         item={activeModal.item}
         decision={activeModal.decision}
-        loading={!isMockMode && (reviewMutation.isPending || dismissMutation.isPending)}
+        loading={reviewMutation.isPending || dismissMutation.isPending}
         onOpenChange={(open) => {
           if (!open) setActiveModal({ item: null, decision: null });
         }}

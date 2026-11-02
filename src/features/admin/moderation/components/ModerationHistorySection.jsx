@@ -6,7 +6,6 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  ExternalLink,
   Eye,
   FileText,
   Info,
@@ -14,13 +13,11 @@ import {
   RotateCcw,
   Shield,
   ShieldAlert,
-  Sparkles,
   Video,
   X,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { MOCK_MODERATION_HISTORY } from "@/features/admin/moderation/data/mockModerationData";
 import { useModerationHistory } from "@/features/admin/moderation/hooks/useModeration";
 import { formatDateTime, toIsoDateTime } from "@/features/admin/monitoring/utils/monitoringFormat";
 import { cn } from "@/lib/utils";
@@ -28,7 +25,7 @@ import SelectField from "@/shared/components/SelectField";
 import UserDisplayName from "@/shared/components/UserDisplayName";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 const CONTENT_TYPE_OPTIONS = [
   { value: "", label: "Mọi loại nội dung" },
@@ -80,20 +77,17 @@ const DECISION_MAP = {
   },
 };
 
-export default function ModerationHistorySection({ onViewDetail, isMockMode = false }) {
+export default function ModerationHistorySection({ onViewDetail }) {
   const [contentType, setContentType] = useState("");
   const [decision, setDecision] = useState("");
   const [reviewer, setReviewer] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [page, setPage] = useState(0);
-  const [useMockFallback, setUseMockFallback] = useState(false);
 
   const rangeInvalid = Boolean(fromDate && toDate && fromDate > toDate);
 
-  const shouldFetch = !isMockMode && !useMockFallback && !rangeInvalid;
-
-  const { data: realData, isPending, isError, error, isFetching } = useModerationHistory(
+  const { data, isPending, isError, error, isFetching, refetch } = useModerationHistory(
     {
       contentType: contentType || undefined,
       decision: decision || undefined,
@@ -103,34 +97,12 @@ export default function ModerationHistorySection({ onViewDetail, isMockMode = fa
       page,
       size: PAGE_SIZE,
     },
-    { enabled: shouldFetch }
+    { enabled: !rangeInvalid }
   );
 
-  const isDemo = isMockMode || useMockFallback;
-
-  // Lọc mock data trên client nếu đang ở mock mode
-  const filteredMockData = useMemo(() => {
-    if (!isDemo) return { items: [], totalElements: 0, totalPages: 1 };
-    let list = [...MOCK_MODERATION_HISTORY];
-    if (contentType) list = list.filter((i) => i.contentType === contentType);
-    if (decision) list = list.filter((i) => i.decision === decision);
-    if (reviewer === "AI") list = list.filter((i) => i.reviewedBy == null);
-    if (reviewer === "ADMIN") list = list.filter((i) => i.reviewedBy != null);
-    if (fromDate) list = list.filter((i) => (i.reviewedAt || i.createdAt) >= `${fromDate}T00:00:00`);
-    if (toDate) list = list.filter((i) => (i.reviewedAt || i.createdAt) <= `${toDate}T23:59:59`);
-
-    const start = page * PAGE_SIZE;
-    const items = list.slice(start, start + PAGE_SIZE);
-    return {
-      items,
-      totalElements: list.length,
-      totalPages: Math.max(Math.ceil(list.length / PAGE_SIZE), 1),
-    };
-  }, [isDemo, contentType, decision, reviewer, fromDate, toDate, page]);
-
-  const items = isDemo ? filteredMockData.items : (realData?.items ?? []);
-  const totalElements = isDemo ? filteredMockData.totalElements : (realData?.totalElements ?? 0);
-  const totalPages = isDemo ? filteredMockData.totalPages : Math.max(realData?.totalPages ?? 1, 1);
+  const items = data?.items ?? [];
+  const totalElements = data?.totalElements ?? 0;
+  const totalPages = Math.max(data?.totalPages ?? 1, 1);
 
   const handleSelect = (setter) => (value) => {
     setter(value);
@@ -250,7 +222,7 @@ export default function ModerationHistorySection({ onViewDetail, isMockMode = fa
         <div className="rounded-2xl border border-warning/30 bg-warning/15 px-4 py-3 text-sm text-warning">
           Ngày bắt đầu phải trước hoặc bằng ngày kết thúc.
         </div>
-      ) : !isDemo && isError ? (
+      ) : isError ? (
         <div
           role="alert"
           className="flex items-start gap-2 rounded-2xl bg-destructive/10 p-4 text-sm text-destructive"
@@ -258,22 +230,19 @@ export default function ModerationHistorySection({ onViewDetail, isMockMode = fa
           <AlertTriangle className="size-5 shrink-0" />
           <div className="flex-1">
             <p>{error?.message || "Không thể tải lịch sử kiểm duyệt từ Backend."}</p>
-            <p className="mt-1 text-xs text-destructive/80">
-              Bạn có thể nhấn nút <strong>"Dữ liệu mẫu (Demo)"</strong> để kiểm tra giao diện và chức năng lọc.
-            </p>
           </div>
           <Button
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => setUseMockFallback(true)}
+            onClick={() => refetch()}
             className="shrink-0 gap-1 bg-card text-xs text-ink cursor-pointer"
           >
-            <Sparkles className="size-3.5 text-amber-500" />
-            Bật dữ liệu mẫu
+            <RotateCcw className="size-3.5" />
+            Thử lại
           </Button>
         </div>
-      ) : !isDemo && isPending ? (
+      ) : isPending ? (
         <div aria-hidden className="h-72 animate-pulse rounded-3xl border border-border bg-card" />
       ) : items.length === 0 ? (
         <div className="rounded-3xl border border-border bg-card p-8 text-center text-sm text-subtle">
@@ -320,31 +289,9 @@ export default function ModerationHistorySection({ onViewDetail, isMockMode = fa
                       key={item.caseId}
                       className="divide-x divide-border text-body transition-colors hover:bg-surface/50"
                     >
-                      {/* Mã Case & ID gốc */}
+                      {/* Mã Case (ID nội dung gốc xem trong hộp thoại chi tiết) */}
                       <td className="px-4 py-4 text-center">
-                        <div className="flex flex-col items-center">
-                          <span className="font-mono font-semibold text-ink text-xs">
-                            #{item.caseId}
-                          </span>
-                          {item.externalContentId != null && (
-                            item.contentType === "BLOG" ? (
-                              <a
-                                href={`/blog/${item.externalContentId}`}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="mt-0.5 inline-flex items-center gap-1 font-mono text-[11px] text-brand hover:underline"
-                                title="Mở bài viết gốc"
-                              >
-                                #{item.externalContentId}
-                                <ExternalLink className="size-2.5" />
-                              </a>
-                            ) : (
-                              <span className="mt-0.5 font-mono text-[11px] text-subtle" title="Mã nội dung gốc">
-                                #{item.externalContentId}
-                              </span>
-                            )
-                          )}
-                        </div>
+                        <span className="font-mono font-semibold text-ink text-xs">#{item.caseId}</span>
                       </td>
 
                       {/* Loại nội dung */}
@@ -464,11 +411,11 @@ export default function ModerationHistorySection({ onViewDetail, isMockMode = fa
                           <button
                             type="button"
                             onClick={() => onViewDetail(item)}
-                            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-brand/40 hover:bg-brand-soft/40 hover:text-brand shadow-2xs cursor-pointer"
+                            className="inline-flex size-8 items-center justify-center rounded-xl border border-border bg-surface text-subtle transition hover:border-brand/40 hover:bg-brand-soft/40 hover:text-brand shadow-2xs cursor-pointer"
                             title="Xem chi tiết ca kiểm duyệt"
+                            aria-label="Xem chi tiết ca kiểm duyệt"
                           >
-                            <Eye className="size-3.5 text-subtle" />
-                            Chi tiết
+                            <Eye className="size-4" />
                           </button>
                         )}
                       </td>
@@ -483,14 +430,14 @@ export default function ModerationHistorySection({ onViewDetail, isMockMode = fa
           <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border bg-card px-6 py-3.5 text-sm text-subtle">
             <span className="font-medium text-xs sm:text-sm">
               {totalElements} ca • Trang {page + 1}/{totalPages}
-              {!isDemo && isFetching && " • Đang cập nhật..."}
+              {isFetching && " • Đang cập nhật..."}
             </span>
             <div className="flex gap-2">
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
-                disabled={page <= 0 || (!isDemo && isFetching)}
+                disabled={page <= 0 || isFetching}
                 onClick={() => setPage((p) => Math.max(p - 1, 0))}
                 className="rounded-xl border-border px-3 text-xs font-medium hover:bg-surface cursor-pointer"
               >
@@ -501,7 +448,7 @@ export default function ModerationHistorySection({ onViewDetail, isMockMode = fa
                 type="button"
                 size="sm"
                 variant="outline"
-                disabled={page + 1 >= totalPages || (!isDemo && isFetching)}
+                disabled={page + 1 >= totalPages || isFetching}
                 onClick={() => setPage((p) => p + 1)}
                 className="rounded-xl border-border px-3 text-xs font-medium hover:bg-surface cursor-pointer"
               >

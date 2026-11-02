@@ -24,7 +24,7 @@ import SelectField from "@/shared/components/SelectField";
 import UserDisplayName from "@/shared/components/UserDisplayName";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 const STATUS_OPTIONS = toOptions(STATUS_LABELS, "Mọi trạng thái");
 
 function StatusBadge({ status }) {

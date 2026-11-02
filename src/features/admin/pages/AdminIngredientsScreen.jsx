@@ -21,7 +21,7 @@ import { useIngredients } from "@/features/ingredient/hooks/useIngredients";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
 import SelectField from "@/shared/components/SelectField";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 const SEARCH_DEBOUNCE_MS = 400;
 
 const VEGAN_OPTIONS = [

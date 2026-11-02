@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 
 // Thu gọn: chỉ hiện vài bước đầu; "Hiện thêm" mới mở hết các bước.
 const COLLAPSED_STEPS = 2;
+const COLLAPSED_INGREDIENTS = 3;
 
 const noteClass = "mt-4 text-sm text-subtle";
 
@@ -126,10 +127,16 @@ export default function AiSummaryCard({ video }) {
 
 function RecipeContent({ extraction }) {
   const [expanded, setExpanded] = useState(false);
+  const [ingredientsExpanded, setIngredientsExpanded] = useState(false);
 
   const steps = extraction.steps ?? [];
   const canToggle = steps.length > COLLAPSED_STEPS;
   const visibleSteps = expanded || !canToggle ? steps : steps.slice(0, COLLAPSED_STEPS);
+
+  const ingredients = extraction.ingredients ?? [];
+  const canToggleIngredients = ingredients.length > COLLAPSED_INGREDIENTS;
+  const visibleIngredients =
+    ingredientsExpanded || !canToggleIngredients ? ingredients : ingredients.slice(0, COLLAPSED_INGREDIENTS);
 
   return (
     <>
@@ -137,13 +144,25 @@ function RecipeContent({ extraction }) {
 
       <h4 className="mt-3 text-sm font-bold text-ink">Nguyên liệu</h4>
       <ul className="mt-2 flex flex-col gap-1.5">
-        {extraction.ingredients.map((item, index) => (
+        {visibleIngredients.map((item, index) => (
           <li key={index} className="flex justify-between gap-3 rounded-xl bg-surface px-3 py-2 text-sm">
             <span className="text-ink">{item.name}</span>
             <span className="shrink-0 text-subtle">{item.quantity}</span>
           </li>
         ))}
       </ul>
+
+      {canToggleIngredients && (
+        <button
+          type="button"
+          onClick={() => setIngredientsExpanded((v) => !v)}
+          aria-expanded={ingredientsExpanded}
+          className="mt-3 flex items-center gap-1 text-xs font-semibold text-subtle transition hover:text-ink"
+        >
+          {ingredientsExpanded ? "Ẩn bớt" : `Hiện thêm (${ingredients.length - COLLAPSED_INGREDIENTS} nguyên liệu)`}
+          <ChevronDown className={cn("h-3.5 w-3.5 transition-transform", ingredientsExpanded && "rotate-180")} />
+        </button>
+      )}
 
       <h4 className="mt-4 text-sm font-bold text-ink">Các bước thực hiện</h4>
       <ol className="mt-2 flex flex-col gap-3">

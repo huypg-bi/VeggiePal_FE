@@ -1,10 +1,15 @@
-import { Loader2, ShoppingCart } from "lucide-react";
+import { useState } from "react";
+import { ChevronDown, ClipboardList, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import iconNutrition from "@/assets/img/icon_video_page.png";
 import { Button } from "@/components/ui/button";
 import { useVideoRecipe } from "@/features/video/hooks/useVideoRecipe";
 import { readNutritionEstimate } from "@/features/video/utils/videoJob";
+import { cn } from "@/lib/utils";
+
+// Thu gọn: chỉ hiện vài nguyên liệu đầu; "Hiện thêm" mới mở hết.
+const COLLAPSED_INGREDIENTS = 3;
 
 const formatAmount = (value, digits) => value.toLocaleString("vi-VN", { maximumFractionDigits: digits });
 
@@ -17,12 +22,16 @@ export default function NutritionFactsCard({ video }) {
   const { status, extraction } = useVideoRecipe(video);
   const nutrition = status === "ready" ? readNutritionEstimate(extraction) : null;
   const ingredients = status === "ready" ? (extraction?.ingredients ?? []) : [];
+  const [expanded, setExpanded] = useState(false);
+  const canToggle = ingredients.length > COLLAPSED_INGREDIENTS;
+  const visibleIngredients = expanded || !canToggle ? ingredients : ingredients.slice(0, COLLAPSED_INGREDIENTS);
 
+  // Chép đủ mọi nguyên liệu (kể cả phần đang gập) để dán vào ghi chú đi chợ.
   const handleCopyShoppingList = async () => {
     const text = ingredients.map((item) => `- ${item.name}: ${item.quantity}`).join("\n");
     try {
       await navigator.clipboard.writeText(text);
-      toast.success(`Đã chép ${ingredients.length} nguyên liệu để đi chợ`);
+      toast.success(`Đã chép ${ingredients.length} nguyên liệu, bạn dán vào ghi chú để đi chợ`);
     } catch {
       toast.error("Không chép được, bạn thử lại nhé");
     }
@@ -85,7 +94,7 @@ export default function NutritionFactsCard({ video }) {
       {ingredients.length > 0 && (
         <>
           <ul className="mt-4 flex flex-col gap-2">
-            {ingredients.map((item, index) => (
+            {visibleIngredients.map((item, index) => (
               <li key={index} className="flex items-center justify-between gap-3 text-xs text-body">
                 <span className="flex items-center gap-2">
                   <span className="size-1.5 shrink-0 rounded-full bg-brand" />
@@ -96,9 +105,21 @@ export default function NutritionFactsCard({ video }) {
             ))}
           </ul>
 
+          {canToggle && (
+            <button
+              type="button"
+              onClick={() => setExpanded((v) => !v)}
+              aria-expanded={expanded}
+              className="mt-3 flex items-center gap-1 text-xs font-semibold text-subtle transition hover:text-ink"
+            >
+              {expanded ? "Ẩn bớt" : `Hiện thêm (${ingredients.length - COLLAPSED_INGREDIENTS} nguyên liệu)`}
+              <ChevronDown className={cn("size-3.5 transition-transform", expanded && "rotate-180")} />
+            </button>
+          )}
+
           <Button type="button" size="md" onClick={handleCopyShoppingList} className="mt-4 w-full shadow-sm">
-            <ShoppingCart className="size-4" />
-            Chép vào giỏ đi chợ
+            <ClipboardList className="size-4" />
+            Chép danh sách nguyên liệu
           </Button>
         </>
       )}
