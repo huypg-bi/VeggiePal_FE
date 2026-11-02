@@ -3,6 +3,8 @@ import { PAYMENT_ERROR_MESSAGES } from "@/shared/api/errorMessages";
 
 function toPaymentMessage(res, fallbackMessage) {
   const code = res.data?.code;
+  // 6010 (hạ cấp khi gói cao còn hạn): BE kèm câu tiếng Việt có tên gói và ngày hết hạn nên dùng thẳng.
+  if (code === 6010 && res.data?.message) return res.data.message;
   if (code && PAYMENT_ERROR_MESSAGES[code]) {
     return PAYMENT_ERROR_MESSAGES[code];
   }
@@ -92,4 +94,15 @@ export async function getMySubscription() {
     throw networkError(error, "Tải thông tin gói thành viên quá thời gian chờ");
   }
   return unwrap(res, "Không lấy được thông tin gói thành viên");
+}
+
+/** GET /payments/checkout-preview?plan= — ước tính hạn dùng khi gia hạn hoặc nâng cấp; hạ cấp khi gói cao còn hạn thì BE trả 409 / 6010. */
+export async function getCheckoutPreview(planCode) {
+  let res;
+  try {
+    res = await apiClient.get("/payments/checkout-preview", { params: { plan: planCode } });
+  } catch (error) {
+    throw networkError(error, "Tính thời hạn gói quá thời gian chờ");
+  }
+  return unwrap(res, "Không tính được thời hạn gói mới");
 }

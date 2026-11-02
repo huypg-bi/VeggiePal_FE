@@ -123,6 +123,20 @@ export function getBankName(bin) {
   return BANK_NAMES[String(bin)] ?? `Ngân hàng (BIN ${bin})`;
 }
 
+export const PLAN_RANK = { FREE: 0, PLUS: 1, PRO: 2 };
+
+/** Loại thay đổi khi mua `targetCode`: NEW (chưa có gói trả phí còn hạn), RENEW, UPGRADE hoặc DOWNGRADE (BE chặn, mã 6010). */
+export function getPlanChange(currentCode, currentExpiresAt, targetCode, now = Date.now()) {
+  const active =
+    Boolean(currentCode) &&
+    currentCode !== "FREE" &&
+    Boolean(currentExpiresAt) &&
+    new Date(currentExpiresAt).getTime() > now;
+  if (!active) return "NEW";
+  if (currentCode === targetCode) return "RENEW";
+  return (PLAN_RANK[targetCode] ?? 0) > (PLAN_RANK[currentCode] ?? 0) ? "UPGRADE" : "DOWNGRADE";
+}
+
 export const PLAN_DETAILS = {
   FREE: {
     name: "Gói Khám Phá",
@@ -146,3 +160,6 @@ export const PLAN_DETAILS = {
     gradient: "from-amber-500 to-orange-600",
   },
 };
+
+/** Tên hiển thị của gói; mã lạ thì rơi về "Gói <mã>". */
+export const planName = (code) => PLAN_DETAILS[code]?.name ?? `Gói ${code}`;

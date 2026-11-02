@@ -49,7 +49,7 @@
 - **🤖 Trợ lý Bông Cải (AI Chatbot):** Giao diện hỏi đáp kiến thức dinh dưỡng chay, quản lý nhiều đoạn chat *(API thật: ai-service, có chế độ dùng thử cho khách; giới hạn lượt/ngày: khách 3 lượt, FREE 5, PLUS 20, PRO 50; mở cuộc trò chuyện của người khác trả 404)*.
 - **🎨 Giao diện & Trải nghiệm:** Landing page hiện đại, hỗ trợ chuyển đổi chế độ Sáng/Tối (Light/Dark Mode).
 - **🛡️ Quản trị hệ thống (Admin):** Màn hình quản lý người dùng (`/admin/users`: tìm kiếm email/họ tên, lọc theo trạng thái và vai trò, khóa tài khoản kèm lý do, mở khóa tài khoản, nâng quyền Quản trị viên, xem / cấp xác minh / thu hồi huy hiệu), quản lý danh mục và nguyên liệu, duyệt nội dung bài viết/video/bình luận, giám sát AI, quản lý prompt AI (soạn nháp, chạy thử, publish, khôi phục mặc định) và thống kê doanh thu gói thành viên.
-- **💳 Gói thành viên & Thanh toán (Payment & Subscriptions):** Xem bảng giá các gói thành viên (FREE, PLUS, PRO), thanh toán qua cổng payOS VietQR, polling kiểm tra webhook kích hoạt gói tức thì, quản lý lịch sử thanh toán và thời hạn sử dụng *(API thật: payment-service)*. Trang thanh toán tự dựng `/checkout/:orderId`: FE tự vẽ mã VietQR bằng `qrcode.react`, đếm ngược hết hạn, polling trạng thái đơn, huỷ/tạo lại đơn.
+- **💳 Gói thành viên & Thanh toán (Payment & Subscriptions):** Xem bảng giá các gói thành viên (FREE, PLUS, PRO), thanh toán qua cổng payOS VietQR (gia hạn cộng dồn thời hạn, nâng cấp quy đổi phần còn lại của gói cũ thành ngày của gói mới và có hộp thoại xem trước hạn dùng, gói thấp hơn bị khóa khi gói cao còn hạn), polling kiểm tra webhook kích hoạt gói tức thì, quản lý lịch sử thanh toán và thời hạn sử dụng *(API thật: payment-service)*. Trang thanh toán tự dựng `/checkout/:orderId`: FE tự vẽ mã VietQR bằng `qrcode.react`, đếm ngược hết hạn, polling trạng thái đơn, huỷ/tạo lại đơn.
 
 ---
 
@@ -203,7 +203,8 @@ Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (t
 | `GET` | `/ai/chat/conversations/:id` | Chi tiết các tin nhắn trong một cuộc trò chuyện (truy cập của người khác trả 404) |
 | `DELETE` | `/ai/chat/conversations/:id` | Xóa một cuộc trò chuyện |
 | `GET` | `/payments/plans` | Danh sách gói thành viên (công khai) |
-| `POST` | `/payments/checkout` | Tạo đơn thanh toán payOS (gói PLUS / PRO) |
+| `POST` | `/payments/checkout` | Tạo đơn thanh toán payOS (gói PLUS / PRO); mua gói thấp hơn khi gói cao còn hạn trả 409 / 6010 |
+| `GET` | `/payments/checkout-preview?plan=` | Xem trước hạn dùng mới khi gia hạn hoặc nâng cấp (`remainingDays`, `bonusDays`, `newExpiresAt`) |
 | `GET` | `/payments/orders/:id` | Chi tiết đơn thanh toán theo ID |
 | `POST` | `/payments/orders/:id/cancel` | Huỷ đơn thanh toán PENDING (`cancelOrder`), trả đơn với status CANCELLED |
 | `GET` | `/payments/history` | Lịch sử giao dịch của người dùng |
