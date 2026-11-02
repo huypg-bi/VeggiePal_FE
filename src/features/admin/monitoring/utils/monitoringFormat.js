@@ -49,7 +49,7 @@ export function failureRate(summary) {
   return `${rate.toLocaleString("vi-VN", { maximumFractionDigits: 1 })}%`;
 }
 
-/** "2026-10-16T12:30:00" -> "16/10/2026 12:30:00" (BE trả giờ máy chủ, không kèm múi giờ). */
+/** "2026-10-16T05:30:00Z" -> "16/10/2026 12:30:00" (BE trả Instant có "Z", hiển thị theo giờ máy). */
 export function formatDateTime(value) {
   if (!value) return "—";
   const date = new Date(value);
@@ -57,10 +57,12 @@ export function formatDateTime(value) {
   return date.toLocaleString("vi-VN", { hour12: false });
 }
 
-/** Giá trị <input type="date"> ("2026-10-01") -> tham số ISO của BE; `endOfDay` lấy cuối ngày. */
+/** Giá trị <input type="date"> ("2026-10-01") -> Instant ISO có "Z" (BE nhận Instant); `endOfDay` lấy cuối ngày giờ máy. */
 export function toIsoDateTime(dateValue, endOfDay = false) {
   if (!dateValue) return undefined;
-  return `${dateValue}T${endOfDay ? "23:59:59" : "00:00:00"}`;
+  const [y, m, d] = dateValue.split("-").map(Number);
+  const date = endOfDay ? new Date(y, m - 1, d, 23, 59, 59, 999) : new Date(y, m - 1, d, 0, 0, 0, 0);
+  return date.toISOString();
 }
 
 /** Người gọi của một log: tên user nếu active, userId nếu chưa active, "Khách" nếu là guest. */

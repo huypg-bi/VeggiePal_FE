@@ -745,15 +745,13 @@ Tổng cộng 334 mục từ 200 file.
 
 ### features/blog/hooks/useChallenge.js
 
-**Gắn với:** `const listeners = new Set();`
-
-> Tiến độ thử thách lưu ở localStorage (chưa có API). Truy cập storage có thể ném lỗi (chế độ
-> riêng tư, bị chặn dữ liệu), nên mọi lần đọc/ghi đều bọc try/catch và rơi về "chưa tham gia".
-
 **Gắn với:** `export function useChallenge() {`
 
-> Tiến độ thử thách 7 ngày của user đang đăng nhập.
-> Trả { days, total, checkedToday, completed, broken, checkIn }.
+> Tiến độ thử thách 7 ngày của user đang đăng nhập, lấy từ identity-service (`GET /users/me/challenges/7-day`).
+> Trả { status, days, total, points, checkedToday, loading, error, join, checkIn }; `status` là NONE
+> (chưa tham gia hoặc chưa đăng nhập), IN_PROGRESS, COMPLETED hoặc FAILED. `join` và `checkIn` là mutation,
+> ghi thẳng tiến độ BE trả về vào cache; lỗi thì tải lại tiến độ vì màn hình có thể đã cũ. Hoàn thành 7/7 thì
+> làm mới hồ sơ để huy hiệu mới hiện ở trang cá nhân. Quay lại tab thì hỏi lại BE (qua nửa đêm nút check-in mở lại).
 > `checkIn()` trả true khi lần check-in này vừa hoàn thành thử thách (để mở popup phần thưởng).
 > Khách chưa đăng nhập luôn ở 0 ngày.
 
@@ -899,17 +897,8 @@ Tổng cộng 334 mục từ 200 file.
 
 **Gắn với:** `export const CHALLENGE_DAYS = 7;`
 
-> Thử thách "7 Ngày Sống Thuần Chay Tươi Mới". Chưa có API nên tiến độ lưu ở localStorage theo từng
-> user (xem useChallenge). File này chỉ chứa logic thuần để test được; khi BE có API thì thay phần lưu.  
-> 
-> Luật: người dùng tự bắt đầu ở lần check-in đầu tiên. Mỗi ngày check-in được một lần, cần 7 ngày
-> liên tiếp. Bỏ lỡ một ngày thì đứt chuỗi và lần check-in kế tiếp bắt đầu lại từ ngày 1.
-
-**Gắn với:** `export function readProgress(record, today) {`
-
-> Tiến độ hiển thị tại ngày `today`.  
-> - completed: đã đủ 7 ngày (huy hiệu giữ mãi)  
-> - broken: từng check-in nhưng đã lỡ ít nhất một ngày -> hiện 0, lần check-in sau bắt đầu lại
+> Hằng số của thử thách "7 Ngày Sống Thuần Chay Tươi Mới". Luật do BE quyết định (xem useChallenge): phải tham gia
+> trước, mỗi ngày check-in một lần, lỡ một ngày thì lượt đó thất bại và phải bắt đầu lượt mới.
 
 ### features/blog/utils/feedFilters.js
 
@@ -2496,11 +2485,11 @@ Tổng cộng 334 mục từ 200 file.
 
 ### features/video/components/NutritionFactsCard.jsx
 
-**Gắn với:** `export default function NutritionFactsCard() {`
+**Gắn với:** `export default function NutritionFactsCard({ video }) {`
 
-> Thẻ giá trị dinh dưỡng của video.
-> Do BE hiện chưa có endpoint bóc tách dữ liệu dinh dưỡng thật cho video,
-> phần này được đánh dấu rõ ràng là dữ liệu mẫu tham khảo.
+> Thẻ giá trị dinh dưỡng của video, dùng `extraction.nutritionEstimate` do AI ước tính khi bóc tách công thức
+> (cùng nguồn với `useVideoRecipe`). Số liệu là của cả công thức, không phải mỗi khẩu phần. Video chưa bóc tách,
+> đang xử lý hoặc kết quả cũ chưa có field này thì hiện ghi chú thay vì số.
 
 ### features/video/components/UploadVideoJobDialog.jsx
 
@@ -2543,10 +2532,9 @@ Tổng cộng 334 mục từ 200 file.
 
 ### features/video/data/mockVideo.js
 
-**Gắn với:** `export const nutritionFacts = {`
+**Gắn với:** `export const videoChannels = [`
 
-> Dữ liệu mẫu tham khảo cho các tính năng chưa có endpoint backend riêng
-> (nutrition facts, kênh ẩm thực đề xuất).
+> Dữ liệu mẫu tham khảo cho tính năng chưa có endpoint backend riêng (kênh ẩm thực đề xuất).
 
 ### features/video/hooks/useMyVideos.js
 

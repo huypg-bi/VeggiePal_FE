@@ -25,6 +25,8 @@ export const blogKeys = {
   // Theo dõi người dùng (identity-service): id những người tôi theo dõi và số liệu theo dõi của từng người.
   followingIds: ["users", "following", "ids"],
   followStats: (userId) => ["users", "follow-stats", userId],
+  // Thử thách 7 ngày của tôi (identity-service), theo từng người dùng để đổi tài khoản không lẫn tiến độ.
+  challenge: (userId) => ["users", "challenge", "7-day", userId],
   followLists: ["users", "follow-list"],
   followList: (userId, kind) => ["users", "follow-list", userId, kind],
 

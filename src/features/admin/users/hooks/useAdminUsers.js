@@ -1,6 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { changeUserRole, lockUser, searchUsers, unlockUser } from "../api/usersApi";
+import {
+  changeUserRole,
+  getUserBadges,
+  grantVerificationBadge,
+  lockUser,
+  revokeBadge,
+  searchUsers,
+  unlockUser,
+} from "../api/usersApi";
 import { adminUserKeys } from "../queryKeys";
 
 // Hook tải danh sách người dùng quản trị theo bộ lọc và trang.
@@ -41,6 +49,37 @@ export function useChangeUserRole() {
     mutationFn: ({ id, role }) => changeUserRole(id, role),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adminUserKeys.all });
+    },
+  });
+}
+
+// Hook tải lịch sử huy hiệu của một người dùng (chỉ gọi khi đang mở hộp thoại).
+export function useUserBadges(id) {
+  return useQuery({
+    queryKey: adminUserKeys.badges(id),
+    queryFn: () => getUserBadges(id),
+    enabled: id != null,
+  });
+}
+
+// Mutation cấp huy hiệu xác minh rồi làm mới danh sách huy hiệu của người đó.
+export function useGrantVerification() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id) => grantVerificationBadge(id),
+    onSuccess: (_badge, id) => {
+      queryClient.invalidateQueries({ queryKey: adminUserKeys.badges(id) });
+    },
+  });
+}
+
+// Mutation thu hồi huy hiệu rồi làm mới danh sách huy hiệu của người đó.
+export function useRevokeBadge() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, badgeId, reason }) => revokeBadge(id, badgeId, reason),
+    onSuccess: (_badge, { id }) => {
+      queryClient.invalidateQueries({ queryKey: adminUserKeys.badges(id) });
     },
   });
 }

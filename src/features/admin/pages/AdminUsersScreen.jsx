@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   AlertCircle,
+  Award,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
@@ -18,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import ChangeRoleDialog from "@/features/admin/users/components/ChangeRoleDialog";
 import LockUserDialog from "@/features/admin/users/components/LockUserDialog";
 import UnlockUserDialog from "@/features/admin/users/components/UnlockUserDialog";
+import UserBadgesDialog from "@/features/admin/users/components/UserBadgesDialog";
 import UserStatusBadge from "@/features/admin/users/components/UserStatusBadge";
 import { useAdminUsers } from "@/features/admin/users/hooks/useAdminUsers";
 import {
@@ -45,6 +47,7 @@ export default function AdminUsersScreen() {
   const [lockTarget, setLockTarget] = useState(null);
   const [unlockTarget, setUnlockTarget] = useState(null);
   const [roleTarget, setRoleTarget] = useState(null);
+  const [badgeTarget, setBadgeTarget] = useState(null);
 
   const timerRef = useRef(null);
 
@@ -322,6 +325,16 @@ export default function AdminUsersScreen() {
                               <ShieldCheck className="size-3.5 text-purple-600 dark:text-purple-400" />
                               Nâng quyền
                             </button>
+
+                            <button
+                              type="button"
+                              onClick={() => setBadgeTarget(user)}
+                              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface shadow-2xs cursor-pointer"
+                              title="Xem, cấp xác minh hoặc thu hồi huy hiệu"
+                            >
+                              <Award className="size-3.5 text-brand" />
+                              Huy hiệu
+                            </button>
                           </div>
                         )}
                       </td>
@@ -370,6 +383,7 @@ export default function AdminUsersScreen() {
       <LockUserDialog user={lockTarget} onClose={() => setLockTarget(null)} />
       <UnlockUserDialog user={unlockTarget} onClose={() => setUnlockTarget(null)} />
       <ChangeRoleDialog user={roleTarget} onClose={() => setRoleTarget(null)} />
+      <UserBadgesDialog user={badgeTarget} onClose={() => setBadgeTarget(null)} />
     </div>
   );
 }

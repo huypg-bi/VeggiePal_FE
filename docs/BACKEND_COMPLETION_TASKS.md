@@ -80,7 +80,7 @@ Các đường dẫn trên là mapping trực tiếp tại service; khi gọi qu
 
 ### B05 — Thiếu API lịch sử kiểm duyệt (ca đã xử lý)
 
-**Service:** ai-service · ghi 28/10/2026.
+**Service:** ai-service · ghi 28/10/2026 · **Cập nhật 02/11/2026:** BE đã có `GET /ai/admin/moderation/history`; `from` / `to` nhận `Instant` có `Z`. Chờ deploy lên môi trường chạy thật (đang trả 6999 "Uncategorized error").
 
 **Hiện trạng:** `GET /ai/admin/moderation` (`ModerationService.pending()`) chỉ trả các ca có `decision = REVIEW_REQUIRED` chưa xử lý. Ca AI đã `APPROVED` hoặc `REJECTED` thẳng, và ca admin đã duyệt, từ chối hoặc bỏ qua (`DISMISSED`) đều không có endpoint nào để đọc lại, dù bảng `ai_moderation_cases` vẫn lưu đủ nội dung, quyết định, lý do, độ tin cậy, `reviewed_by`, `reviewed_at`. Hệ quả: admin không xem được AI đã duyệt hay từ chối bài nào và vì sao. `GET /ai/admin/monitoring/logs/search` chỉ ghi lần gọi AI (token, độ trễ, trạng thái), không có quyết định và nội dung.
 
@@ -90,7 +90,7 @@ Các đường dẫn trên là mapping trực tiếp tại service; khi gọi qu
 
 ### B06 — Giám sát AI: không loại trừ được một tác vụ khỏi danh sách và tổng quan
 
-**Service:** ai-service · ghi 28/10/2026.
+**Service:** ai-service · ghi 28/10/2026 · **Cập nhật 02/11/2026:** BE đã có `excludeFeature` ở `/logs/search` và `/summary`, thêm `feature` ở `/summary`; `from` / `to` nhận `Instant` có `Z`. Chờ deploy lên môi trường chạy thật (bản đang chạy bỏ qua `excludeFeature`).
 
 **Hiện trạng:** `GET /ai/admin/monitoring/logs/search` nhận `feature` và so bằng đúng một giá trị (`MonitoringService.search`: `feature = ?`), nên không thể lấy "mọi tác vụ trừ kiểm duyệt". `GET /ai/admin/monitoring/summary` cộng toàn bộ usage log (`UsageLogRepository.aggregateSince`) và không tách theo tác vụ. Kiểm duyệt nền của blog giờ ghi usage log cho mọi bài đăng, sửa và lần thử lại (principal `service:moderation`, `userId` là tác giả), nên số liệu tổng quan và danh sách bị lẫn dữ liệu kiểm duyệt, trong khi kiểm duyệt thuộc về luồng duyệt nội dung chứ không phải theo dõi tính năng AI của người dùng.
 
@@ -144,6 +144,9 @@ Các đường dẫn trên là mapping trực tiếp tại service; khi gọi qu
 
 ### D22.2 — Dinh dưỡng video
 
+**Cập nhật 02/11/2026:** BE đã trả `extraction.nutritionEstimate` (kcal, đạm, carb, béo cho cả công thức, `estimated: true`) trong kết quả bóc tách; FE đã nối ở thẻ dinh dưỡng trang xem video (kết quả cũ không có field này).
+
+
 **Ý nghĩa:** có số liệu dinh dưỡng truy xuất được nguồn cho món xuất hiện trong video.
 
 **Việc làm:** tận dụng extraction hiện tại, bổ sung bước xác định nguyên liệu tương ứng trong catalog, khối lượng/đơn vị, trạng thái nguyên liệu và khẩu phần; chọn liên kết với recipe hoặc lưu snapshot. Xác định ai xác nhận/sửa kết quả và khi nào phải tính lại.
@@ -154,6 +157,9 @@ Luồng dự kiến: `video → extraction → chuẩn hóa nguyên liệu/khẩ
 
 ### D21.1 — Huy hiệu trên profile
 
+**Cập nhật 02/11/2026:** BE đã có huy hiệu `VERIFIED` / `ACHIEVEMENT` (`badges` trong `GET /users/me`, `GET /users/me/badges`, admin cấp / thu hồi / xem lịch sử); FE đã nối ở trang cá nhân và `/admin/users`.
+
+
 **Ý nghĩa:** huy hiệu phải đại diện cho một trạng thái có tiêu chí cụ thể, ví dụ người sáng tạo được xác minh hoặc thành tích.
 
 **Việc làm:** định nghĩa loại huy hiệu, điều kiện cấp/thu hồi, thời hạn và người có quyền; API đọc và API quản lý nếu cần; lưu lịch sử quyết định khi có phê duyệt thủ công.
@@ -161,6 +167,9 @@ Luồng dự kiến: `video → extraction → chuẩn hóa nguyên liệu/khẩ
 **Hoàn thành khi:** user không tự nâng quyền/cấp huy hiệu; huy hiệu thay đổi đúng khi mất điều kiện. `emailVerified` hiện có không tự đồng nghĩa với xác minh chuyên gia hoặc creator. Cần Q12.
 
 ### D20.5 — Thử thách 7 ngày
+
+**Cập nhật 02/11/2026:** BE đã có `GET / POST /users/me/challenges/7-day` và `POST .../check-ins`; FE đã bỏ localStorage và nối API thật ở `/blog`.
+
 
 **Ý nghĩa:** user tham gia thử thách, hoàn thành từng ngày và xem tiến độ.
 

@@ -2,4 +2,5 @@
 export const adminUserKeys = {
   all: ["admin", "users"],
   list: (filters) => [...adminUserKeys.all, "list", filters],
+  badges: (id) => [...adminUserKeys.all, "badges", id],
 };

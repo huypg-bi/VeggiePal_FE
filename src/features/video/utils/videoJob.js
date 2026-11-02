@@ -66,6 +66,16 @@ export function recipeStateFromJob(job) {
   return { state: "none" };
 }
 
+/** Dinh dưỡng ước tính cả công thức từ kết quả bóc tách; kết quả cũ không có hoặc sai kiểu thì trả null. */
+export function readNutritionEstimate(extraction) {
+  const raw = extraction?.nutritionEstimate;
+  if (!raw || typeof raw !== "object") return null;
+  const { calories, protein, carbohydrate, fat } = raw;
+  const values = [calories, protein, carbohydrate, fat];
+  if (!values.every((v) => typeof v === "number" && Number.isFinite(v) && v >= 0)) return null;
+  return { calories, protein, carbohydrate, fat };
+}
+
 /** "12.3 MB" cho dung lượng hiển thị. */
 export function formatFileSize(bytes) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;

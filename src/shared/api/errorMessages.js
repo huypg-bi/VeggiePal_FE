@@ -30,6 +30,19 @@ export const ADMIN_USER_ERROR_MESSAGES = {
   1024: "Bạn không thể thao tác lên tài khoản của chính mình",
   1025: "Không thể thao tác lên tài khoản quản trị viên khác",
   1026: "Vui lòng nhập lý do khóa (tối đa 500 ký tự)",
+  1036: "Không tìm thấy huy hiệu này",
+  1037: "Huy hiệu này đã được thu hồi",
+  1038: "Vui lòng nhập lý do thu hồi (tối đa 500 ký tự)",
+};
+
+// Thử thách 7 ngày (identity-service, mã 1032 - 1035).
+export const CHALLENGE_ERROR_MESSAGES = {
+  1007: "Không tìm thấy tài khoản",
+  1008: "Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại",
+  1032: "Bạn đang có một thử thách 7 ngày chưa kết thúc",
+  1033: "Bạn chưa tham gia thử thách 7 ngày",
+  1034: "Thử thách 7 ngày này đã kết thúc, bạn hãy bắt đầu lượt mới",
+  1035: "Hôm nay bạn đã check-in rồi",
 };
 
 const INVALID_DATA = "Dữ liệu chưa hợp lệ, vui lòng kiểm tra lại";

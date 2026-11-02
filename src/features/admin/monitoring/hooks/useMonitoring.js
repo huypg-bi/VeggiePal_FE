@@ -10,11 +10,11 @@ import { monitoringKeys } from "@/features/admin/monitoring/queryKeys";
 
 const STALE_MS = 30 * 1000;
 
-/** Tổng hợp usage trong `days` ngày gần nhất, có thể loại trừ tác vụ (mặc định MODERATION). */
-export function useUsageSummary(days, excludeFeature = "MODERATION") {
+/** Tổng hợp usage trong `days` ngày gần nhất: loại trừ một tác vụ (mặc định MODERATION) hoặc chỉ lấy một tác vụ (`feature`). */
+export function useUsageSummary(days, excludeFeature = "MODERATION", feature) {
   return useQuery({
-    queryKey: monitoringKeys.summary(days, excludeFeature),
-    queryFn: () => getUsageSummary(days, excludeFeature),
+    queryKey: monitoringKeys.summary(days, excludeFeature, feature),
+    queryFn: () => getUsageSummary(days, excludeFeature, feature),
     staleTime: STALE_MS,
   });
 }

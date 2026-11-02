@@ -1,17 +1,4 @@
-// Dữ liệu mẫu tham khảo cho các tính năng chưa có endpoint backend riêng
-// (nutrition facts, kênh ẩm thực đề xuất).
-export const nutritionFacts = {
-  servingLabel: "1 bát tiêu chuẩn",
-  kcal: 315,
-  protein: "16.5g",
-  fiber: "7.8g",
-  ingredients: [
-    { id: "banh-pho", name: "Bánh phở lứt huyết rồng", amount: "250g" },
-    { id: "nam", name: "Nấm hương tươi & Nấm đùi gà", amount: "180g" },
-    { id: "thao-moc", name: "Thảo mộc: Hoa hồi, quế, thảo quả", amount: "1 gói nhỏ" },
-  ],
-};
-
+// Dữ liệu mẫu tham khảo cho tính năng chưa có endpoint backend riêng (kênh ẩm thực đề xuất).
 export const videoChannels = [
   { id: "an", label: "Bếp Chay An Nhiên", initials: "AN", avatarClass: "bg-[#1D6C3D]" },
   { id: "yv", label: "Bếp Nhỏ Yên Vui", initials: "YV", avatarClass: "bg-[#E38B29]" },

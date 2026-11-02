@@ -2,8 +2,10 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Info, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import UsageSummarySection from "@/features/admin/monitoring/components/UsageSummarySection";
 import { useAiModels, useUsageLogs } from "@/features/admin/monitoring/hooks/useMonitoring";
 import {
+  DAY_OPTIONS,
   describeCaller,
   formatDateTime,
   formatNumber,
@@ -35,6 +37,7 @@ export default function ModerationLogsSection() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [page, setPage] = useState(0);
+  const [days, setDays] = useState(7);
   const timerRef = useRef(undefined);
 
   useEffect(() => () => clearTimeout(timerRef.current), []);
@@ -91,6 +94,26 @@ export default function ModerationLogsSection() {
 
   return (
     <div className="flex flex-col gap-4">
+      <div role="group" aria-label="Khoảng thời gian tổng hợp" className="flex items-center gap-2">
+        {DAY_OPTIONS.map(({ value, label }) => (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={days === value}
+            onClick={() => setDays(value)}
+            className={cn(
+              "cursor-pointer rounded-full px-4 py-1.5 text-xs font-semibold shadow-2xs transition",
+              days === value
+                ? "bg-brand text-brand-foreground shadow-xs"
+                : "border border-border bg-card text-subtle hover:bg-surface hover:text-ink",
+            )}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+      <UsageSummarySection days={days} feature="MODERATION" />
+
       <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 text-xs text-subtle shadow-sm">
         <Info className="mt-0.5 size-4 shrink-0 text-brand" />
         <div className="space-y-1">

@@ -1,79 +1,60 @@
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { useAuthStore } from "@/features/auth/store/authStore";
-import {
-  CHALLENGE_DAYS,
-  applyCheckIn,
-  challengeStorageKey,
-  parseRecord,
-  readProgress,
-  toDateKey,
-} from "@/features/blog/utils/challenge";
+import { selectIsAuthenticated, useAuthStore } from "@/features/auth/store/authStore";
+import { checkInChallenge, getChallengeProgress, joinChallenge } from "@/features/blog/api/challengeApi";
+import { blogKeys } from "@/features/blog/queryKeys";
+import { CHALLENGE_DAYS } from "@/features/blog/utils/challenge";
+import { profileKeys } from "@/features/profile/queryKeys";
 
-const listeners = new Set();
-
-function subscribe(listener) {
-  listeners.add(listener);
-  // Sự kiện "storage" chỉ bắn ở tab khác, nên tab hiện tại tự thông báo qua `listeners`.
-  window.addEventListener("storage", listener);
-  return () => {
-    listeners.delete(listener);
-    window.removeEventListener("storage", listener);
-  };
-}
-
-function readRaw(key) {
-  try {
-    return key ? window.localStorage.getItem(key) : null;
-  } catch {
-    return null;
-  }
-}
-
-function writeRaw(key, value) {
-  try {
-    window.localStorage.setItem(key, value);
-  } catch {
-    // Không lưu được thì tiến độ chỉ còn trong phiên này; bỏ qua để không làm hỏng trang.
-  }
-  listeners.forEach((listener) => listener());
-}
-
+/**
+ * Thử thách 7 ngày của tôi (BE tính ngày theo Asia/Ho_Chi_Minh).
+ * `status`: NONE (chưa tham gia / chưa đăng nhập), IN_PROGRESS, COMPLETED, FAILED.
+ */
 export function useChallenge() {
+  const queryClient = useQueryClient();
+  const isAuthenticated = useAuthStore(selectIsAuthenticated);
   const userId = useAuthStore((s) => s.user?.id ?? null);
-  const key = userId == null ? null : challengeStorageKey(userId);
+  const key = blogKeys.challenge(userId);
 
-  const raw = useSyncExternalStore(
-    subscribe,
-    () => readRaw(key),
-    () => null
-  );
-  const record = useMemo(() => parseRecord(raw), [raw]);
+  const query = useQuery({
+    queryKey: key,
+    queryFn: getChallengeProgress,
+    enabled: isAuthenticated && userId != null,
+  });
 
-  // Ngày hôm nay luôn cập nhật: qua nửa đêm hoặc quay lại tab sau lúc ngủ thì nút check-in tự mở lại.
-  const [today, setToday] = useState(() => toDateKey(new Date()));
+  // Quay lại tab sau lúc ngủ hoặc qua nửa đêm thì hỏi lại BE để nút check-in và chuỗi ngày đúng.
+  const { refetch } = query;
   useEffect(() => {
-    const refresh = () => setToday(toDateKey(new Date()));
-    const timer = window.setInterval(refresh, 60_000);
-    document.addEventListener("visibilitychange", refresh);
-    return () => {
-      window.clearInterval(timer);
-      document.removeEventListener("visibilitychange", refresh);
+    if (!isAuthenticated) return undefined;
+    const refresh = () => {
+      if (document.visibilityState === "visible") refetch();
     };
-  }, []);
+    document.addEventListener("visibilitychange", refresh);
+    return () => document.removeEventListener("visibilitychange", refresh);
+  }, [isAuthenticated, refetch]);
 
-  const progress = readProgress(record, today);
+  const applyProgress = (progress) => {
+    queryClient.setQueryData(key, progress);
+    // Hoàn thành 7/7 thì BE cấp huy hiệu ACHIEVEMENT nên làm mới hồ sơ (huy hiệu nằm trong GET /users/me).
+    if (progress?.status === "COMPLETED") queryClient.invalidateQueries({ queryKey: profileKeys.me });
+  };
 
-  const checkIn = useCallback(() => {
-    if (!key) return false;
-    // Đọc lại từ storage ngay lúc bấm để không ghi đè dữ liệu mới hơn từ tab khác.
-    const current = parseRecord(readRaw(key));
-    const todayKey = toDateKey(new Date());
-    const next = applyCheckIn(current, todayKey);
-    if (next === current) return false;
-    writeRaw(key, JSON.stringify(next));
-    return next.completedAt === todayKey;
-  }, [key]);
+  // Lỗi (đã check-in, đang có lượt khác...) thường do tiến độ trên màn hình đã cũ nên tải lại từ BE.
+  const refresh = () => queryClient.invalidateQueries({ queryKey: key });
+  const join = useMutation({ mutationFn: joinChallenge, onSuccess: applyProgress, onError: refresh });
+  const checkIn = useMutation({ mutationFn: checkInChallenge, onSuccess: applyProgress, onError: refresh });
 
-  return { ...progress, total: CHALLENGE_DAYS, checkIn };
+  const progress = query.data ?? null;
+  return {
+    status: progress?.status ?? "NONE",
+    days: progress?.completedDays ?? 0,
+    total: progress?.totalDays ?? CHALLENGE_DAYS,
+    points: progress?.points ?? 0,
+    checkedToday: Boolean(progress?.checkedInToday),
+    loading: isAuthenticated && query.isPending,
+    error: query.isError ? query.error.message : "",
+    join,
+    checkIn,
+  };
 }
