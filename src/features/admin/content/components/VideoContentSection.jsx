@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react";
 
 import ContentSearchBox from "@/features/admin/content/components/ContentSearchBox";
+import ContentStatusFilter from "@/features/admin/content/components/ContentStatusFilter";
 import ContentTable from "@/features/admin/content/components/ContentTable";
-import { CONTENT_PAGE_SIZE, useAdminVideos } from "@/features/admin/content/hooks/useAdminContent";
+import { useAdminVideos, useChangeVideoStatus } from "@/features/admin/content/hooks/useAdminContent";
 import { formatCount } from "@/features/admin/content/utils/contentFormat";
+import { getVideoStatusInfo, VIDEO_STATUS_FILTERS } from "@/features/my-content/utils/statusInfo";
 import { useDeleteVideo } from "@/features/video/hooks/useVideoMutations";
-import { textIncludes } from "@/shared/utils/text";
 
 const COLUMNS = [
   { key: "category", label: "Danh mục", render: (video) => video.categoryName ?? "—" },
@@ -14,35 +15,38 @@ const COLUMNS = [
 ];
 
 const getAuthorId = (video) => video.authorId;
-const getViewPath = (video) => `/videos/${video.id}`;
+// Trang xem công khai chỉ mở được video đã đăng; video khác mở thẳng nguồn video để admin xem trước khi duyệt.
+const getViewHref = (video) => (video.status === "PUBLISHED" ? `/videos/${video.id}` : video.videoUrl);
 const getPublishedAt = (video) => video.publishedAt ?? video.createdAt;
 
-// Tab "Video": video đã đăng (GET /videos); BE chưa có tìm kiếm nên lọc tiêu đề và phân trang ở FE.
+// Tab "Video": video ở mọi trạng thái (GET /admin/videos), lọc trạng thái và tìm từ khóa ở BE; duyệt / từ chối video chờ.
 export default function VideoContentSection() {
   const [keyword, setKeyword] = useState("");
+  const [status, setStatus] = useState("");
   const [page, setPage] = useState(0);
-  const { data: videos, isPending, isFetching, isError, error } = useAdminVideos();
+  const { data, isPending, isFetching, isError, error } = useAdminVideos({ status, keyword, page });
   const deleteVideo = useDeleteVideo();
+  const changeStatus = useChangeVideoStatus();
+  const items = useMemo(() => data?.items ?? [], [data]);
 
-  const filtered = useMemo(
-    () => (videos ?? []).filter((video) => textIncludes(video.title, keyword)),
-    [videos, keyword]
-  );
-  const totalPages = Math.max(Math.ceil(filtered.length / CONTENT_PAGE_SIZE), 1);
-  // Xóa hết video ở trang cuối thì tự lùi về trang trước.
-  const currentPage = Math.min(page, totalPages - 1);
-  const items = useMemo(
-    () => filtered.slice(currentPage * CONTENT_PAGE_SIZE, (currentPage + 1) * CONTENT_PAGE_SIZE),
-    [filtered, currentPage]
-  );
+  // Xóa hết video ở trang cuối thì lùi về trang trước (đặt lại theo dữ liệu mới, không dùng effect).
+  if (data && page > 0 && page >= data.totalPages) setPage(Math.max(data.totalPages - 1, 0));
 
   return (
     <section aria-label="Quản lý video" className="flex flex-col gap-4">
       <ContentSearchBox
-        placeholder="Tìm video theo tiêu đề..."
+        placeholder="Tìm video theo tiêu đề hoặc mô tả..."
         ariaLabel="Tìm video"
         onChange={(value) => {
           setKeyword(value);
+          setPage(0);
+        }}
+      />
+      <ContentStatusFilter
+        options={VIDEO_STATUS_FILTERS}
+        value={status}
+        onChange={(value) => {
+          setStatus(value);
           setPage(0);
         }}
       />
@@ -52,18 +56,20 @@ export default function VideoContentSection() {
         noun="video"
         deleteNote="sẽ bị gỡ khỏi trang công khai và không thể khôi phục."
         getAuthorId={getAuthorId}
-        getViewPath={getViewPath}
+        getViewHref={getViewHref}
         getPublishedAt={getPublishedAt}
+        getStatusInfo={getVideoStatusInfo}
         deleteMutation={deleteVideo}
-        page={currentPage}
-        totalPages={totalPages}
-        totalElements={filtered.length}
+        reviewMutation={changeStatus}
+        page={page}
+        totalPages={data?.totalPages ?? 0}
+        totalElements={data?.totalElements ?? 0}
         onPageChange={setPage}
         isPending={isPending}
         isFetching={isFetching}
         isError={isError}
         error={error}
-        emptyText={keyword ? "Không có video nào khớp từ khóa." : "Chưa có video nào được đăng."}
+        emptyText={keyword || status ? "Không có video nào khớp bộ lọc." : "Chưa có video nào."}
       />
     </section>
   );

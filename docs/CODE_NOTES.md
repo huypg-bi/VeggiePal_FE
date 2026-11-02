@@ -106,12 +106,20 @@ Tổng cộng 334 mục từ 200 file.
 > Công tắc bật/tắt gắn với react-hook-form: \<ToggleField label="..." hint="..." {...register("active")} />
 > Dùng checkbox thật (ẩn) nên bàn phím và trình đọc màn hình hoạt động bình thường.
 
+### features/admin/content/api/contentApi.js
+
+**Gắn với:** `export async function getAdminBlogs(params) {`
+
+> Gọi các endpoint `/admin/*` của BE: liệt kê bài viết / video / công thức ở mọi trạng thái (lọc `status`, `keyword`, phân trang) và đổi trạng thái
+> bài viết / video qua `PUT /admin/{blogs|videos}/:id/status` với `{ status, reason }`. Lỗi dùng bảng thông báo tiếng Việt của từng service.
+
 ### features/admin/content/components/BlogContentSection.jsx
 
 **Gắn với:** `export default function BlogContentSection() {`
 
-> Tab "Bài viết" của /admin/content: bài đã đăng (GET /blogs), từ khóa tìm ở BE, 10 bài mỗi trang.
-> Xóa bằng DELETE /blogs/:id qua `useDeleteBlog`; admin xóa bài người khác thì BE đặt BANNED (ẩn khỏi công khai, không khôi phục).
+> Tab "Bài viết" của /admin/content: bài ở mọi trạng thái (GET /admin/blogs), lọc trạng thái và tìm từ khóa ở BE, 10 bài mỗi trang.
+> Duyệt / từ chối bài chờ qua `useChangeBlogStatus` (PUT /admin/blogs/:id/status); xóa bằng DELETE /blogs/:id qua `useDeleteBlog`,
+> admin xóa bài người khác thì BE đặt BANNED (ẩn khỏi công khai, không khôi phục).
 
 ### features/admin/content/components/ContentSearchBox.jsx
 
@@ -119,40 +127,57 @@ Tổng cộng 334 mục từ 200 file.
 
 > Ô tìm dùng chung cho ba tab nội dung: gõ xong 400 ms (hoặc Enter) mới đẩy từ khóa lên tab cha, nút X xóa từ khóa.
 
+### features/admin/content/components/ContentStatusDialog.jsx
+
+**Gắn với:** `export default function ContentStatusDialog({`
+
+> Hộp thoại duyệt (`PUBLISHED`) hoặc từ chối (`REJECTED`) một bài viết / video. Lý do bắt buộc vì BE từ chối khi thiếu (và ghi lại ai quyết định).
+> Cha đổi `key` mỗi lần mở cho mục khác để xóa lý do đã gõ.
+
+### features/admin/content/components/ContentStatusFilter.jsx
+
+**Gắn với:** `export default function ContentStatusFilter({ options, value, onChange }) {`
+
+> Hàng chip lọc theo trạng thái dùng chung ba tab; `value` rỗng nghĩa là tất cả (không gửi `status` lên BE).
+
 ### features/admin/content/components/ContentTable.jsx
 
 **Gắn với:** `export default function ContentTable({`
 
-> Bảng nội dung đã đăng dùng chung cho bài viết / công thức / video. `columns` là các cột số liệu riêng của từng loại
-> (nằm giữa cột Tác giả và Ngày đăng). Nút "Xem" mở trang công khai ở tab mới để admin giữ nguyên chỗ đang quản lý;
-> nút "Xóa" mở hộp xác nhận rồi gọi `deleteMutation` của tab (các hook xóa có sẵn). Tên tác giả lấy một lượt qua `usePublicUsers`.
+> Bảng nội dung ở mọi trạng thái dùng chung cho bài viết / công thức / video. `columns` là các cột số liệu riêng của từng loại
+> (nằm giữa cột Trạng thái và Ngày). Nút "Xem" mở `getViewHref(item)` ở tab mới để admin giữ nguyên chỗ đang quản lý;
+> nút "Duyệt" (PENDING / REJECTED) và "Từ chối" (PENDING) chỉ hiện khi tab truyền `reviewMutation` (bài viết, video; công thức BE chưa có)
+> và mở `ContentStatusDialog`; nút "Xóa" ẩn ở trạng thái cuối (BANNED / ARCHIVED), mở hộp xác nhận rồi gọi `deleteMutation` của tab.
+> Tên tác giả lấy một lượt qua `usePublicUsers`.
 > `page` bắt đầu từ 0. Tab cha tự xử lý trạng thái tải / lỗi / rỗng qua các props `isPending`, `isError`, `emptyText`.
 
 ### features/admin/content/components/RecipeContentSection.jsx
 
 **Gắn với:** `export default function RecipeContentSection() {`
 
-> Tab "Công thức": công thức đã đăng (GET /recipes), từ khóa tìm ở BE, xóa bằng DELETE /recipes/:id (BE chuyển sang ARCHIVED).
+> Tab "Công thức": công thức ở mọi trạng thái (GET /admin/recipes), lọc trạng thái và tìm từ khóa ở BE, xóa bằng DELETE /recipes/:id
+> (BE chuyển sang ARCHIVED). Chưa có duyệt vì BE không có endpoint đổi trạng thái công thức.
 
 ### features/admin/content/components/VideoContentSection.jsx
 
 **Gắn với:** `export default function VideoContentSection() {`
 
-> Tab "Video": BE chưa có tìm kiếm cho GET /videos (task B16) nên tải đủ mọi trang rồi lọc tiêu đề (`textIncludes`) và cắt 10 video
-> mỗi trang ở FE. Xóa hết video ở trang cuối thì `currentPage` tự lùi về trang trước.
+> Tab "Video": video ở mọi trạng thái (GET /admin/videos), lọc trạng thái, tìm từ khóa và phân trang 10 video ở BE; duyệt / từ chối video chờ
+> qua `useChangeVideoStatus`. Video chưa đăng không có trang công khai nên nút "Xem" mở thẳng `videoUrl`.
 
 ### features/admin/content/hooks/useAdminContent.js
 
-**Gắn với:** `async function fetchAllVideos() {`
+**Gắn với:** `export function useAdminBlogs({ status, keyword, page }) {`
 
-> Tải mọi trang video đã đăng (100 video mỗi lần, BE giới hạn 100) thành một mảng phẳng để lọc và phân trang ở FE.
+> Ba hook liệt kê (`useAdminBlogs`, `useAdminRecipes`, `useAdminVideos`) gọi `/admin/*` với `status`, `keyword`, `page`, giữ dữ liệu cũ khi đổi trang.
+> Hai hook đổi trạng thái (`useChangeBlogStatus`, `useChangeVideoStatus`) làm mới cả gốc cache blog / video nên feed công khai cũng cập nhật.
 
 ### features/admin/content/queryKeys.js
 
 **Gắn với:** `export const adminContentKeys = {`
 
 > Khóa cache của trang quản lý nội dung. Cố ý đặt dưới gốc cache của blog (`["blog","posts"]`), recipe (`["recipes"]`) và video (`["videos"]`)
-> để các hook xóa có sẵn (`useDeleteBlog`, `useDeleteRecipe`, `useDeleteVideo`) tự làm mới các bảng này mà không cần mã thêm.
+> để các hook xóa có sẵn (`useDeleteBlog`, `useDeleteRecipe`, `useDeleteVideo`) và hook đổi trạng thái tự làm mới các bảng này mà không cần mã thêm.
 
 ### features/admin/moderation/api/moderationApi.js
 
@@ -275,12 +300,18 @@ Tổng cộng 334 mục từ 200 file.
 > Trang giám sát AI (/admin/ai-monitoring): lượt dùng, token, độ trễ, lỗi của ai-service,
 > model đang dùng, giới hạn quota và nhật ký từng lượt gọi.
 
+### features/admin/content/utils/contentStatus.js
+
+**Gắn với:** `export const canReviewContent = (status) =>`
+
+> Luật hiển thị nút ở trang quản lý nội dung, khớp luật BE: chỉ `PENDING` / `REJECTED` duyệt lại được; `BANNED` / `ARCHIVED` là trạng thái cuối nên ẩn nút Xóa.
+
 ### features/admin/pages/AdminContentScreen.jsx
 
 **Gắn với:** `export default function AdminContentScreen() {`
 
 > Trang quản lý nội dung của Admin (/admin/content): 3 tab Bài viết / Công thức / Video chọn qua URL (?tab=blogs | recipes | videos).
-> Chỉ liệt kê nội dung đã đăng công khai vì BE chưa có endpoint liệt kê mọi trạng thái cho admin; chỉ xem và xóa, không sửa.
+> Liệt kê mọi trạng thái nhờ `/admin/*` của BE (B17); duyệt / từ chối bài viết và video chờ, xóa, không sửa nội dung.
 
 ### features/admin/pages/AdminDashboardScreen.jsx
 
