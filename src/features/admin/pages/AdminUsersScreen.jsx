@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Eye,
   Lock,
   RotateCcw,
   Search,
@@ -12,11 +13,11 @@ import {
   ShieldCheck,
   Unlock,
   User,
-  Users,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import ChangeRoleDialog from "@/features/admin/users/components/ChangeRoleDialog";
+import LockReasonDialog from "@/features/admin/users/components/LockReasonDialog";
 import LockUserDialog from "@/features/admin/users/components/LockUserDialog";
 import UnlockUserDialog from "@/features/admin/users/components/UnlockUserDialog";
 import UserBadgesDialog from "@/features/admin/users/components/UserBadgesDialog";
@@ -48,6 +49,7 @@ export default function AdminUsersScreen() {
   const [unlockTarget, setUnlockTarget] = useState(null);
   const [roleTarget, setRoleTarget] = useState(null);
   const [badgeTarget, setBadgeTarget] = useState(null);
+  const [viewLockReasonTarget, setViewLockReasonTarget] = useState(null);
 
   const timerRef = useRef(null);
 
@@ -95,18 +97,7 @@ export default function AdminUsersScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Tiêu đề & giới thiệu chức năng */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <Users className="size-6 text-brand" />
-            <h1 className="font-heading text-3xl font-bold text-ink">Người dùng</h1>
-          </div>
-          <p className="mt-1 text-sm text-subtle">
-            Quản lý tài khoản thành viên, phân quyền quản trị và thực hiện khóa hoặc mở khóa tài khoản.
-          </p>
-        </div>
-      </div>
+
 
       {/* Thanh tìm kiếm và bộ lọc */}
       <div className="flex flex-wrap items-center gap-3 rounded-3xl border border-border bg-card p-3.5 shadow-xs">
@@ -262,15 +253,18 @@ export default function AdminUsersScreen() {
 
                       {/* Trạng thái */}
                       <td className="px-4 py-4 text-center">
-                        <div className="flex flex-col items-center justify-center gap-1">
+                        <div className="flex items-center justify-center gap-1.5">
                           <UserStatusBadge status={user.status} />
-                          {isBlocked && user.lockedReason && (
-                            <p
-                              className="max-w-[180px] truncate text-[11px] text-destructive hover:underline cursor-help"
-                              title={`Lý do: ${user.lockedReason}${user.lockedAt ? ` (${formatDateTime(user.lockedAt)})` : ""}`}
+                          {isBlocked && (
+                            <button
+                              type="button"
+                              onClick={() => setViewLockReasonTarget(user)}
+                              className="inline-flex size-6 items-center justify-center rounded-full border border-destructive/25 bg-destructive/10 text-destructive transition hover:bg-destructive/20 hover:scale-105 active:scale-95 cursor-pointer shadow-2xs"
+                              title={`Xem lý do khóa (${user.lockedReason || "Chưa có lý do"})`}
+                              aria-label="Xem lý do khóa"
                             >
-                              Lý do: {user.lockedReason}
-                            </p>
+                              <Eye className="size-3.5" />
+                            </button>
                           )}
                         </div>
                       </td>
@@ -383,6 +377,11 @@ export default function AdminUsersScreen() {
       <UnlockUserDialog user={unlockTarget} onClose={() => setUnlockTarget(null)} />
       <ChangeRoleDialog user={roleTarget} onClose={() => setRoleTarget(null)} />
       <UserBadgesDialog user={badgeTarget} onClose={() => setBadgeTarget(null)} />
+      <LockReasonDialog
+        user={viewLockReasonTarget}
+        onClose={() => setViewLockReasonTarget(null)}
+        onUnlock={(u) => setUnlockTarget(u)}
+      />
     </div>
   );
 }

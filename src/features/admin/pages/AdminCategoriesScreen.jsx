@@ -32,13 +32,7 @@ export default function AdminCategoriesScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-heading text-3xl font-bold text-ink">Danh mục</h1>
-          <p className="mt-1 text-sm text-subtle">
-            Danh mục dùng để phân loại bài viết. Cây danh mục có tối đa 2 cấp.
-          </p>
-        </div>
+      <div className="flex justify-end">
         <Button type="button" onClick={() => setFormTarget({ mode: "create-root" })}>
           <Plus className="size-4" />
           Thêm danh mục gốc

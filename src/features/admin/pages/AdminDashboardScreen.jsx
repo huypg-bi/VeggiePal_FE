@@ -1,5 +1,19 @@
 import { Link } from "react-router-dom";
-import { Activity, ArrowRight, Eye, EyeOff, FolderTree, Leaf, Salad, ShieldAlert, TriangleAlert } from "lucide-react";
+import {
+  Activity,
+  ArrowRight,
+  CreditCard,
+  Eye,
+  EyeOff,
+  FileText,
+  FolderTree,
+  Leaf,
+  Salad,
+  ScrollText,
+  ShieldAlert,
+  TriangleAlert,
+  Users,
+} from "lucide-react";
 
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { usePendingModerationCases } from "@/features/admin/moderation/hooks/useModeration";
@@ -76,31 +90,58 @@ export default function AdminDashboardScreen() {
         />
       </section>
 
-      <section aria-label="Lối tắt" className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <ShortcutCard
-          to="/admin/moderation"
-          icon={ShieldAlert}
-          title="Kiểm duyệt nội dung"
-          description="Xem xét và duyệt các bài viết, video, bình luận bị AI gắn cờ vi phạm."
-        />
-        <ShortcutCard
-          to="/admin/categories"
-          icon={FolderTree}
-          title="Quản lý danh mục"
-          description="Thêm, sửa, ẩn hoặc xóa danh mục bài viết (tối đa 2 cấp)."
-        />
-        <ShortcutCard
-          to="/admin/ingredients"
-          icon={Salad}
-          title="Quản lý nguyên liệu"
-          description="Cập nhật nguyên liệu và dinh dưỡng trên 100g để tính kcal công thức."
-        />
-        <ShortcutCard
-          to="/admin/ai-monitoring"
-          icon={Activity}
-          title="Giám sát AI"
-          description="Lượt dùng, token, độ trễ, lỗi và nhật ký các tính năng AI."
-        />
+      <section aria-label="Phân hệ quản trị" className="flex flex-col gap-3">
+        <h2 className="font-heading text-xl font-bold text-ink">Các đề mục quản lý</h2>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <ShortcutCard
+            to="/admin/users"
+            icon={Users}
+            title="Người dùng"
+            description="Quản lý tài khoản thành viên, phân quyền quản trị và thực hiện khóa hoặc mở khóa tài khoản."
+          />
+          <ShortcutCard
+            to="/admin/moderation"
+            icon={ShieldAlert}
+            title="Kiểm duyệt nội dung"
+            description="Hàng đợi các nội dung nghi ngờ vi phạm hoặc cần con người kiểm duyệt (từ AI Moderation)."
+          />
+          <ShortcutCard
+            to="/admin/content"
+            icon={FileText}
+            title="Quản lý nội dung"
+            description="Xem bài viết, công thức, video ở mọi trạng thái; duyệt hoặc từ chối bài viết và video chờ duyệt."
+          />
+          <ShortcutCard
+            to="/admin/categories"
+            icon={FolderTree}
+            title="Danh mục"
+            description="Danh mục dùng để phân loại bài viết. Thêm, sửa, ẩn hoặc xóa danh mục (tối đa 2 cấp)."
+          />
+          <ShortcutCard
+            to="/admin/ingredients"
+            icon={Salad}
+            title="Nguyên liệu"
+            description="Danh mục nguyên liệu và dinh dưỡng trên 100g, dùng để người dùng soạn công thức và tính kcal."
+          />
+          <ShortcutCard
+            to="/admin/ai-monitoring"
+            icon={Activity}
+            title="Giám sát AI"
+            description="Theo dõi lượt dùng, token, độ trễ và lỗi của các tính năng AI (chatbot, thực đơn, gợi ý, video)."
+          />
+          <ShortcutCard
+            to="/admin/prompts"
+            icon={ScrollText}
+            title="Prompt AI"
+            description="Chỉnh các chỉ dẫn gửi cho AI mà không cần deploy lại, chạy thử và kích hoạt prompt mới."
+          />
+          <ShortcutCard
+            to="/admin/payments"
+            icon={CreditCard}
+            title="Thanh toán"
+            description="Theo dõi doanh thu, trạng thái giao dịch và đơn hàng đăng ký gói hội viên."
+          />
+        </div>
       </section>
 
       <p className="rounded-2xl bg-surface px-4 py-3 text-sm text-subtle">

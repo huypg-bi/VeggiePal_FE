@@ -1,13 +1,10 @@
 import { useMemo, useState } from "react";
-import { RefreshCw } from "lucide-react";
-import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import OrdersTableSection from "@/features/admin/payments/components/OrdersTableSection";
 import PaymentDistributionSection from "@/features/admin/payments/components/PaymentDistributionSection";
 import PaymentSummarySection from "@/features/admin/payments/components/PaymentSummarySection";
 import RevenueChartSection from "@/features/admin/payments/components/RevenueChartSection";
-import { adminPaymentKeys } from "@/features/admin/payments/queryKeys";
 import { PLAN_LABELS, toInstant, toOptions } from "@/features/admin/payments/utils/adminPaymentFormat";
 import { cn } from "@/lib/utils";
 import SelectField from "@/shared/components/SelectField";
@@ -22,8 +19,7 @@ export default function AdminPaymentsScreen() {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [planCode, setPlanCode] = useState("");
-  const queryClient = useQueryClient();
-  const fetching = useIsFetching({ queryKey: adminPaymentKeys.all }) > 0;
+
 
   // BE trả lỗi khi from > to nên chặn ngay từ form.
   const rangeInvalid = Boolean(fromDate && toDate && fromDate > toDate);
@@ -36,24 +32,7 @@ export default function AdminPaymentsScreen() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="font-heading text-3xl font-bold text-ink">Thanh toán</h1>
-          <p className="mt-1 text-sm text-subtle">
-            Theo dõi doanh thu, trạng thái giao dịch và đơn hàng đăng ký gói.
-          </p>
-        </div>
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          disabled={fetching}
-          onClick={() => queryClient.invalidateQueries({ queryKey: adminPaymentKeys.all })}
-        >
-          <RefreshCw className={cn("size-4", fetching && "animate-spin")} />
-          Làm mới
-        </Button>
-      </div>
+
 
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-3 rounded-3xl border border-border bg-card p-4 shadow-sm">

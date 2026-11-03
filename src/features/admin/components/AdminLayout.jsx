@@ -7,6 +7,7 @@ import {
   FolderTree,
   LayoutDashboard,
   LogOut,
+  RefreshCw,
   Salad,
   ScrollText,
   ShieldAlert,
@@ -16,6 +17,7 @@ import {
 
 import logo from "@/assets/img/logo.png";
 import { Button } from "@/components/ui/button";
+import { useIsFetching, useQueryClient } from "@tanstack/react-query";
 import { usePendingModerationCases } from "@/features/admin/moderation/hooks/useModeration";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import { cn } from "@/lib/utils";
@@ -42,20 +44,42 @@ const navClass = ({ isActive }) =>
 export default function AdminLayout() {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const queryClient = useQueryClient();
+  const isFetching = useIsFetching() > 0;
   const { data: pendingCases = [] } = usePendingModerationCases();
   const pendingCount = pendingCases.length;
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries();
+  };
 
   return (
     <div className="min-h-dvh bg-canvas">
       <header className="sticky top-0 z-30 border-b border-border bg-card/90 backdrop-blur">
         <div className="mx-auto flex w-full max-w-[1400px] items-center gap-3 px-4 py-2 sm:px-6">
-          <Link to="/admin" className="flex shrink-0 items-center gap-2">
-            <img src={logo} alt="VeggiePal" className="h-10 w-auto" />
-            <span className="hidden items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-xs font-semibold text-brand sm:flex">
-              <ShieldCheck className="size-3.5" />
-              Quản trị
-            </span>
-          </Link>
+          <div className="flex shrink-0 items-center gap-2">
+            <Link to="/admin" className="flex shrink-0 items-center gap-2">
+              <img src={logo} alt="VeggiePal" className="h-10 w-auto" />
+              <span className="hidden items-center gap-1 rounded-full bg-brand-soft px-2.5 py-1 text-xs font-semibold text-brand sm:flex">
+                <ShieldCheck className="size-3.5" />
+                Quản trị
+              </span>
+            </Link>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={isFetching}
+              className="h-7 gap-1.5 rounded-full border-border bg-surface px-2.5 text-xs font-medium text-subtle transition hover:bg-card hover:text-ink cursor-pointer"
+              title="Làm mới dữ liệu trang"
+              aria-label="Làm mới dữ liệu"
+            >
+              <RefreshCw className={cn("size-3.5", isFetching && "animate-spin text-brand")} />
+              <span className="hidden sm:inline">Làm mới</span>
+            </Button>
+          </div>
 
           <div className="ml-auto flex items-center gap-2">
             <Link

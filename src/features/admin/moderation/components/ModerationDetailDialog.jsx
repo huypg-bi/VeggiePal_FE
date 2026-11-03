@@ -2,7 +2,6 @@ import {
   Ban,
   Bot,
   Check,
-  ExternalLink,
   FileText,
   MessageSquare,
   Percent,
@@ -68,7 +67,6 @@ export default function ModerationDetailDialog({
   const Icon = typeMeta.icon;
 
   const hasExternalId = item.externalContentId != null;
-  const isBlog = item.contentType === "BLOG";
   const isHandled = Boolean(item.decision && item.decision !== "REVIEW_REQUIRED");
 
   return (
@@ -108,26 +106,9 @@ export default function ModerationDetailDialog({
 
             <div>
               <span className="text-xs text-subtle">Mã ID nội dung gốc:</span>
-              <div className="mt-1 flex items-center gap-1.5">
-                {hasExternalId ? (
-                  isBlog ? (
-                    <a
-                      href={`/blog/${item.externalContentId}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1 font-mono text-sm font-semibold text-ink underline hover:text-brand"
-                      title="Mở bài viết trong tab mới (Admin có quyền xem bài chưa đăng)"
-                    >
-                      #{item.externalContentId}
-                      <ExternalLink className="size-3 text-subtle" />
-                    </a>
-                  ) : (
-                    <span className="font-mono text-sm font-semibold text-ink">#{item.externalContentId}</span>
-                  )
-                ) : (
-                  <span className="text-subtle">—</span>
-                )}
-              </div>
+              <p className="mt-1 font-mono text-sm font-semibold text-ink">
+                {hasExternalId ? `#${item.externalContentId}` : <span className="font-sans font-normal text-subtle">—</span>}
+              </p>
             </div>
 
             <div>
@@ -221,20 +202,7 @@ export default function ModerationDetailDialog({
             </div>
           </div>
 
-          {/* Liên kết mở nội dung gốc */}
-          {hasExternalId && isBlog && (
-            <div className="flex justify-end pt-1">
-              <a
-                href={`/blog/${item.externalContentId}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand hover:underline"
-              >
-                <span>Mở bài viết</span>
-                <ExternalLink className="size-3.5 text-subtle" />
-              </a>
-            </div>
-          )}
+
         </div>
 
         {!isHandled && (

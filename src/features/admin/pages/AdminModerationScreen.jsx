@@ -189,31 +189,7 @@ export default function AdminModerationScreen() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Header */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="font-heading text-3xl font-bold text-ink">Kiểm duyệt nội dung</h1>
-            {activeCases.length > 0 && (
-              <span className="flex items-center rounded-full bg-warning/15 px-2.5 py-0.5 text-xs font-semibold text-warning">
-                {activeCases.length} chờ duyệt
-              </span>
-            )}
-          </div>
-          <p className="mt-1 text-sm text-subtle">
-            Hàng đợi các nội dung nghi ngờ vi phạm hoặc cần con người kiểm duyệt (từ AI Moderation).
-          </p>
-        </div>
 
-        {activeTab === "queue" && (
-        <div className="flex items-center gap-2">
-          <Button type="button" variant="outline" size="sm" disabled={isFetching} onClick={handleRefresh}>
-            <RefreshCw className={cn("size-4", isFetching && "animate-spin")} />
-            Làm mới
-          </Button>
-        </div>
-        )}
-      </div>
 
       {/* Tabs chuyển đổi giữa hàng đợi, nhật ký và lịch sử */}
       <div className="flex border-b border-border gap-2">
