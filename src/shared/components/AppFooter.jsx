@@ -21,16 +21,8 @@ const EXPLORE_LINKS = [
   { id: "home", label: "Trang chủ", to: "/" },
   { id: "videos", label: "Video", to: "/videos" },
   { id: "restaurants", label: "Nhà hàng chay", to: "/map" },
-  { id: "community", label: "Cộng đồng", href: "#" },
+  { id: "community", label: "Cộng đồng", to: "/blog" },
   { id: "meal-planner", label: "Lên kế hoạch dinh dưỡng", to: "/meal-planner" },
-];
-
-const SUPPORT_LINKS = [
-  { id: "help", label: "Trung tâm trợ giúp", href: "#" },
-  { id: "privacy", label: "Chính sách bảo mật", href: "#" },
-  { id: "terms", label: "Điều khoản sử dụng", href: "#" },
-  { id: "guidelines", label: "Quy chế cộng đồng", href: "#" },
-  { id: "contact", label: "Liên hệ", href: "#" },
 ];
 
 const COMMITMENTS = [
@@ -64,7 +56,7 @@ export default function AppFooter() {
         visible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
       }`}
     >
-      <div className="mx-auto grid w-full max-w-[1230px] grid-cols-1 gap-x-8 gap-y-8 py-10 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_auto_auto_auto] lg:gap-x-16">
+      <div className="mx-auto grid w-full max-w-[1230px] grid-cols-1 gap-x-8 gap-y-8 py-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-12">
         <div className="flex max-w-md flex-col gap-3 sm:col-span-2 lg:col-span-1">
           <p className="text-xs font-semibold tracking-[0.15em] text-brand">
             ĂN CHAY • SỐNG KHỎE • KẾT NỐI CỘNG ĐỒNG
@@ -90,7 +82,7 @@ export default function AppFooter() {
           </p>
         </div>
 
-        <nav className="flex flex-col gap-2.5 lg:col-span-1">
+        <nav className="flex flex-col gap-2.5 sm:col-span-1 lg:col-span-1 sm:justify-self-center lg:justify-self-center">
           <p className="text-sm font-semibold text-ink">Khám phá</p>
           {EXPLORE_LINKS.map((link) => (
             <FooterLink key={link.id} to={link.to} href={link.href}>
@@ -99,16 +91,7 @@ export default function AppFooter() {
           ))}
         </nav>
 
-        <nav className="flex flex-col gap-2.5 lg:col-span-1">
-          <p className="text-sm font-semibold text-ink">Hỗ trợ</p>
-          {SUPPORT_LINKS.map((link) => (
-            <FooterLink key={link.id} to={link.to} href={link.href}>
-              {link.label}
-            </FooterLink>
-          ))}
-        </nav>
-
-        <div className="flex flex-col gap-2.5 sm:col-span-2 lg:col-span-1">
+        <div className="flex flex-col gap-2.5 sm:col-span-1 lg:col-span-1 sm:justify-self-center lg:justify-self-center">
           <p className="text-sm font-semibold text-ink">Cam kết của chúng tôi</p>
           <div className="flex flex-col gap-3">
             {COMMITMENTS.map(({ id, Icon, title, desc }) => (
