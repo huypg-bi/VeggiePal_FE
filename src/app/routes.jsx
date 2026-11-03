@@ -36,6 +36,7 @@ import CheckoutScreen from "@/features/payment/pages/CheckoutScreen";
 import PaymentSuccessScreen from "@/features/payment/pages/PaymentSuccessScreen";
 import PaymentCancelScreen from "@/features/payment/pages/PaymentCancelScreen";
 import PaymentHistoryScreen from "@/features/payment/pages/PaymentHistoryScreen";
+import SupportScreen from "@/features/support/pages/SupportScreen";
 
 export default function AppRoutes() {
   return (
@@ -210,6 +211,10 @@ export default function AppRoutes() {
           </ProtectedRoute>
         }
       />
+
+      {/* Trang Trợ giúp & Hỗ trợ công khai cho người dùng */}
+      <Route path="/support" element={<SupportScreen />} />
+      <Route path="/help" element={<Navigate to="/support" replace />} />
 
       {/* Khu quản trị: chỉ ADMIN (AdminRoute chặn), dùng khung AdminLayout riêng thay vì AppHeader */}
       <Route element={<AdminRoute />}>

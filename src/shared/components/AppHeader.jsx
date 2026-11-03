@@ -11,7 +11,6 @@ import {
   Home,
   LogOut,
   Menu,
-  MessageSquareWarning,
   Map,
   ShieldCheck,
   Users,
@@ -75,8 +74,7 @@ const NAV_ITEMS = [
 ];
 
 const PROFILE_MENU_ITEMS = [
-  { id: "help", label: "Trợ giúp và hỗ trợ", icon: CircleHelp },
-  { id: "report", label: "Báo cáo sự cố", icon: MessageSquareWarning },
+  { id: "help", label: "Trợ giúp và hỗ trợ", icon: CircleHelp, to: "/support" },
 ];
 
 export default function AppHeader() {
@@ -294,9 +292,10 @@ export default function AppHeader() {
 
                 <DropdownMenuSeparator className="my-3" />
 
-                {PROFILE_MENU_ITEMS.map(({ id, label, icon: Icon }) => (
+                {PROFILE_MENU_ITEMS.map(({ id, label, icon: Icon, to }) => (
                   <DropdownMenuItem
                     key={id}
+                    render={to ? <Link to={to} /> : undefined}
                     className="cursor-pointer gap-3 rounded-xl px-1 py-2"
                   >
                     <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#E8ECFB] text-ink dark:bg-brand-soft">
