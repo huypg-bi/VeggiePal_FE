@@ -112,7 +112,7 @@ export default function WeeklyChallengeCard() {
               Đã check-in hôm nay
             </>
           ) : (
-            "Check-in Bữa Tối Hôm Nay"
+            "Check-in Hôm Nay"
           )}
         </Button>
       )}
