@@ -11,6 +11,7 @@ import { isAiReviewing } from "@/features/blog/utils/blogModeration";
 import { formatCompactNumber, formatTimeAgo } from "@/features/blog/utils/blogFormat";
 import { describeBlogOutcome } from "@/features/blog/utils/blogForm";
 import StatusBadge from "@/features/my-content/components/StatusBadge";
+import { toVietnameseModerationReason } from "@/shared/utils/moderationReason";
 import {
   BLOG_STATUS_FILTERS,
   canEditBlog,
@@ -158,7 +159,7 @@ function BlogRow({ post }) {
 
         {isAiReviewing(post) && <p className="mt-1 text-xs text-subtle">AI đang kiểm duyệt bài viết...</p>}
         {post.status === "REJECTED" && post.moderationReason && (
-          <p className="mt-1 text-xs text-destructive">Lý do từ chối: {post.moderationReason}</p>
+          <p className="mt-1 text-xs text-destructive">Lý do từ chối: {toVietnameseModerationReason(post.moderationReason)}</p>
         )}
       </div>
     </>

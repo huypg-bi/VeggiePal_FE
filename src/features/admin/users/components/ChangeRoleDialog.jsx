@@ -60,7 +60,7 @@ export default function ChangeRoleDialog({ user, onClose }) {
             </div>
           </div>
           <p className="text-xs text-subtle">
-            Lưu ý: Không thể hạ quyền tài khoản ADMIN qua giao diện (cần can thiệp trực tiếp qua cơ sở dữ liệu nếu muốn hạ quyền).
+            Lưu ý: Không thể hạ quyền tài khoản ADMIN qua giao diện.
           </p>
         </div>
 

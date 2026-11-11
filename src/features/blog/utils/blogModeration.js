@@ -1,4 +1,5 @@
 // Logic thuần của việc theo dõi kiểm duyệt bài viết (BE cho AI duyệt chạy nền).
+import { toVietnameseModerationReason } from "@/shared/utils/moderationReason";
 
 export const REVIEW_POLL_INTERVAL_MS = 3000;
 export const REVIEW_POLL_MAX_MS = 3 * 60 * 1000;
@@ -20,7 +21,8 @@ export function getBlogReviewNote(blog) {
   if (isAiReviewing(blog)) {
     return "AI đang kiểm duyệt bài viết, trang sẽ tự cập nhật. Nếu chờ lâu bạn có thể quay lại sau.";
   }
-  const reason = blog?.moderationReason ? ` Lý do: ${blog.moderationReason}` : "";
+  const translated = toVietnameseModerationReason(blog?.moderationReason);
+  const reason = translated ? ` Lý do: ${translated}` : "";
   if (blog?.status === "PENDING") return `Bài đang chờ quản trị viên xem xét.${reason}`;
   if (blog?.status === "REJECTED") return `Bài không vượt qua kiểm duyệt.${reason}`;
   return null;

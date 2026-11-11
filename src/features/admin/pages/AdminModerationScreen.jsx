@@ -89,7 +89,7 @@ export default function AdminModerationScreen() {
     );
   };
   const queryClient = useQueryClient();
-  const { data: activeCases = [], isPending, isError, error, isFetching } = usePendingModerationCases();
+  const { data: activeCases = [], isPending, isError, error } = usePendingModerationCases();
   const reviewMutation = useReviewModeration();
   const dismissMutation = useDismissModeration();
 
