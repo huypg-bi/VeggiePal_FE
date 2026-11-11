@@ -1,4 +1,5 @@
 // Tiện ích thuần cho video: kiểm tra định dạng/dung lượng video & diễn giải kết quả kiểm duyệt.
+import { toVietnameseModerationReason } from "@/shared/utils/moderationReason";
 
 export const VIDEO_MAX_BYTES = 30 * 1024 * 1024; // 30MB
 export const VIDEO_TITLE_MAX = 150;
@@ -71,7 +72,7 @@ export function describeVideoOutcome(video) {
       return {
         tone: "error",
         message: video.moderationReason
-          ? `Video không vượt qua kiểm duyệt: ${video.moderationReason}`
+          ? `Video không vượt qua kiểm duyệt: ${toVietnameseModerationReason(video.moderationReason)}`
           : "Video không vượt qua kiểm duyệt",
       };
     case "BANNED":

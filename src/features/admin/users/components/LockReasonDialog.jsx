@@ -1,4 +1,4 @@
-import { Clock, Eye, ShieldAlert, Unlock } from "lucide-react";
+import { Clock, ShieldAlert, Unlock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {

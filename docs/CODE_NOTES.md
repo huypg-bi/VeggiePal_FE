@@ -9,7 +9,7 @@ File này gom các comment dài (từ 2 dòng trở lên) đã được chuyển
 - Khi viết thêm giải thích dài cho code mới hoặc sửa hành vi của đoạn code đã có mục ở đây, thêm hoặc sửa mục trong file này thay vì viết comment nhiều dòng trong code. Nếu đoạn code bị xóa thì xóa mục tương ứng.
 - Các mục theo thứ tự thư mục, trong mỗi file theo thứ tự xuất hiện trong code. Nội dung chép nguyên văn từ comment cũ, chưa viết lại, nên có thể nhắc tới code ở thời điểm viết.
 
-Tổng cộng 334 mục từ 200 file.
+Tổng cộng 335 mục từ 201 file.
 
 ## Mục lục
 
@@ -401,7 +401,7 @@ Tổng cộng 334 mục từ 200 file.
 > - Phản ánh quy tắc nghiệp vụ: không cho phép admin thao tác lên chính mình (mã 1024) và tài khoản admin khác (mã 1025).
 > - Thao tác khóa tài khoản mở LockUserDialog đếm 500 ký tự và ghi chú về hiệu lực access token 15 phút.
 > - Thao tác mở khóa mở UnlockUserDialog cho tài khoản đang BLOCKED.
-> - Thao tác nâng quyền mở ChangeRoleDialog xác nhận nâng USER lên ADMIN và lưu ý hạ quyền phải thao tác trực tiếp qua DB.
+> - Thao tác nâng quyền mở ChangeRoleDialog xác nhận nâng USER lên ADMIN và lưu ý không hạ quyền ADMIN được qua giao diện.
 
 ## features/auth
 
@@ -2939,3 +2939,12 @@ Tổng cộng 334 mục từ 200 file.
 
 > Tìm từ khóa trong một đoạn chữ tiếng Việt. Từ khóa có dấu thì khớp đúng dấu ("nấm" không khớp "năm"),
 > từ khóa không dấu thì bỏ qua dấu ("nam" khớp "nấm"). Dùng cho ô tìm video ở /videos vì BE chưa có tham số tìm kiếm.
+
+### shared/utils/moderationReason.js
+
+**Gắn với:** `export function toVietnameseModerationReason(reason, fallback = DEFAULT_REASON) {`
+
+> AI kiểm duyệt (ai-service) trả `reason` là câu tiếng Anh tự do kèm "Confidence: 0.95", BE không có bản tiếng Việt nên FE tự rút gọn.
+> Bỏ phần Confidence, nếu đã có dấu tiếng Việt thì giữ nguyên, còn lại dò từ khóa theo `REASON_RULES` (theo thứ tự ưu tiên: thông tin y tế sai sự thật, tự làm hại, thù ghét, bạo lực, nhạy cảm, trái pháp luật, xúc phạm, spam / lừa đảo)
+> và trả câu tiếng Việt ngắn tương ứng; không khớp nhóm nào thì dùng câu chung "Nội dung vi phạm quy định cộng đồng.".
+> Dùng ở banner trang bài viết, toast sau khi lưu, danh sách bài viết / video của tôi. Trang admin giữ nguyên lý do gốc để quản trị viên đọc đúng nội dung AI trả.

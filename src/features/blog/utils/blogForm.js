@@ -1,4 +1,5 @@
 // Logic thuần của form bài viết: kiểm tra ảnh bìa + diễn giải kết quả kiểm duyệt của BE.
+import { toVietnameseModerationReason } from "@/shared/utils/moderationReason";
 
 export const THUMBNAIL_MAX_BYTES = 5 * 1024 * 1024;
 export const THUMBNAIL_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -29,7 +30,7 @@ export function describeBlogOutcome(blog, { edited = false } = {}) {
       return {
         tone: "error",
         message: blog.moderationReason
-          ? `Bài viết không vượt qua kiểm duyệt: ${blog.moderationReason}`
+          ? `Bài viết không vượt qua kiểm duyệt: ${toVietnameseModerationReason(blog.moderationReason)}`
           : "Bài viết không vượt qua kiểm duyệt",
       };
     default:

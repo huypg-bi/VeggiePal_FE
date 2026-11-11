@@ -18,6 +18,7 @@ import { useMyVideos } from "@/features/video/hooks/useMyVideos";
 import { describeVideoOutcome } from "@/features/video/utils/videoForm";
 import { cn } from "@/lib/utils";
 import ConfirmDialog from "@/shared/components/ConfirmDialog";
+import { toVietnameseModerationReason } from "@/shared/utils/moderationReason";
 import FallbackImage from "@/shared/components/FallbackImage";
 
 export default function MyVideoList() {
@@ -173,7 +174,7 @@ function VideoRow({ video }) {
 
         {video.status === "REJECTED" && video.moderationReason && (
           <p className="mt-1 text-xs text-destructive">
-            Lý do từ chối: {video.moderationReason}
+            Lý do từ chối: {toVietnameseModerationReason(video.moderationReason)}
           </p>
         )}
       </div>
