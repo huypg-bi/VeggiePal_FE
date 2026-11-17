@@ -12,6 +12,7 @@ import {
   History,
 } from "lucide-react";
 
+import profileBg from "@/assets/img/profile_bg.jpg";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import FollowListDialog from "@/features/blog/components/FollowListDialog";
@@ -51,12 +52,12 @@ export default function ProfileBanner({ profile }) {
 
   return (
     <div className="mb-2">
-      {/* Cover Image — Giữ nguyên theo P3 */}
+      {/* Ảnh bìa: căn lệch lên trên để thấy núi và mặt hồ, phần dưới bị thẻ hồ sơ che */}
       <div className="relative h-52 w-full overflow-hidden rounded-3xl shadow-sm sm:h-64 md:h-72">
         <img
-          src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?auto=format&fit=crop&w=1600&q=80"
-          alt="Nature Cottage Cover"
-          className="h-full w-full object-cover"
+          src={profileBg}
+          alt="Ảnh bìa hồ sơ"
+          className="h-full w-full object-cover object-[center_40%]"
         />
       </div>
 
@@ -78,10 +79,6 @@ export default function ProfileBanner({ profile }) {
             <div>
               <div className="mb-1 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                 <h1 className="text-2xl font-bold text-ink">{displayName}</h1>
-                {/* Danh hiệu — Giữ nguyên theo P3 */}
-                <span className="rounded-full border border-brand/30 bg-brand-soft px-3 py-0.5 text-xs font-semibold text-brand">
-                  Đầu Bếp Chay Sáng Tạo
-                </span>
                 {hasChallengeBadge && (
                   <span className="inline-flex items-center gap-1 rounded-full border border-chart-4/30 bg-chart-4/15 px-3 py-0.5 text-xs font-semibold text-chart-4">
                     <Heart className="size-3 fill-current" />
@@ -104,11 +101,11 @@ export default function ProfileBanner({ profile }) {
                   @{profile.username}
                 </p>
               )}
-              {/* Bio — Giữ nguyên theo P3 */}
+              {/* Bio cố định (chưa có trường bio ở BE) */}
               <p className="max-w-xl text-xs leading-relaxed text-body sm:text-sm">
-                • Đam mê sáng tạo món chay mục dưỡng WFPB &amp; ứng dụng AI nấu nướng 🌿
+                • Đam mê sáng tạo món chay giàu dinh dưỡng &amp; ứng dụng AI vào nấu nướng 🌿
                 <br />
-                • Đồng hành cùng thói quen sống xanh không rác thải.
+                • Đồng hành cùng thói quen sống xanh và ăn uống lành mạnh 🥗
               </p>
             </div>
           </div>

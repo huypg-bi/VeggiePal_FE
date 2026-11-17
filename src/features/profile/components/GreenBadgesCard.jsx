@@ -14,7 +14,7 @@ const BADGE_STYLES = {
   },
   VERIFIED: {
     title: "Tài khoản được xác minh",
-    desc: "Quản trị viên VeggiePal đã xác minh tài khoản này",
+    desc: "Quản trị viên VeggiePal đã xác minh tài khoản",
     icon: BadgeCheck,
     color: "bg-brand-soft text-brand",
   },
