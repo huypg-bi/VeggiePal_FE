@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Loader2, Sparkles, ThumbsDown, ThumbsUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Forward, Loader2, Sparkles, ThumbsDown, ThumbsUp } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -54,6 +54,19 @@ export default function VideoMetaHeader({ video, author, myVote }) {
       { videoId: video.id, value },
       { onError: (error) => toast.error(error.message) }
     );
+  };
+
+  const handleShare = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: video.title, url: window.location.href });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        toast.success("Đã sao chép liên kết video vào bộ nhớ tạm");
+      }
+    } catch {
+      // Người dùng hủy chia sẻ
+    }
   };
 
   // Nút AI theo trạng thái công thức của video: đã có thì cuộn tới thẻ AI, chưa thì bóc tách.
@@ -112,48 +125,60 @@ export default function VideoMetaHeader({ video, author, myVote }) {
           </Button>
         </div>
 
-        {/* Nút thích / không thích */}
-        <div className="flex items-center rounded-full border border-border bg-card">
+        {/* Nút thích / không thích (chỉ icon) và chia sẻ */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center rounded-full border border-border bg-card">
+            <button
+              type="button"
+              onClick={() => handleVote(1)}
+              disabled={voteMutation.isPending}
+              title={
+                isOwnVideo
+                  ? "Bạn không thể bình chọn video của chính mình"
+                  : liked
+                    ? "Bỏ thích video"
+                    : "Thích video"
+              }
+              aria-pressed={liked}
+              aria-label="Thích"
+              className={cn(
+                "flex items-center gap-1.5 rounded-l-full px-4 py-2 text-sm font-semibold text-ink transition hover:bg-surface disabled:opacity-60",
+                liked && "bg-brand-soft font-bold text-brand"
+              )}
+            >
+              <ThumbsUp className={cn("size-5", liked && "fill-current text-brand")} />
+              {score > 0 && formatCompactNumber(score)}
+            </button>
+            <div className="h-5 w-px bg-border" />
+            <button
+              type="button"
+              onClick={() => handleVote(-1)}
+              disabled={voteMutation.isPending}
+              title={
+                isOwnVideo
+                  ? "Bạn không thể bình chọn video của chính mình"
+                  : disliked
+                    ? "Bỏ không thích"
+                    : "Không thích"
+              }
+              aria-pressed={disliked}
+              aria-label="Không thích"
+              className={cn(
+                "rounded-r-full px-4 py-2 text-ink transition hover:bg-surface disabled:opacity-60",
+                disliked && "bg-destructive/10 font-bold text-destructive"
+              )}
+            >
+              <ThumbsDown className={cn("size-5", disliked && "fill-current text-destructive")} />
+            </button>
+          </div>
           <button
             type="button"
-            onClick={() => handleVote(1)}
-            disabled={voteMutation.isPending}
-            title={
-              isOwnVideo
-                ? "Bạn không thể bình chọn video của chính mình"
-                : liked
-                  ? "Bỏ thích video"
-                  : "Thích video"
-            }
-            aria-pressed={liked}
-            className={cn(
-              "flex items-center gap-1.5 rounded-l-full px-3.5 py-1.5 text-xs font-semibold text-ink transition hover:bg-surface disabled:opacity-60",
-              liked && "bg-brand-soft font-bold text-brand"
-            )}
+            onClick={handleShare}
+            title="Chia sẻ video"
+            aria-label="Chia sẻ video"
+            className="grid size-10 place-items-center rounded-full border border-border bg-card text-ink transition hover:bg-surface"
           >
-            <ThumbsUp className={cn("size-3.5", liked && "fill-current text-brand")} />
-            {score > 0 ? formatCompactNumber(score) : "Thích"}
-          </button>
-          <div className="h-4 w-px bg-border" />
-          <button
-            type="button"
-            onClick={() => handleVote(-1)}
-            disabled={voteMutation.isPending}
-            title={
-              isOwnVideo
-                ? "Bạn không thể bình chọn video của chính mình"
-                : disliked
-                  ? "Bỏ không thích"
-                  : "Không thích"
-            }
-            aria-pressed={disliked}
-            aria-label="Không thích"
-            className={cn(
-              "rounded-r-full px-3 py-1.5 text-ink transition hover:bg-surface disabled:opacity-60",
-              disliked && "bg-destructive/10 font-bold text-destructive"
-            )}
-          >
-            <ThumbsDown className={cn("size-3.5", disliked && "fill-current text-destructive")} />
+            <Forward className="size-5" />
           </button>
         </div>
       </div>

@@ -128,7 +128,7 @@ function IngredientForm({ target, onClose }) {
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {NUTRITION_FIELDS.map(([name, label, unit]) => (
-          <div key={name}>
+          <div key={name} className={name === "fiberPer100g" ? "col-span-2" : undefined}>
             <label htmlFor={`${idPrefix}-${name}`} className={labelClass}>
               {label}
               <span className="font-normal text-subtle"> ({unit})</span>
