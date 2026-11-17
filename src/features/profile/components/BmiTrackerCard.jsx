@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { TrendingDown, ChevronRight, ThumbsUp, Loader2 } from "lucide-react";
+import { TrendingDown, ThumbsUp, Loader2 } from "lucide-react";
 
 import { useHealthRecordHistory } from "@/features/profile/hooks/useHealthRecords";
 import { bmiInfo } from "@/features/profile/utils/editProfileHelpers";
@@ -161,19 +161,11 @@ export default function BmiTrackerCard() {
 
           {/* Nhận xét AI dựa trên dữ liệu thật */}
           {trend && (
-            <div className="p-3 bg-brand-soft rounded-2xl border border-brand/20 flex items-center justify-between text-xs text-body">
-              <div className="flex items-center gap-2">
-                <ThumbsUp className="w-4 h-4 text-brand shrink-0" />
-                <span className="text-[11px] leading-tight">
-                  <strong className="text-ink">{trend.highlight}:</strong> {trend.detail}
-                </span>
-              </div>
-              <button
-                type="button"
-                className="text-[11px] font-semibold text-brand hover:underline flex items-center gap-0.5 shrink-0 cursor-pointer"
-              >
-                Xem chi tiết phân tích AI <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+            <div className="p-3 bg-brand-soft rounded-2xl border border-brand/20 flex items-center gap-2 text-xs text-body">
+              <ThumbsUp className="w-4 h-4 text-brand shrink-0" />
+              <span className="text-[11px] leading-tight">
+                <strong className="text-ink">{trend.highlight}:</strong> {trend.detail}
+              </span>
             </div>
           )}
         </>

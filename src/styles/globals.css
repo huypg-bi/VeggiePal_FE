@@ -176,6 +176,35 @@
         @apply font-sans;
     }
 
+    /* Thanh cuộn mảnh, nền trong suốt cho mọi khung cuộn (form, dialog, danh sách); thanh cuộn của cả trang (html) giữ nguyên */
+    :where(*:not(html)) {
+        scrollbar-width: thin;
+        scrollbar-color: color-mix(in oklab, var(--color-subtle) 40%, transparent) transparent;
+    }
+
+    :where(*:not(html):hover) {
+        scrollbar-color: color-mix(in oklab, var(--color-subtle) 70%, transparent) transparent;
+    }
+
+    /* Dự phòng cho trình duyệt chưa hỗ trợ scrollbar-width / scrollbar-color */
+    :where(*:not(html))::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    :where(*:not(html))::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    :where(*:not(html))::-webkit-scrollbar-thumb {
+        background-color: color-mix(in oklab, var(--color-subtle) 40%, transparent);
+        border-radius: 9999px;
+    }
+
+    :where(*:not(html))::-webkit-scrollbar-thumb:hover {
+        background-color: color-mix(in oklab, var(--color-subtle) 70%, transparent);
+    }
+
     h1,
     h2,
     h3 {
