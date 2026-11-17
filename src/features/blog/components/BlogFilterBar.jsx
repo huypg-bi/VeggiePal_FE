@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Search, X } from "lucide-react";
 
 import { useCategories } from "@/features/blog/hooks/useCategories";
-import { SORT_OPTIONS, flattenCategories } from "@/features/blog/utils/feedFilters";
+import { SORT_OPTIONS, flattenCategories, toCategoryOption } from "@/features/blog/utils/feedFilters";
 import { cn } from "@/lib/utils";
 import SelectField from "@/shared/components/SelectField";
 
@@ -43,7 +43,7 @@ export default function BlogFilterBar({ filters, onChange }) {
 
   const categoryOptions = [
     { value: undefined, label: "Tất cả danh mục" },
-    ...categories.map(({ id, name }) => ({ value: id, label: name })),
+    ...categories.map((category) => toCategoryOption(category)),
   ];
 
   return (

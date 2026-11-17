@@ -76,27 +76,27 @@ export default function ContentTable({
   return (
     <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[980px] text-left text-sm">
-          <thead className="bg-surface text-xs uppercase tracking-wide text-subtle">
-            <tr>
+        <table className="w-full min-w-[980px] border-collapse text-left text-sm">
+          <thead className="border-b border-border bg-surface/75 text-xs uppercase tracking-wide text-subtle">
+            <tr className="divide-x divide-border">
               <th className="px-4 py-3 font-semibold">Tiêu đề</th>
               <th className="px-3 py-3 font-semibold">Tác giả</th>
-              <th className="px-3 py-3 font-semibold">Trạng thái</th>
+              <th className="whitespace-nowrap px-3 py-3 font-semibold">Trạng thái</th>
               {columns.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-3 py-3 font-semibold ${col.align === "right" ? "text-right" : ""}`}
+                  className={`whitespace-nowrap px-3 py-3 font-semibold ${col.align === "right" ? "text-right" : ""}`}
                 >
                   {col.label}
                 </th>
               ))}
               <th className="px-3 py-3 font-semibold">Ngày</th>
-              <th className="px-3 py-3" />
+              <th className="whitespace-nowrap px-3 py-3 text-center font-semibold">Thao tác</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
             {items.map((item) => (
-              <tr key={item.id} className="text-body">
+              <tr key={item.id} className="divide-x divide-border text-body">
                 <td className="max-w-xs px-4 py-3 font-medium text-ink">
                   <span className="line-clamp-2">{item.title}</span>
                   {item.moderationReason && (
@@ -121,54 +121,54 @@ export default function ContentTable({
                 ))}
                 <td className="whitespace-nowrap px-3 py-3 tabular-nums">{formatDate(getPublishedAt(item))}</td>
                 <td className="px-3 py-3">
-                  <div className="flex justify-end gap-2">
+                  <div className="flex justify-center gap-2">
                     <a
                       href={getViewHref(item)}
                       target="_blank"
                       rel="noreferrer"
+                      title="Xem"
                       aria-label={`Xem ${noun} “${item.title}”`}
-                      className={buttonVariants({ variant: "outline", size: "sm" })}
+                      className={buttonVariants({ variant: "outline", size: "icon-sm" })}
                     >
                       <ExternalLink className="size-3.5" />
-                      Xem
                     </a>
                     {reviewMutation && canReviewContent(item.status) && (
                       <Button
                         type="button"
-                        size="sm"
+                        size="icon-sm"
                         variant="outline"
+                        title="Duyệt"
                         aria-label={`Duyệt ${noun} “${item.title}”`}
                         className="text-brand"
                         onClick={() => setReview({ item, decision: "PUBLISHED" })}
                       >
                         <Check className="size-3.5" />
-                        Duyệt
                       </Button>
                     )}
                     {reviewMutation && item.status === "PENDING" && (
                       <Button
                         type="button"
-                        size="sm"
+                        size="icon-sm"
                         variant="outline"
+                        title="Từ chối"
                         aria-label={`Từ chối ${noun} “${item.title}”`}
                         className="text-destructive"
                         onClick={() => setReview({ item, decision: "REJECTED" })}
                       >
                         <X className="size-3.5" />
-                        Từ chối
                       </Button>
                     )}
                     {canDeleteContent(item.status) && (
                       <Button
                         type="button"
-                        size="sm"
+                        size="icon-sm"
                         variant="outline"
+                        title="Xóa"
                         aria-label={`Xóa ${noun} “${item.title}”`}
                         className="text-destructive"
                         onClick={() => setTarget(item)}
                       >
                         <Trash2 className="size-3.5" />
-                        Xóa
                       </Button>
                     )}
                   </div>

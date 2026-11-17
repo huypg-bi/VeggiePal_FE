@@ -1,3 +1,6 @@
+import { CornerDownRight } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 import {
   Select,
   SelectContent,
@@ -31,11 +34,16 @@ export default function SelectField({
     value: toKey(option.value),
     label: option.label,
     icon: option.icon,
+    // level: 0 = mục cha (in đậm), 1 = mục con (thụt vào); bỏ trống = mục thường.
+    level: option.level,
+    triggerLabel: option.triggerLabel ?? option.label,
   }));
   const key = toKey(value);
   const selectedKey = items.some((item) => item.value === key) ? key : null;
   const selectedItem = items.find((item) => item.value === selectedKey);
   const SelectedIcon = selectedItem?.icon;
+  // Nhãn trên nút: dùng triggerLabel (vd "Món ăn › Việt Nam") nếu option có đặt.
+  const renderValue = () => selectedItem?.triggerLabel ?? placeholder;
 
   const handleValueChange = (nextKey) => {
     const option = options.find((o) => toKey(o.value) === nextKey);
@@ -64,9 +72,9 @@ export default function SelectField({
           <span className="grid min-w-0 flex-1 text-left">
             <span className="col-start-1 row-start-1 flex items-center gap-2 truncate">
               {SelectedIcon && <SelectedIcon className="size-4 shrink-0" />}
-              <SelectValue placeholder={placeholder} />
+              <SelectValue placeholder={placeholder}>{renderValue}</SelectValue>
             </span>
-            {[...items, { label: placeholder, icon: null }].map((item, index) =>
+            {[...items.map((item) => ({ ...item, label: item.triggerLabel })), { label: placeholder, icon: null }].map((item, index) =>
               item.label ? (
                 <span
                   key={index}
@@ -82,16 +90,17 @@ export default function SelectField({
         ) : (
           <span className="flex items-center gap-2 truncate">
             {SelectedIcon && <SelectedIcon className="size-4 shrink-0" />}
-            <SelectValue placeholder={placeholder} />
+            <SelectValue placeholder={placeholder}>{renderValue}</SelectValue>
           </span>
         )}
       </SelectTrigger>
       <SelectContent align={align} className={contentClassName}>
         {items.map((item) => (
           <SelectItem key={item.value} value={item.value}>
-            <span className="flex items-center gap-2">
+            <span className={cn("flex items-center gap-2", item.level >= 1 && "pl-3")}>
+              {item.level >= 1 && <CornerDownRight className="size-3.5 text-subtle" />}
               {item.icon && <item.icon className="size-4 shrink-0" />}
-              <span>{item.label}</span>
+              <span className={cn(item.level === 0 && "font-semibold text-ink")}>{item.label}</span>
             </span>
           </SelectItem>
         ))}

@@ -10,6 +10,7 @@ import {
   useCreateVideo,
   useUpdateVideo,
 } from "@/features/video/hooks/useVideoMutations";
+import { toCategoryOption } from "@/features/blog/utils/feedFilters";
 import { videoCreateSchema, videoEditSchema } from "@/features/video/schema";
 import {
   describeVideoOutcome,
@@ -61,7 +62,9 @@ export default function VideoForm({ video, categories = [] }) {
   const youtubeUrl = useWatch({ control, name: "youtubeUrl" });
   const titleLength = useWatch({ control, name: "title" })?.length ?? 0;
   const descriptionLength = useWatch({ control, name: "description" })?.length ?? 0;
-  const categoryOptions = categories.map(({ id, name }) => ({ value: String(id), label: name }));
+  const categoryOptions = categories.map((category) =>
+    toCategoryOption(category, { stringValue: true, withPath: true })
+  );
 
   const youtubeId = extractYouTubeId(youtubeUrl);
 

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
-  Bell,
   Broccoli,
   ChevronDown,
   ChevronRight,
@@ -139,19 +138,6 @@ export default function AppHeader() {
         </nav>
 
         <div className="flex items-center justify-end gap-2 sm:gap-3">
-          {isAuthenticated && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon-lg"
-              aria-label="Thông báo"
-              className="relative"
-            >
-              <Bell className="size-5" />
-              <span className="absolute right-2 top-2 size-1.5 rounded-full bg-[#EF6461]" />
-            </Button>
-          )}
-
           {/* Khách: icon gói dịch vụ + chữ Đăng nhập / Đăng ký. */}
           {!isAuthenticated && (
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">

@@ -20,6 +20,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { formatCompactNumber, formatTimeAgo, getInitials } from "@/features/blog/utils/blogFormat";
+import { toCategoryOption } from "@/features/blog/utils/feedFilters";
 import { cn } from "@/lib/utils";
 import FallbackImage from "@/shared/components/FallbackImage";
 import Reveal from "@/shared/components/Reveal";
@@ -63,11 +64,7 @@ export default function TrendingVideoGrid({
 }) {
   const categoryOptions = [
     { value: undefined, label: "Tất cả danh mục", icon: LayoutGrid },
-    ...categories.map((cat) => ({
-      value: cat.id,
-      label: cat.name,
-      icon: getCategoryIcon(cat.name),
-    })),
+    ...categories.map((cat) => toCategoryOption(cat, { icon: getCategoryIcon(cat.name) })),
   ];
 
   return (

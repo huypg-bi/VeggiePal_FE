@@ -30,7 +30,7 @@ const STATUS_OPTIONS = toOptions(STATUS_LABELS, "Mọi trạng thái");
 function StatusBadge({ status }) {
   const info = getPaymentStatusInfo(status);
   return (
-    <span className={cn("inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium", info.className)}>
+    <span className={cn("inline-flex whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-medium", info.className)}>
       {info.label}
     </span>
   );
@@ -133,9 +133,9 @@ export default function OrdersTableSection({ filters, enabled }) {
       ) : (
         <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-sm">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[820px] text-left text-sm">
-              <thead className="bg-surface text-xs uppercase tracking-wide text-subtle">
-                <tr>
+            <table className="w-full min-w-[820px] border-collapse text-left text-sm">
+              <thead className="border-b border-border bg-surface/75 text-xs uppercase tracking-wide text-subtle">
+                <tr className="divide-x divide-border">
                   <th className="px-4 py-3 font-semibold">Mã đơn</th>
                   <th className="px-3 py-3 font-semibold">Người dùng</th>
                   <th className="px-3 py-3 font-semibold">Gói</th>
@@ -143,12 +143,12 @@ export default function OrdersTableSection({ filters, enabled }) {
                   <th className="px-3 py-3 font-semibold">Trạng thái</th>
                   <th className="px-3 py-3 font-semibold">Ngày tạo</th>
                   <th className="px-3 py-3 font-semibold">Ngày thanh toán</th>
-                  <th className="px-3 py-3" />
+                  <th className="px-3 py-3 text-center font-semibold">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {items.map((order) => (
-                  <tr key={order.id} className="text-body">
+                  <tr key={order.id} className="divide-x divide-border text-body">
                     <td className="px-4 py-3 font-mono text-xs">{order.orderCode}</td>
                     <td className="px-3 py-3 font-medium text-ink">
                       <UserDisplayName userId={order.userId} userMap={userMap} />
@@ -160,7 +160,7 @@ export default function OrdersTableSection({ filters, enabled }) {
                     </td>
                     <td className="whitespace-nowrap px-3 py-3 tabular-nums">{formatDateTime(order.createdAt)}</td>
                     <td className="whitespace-nowrap px-3 py-3 tabular-nums">{formatDateTime(order.paidAt)}</td>
-                    <td className="px-3 py-3 text-right">
+                    <td className="px-3 py-3 text-center">
                       <Button
                         type="button"
                         size="sm"

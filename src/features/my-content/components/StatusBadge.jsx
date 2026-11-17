@@ -13,7 +13,7 @@ export default function StatusBadge({ info }) {
   return (
     <span
       className={cn(
-        "inline-block shrink-0 rounded-full px-2.5 py-1 text-[11px] font-medium",
+        "inline-block shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-medium",
         TONE_CLASS[info.tone]
       )}
     >
