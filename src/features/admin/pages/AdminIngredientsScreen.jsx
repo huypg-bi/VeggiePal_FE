@@ -191,14 +191,14 @@ export default function AdminIngredientsScreen() {
             <table className="w-full min-w-[860px] text-sm border-collapse">
               <thead className="border-b border-border bg-surface/75 text-xs uppercase tracking-wider text-subtle font-semibold">
                 <tr className="divide-x divide-border">
-                  <th className="px-6 py-3.5 text-left">Nguyên liệu</th>
-                  <th className="px-4 py-3.5 text-center">Kcal</th>
-                  <th className="px-4 py-3.5 text-center">Đạm (g)</th>
-                  <th className="px-4 py-3.5 text-center">Tinh bột (g)</th>
-                  <th className="px-4 py-3.5 text-center">Béo (g)</th>
-                  <th className="px-4 py-3.5 text-center">Xơ (g)</th>
-                  <th className="px-4 py-3.5 text-center">Phân loại</th>
-                  <th className="px-6 py-3.5 text-center">Thao tác</th>
+                  <th className="w-64 px-5 py-3.5 text-left">Nguyên liệu</th>
+                  <th className="whitespace-nowrap px-4 py-3.5 text-center">Kcal</th>
+                  <th className="whitespace-nowrap px-4 py-3.5 text-center">Đạm (g)</th>
+                  <th className="whitespace-nowrap px-4 py-3.5 text-center">Tinh bột (g)</th>
+                  <th className="whitespace-nowrap px-4 py-3.5 text-center">Béo (g)</th>
+                  <th className="whitespace-nowrap px-4 py-3.5 text-center">Xơ (g)</th>
+                  <th className="whitespace-nowrap px-4 py-3.5 text-center">Phân loại</th>
+                  <th className="whitespace-nowrap px-6 py-3.5 text-center">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -208,7 +208,7 @@ export default function AdminIngredientsScreen() {
                     className="divide-x divide-border text-body transition-colors hover:bg-surface/50"
                   >
                     {/* Tên nguyên liệu */}
-                    <td className="px-6 py-4 text-left">
+                    <td className="max-w-64 px-5 py-4 text-left">
                       <div className="flex flex-col">
                         <span className="font-semibold text-ink text-sm">
                           {ingredient.name}

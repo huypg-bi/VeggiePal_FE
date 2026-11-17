@@ -34,9 +34,27 @@ export function hasActiveFilters({ keyword, sort, categoryId }) {
   return Boolean(keyword || sort || categoryId);
 }
 
+/** Cây danh mục -> danh sách phẳng theo thứ tự cha rồi các con; level 0 = cha, 1 = con. */
 export function flattenCategories(tree) {
   return (tree ?? []).flatMap((parent) => [
-    { id: parent.id, name: parent.name },
-    ...(parent.children ?? []).map((child) => ({ id: child.id, name: child.name })),
+    { id: parent.id, name: parent.name, level: 0 },
+    ...(parent.children ?? []).map((child) => ({
+      id: child.id,
+      name: child.name,
+      level: 1,
+      parentName: parent.name,
+    })),
   ]);
+}
+
+/** Mục của danh sách phẳng -> option cho SelectField; withPath hiện "Cha › Con" trên nút chọn. */
+export function toCategoryOption(category, { stringValue = false, withPath = false, icon } = {}) {
+  const { id, name, level, parentName } = category;
+  return {
+    value: stringValue ? String(id) : id,
+    label: name,
+    level,
+    icon,
+    triggerLabel: withPath && parentName ? `${parentName} › ${name}` : name,
+  };
 }

@@ -14,6 +14,7 @@ import {
   useUploadBlogThumbnail,
 } from "@/features/blog/hooks/useBlogMutations";
 import { BLOG_CONTENT_MAX, BLOG_CONTENT_MIN, BLOG_TITLE_MAX, blogSchema } from "@/features/blog/schema";
+import { toCategoryOption } from "@/features/blog/utils/feedFilters";
 import { countCodePoints } from "@/features/blog/utils/textLength";
 import { describeBlogOutcome } from "@/features/blog/utils/blogForm";
 import SelectField from "@/shared/components/SelectField";
@@ -54,7 +55,9 @@ export default function BlogForm({ blog, categories }) {
 
   const titleLength = useWatch({ control, name: "title" }).length;
   const contentLength = countCodePoints(useWatch({ control, name: "content" }).trim());
-  const categoryOptions = categories.map(({ id, name }) => ({ value: String(id), label: name }));
+  const categoryOptions = categories.map((category) =>
+    toCategoryOption(category, { stringValue: true, withPath: true })
+  );
 
   // Trả true nếu tải ảnh thành công; lỗi thì báo nhưng không chặn, vì bài đã được lưu.
   const uploadThumbnailSafely = async (id) => {
