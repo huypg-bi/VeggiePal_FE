@@ -1,5 +1,5 @@
 import { useId, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 
@@ -14,6 +14,9 @@ import { register as registerUser } from "@/features/auth/api/authApi";
 import peopleIcon from "@/assets/svg/people.svg";
 import phoneIcon from "@/assets/svg/phone.svg";
 import mailIcon from "@/assets/svg/mail.svg";
+
+// Mở trang Trợ giúp ở tab mới để không mất dữ liệu đang nhập trong form đăng ký.
+const termsLinkClass = "font-semibold text-white underline-offset-2 hover:underline";
 
 export default function RegisterForm({ onSwitchMode }) {
   const navigate = useNavigate();
@@ -225,8 +228,14 @@ export default function RegisterForm({ onSwitchMode }) {
             {...register("acceptTerms")}
           />
           <span>
-            Tôi đồng ý với <span className="font-semibold text-white">Điều khoản sử dụng</span> và{" "}
-            <span className="font-semibold text-white">Chính sách bảo mật</span>
+            Tôi đồng ý với{" "}
+            <Link to="/support" target="_blank" rel="noopener noreferrer" className={termsLinkClass}>
+              Điều khoản sử dụng
+            </Link>{" "}
+            và{" "}
+            <Link to="/support" target="_blank" rel="noopener noreferrer" className={termsLinkClass}>
+              Chính sách bảo mật
+            </Link>
           </span>
         </label>
 

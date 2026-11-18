@@ -23,6 +23,7 @@ const EXPLORE_LINKS = [
   { id: "restaurants", label: "Nhà hàng chay", to: "/map" },
   { id: "community", label: "Cộng đồng", to: "/blog" },
   { id: "meal-planner", label: "Lên kế hoạch dinh dưỡng", to: "/meal-planner" },
+  { id: "support", label: "Trợ giúp và hỗ trợ", to: "/support" },
 ];
 
 const COMMITMENTS = [
