@@ -49,13 +49,15 @@ export default function UsageSummarySection({ days, excludeFeature = "MODERATION
     <section aria-label="Tổng hợp sử dụng AI" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
       {cards.map(({ icon: Icon, label, value, note, tone }) => (
         <div key={label} className="rounded-3xl border border-border bg-card p-5 shadow-sm">
-          <span className={cn("grid size-10 place-items-center rounded-2xl", TONE_CLASS[tone])}>
-            <Icon className="size-5" />
-          </span>
-          <p className="mt-4 text-2xl font-bold tabular-nums text-ink">
-            {isPending ? <span className="inline-block h-8 w-16 animate-pulse rounded bg-surface align-middle" /> : value}
-          </p>
-          <p className="mt-1 text-sm text-subtle">{label}</p>
+          <div className="flex items-center gap-3">
+            <span className={cn("grid size-10 shrink-0 place-items-center rounded-2xl", TONE_CLASS[tone])}>
+              <Icon className="size-5" />
+            </span>
+            <p className="text-2xl font-bold tabular-nums text-ink">
+              {isPending ? <span className="inline-block h-8 w-16 animate-pulse rounded bg-surface align-middle" /> : value}
+            </p>
+          </div>
+          <p className="mt-3 text-sm text-subtle">{label}</p>
           {note && <p className="mt-2 text-xs text-subtle">{note}</p>}
         </div>
       ))}
