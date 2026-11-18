@@ -1058,6 +1058,8 @@ Tổng cộng 335 mục từ 201 file.
 > Dùng ai-service thật qua @/features/chatbot/api/chatbotApi.js:  
 > - Đã đăng nhập: lịch sử hội thoại lưu ở BE (sidebar, nhiều lượt).  
 > - Chưa đăng nhập: chế độ dùng thử, không có sidebar, giới hạn số lượt hỏi.
+> - Nhận câu hỏi từ thẻ "Hỏi Bé Bông Cải AI" ở /blog qua `location.state.question`: chỉ điền sẵn vào ô chat (không tự gửi, vì mỗi lượt gửi tốn lượt hỏi của gói),
+>   rồi `navigate(..., { replace: true, state: null })` để tải lại trang không điền lại.
 
 **Gắn với:** `// Trên màn hình web hẹp (< 1024px), sidebar mặc định thu gọn để ưu tiên không gian đọc nội dung chat.`
 

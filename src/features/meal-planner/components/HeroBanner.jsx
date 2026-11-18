@@ -3,7 +3,7 @@ import tag from "@/assets/img/tag.png"
 
 export default function HeroBanner() {
   return (
-    <section className="relative overflow-hidden rounded-[32px] px-2 py-4 sm:px-4">
+    <section className="relative overflow-hidden rounded-[32px] border border-border/40 bg-gradient-to-br from-brand-soft/40 via-card to-brand-soft/20 px-6 py-5 sm:px-8 sm:py-6 lg:pr-6 shadow-sm">
       <div
         aria-hidden
         className="pointer-events-none absolute -left-20 -top-24 h-72 w-72 rounded-full bg-brand-2/25 blur-3xl dark:bg-brand-2/30"
