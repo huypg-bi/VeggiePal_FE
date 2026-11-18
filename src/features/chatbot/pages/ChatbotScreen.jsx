@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Info, Loader2, TriangleAlert, X } from "lucide-react";
 
 import { buttonVariants } from "@/components/ui/variants/button-variants";
@@ -32,12 +32,20 @@ export default function ChatbotScreen() {
   } = useChatbot();
 
   const { subscription } = useMySubscription();
-  const [draft, setDraft] = useState("");
+  const location = useLocation();
+  const navigate = useNavigate();
+  // Câu hỏi từ thẻ "Hỏi Bé Bông Cải AI" ở trang cộng đồng: chỉ điền sẵn vào ô chat, người dùng tự bấm gửi.
+  const [draft, setDraft] = useState(() => location.state?.question ?? "");
   // Trên màn hình web hẹp (< 1024px), sidebar mặc định thu gọn để ưu tiên không gian đọc nội dung chat.
   const [collapsed, setCollapsed] = useState(
     () => typeof window !== "undefined" && window.innerWidth < 1024,
   );
   const scrollRef = useRef(null);
+
+  // Xóa state sau khi đã nhận để tải lại trang không điền lại câu hỏi cũ.
+  useEffect(() => {
+    if (location.state?.question != null) navigate(location.pathname, { replace: true, state: null });
+  }, [location.pathname, location.state, navigate]);
 
   const activeSession = sessions.find((s) => s.id === activeSessionId);
 

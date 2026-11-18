@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 export default function AskBroccoliCard() {
   const navigate = useNavigate();
 
-  // Chatbot chưa nhận câu hỏi qua URL nên chỉ chuyển người dùng sang trang chat.
+  // Chuyển sang trang chat kèm câu hỏi (qua state, không lộ trên URL) để điền sẵn vào ô chat, không tự gửi.
   const handleSubmit = (event) => {
     event.preventDefault();
-    navigate("/chatbot");
+    const question = String(new FormData(event.currentTarget).get("question") ?? "").trim();
+    navigate("/chatbot", question ? { state: { question } } : undefined);
   };
 
   return (

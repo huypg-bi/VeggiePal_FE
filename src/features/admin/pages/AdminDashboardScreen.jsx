@@ -92,7 +92,7 @@ export default function AdminDashboardScreen() {
 
       <section aria-label="Phân hệ quản trị" className="flex flex-col gap-3">
         <h2 className="font-heading text-xl font-bold text-ink">Các đề mục quản lý</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4">
           <ShortcutCard
             to="/admin/users"
             icon={Users}
@@ -164,13 +164,15 @@ function StatCard({ icon: Icon, label, value, loading, error, note, noteIcon: No
 
   return (
     <div className="rounded-3xl border border-border bg-card p-5 shadow-sm">
-      <span className={cn("grid size-10 place-items-center rounded-2xl", TONE_CLASS[tone])}>
-        <Icon className="size-5" />
-      </span>
-      <p className="mt-4 text-3xl font-bold tabular-nums text-ink">
-        {error ? "—" : isLoading ? <span className="inline-block h-8 w-12 animate-pulse rounded bg-surface align-middle" /> : value}
-      </p>
-      <p className="mt-1 text-sm text-subtle">{label}</p>
+      <div className="flex items-center gap-3">
+        <span className={cn("grid size-10 shrink-0 place-items-center rounded-2xl", TONE_CLASS[tone])}>
+          <Icon className="size-5" />
+        </span>
+        <p className="text-3xl font-bold tabular-nums text-ink">
+          {error ? "—" : isLoading ? <span className="inline-block h-8 w-12 animate-pulse rounded bg-surface align-middle" /> : value}
+        </p>
+      </div>
+      <p className="mt-3 text-sm text-subtle">{label}</p>
       {note && !error && (
         <p className="mt-2 flex items-center gap-1 text-xs text-subtle">
           {NoteIcon && <NoteIcon className="size-3" />}
@@ -186,16 +188,16 @@ function ShortcutCard({ to, icon: Icon, title, description }) {
   return (
     <Link
       to={to}
-      className="group flex items-center gap-4 rounded-3xl border border-border bg-card p-5 shadow-sm transition hover:shadow-md"
+      className="group flex flex-col gap-3 rounded-3xl border border-border bg-card p-5 shadow-sm transition hover:shadow-md"
     >
-      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand">
-        <Icon className="size-6" />
+      <span className="flex items-center gap-3">
+        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand">
+          <Icon className="size-6" />
+        </span>
+        <span className="min-w-0 flex-1 font-heading text-lg font-bold text-ink">{title}</span>
+        <ArrowRight className="size-5 shrink-0 text-subtle transition group-hover:translate-x-1 group-hover:text-brand" />
       </span>
-      <span className="min-w-0 flex-1">
-        <span className="block font-heading text-lg font-bold text-ink">{title}</span>
-        <span className="block text-sm text-subtle">{description}</span>
-      </span>
-      <ArrowRight className="size-5 shrink-0 text-subtle transition group-hover:translate-x-1 group-hover:text-brand" />
+      <span className="block text-sm text-subtle">{description}</span>
     </Link>
   );
 }
