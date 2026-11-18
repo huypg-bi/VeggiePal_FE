@@ -19,10 +19,8 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import iconChatbot from "@/assets/img/icon_chatbot_1.png";
-import GoalCombobox from "@/features/meal-planner/components/GoalCombobox";
 import NutritionTargetCard from "@/features/meal-planner/components/NutritionTargetCard";
 import NutritionTargetFields from "@/features/meal-planner/components/NutritionTargetFields";
-import { flavorPreferences, healthGoalSuggestions } from "@/features/meal-planner/data/mockMealPlanner";
 import { useCreateMealPlan } from "@/features/meal-planner/hooks/useMealPlanMutations";
 import { useMealPlanUsage, useNutritionTarget } from "@/features/meal-planner/hooks/useMealPlans";
 import { MEAL_PLAN_LIMITS, mealPlanSchema } from "@/features/meal-planner/schema";
@@ -44,6 +42,7 @@ import { useLatestHealthRecord } from "@/features/profile/hooks/useHealthRecords
 import { useProfile } from "@/features/profile/hooks/useProfile";
 import IngredientPicker from "@/features/recipe/components/IngredientPicker";
 import { cn } from "@/lib/utils";
+import SelectField from "@/shared/components/SelectField";
 
 const fieldClass =
   "w-full rounded-xl border border-border bg-card px-3.5 text-sm text-ink outline-none transition placeholder:text-subtle focus:border-brand/40 focus:ring-2 focus:ring-brand/15 aria-[invalid=true]:border-destructive/50 aria-[invalid=true]:ring-2 aria-[invalid=true]:ring-destructive/20";
@@ -55,6 +54,14 @@ function emptyTarget() {
 }
 
 const GOAL_ICONS = { LOSE: TrendingDown, MAINTAIN: Scale, GAIN: TrendingUp };
+
+// Mục tiêu hiện ở ô chọn: giữ icon và câu mô tả của từng mục tiêu.
+const GOAL_SELECT_OPTIONS = GOAL_OPTIONS.map((option) => ({
+  value: option.value,
+  label: option.label,
+  description: option.hint,
+  icon: GOAL_ICONS[option.value],
+}));
 
 const AUTO_TARGET_BLOCKING_CODES = new Set([6020, 6021]);
 
@@ -74,7 +81,6 @@ export default function AiMealSuggestion({ onCreated }) {
 
   const [ingredients, setIngredients] = useState([]);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [activePrefs, setActivePrefs] = useState(() => new Set());
   const [targetOpen, setTargetOpen] = useState(false);
 
   const {
@@ -85,7 +91,7 @@ export default function AiMealSuggestion({ onCreated }) {
     formState: { errors },
   } = useForm({
     resolver: zodResolver(mealPlanSchema),
-    defaultValues: { name: defaultPlanName(), goalType: "", healthNote: "", ...emptyTarget() },
+    defaultValues: { name: defaultPlanName(), goalType: "", ...emptyTarget() },
   });
 
   const watched = useWatch({ control });
@@ -113,15 +119,6 @@ export default function AiMealSuggestion({ onCreated }) {
     for (const field of TARGET_FIELDS) setValue(field, "", { shouldDirty: true, shouldValidate: true });
   };
 
-  const togglePreference = (id) => {
-    setActivePrefs((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  };
-
   const addIngredient = (ingredient) => {
     setIngredients((prev) =>
       prev.length >= MEAL_PLAN_LIMITS.ingredients || prev.some((item) => item.id === ingredient.id)
@@ -135,12 +132,10 @@ export default function AiMealSuggestion({ onCreated }) {
   };
 
   const onSubmit = async (values) => {
-    const { name, goalType, healthNote, ...target } = values;
+    const { name, goalType, ...target } = values;
     const payload = buildGeneratePayload({
       name,
       goalType,
-      healthNote,
-      preferences: flavorPreferences.filter((pref) => activePrefs.has(pref.id)).map((pref) => pref.label),
       ingredients: ingredients.map((item) => item.name),
       target,
     });
@@ -174,9 +169,8 @@ export default function AiMealSuggestion({ onCreated }) {
           <h2 className="mt-3 text-xl font-bold text-ink sm:text-2xl">
             Hôm nay tủ lạnh nhà bạn có nguyên liệu tươi nào?
           </h2>
-          <p className="mt-2 max-w-xl text-sm text-subtle">
-            Bé Bông Cải sẽ kết hợp các loại rau củ sẵn có để thiết kế thực đơn thuần thực vật chuẩn cân bằng vi
-            chất.
+          <p className="mt-2 max-w-4xl text-sm text-subtle">
+            Bé Bông Cải sẽ kết hợp các loại rau củ sẵn có để thiết kế thực đơn thuần thực vật chuẩn cân bằng vi chất.
           </p>
         </div>
 
@@ -248,85 +242,6 @@ export default function AiMealSuggestion({ onCreated }) {
               </div>
             )}
 
-            <h3 className="mt-3 text-base font-semibold text-ink">Gợi ý món & khẩu vị mong muốn:</h3>
-            {/* Một hàng duy nhất: chip gọn lại để vừa khung, màn hẹp hơn thì kéo ngang thay vì xuống dòng. */}
-            <div className="mt-1 flex flex-nowrap gap-1.5 overflow-x-auto p-0.5 pb-1.5">
-              {flavorPreferences.map((pref) => {
-                const active = activePrefs.has(pref.id);
-                return (
-                  <button
-                    key={pref.id}
-                    type="button"
-                    onClick={() => togglePreference(pref.id)}
-                    aria-pressed={active}
-                    className={cn(
-                      "flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 text-xs font-medium transition",
-                      active ? "bg-brand text-brand-foreground" : "bg-card text-ink ring-1 ring-border hover:bg-surface",
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "grid size-4 shrink-0 place-items-center rounded-full text-[10px] leading-none",
-                        active && "bg-white/20",
-                      )}
-                    >
-                      <pref.icon className="size-2.5" />
-                    </span>
-                    {pref.label}
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="mt-4">
-              <span id={`${idPrefix}-goal-type`} className={labelClass}>
-                Mục tiêu của thực đơn
-              </span>
-              <Controller
-                name="goalType"
-                control={control}
-                render={({ field }) => (
-                  <div
-                    role="radiogroup"
-                    aria-labelledby={`${idPrefix}-goal-type`}
-                    aria-invalid={Boolean(errors.goalType)}
-                    className="grid grid-cols-1 gap-2 sm:grid-cols-3"
-                  >
-                    {GOAL_OPTIONS.map((option) => {
-                      const Icon = GOAL_ICONS[option.value];
-                      const active = field.value === option.value;
-                      return (
-                        <button
-                          key={option.value}
-                          type="button"
-                          role="radio"
-                          aria-checked={active}
-                          onClick={() => field.onChange(option.value)}
-                          onBlur={field.onBlur}
-                          className={cn(
-                            "flex items-center gap-3 rounded-2xl px-3.5 py-3 text-left transition",
-                            active
-                              ? "bg-brand text-brand-foreground shadow-sm"
-                              : "bg-card text-ink ring-1 ring-border hover:bg-surface",
-                            errors.goalType && !active && "ring-destructive/50",
-                          )}
-                        >
-                          <Icon className="size-5 shrink-0" />
-                          <span className="flex min-w-0 flex-col">
-                            <span className="text-sm font-semibold">{option.label}</span>
-                            <span className={cn("text-xs", active ? "text-brand-foreground/80" : "text-subtle")}>
-                              {option.hint}
-                            </span>
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              />
-              {errors.goalType && <p className={errorClass}>{errors.goalType.message}</p>}
-            </div>
-
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label htmlFor={`${idPrefix}-name`} className={labelClass}>
@@ -344,28 +259,27 @@ export default function AiMealSuggestion({ onCreated }) {
               </div>
 
               <div>
-                <label htmlFor={`${idPrefix}-note`} className={labelClass}>
-                  Mô tả thêm <span className="text-xs font-normal text-subtle">(không bắt buộc)</span>
+                <label htmlFor={`${idPrefix}-goal-type`} className={labelClass}>
+                  Mục tiêu của thực đơn
                 </label>
                 <Controller
-                  name="healthNote"
+                  name="goalType"
                   control={control}
                   render={({ field }) => (
-                    <GoalCombobox
-                      id={`${idPrefix}-note`}
+                    <SelectField
+                      id={`${idPrefix}-goal-type`}
+                      variant="field"
+                      options={GOAL_SELECT_OPTIONS}
                       value={field.value}
-                      onChange={field.onChange}
+                      onValueChange={field.onChange}
                       onBlur={field.onBlur}
-                      inputRef={field.ref}
-                      options={healthGoalSuggestions}
-                      maxLength={MEAL_PLAN_LIMITS.healthNote}
-                      placeholder="Ví dụ: tăng cơ, ăn thanh đạm..."
-                      aria-invalid={Boolean(errors.healthNote)}
-                      className={cn(fieldClass, "h-11")}
+                      placeholder="Chọn mục tiêu"
+                      aria-invalid={Boolean(errors.goalType)}
+                      className="bg-card"
                     />
                   )}
                 />
-                {errors.healthNote && <p className={errorClass}>{errors.healthNote.message}</p>}
+                {errors.goalType && <p className={errorClass}>{errors.goalType.message}</p>}
               </div>
             </div>
 

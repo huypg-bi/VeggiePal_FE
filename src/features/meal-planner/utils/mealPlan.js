@@ -318,18 +318,12 @@ export function profileTargetIssue(profile, today = new Date()) {
   return age < ADULT_AGE ? "underage" : null;
 }
 
-export function buildHealthGoalText(goalType, note) {
-  const label = goalLabel(goalType);
-  const extra = String(note ?? "").trim();
-  return extra ? `${label}: ${extra}` : label;
-}
-
-export function buildGeneratePayload({ name, goalType, healthNote, preferences, ingredients, target }) {
+export function buildGeneratePayload({ name, goalType, ingredients, target }) {
   const payload = {
     name: name.trim(),
     goalType,
-    healthGoal: buildHealthGoalText(goalType, healthNote),
-    preferences: preferences.map((p) => p.trim()).filter(Boolean),
+    // BE bắt buộc healthGoal không rỗng nên dùng nhãn của mục tiêu.
+    healthGoal: goalLabel(goalType),
     availableIngredients: ingredients.map((i) => i.trim()).filter(Boolean),
   };
   const dailyNutritionTarget = buildNutritionTarget(target);

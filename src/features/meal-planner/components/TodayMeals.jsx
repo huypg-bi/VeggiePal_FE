@@ -368,11 +368,11 @@ export default function TodayMeals({
       {macroNotes.length > 0 && (
         <div
           role="status"
-          className="mt-4 flex items-start gap-3 rounded-2xl bg-surface px-4 py-3 text-sm text-body ring-1 ring-border"
+          className="mt-4 flex items-start gap-3 rounded-2xl bg-warning/10 px-4 py-3 text-sm ring-1 ring-warning/30"
         >
-          <Info className="mt-0.5 size-4 shrink-0 text-subtle" />
-          <p className="text-subtle">
-            <span className="font-semibold text-ink">Calo ngày này đạt mục tiêu.</span> Lưu ý nhỏ:{" "}
+          <Info className="mt-0.5 size-4 shrink-0 text-warning" />
+          <p className="text-warning">
+            <span className="font-semibold">Calo ngày này đạt mục tiêu.</span> Lưu ý nhỏ:{" "}
             {macroNotes
               .map(
                 (item) =>

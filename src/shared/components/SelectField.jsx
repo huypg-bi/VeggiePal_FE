@@ -36,6 +36,7 @@ export default function SelectField({
     icon: option.icon,
     // level: 0 = mục cha (in đậm), 1 = mục con (thụt vào); bỏ trống = mục thường.
     level: option.level,
+    description: option.description,
     triggerLabel: option.triggerLabel ?? option.label,
   }));
   const key = toKey(value);
@@ -43,7 +44,17 @@ export default function SelectField({
   const selectedItem = items.find((item) => item.value === selectedKey);
   const SelectedIcon = selectedItem?.icon;
   // Nhãn trên nút: dùng triggerLabel (vd "Món ăn › Việt Nam") nếu option có đặt.
-  const renderValue = () => selectedItem?.triggerLabel ?? placeholder;
+  // Option có description thì ô dạng field hiện thêm mô tả mờ cạnh nhãn (ô pill giữ chỉ nhãn để vừa bề ngang).
+  const renderValue = () => {
+    if (!selectedItem) return placeholder;
+    if (!selectedItem.description || variant === "pill") return selectedItem.triggerLabel;
+    return (
+      <span className="flex min-w-0 items-baseline gap-2">
+        <span className="shrink-0">{selectedItem.triggerLabel}</span>
+        <span className="truncate text-xs font-normal text-subtle">{selectedItem.description}</span>
+      </span>
+    );
+  };
 
   const handleValueChange = (nextKey) => {
     const option = options.find((o) => toKey(o.value) === nextKey);
@@ -100,7 +111,10 @@ export default function SelectField({
             <span className={cn("flex items-center gap-2", item.level >= 1 && "pl-3")}>
               {item.level >= 1 && <CornerDownRight className="size-3.5 text-subtle" />}
               {item.icon && <item.icon className="size-4 shrink-0" />}
-              <span className={cn(item.level === 0 && "font-semibold text-ink")}>{item.label}</span>
+              <span className="flex min-w-0 flex-col">
+                <span className={cn(item.level === 0 && "font-semibold text-ink")}>{item.label}</span>
+                {item.description && <span className="text-xs font-normal text-subtle">{item.description}</span>}
+              </span>
             </span>
           </SelectItem>
         ))}

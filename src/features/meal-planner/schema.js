@@ -4,7 +4,6 @@ import { GOAL_OPTIONS, TARGET_FIELDS, parseTargetNumber } from "@/features/meal-
 
 export const MEAL_PLAN_LIMITS = {
   name: 160,
-  healthNote: 400,
   ingredients: 30,
 };
 
@@ -60,11 +59,6 @@ export const mealPlanSchema = z
       GOAL_OPTIONS.map((option) => option.value),
       { errorMap: () => ({ message: "Vui lòng chọn mục tiêu của thực đơn" }) },
     ),
-    // Mô tả thêm cho AI (tùy chọn).
-    healthNote: z
-      .string()
-      .trim()
-      .max(MEAL_PLAN_LIMITS.healthNote, `Mô tả tối đa ${MEAL_PLAN_LIMITS.healthNote} ký tự`),
     ...targetShape,
   })
   .superRefine(checkTargetRanges);

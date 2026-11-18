@@ -1,6 +1,5 @@
 import { useState } from "react";
 
-import { useAuthStore } from "@/features/auth/store/authStore";
 import AdviceCard from "@/features/meal-planner/components/AdviceCard";
 import AiMealSuggestion from "@/features/meal-planner/components/AiMealSuggestion";
 import HeroBanner from "@/features/meal-planner/components/HeroBanner";
@@ -24,10 +23,6 @@ import Reveal from "@/shared/components/Reveal";
 const EMPTY_PLANS = [];
 
 export default function MealPlannerScreen() {
-  const user = useAuthStore((s) => s.user);
-  const firstName = user?.fullName?.trim().split(" ").at(-2);
-  const secondName = user?.fullName?.trim().split(" ").at(-1);
-
   const { data, isPending, error, refetch } = useMealPlans();
   const plans = data ?? EMPTY_PLANS;
 
@@ -64,7 +59,7 @@ export default function MealPlannerScreen() {
       <AppHeader />
 
       <main className="mx-auto flex w-full max-w-[1280px] flex-col gap-12 px-6 py-8">
-        <HeroBanner userName={firstName + " " + secondName} />
+        <HeroBanner />
         {/* StatsGrid và TodayMeals tự có <Reveal> cho từng thẻ nên không bọc thêm ở đây. */}
         <StatsGrid
           diary={diary}

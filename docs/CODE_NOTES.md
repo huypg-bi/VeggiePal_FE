@@ -1336,7 +1336,7 @@ Tổng cộng 335 mục từ 201 file.
 **Gắn với:** `export default function AiMealSuggestion({ onCreated }) {`
 
 > Form nhờ AI lên thực đơn 7 ngày (POST /ai/meal-plans).  
-> - Mục tiêu (giảm / duy trì / tăng cân) là `goalType` bắt buộc; ô "Mô tả thêm" là tùy chọn và được ghép vào `healthGoal`.  
+> - Mục tiêu (giảm / duy trì / tăng cân) là `goalType` bắt buộc; mục tiêu chọn bằng `SelectField` (icon + câu mô tả) cạnh ô tên thực đơn; `healthGoal` gửi BE là nhãn của mục tiêu (không còn ô "Mô tả thêm" và chip khẩu vị).  
 > - Mục tiêu dinh dưỡng mỗi ngày: mặc định BE tự tính từ hồ sơ (thẻ NutritionTargetCard cho xem trước); điền các ô  
 >  "Tự đặt mục tiêu riêng" thì gửi `dailyNutritionTarget` thay thế.  
 > - Nguyên liệu có sẵn: chọn từ danh mục nguyên liệu; BE chỉ ưu tiên các món dùng chúng (không loại món khác).  
@@ -1395,14 +1395,6 @@ Tổng cộng 335 mục từ 201 file.
 > Nút "Yêu thích của tôi" + hộp thoại liệt kê các thực đơn đã yêu thích (GET /ai/meal-plans/favorites, phân trang).
 > Mỗi mục bấm "Xem chi tiết" để mở 7 ngày của thực đơn (GET /ai/meal-plans/favorites/:id), hoặc "Mở trên trang" để
 > chuyển trang thực đơn sang thực đơn đó. `plans` là danh sách thực đơn đã tải của trang; `onSelectPlan(id)` chọn một cái.
-
-### features/meal-planner/components/GoalCombobox.jsx
-
-**Gắn với:** `export default function GoalCombobox({ value, onChange, onBlur, inputRef, options, className, ...…`
-
-> Ô nhập kèm danh sách chọn nhanh: gõ tự do, hoặc bấm mũi tên (hay phím ↓) để chọn một mục có sẵn.
-> Dùng với react-hook-form qua \<Controller>: truyền `value`, `onChange(text)`, `onBlur`, `inputRef` (field.ref).
-> `inputProps` được chuyển thẳng cho \<input> (id, maxLength, placeholder, aria-invalid...).
 
 ### features/meal-planner/components/HealthUpdateButton.jsx
 
@@ -1598,8 +1590,7 @@ Tổng cộng 335 mục từ 201 file.
 
 **Gắn với:** `export const MEAL_PLAN_LIMITS = {`
 
-> Giới hạn khớp GenerateRequest của ai-service. `healthGoal` của BE tối đa 500 ký tự gồm cả nhãn mục tiêu
-> ("Tăng cân: ") nên mô tả thêm của người dùng (`healthNote`) giữ ngắn hơn.
+> Giới hạn khớp GenerateRequest của ai-service (tên thực đơn tối đa 160 ký tự, nguyên liệu tối đa 30).
 
 ### features/meal-planner/utils/mealPlan.js
 
@@ -1676,16 +1667,11 @@ Tổng cộng 335 mục từ 201 file.
 > "incomplete" khi thiếu ngày sinh / giới tính / mức vận động, "underage" khi dưới 18 tuổi, null khi ổn
 > (hoặc chưa có hồ sơ để kiểm tra: khi đó để BE quyết định). `profile.dateOfBirth` dạng "YYYY-MM-DD".
 
-**Gắn với:** `export function buildHealthGoalText(goalType, note) {`
+**Gắn với:** `export function buildGeneratePayload({ name, goalType, ingredients, target }) {`
 
-> `healthGoal` gửi BE (bắt buộc không rỗng): nhãn của mục tiêu, kèm mô tả thêm của người dùng nếu có,
-> ví dụ "Giảm cân: ăn thanh đạm".
-
-**Gắn với:** `export function buildGeneratePayload({ name, goalType, healthNote, preferences, ingredients, targ…`
-
-> Payload cho POST /ai/meal-plans từ giá trị form + nguyên liệu/khẩu vị đã chọn.
-> `healthNote` là mô tả thêm (tùy chọn). Không có ô mục tiêu nào được điền thì không gửi dailyNutritionTarget,
-> BE sẽ tự tính theo hồ sơ + goalType.
+> Payload cho POST /ai/meal-plans từ giá trị form + nguyên liệu đã chọn.
+> `healthGoal` là nhãn của mục tiêu (BE bắt buộc không rỗng), `preferences` không gửi. Không có ô mục tiêu nào được
+> điền thì không gửi dailyNutritionTarget, BE sẽ tự tính theo hồ sơ + goalType.
 
 **Gắn với:** `export function defaultPlanName(date = new Date()) {`
 
@@ -2877,6 +2863,8 @@ Tổng cộng 335 mục từ 201 file.
 > variant: "pill" (thanh lọc) | "field" (ô trong form) | "compact" (ô trong form, thấp hơn và chữ nhỏ hơn "field").
 > `id` để \<label htmlFor> trỏ tới.
 > `active` tô nhẹ nút khi đang lọc khác mặc định (chỉ dùng với variant pill).
+> Option có thể kèm: `icon`; `level` (0 = mục cha in đậm, 1 = mục con thụt vào); `triggerLabel` (nhãn hiện trên nút, mặc định là `label`);
+> `description` (câu mô tả mờ dưới nhãn trong danh sách, ô không phải pill cũng hiện nó cạnh nhãn trên nút).
 
 **Trong:** `SelectField` · **Gắn với:** `<span className="grid min-w-0 flex-1 text-left">`
 
