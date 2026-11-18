@@ -204,7 +204,7 @@ import { Button } from "@/components/ui/button";
 
 ### 4.5. Layout & mẫu trang
 
-- Trang sau đăng nhập luôn có khung: `<AppHeader />` + `<main>` (import từ `@/shared/components/`), bọc trong `<div className="min-h-dvh bg-canvas">`. **`<AppFooter />` chỉ dùng ở trang chủ (`HomeScreen`)**, các trang khác không có footer.
+- Trang sau đăng nhập luôn có khung: `<AppHeader />` + `<main>` (import từ `@/shared/components/`), bọc trong `<div className="min-h-dvh bg-canvas">`. **`<AppFooter />` chỉ dùng ở trang chủ (`HomeScreen`)**, các trang khác không có footer. Trang `/support` (Trợ giúp và hỗ trợ) là route công khai; khách vào được qua liên kết "Trợ giúp và hỗ trợ" ở cột "Khám phá" của footer, và hai liên kết "Điều khoản sử dụng" / "Chính sách bảo mật" ở form đăng ký cũng mở `/support` ở tab mới (để không mất dữ liệu đang nhập).
 - Banner đầu trang của công thức, video, cộng đồng, thực đơn và bản đồ dùng chung một khung: `rounded-[32px] border border-border/40 bg-gradient-to-br from-brand-soft/40 via-card to-brand-soft/20 shadow-sm` kèm hai quầng sáng mờ `bg-brand-2` ở góc trái trên và phải dưới; banner mới nên dùng lại khung này.
 - Section xuất hiện dần khi cuộn: bọc `<Reveal>` (`@/shared/components/Reveal`). Khối hiện khi 15% chiều cao của nó vào màn hình; khối cao tới mức 15% đó không thể lọt vào màn hình (vd danh sách dài có sẵn trong cache) thì hiện ngay khi vừa chạm vào màn hình (`shouldReveal` trong `useRevealOnScroll.js`), nếu không nó sẽ ẩn mãi.
 - Trạng thái loading: `<Loader2 className="size-4 animate-spin" />` + chữ mô tả tiếng Việt.
