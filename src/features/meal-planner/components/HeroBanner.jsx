@@ -1,7 +1,7 @@
 import iconBanner from "@/assets/img/icon_banner.png";
 import tag from "@/assets/img/tag.png"
 
-export default function HeroBanner({ userName }) {
+export default function HeroBanner() {
   return (
     <section className="relative overflow-hidden rounded-[32px] px-2 py-4 sm:px-4">
       <div
@@ -23,7 +23,7 @@ export default function HeroBanner({ userName }) {
           />
 
           <h1 className="text-3xl font-bold leading-tight text-ink sm:text-4xl">
-            Chào {userName}! Hôm nay,{" "}
+            Chào bạn! Hôm nay,{" "}
             <span className="text-brand">Bé Bông Cải</span> đã sẵn sàng
             lên thực đơn cho bạn nè!
           </h1>

@@ -123,6 +123,8 @@ function RecipeArticle({ recipe, author, nutrition, nutritionGap, canManage, isL
         {recipe.prepTime > 0 && <Chip icon={Clock}>Chuẩn bị {recipe.prepTime} phút</Chip>}
         {recipe.cookTime > 0 && <Chip icon={Clock}>Nấu {recipe.cookTime} phút</Chip>}
         <Chip icon={Users}>{recipe.servings} khẩu phần</Chip>
+      </ul>
+      <ul className="mt-2 flex flex-wrap gap-2 text-sm">
         <Chip icon={Flame}>
           {nutrition
             ? `${nutrition.kcal} kcal • ${nutrition.protein}g đạm / khẩu phần`
@@ -150,14 +152,16 @@ function RecipeArticle({ recipe, author, nutrition, nutritionGap, canManage, isL
         <h2 className="font-heading text-xl font-bold text-ink">Nguyên liệu</h2>
         {warnings.allergens.length > 0 && (
           <Notice tone="warning">
-            Có nguyên liệu thuộc nhóm dễ gây dị ứng: <strong>{warnings.allergens.join(", ")}</strong>.{" "}
-            {isLoggedIn ? (
-              <Link to="/profile/edit" className="font-semibold underline underline-offset-2">
-                Kiểm tra hồ sơ dị ứng của bạn
-              </Link>
-            ) : (
-              "Hãy đối chiếu với tình trạng dị ứng của bạn."
-            )}
+            Có nguyên liệu thuộc nhóm dễ gây dị ứng: <strong>{warnings.allergens.join(", ")}</strong>.
+            <span className="mt-0.5 block">
+              {isLoggedIn ? (
+                <Link to="/profile/edit" className="font-semibold underline underline-offset-2">
+                  Kiểm tra hồ sơ dị ứng của bạn
+                </Link>
+              ) : (
+                "Hãy đối chiếu với tình trạng dị ứng của bạn."
+              )}
+            </span>
           </Notice>
         )}
         {warnings.nonVegan.length > 0 && (
@@ -228,7 +232,7 @@ function Tag({ tone, children }) {
 
 function Chip({ icon: Icon, children }) {
   return (
-    <li className="flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-body">
+    <li className="flex min-w-fit flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-full border border-border bg-surface px-3 py-1.5 text-body">
       <Icon className="size-4 text-brand" />
       {children}
     </li>
