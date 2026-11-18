@@ -188,16 +188,16 @@ function ShortcutCard({ to, icon: Icon, title, description }) {
   return (
     <Link
       to={to}
-      className="group flex flex-col gap-3 rounded-3xl border border-border bg-card p-5 shadow-sm transition hover:shadow-md"
+      className="group flex items-center gap-4 rounded-3xl border border-border bg-card p-5 shadow-sm transition hover:shadow-md"
     >
-      <span className="flex items-center gap-3">
-        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand">
-          <Icon className="size-6" />
-        </span>
-        <span className="min-w-0 flex-1 font-heading text-lg font-bold text-ink">{title}</span>
-        <ArrowRight className="size-5 shrink-0 text-subtle transition group-hover:translate-x-1 group-hover:text-brand" />
+      <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-brand-soft text-brand">
+        <Icon className="size-6" />
       </span>
-      <span className="block text-sm text-subtle">{description}</span>
+      <span className="min-w-0 flex-1">
+        <span className="block font-heading text-lg font-bold text-ink">{title}</span>
+        <span className="block text-sm text-subtle">{description}</span>
+      </span>
+      <ArrowRight className="size-5 shrink-0 text-subtle transition group-hover:translate-x-1 group-hover:text-brand" />
     </Link>
   );
 }
