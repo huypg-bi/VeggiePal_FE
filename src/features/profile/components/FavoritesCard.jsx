@@ -58,13 +58,14 @@ export default function FavoritesCard() {
         </p>
       ) : (
         <>
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="grid grid-cols-6 gap-2">
             {recipes.map((recipe) => (
               <Link
                 key={recipe.id}
                 to={`/recipes/${recipe.id}`}
                 aria-label={`Xem công thức ${recipe.title}`}
-                className="group relative rounded-2xl overflow-hidden aspect-square"
+                title={recipe.title}
+                className="group relative aspect-square overflow-hidden rounded-xl"
               >
                 <FallbackImage
                   src={recipe.imageUrl}
@@ -73,13 +74,10 @@ export default function FavoritesCard() {
                   draggable={false}
                   fallback={
                     <div className="grid h-full w-full place-items-center bg-brand-soft text-brand">
-                      <ChefHat className="size-6" />
+                      <ChefHat className="size-4" />
                     </div>
                   }
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-1.5">
-                  <span className="text-[10px] text-white font-medium line-clamp-1">{recipe.title}</span>
-                </div>
               </Link>
             ))}
           </div>

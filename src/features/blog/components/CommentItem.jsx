@@ -20,6 +20,7 @@ import CommentComposer from "@/features/blog/components/CommentComposer";
 import { useReplies } from "@/features/blog/hooks/useComments";
 import { useDeleteComment } from "@/features/blog/hooks/useCommentMutations";
 import { FALLBACK_AUTHOR_NAME, formatTimeAgo } from "@/features/blog/utils/blogFormat";
+import GreenHeartBadge from "@/features/profile/components/GreenHeartBadge";
 import { cn } from "@/lib/utils";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
 
@@ -74,6 +75,7 @@ export default function CommentItem({ comment, author, isReply = false }) {
               <span className="font-semibold text-ink">
                 {author?.fullName ?? FALLBACK_AUTHOR_NAME}
               </span>
+              <GreenHeartBadge userId={comment.authorId} user={author} />
               <span className="text-xs text-subtle">{formatTimeAgo(comment.createdAt)}</span>
             </p>
             {comment.deleted ? (

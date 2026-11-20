@@ -24,7 +24,7 @@ export default function ProfileScreen() {
 
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
           {/* Cột trái (4/12) */}
-          <div className="space-y-5 lg:col-span-4 lg:sticky lg:top-24 lg:self-start">
+          <div className="space-y-5 lg:sticky lg:top-24 lg:col-span-4 lg:-mx-1 lg:max-h-[calc(100dvh-7rem)] lg:self-start lg:overflow-y-auto lg:px-1 lg:pb-1">
             <Reveal><DailyNutritionCard /></Reveal>
             <Reveal><FavoritesCard /></Reveal>
             <Reveal><GreenBadgesCard /></Reveal>

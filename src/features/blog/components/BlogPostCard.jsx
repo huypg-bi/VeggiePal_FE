@@ -3,6 +3,7 @@ import { Eye, ImageOff } from "lucide-react";
 
 import AuthorAvatar from "@/features/blog/components/AuthorAvatar";
 import FollowButton from "@/features/blog/components/FollowButton";
+import GreenHeartBadge from "@/features/profile/components/GreenHeartBadge";
 import VoteButton from "@/features/blog/components/VoteButton";
 import {
   FALLBACK_AUTHOR_NAME,
@@ -22,6 +23,7 @@ export default function BlogPostCard({ post, author, myVote }) {
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
             <p className="truncate text-sm font-semibold text-ink">{authorName}</p>
+            <GreenHeartBadge userId={post.authorId} user={author} />
             {/* Tác giả không resolve được (tài khoản không hoạt động) thì BE không cho theo dõi nên ẩn nút. */}
             {author && <FollowButton userId={post.authorId} className="shrink-0" />}
           </div>

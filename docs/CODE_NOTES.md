@@ -1929,12 +1929,21 @@ Tổng cộng 335 mục từ 201 file.
 > - submitSlot: phần tử DOM (ở đầu thẻ) để đặt nút "Ghi nhận"; nút vẫn thuộc form này (gắn bằng thuộc tính `form`)  
 >  nên trạng thái "Đang ghi…" vẫn đúng. Không truyền thì nút nằm ngay cuối form.
 
+### features/profile/components/GreenHeartBadge.jsx
+
+**Gắn với:** `export default function GreenHeartBadge({ userId, user, className }) {`
+
+> Trái tim nhỏ cạnh tên người dùng (kiểu tick xanh), chỉ icon, tên huy hiệu "Trái Tim Xanh Veggie" ở tooltip và `aria-label`. Hiện ở banner trang cá nhân và ở trang cộng đồng (thẻ bài viết, trang chi tiết, bình luận, danh sách theo dõi).
+> - Của chính mình: đọc `badges` từ cache hồ sơ (`useProfile({ enabled: false })` chỉ đọc cache, AppHeader đã tải; khách không gọi `/users/me`).
+> - Của người khác: đọc `badgeTypes` của người dùng công khai. BE hiện chưa trả field này (task B18) nên trái tim của người khác chưa hiện cho tới khi BE bổ sung.
+
 ### features/profile/components/ProfileBanner.jsx
 
 **Gắn với:** `export default function ProfileBanner({ profile }) {`
 
-> Thẻ đầu trang cá nhân (ảnh bìa `profile_bg.jpg`, ảnh đại diện, huy hiệu thử thách, gói tài khoản, nút sửa hồ sơ và 5 chỉ số).
-> - Huy hiệu "Trái Tim Xanh Veggie" cạnh tên hiện khi `profile.badges` có huy hiệu `ACHIEVEMENT` chưa bị thu hồi (không dùng `useChallenge`, hook đó chỉ có `status`, không có cờ `completed`).
+> Thẻ đầu trang cá nhân (ảnh bìa `profile_bg.jpg`, ảnh đại diện, trái tim thử thách, nút sửa hồ sơ, gói tài khoản và 5 chỉ số).
+> - Cạnh tên chỉ có một icon trái tim (`GreenHeartBadge`, không ghi chữ, tên huy hiệu ở tooltip) khi hồ sơ có huy hiệu `ACHIEVEMENT` chưa bị thu hồi; không dùng `useChallenge` vì hook đó chỉ có `status`, không có cờ `completed`.
+> - Chip "Gói PRO (Hạn: …)" nằm dưới hai nút "Sửa hồ sơ" và "Lịch sử gói" (cột phải của thẻ), không còn cạnh tên.
 > - Không có danh hiệu cố định "Đầu Bếp Chay Sáng Tạo" (từng viết cứng, không có dữ liệu thật); bio dưới tên là chữ cố định vì BE chưa có trường bio.
 > - Số người theo dõi và đang theo dõi lấy từ API thật `GET /users/{id}/follow-stats` qua `useFollowStats`, bấm vào ô mở `FollowListDialog` để xem danh sách và theo dõi / bỏ theo dõi.
 > - Ô thứ tư là "Công thức đã lưu": tổng số từ `GET /recipes/favorites` (`useFavoriteRecipes({ size: 1 })`, chỉ cần `totalElements`). BE chưa có số lượt lưu mà công thức của tôi nhận được nên không hiện chỉ số đó.
@@ -1945,7 +1954,14 @@ Tổng cộng 335 mục từ 201 file.
 
 > Thẻ "Công Thức Đã Lưu" ở cột trái trang cá nhân: lưới công thức tôi đã lưu (`GET /recipes/favorites`, lưu gần nhất trước), bấm mở công thức.
 > Mặc định 6 mục; "Xem tất cả" nâng lên 30 mục mới lưu gần nhất (chưa có trang riêng). BE chỉ trả công thức đang đăng nên công thức đã bị ẩn tự biến mất.
+> Ô vuông nhỏ (6 cột, mặc định gọn một hàng) và không có chữ đè lên ảnh (tên công thức ở tooltip) để cột trái trang cá nhân, vốn dính dưới header, đủ thấp mà thẻ "Huy Hiệu Xanh" bên dưới không bị cắt; cột cao hơn màn hình thì tự cuộn (`lg:max-h` + `lg:overflow-y-auto` ở `ProfileScreen`).
 > - Thẻ BMI lấy từ bản ghi sức khỏe mới nhất, bài viết & video lấy từ tổng thực tế blog và recipe của người dùng.
+
+### features/profile/utils/greenHeart.js
+
+**Gắn với:** `export const GREEN_HEART_BADGE_TYPE = "ACHIEVEMENT";`
+
+> Hai hàm kiểm tra trái tim: `hasGreenHeartBadge` cho `badges` của hồ sơ của mình (bỏ huy hiệu đã thu hồi) và `hasGreenHeartType` cho `badgeTypes` của người dùng công khai.
 
 ### features/profile/hooks/useAllergyDraft.js
 

@@ -1,211 +1,185 @@
 <p align="center">
-  <img src="src/assets/img/logo.png" alt="VeggiePal" width="150" />
+  <img src="src/assets/img/logo.png" alt="VeggiePal" width="140" />
 </p>
 
-> Nền tảng hỗ trợ người ăn chay theo dõi sức khỏe, lên thực đơn, khám phá video nấu ăn, tìm quán chay và trò chuyện cùng trợ lý AI **Bông Cải**.
+<h1 align="center">VeggiePal – Frontend</h1>
 
-![React Version](https://img.shields.io/badge/React-19.x-61DAFB?style=flat-square&logo=react)
-![Vite Version](https://img.shields.io/badge/Vite-8.x-646CFF?style=flat-square&logo=vite)
-![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-v4-06B6D4?style=flat-square&logo=tailwindcss)
+<p align="center">
+  Ứng dụng web giúp người ăn chay theo dõi sức khỏe, lên thực đơn bằng AI, khám phá công thức – video nấu ăn, tìm quán chay và trò chuyện cùng trợ lý <b>Bông Cải</b>.
+</p>
+
+<p align="center">
+  <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black" />
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-8-646CFF?style=for-the-badge&logo=vite&logoColor=white" />
+  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" />
+  <img alt="React Router" src="https://img.shields.io/badge/React_Router-7-CA4245?style=for-the-badge&logo=reactrouter&logoColor=white" />
+  <img alt="TanStack Query" src="https://img.shields.io/badge/TanStack_Query-5-FF4154?style=for-the-badge&logo=reactquery&logoColor=white" />
+  <img alt="Zustand" src="https://img.shields.io/badge/Zustand-5-433E38?style=for-the-badge" />
+  <img alt="Axios" src="https://img.shields.io/badge/Axios-1.x-5A29E4?style=for-the-badge&logo=axios&logoColor=white" />
+  <img alt="Zod" src="https://img.shields.io/badge/Zod-3-3E67B1?style=for-the-badge&logo=zod&logoColor=white" />
+  <img alt="Mapbox" src="https://img.shields.io/badge/Mapbox_GL-3-000000?style=for-the-badge&logo=mapbox&logoColor=white" />
+  <img alt="ESLint" src="https://img.shields.io/badge/ESLint-10-4B32C3?style=for-the-badge&logo=eslint&logoColor=white" />
+  <img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" />
+</p>
 
 ---
 
 ## 🔗 Liên kết dự án
 
-- **Frontend Repository:** [huypg-bi/VeggiePal_FE](https://github.com/huypg-bi/VeggiePal_FE)
-- **Backend Repository:** [Phu0312/VeggiePal_BE](https://github.com/Phu0312/VeggiePal_BE.git) *(Spring Boot Microservices)*
-- **Live Demo:** *(Đang cập nhật)*
+- **Frontend (repo này):** [huypg-bi/VeggiePal_FE](https://github.com/huypg-bi/VeggiePal_FE)
+- **Backend (Spring Boot Microservices):** [Phu0312/VeggiePal_BE](https://github.com/Phu0312/VeggiePal_BE)
+- **Live Demo:** [https://www.veggiepal.id.vn](https://www.veggiepal.id.vn)
 
 ---
 
-## 📸 Giao diện ứng dụng (Screenshots)
+## ✨ Tính năng chính (Key Features)
 
-*(Đang cập nhật — thêm ảnh vào `docs/images/` rồi bỏ comment bảng bên dưới)*
+Các tính năng dưới đây được suy ra từ các route trong [`src/app/routes.jsx`](src/app/routes.jsx) và thư mục `src/features/`.
 
-<!--
-| Trang chủ (Landing Page) | Trợ lý AI Bông Cải |
-| :---: | :---: |
-| ![Landing Page](./docs/images/landing.png) | ![Chatbot](./docs/images/chatbot.png) |
+- **🔐 Xác thực & phiên đăng nhập** (`/login`, `/register`, `/verify-email`, `/forgot-password`, `/verify-otp`, `/reset-password`): đăng ký kèm xác minh email bằng mã OTP, đăng nhập bằng email hoặc Google, tự làm mới phiên bằng refresh token, quên mật khẩu qua OTP, bảo vệ route riêng tư và route quản trị.
+- **👤 Hồ sơ cá nhân** (`/profile`, `/profile/edit`): thông tin cá nhân, ảnh đại diện, đổi mật khẩu, số người theo dõi / đang theo dõi, công thức đã lưu, huy hiệu, dinh dưỡng trong ngày.
+- **📊 Sức khỏe & dị ứng:** ghi nhận chiều cao, cân nặng, theo dõi lịch sử và biểu đồ BMI, chọn danh mục thực phẩm dị ứng.
+- **🥗 Thực đơn AI** (`/meal-planner`): tạo thực đơn 7 ngày × 3 bữa theo mục tiêu giảm / duy trì / tăng cân, xem theo ngày, đổi món, tự chọn món / khẩu phần, xem lịch sử phiên bản và khôi phục, thực đơn yêu thích; nhật ký ăn uống (đánh dấu bữa đã ăn, nước uống, vận động).
+- **🍲 Công thức** (`/recipes`): duyệt, tìm kiếm, sắp xếp theo mới nhất / được lưu nhiều nhất, xem dinh dưỡng mỗi khẩu phần, tạo / sửa công thức kèm ảnh, lưu công thức yêu thích.
+- **📝 Cộng đồng** (`/blog`): đăng và đọc bài viết (có AI kiểm duyệt nền), bình luận, thả tim, theo dõi tác giả, thử thách 7 ngày sống thuần chay kèm huy hiệu.
+- **🎥 Video** (`/videos`): xem và đăng video (tệp `.mp4` hoặc liên kết YouTube), lọc theo danh mục, AI bóc tách công thức từ video.
+- **📍 Bản đồ xanh** (`/map`): tìm quán chay quanh vị trí hiện tại trên bản đồ Mapbox, tìm quán theo tên.
+- **🤖 Trợ lý Bông Cải** (`/chatbot`): hỏi đáp dinh dưỡng chay, quản lý nhiều cuộc trò chuyện, khách chưa đăng nhập được dùng thử có giới hạn lượt.
+- **💳 Gói thành viên & thanh toán** (`/pricing`, `/checkout/:orderId`, `/payment/*`): các gói FREE / PLUS / PRO, thanh toán payOS bằng mã VietQR, theo dõi trạng thái đơn, lịch sử thanh toán.
+- **🗂️ Nội dung của tôi** (`/my-content`): quản lý bài viết, công thức, video và lịch sử bóc tách của chính mình.
+- **🛡️ Quản trị** (`/admin/*`, chỉ vai trò ADMIN): tổng quan, người dùng, danh mục, nguyên liệu, kiểm duyệt, nội dung, giám sát AI, prompt AI, thanh toán.
+- **🎨 Giao diện:** chế độ Sáng / Tối, responsive từ mobile đến desktop, trang trợ giúp (`/support`).
 
-| Lên thực đơn (Meal Planner) | Bản đồ quán chay (Map) |
-| :---: | :---: |
-| ![Meal Planner](./docs/images/meal-planner.png) | ![Restaurant Map](./docs/images/map.png) |
--->
-
-
-
----
-
-## ✨ Tính năng nổi bật
-
-- **🔐 Quản lý tài khoản (Authentication):** Đăng ký kèm xác minh email bằng mã OTP, đăng nhập (email hoặc Google), tự làm mới phiên bằng refresh token, quên mật khẩu bằng mã OTP qua email, bảo vệ đường dẫn riêng tư (Protected Routes).
-- **👤 Hồ sơ cá nhân (Profile):** Quản lý thông tin cá nhân, cập nhật ảnh đại diện, đổi mật khẩu, xem số người theo dõi & đang theo dõi thật và danh sách theo dõi.
-- **📊 Sức khỏe & Dị ứng (Nutrition):** Ghi nhận chiều cao/cân nặng, theo dõi lịch sử BMI, chọn danh mục thực phẩm dị ứng.
-- **🥗 Thực đơn dinh dưỡng (Meal Planner):** AI lên thực đơn 7 ngày × 3 bữa theo mục tiêu giảm / duy trì / tăng cân (BE tự tính calo từ chỉ số sức khỏe, ngày sinh, giới tính, mức vận động, hoặc tự đặt mục tiêu riêng), nguyên liệu sẵn có; xem theo ngày, đổi món, chuyển giữa các thực đơn đã lưu; đánh dấu bữa đã ăn, ghi nước uống và vận động vào nhật ký ăn uống, thẻ calo trong ngày tính theo bữa đã ăn *(API thật; bữa phụ chưa có, lời khuyên hằng ngày vẫn là Mock Data)*.
-- **🍲 Công thức (Recipe):** Duyệt công thức món chay đã đăng (tìm theo tên / mô tả, sắp xếp mới nhất hoặc được lưu nhiều nhất), xem chi tiết kèm dinh dưỡng mỗi khẩu phần do BE tính sẵn và cảnh báo nguyên liệu dễ dị ứng / không thuần chay, lưu công thức yêu thích (thẻ "Công Thức Đã Lưu" ở trang cá nhân), tạo công thức với ảnh tải lên (JPEG / PNG ≤ 5MB) hoặc link ảnh, sửa công thức thì đổi ảnh bằng tải lên *(API thật)*.
-- **📝 Cộng đồng (Blog):** Đăng và đọc bài viết (tối đa 50.000 ký tự; bài được AI kiểm duyệt nền nên đăng xong ở trạng thái chờ, trang chi tiết tự cập nhật khi AI xét xong), bình luận, thả tim, tìm kiếm / sắp xếp / lọc danh mục, theo dõi tác giả, xem tab "Đang theo dõi" và danh sách người theo dõi *(API thật; thử thách 7 ngày (tham gia, check-in mỗi ngày) và huy hiệu ở trang cá nhân dùng API thật)*.
-- **🎥 Khám phá video (Videos):** Xem và đăng tải video nấu món chay (tệp .mp4 hoặc liên kết YouTube), phân trang, lọc theo danh mục, tìm theo tiêu đề (ô tìm kiếm ở đầu trang, lọc ở FE vì BE chưa có tham số tìm kiếm), quản lý video cá nhân kèm kiểm duyệt tự động *(API thật; bình luận và vote chờ BE)*. Tab "Bóc tách" ở trang Nội dung của tôi cho AI bóc tách nguyên liệu và các bước làm từ video (tệp ≤ 100MB, ≤ 30 phút, lịch sử `GET /ai/videos` phân trang dạng `items` theo lượt của gói thành viên). Thẻ "Giá Trị Dinh Dưỡng" ở trang xem video hiện dinh dưỡng ước tính cả công thức do AI tính khi bóc tách. Ở trang xem video, nút "Bóc tách công thức AI" ở `VideoMetaHeader` và thẻ `AiSummaryCard` hiển thị công thức AI dùng chung cho video tải lên (`POST /ai/videos/process-existing`, xem công khai qua `GET /ai/videos/by-video/:videoId`, khách chưa đăng nhập vẫn xem được kết quả có sẵn; video YouTube hiện "chưa hỗ trợ" mã 6026 và khóa nút; hàng đợi đầy trả 6025 "hệ thống đang bận") *(API thật)*.
-- **📍 Bản đồ xanh (Map):** Xem quán ăn chay quanh vị trí của bạn trên bản đồ Mapbox (chọn bán kính 1 - 10 km, sắp theo gần nhất hoặc đánh giá cao), tìm quán theo tên (từ 2 ký tự) trên toàn bản đồ *(API thật)*.
-- **🤖 Trợ lý Bông Cải (AI Chatbot):** Giao diện hỏi đáp kiến thức dinh dưỡng chay, quản lý nhiều đoạn chat *(API thật: ai-service, có chế độ dùng thử cho khách; giới hạn lượt/ngày: khách 3 lượt, FREE 5, PLUS 20, PRO 50; mở cuộc trò chuyện của người khác trả 404)*.
-- **🎨 Giao diện & Trải nghiệm:** Landing page hiện đại, hỗ trợ chuyển đổi chế độ Sáng/Tối (Light/Dark Mode).
-- **🛡️ Quản trị hệ thống (Admin):** Màn hình quản lý nội dung (`/admin/content`: xem bài viết, công thức, video ở mọi trạng thái, lọc theo trạng thái, duyệt hoặc từ chối bài viết và video chờ duyệt kèm lý do, xóa; chưa có sửa nội dung), quản lý người dùng (`/admin/users`: tìm kiếm email/họ tên, lọc theo trạng thái và vai trò, khóa tài khoản kèm lý do, mở khóa tài khoản, nâng quyền Quản trị viên, xem / cấp xác minh / thu hồi huy hiệu), quản lý danh mục và nguyên liệu, duyệt nội dung bài viết/video/bình luận, giám sát AI, quản lý prompt AI (soạn nháp, chạy thử, publish, khôi phục mặc định) và thống kê doanh thu gói thành viên.
-- **💳 Gói thành viên & Thanh toán (Payment & Subscriptions):** Xem bảng giá các gói thành viên (FREE, PLUS, PRO), thanh toán qua cổng payOS VietQR (gia hạn cộng dồn thời hạn, nâng cấp quy đổi phần còn lại của gói cũ thành ngày của gói mới và có hộp thoại xem trước hạn dùng, gói thấp hơn bị khóa khi gói cao còn hạn), polling kiểm tra webhook kích hoạt gói tức thì, quản lý lịch sử thanh toán và thời hạn sử dụng *(API thật: payment-service)*. Trang thanh toán tự dựng `/checkout/:orderId`: FE tự vẽ mã VietQR bằng `qrcode.react`, đếm ngược hết hạn, polling trạng thái đơn, huỷ/tạo lại đơn.
+> Một số khối nhỏ vẫn dùng dữ liệu mẫu (ví dụ lời khuyên hằng ngày trong trang thực đơn). Chi tiết từng tính năng nằm ở [`docs/TECH_STACK.md`](docs/TECH_STACK.md).
 
 ---
 
-## 💻 Công nghệ sử dụng (Tech Stack)
+## 🧰 Công nghệ sử dụng (Tech Stack)
 
-### Frontend Client
-- **Core Framework:** React 19, Vite 8 (JavaScript / JSX)
-- **Styling:** Tailwind CSS v4, shadcn/ui (`@base-ui/react`)
-- **Routing:** React Router v7
-- **State Management:** 
-  - TanStack Query v5 *(Server State / Async Data)*
-  - Zustand v5 *(Global Auth State, Theme State)*
-  - qrcode.react *(vẽ mã VietQR ở trang `/checkout/:orderId`)*
-- **Form & Validation:** React Hook Form + Zod Schema
-- **HTTP Client:** Axios
-- **Icons:** Lucide React
-- **Code Quality & Testing:** ESLint 10, `node:test`
+### Frontend
+| Nhóm | Công nghệ |
+| :--- | :--- |
+| Ngôn ngữ / Framework | JavaScript + JSX (không dùng TypeScript), React 19 |
+| Build tool | Vite 8, `@vitejs/plugin-react` |
+| Giao diện | Tailwind CSS v4 (`@tailwindcss/vite`), `tw-animate-css`, shadcn/ui (style `base-nova`) trên `@base-ui/react`, `class-variance-authority`, `cn`, `lucide-react`, `sonner` (toast), `@fontsource-variable/geist` |
+| Routing | React Router v7 |
+| Server state | TanStack Query v5 |
+| Client state | Zustand v5 |
+| Form & Validation | React Hook Form, `@hookform/resolvers`, Zod 3 |
+| HTTP | Axios |
+| Bản đồ | Mapbox GL JS, `react-map-gl` |
+| Khác | `qrcode.react` (vẽ mã VietQR), `@react-oauth/google` (đăng nhập Google) |
 
-### Backend Integration
-- Kết nối hệ thống **Spring Boot Microservices (Java 21)** thông qua API Gateway tại `http://localhost:8080/api`.
+### Mobile
+- Không có. Đây là ứng dụng web (SPA).
+
+### Backend & Cơ sở dữ liệu
+- Repo này **không chứa** backend hay cơ sở dữ liệu. Ứng dụng gọi qua một API Gateway tới hệ thống **Spring Boot Microservices (Java 21)** ở repo riêng ([VeggiePal_BE](https://github.com/Phu0312/VeggiePal_BE)), gồm các service: identity, nutrition, blog, recipe, location, ai, payment.
+- Cơ sở dữ liệu do phía Backend quản lý (xem repo Backend).
+
+### Công cụ & Dịch vụ
+- **Chất lượng mã:** ESLint 10 (flat config) cùng `eslint-plugin-react-hooks`, `eslint-plugin-react-refresh`.
+- **Kiểm thử:** `node:test` (test tạm, không giữ lâu dài trong repo).
+- **Triển khai:** cấu hình Vercel trong [`vercel.json`](vercel.json) (rewrite SPA, cache dài hạn cho `/assets/`).
+- **Dịch vụ bên thứ ba dùng ở phía FE:** Mapbox (bản đồ), Google OAuth (đăng nhập), payOS (thanh toán, FE hiển thị mã VietQR do Backend trả về).
 
 ---
 
-## 🛠️ Yêu cầu hệ thống (Prerequisites)
+## 📁 Cấu trúc thư mục (Project Structure)
 
-- **Node.js:** `^20.19.0` hoặc `>=22.12.0`
-- **Package Manager:** `npm` (đi kèm Node.js)
-- **Backend Service:** Chạy tại `http://localhost:8080` *(Cần thiết nếu muốn trải nghiệm đầy đủ API thật)*
+```text
+VeggiePal_FE/
+├── public/                  # Tài nguyên tĩnh (favicon)
+├── docs/                    # Tài liệu kỹ thuật
+│   ├── TECH_STACK.md        #   Công nghệ, quy ước code, hệ thống UI
+│   ├── CODE_NOTES.md        #   Giải thích chi tiết cách hoạt động của code
+│   └── BACKEND_COMPLETION_TASKS.md  # Danh sách việc cần phía Backend hoàn thiện
+├── src/
+│   ├── main.jsx             # Điểm vào của ứng dụng
+│   ├── app/                 # App, provider (Query + Router), khai báo routes
+│   ├── components/ui/       # Component shadcn/ui (button, dialog, select, ...)
+│   ├── features/            # Mỗi tính năng một thư mục (api, components, hooks, pages, ...)
+│   │   ├── admin/           #   Khu quản trị (users, content, moderation, monitoring, payments, prompts)
+│   │   ├── auth/            #   Đăng ký, đăng nhập, OTP, phiên đăng nhập
+│   │   ├── blog/            #   Cộng đồng, bình luận, theo dõi, thử thách 7 ngày
+│   │   ├── chatbot/         #   Trợ lý AI Bông Cải
+│   │   ├── home/            #   Trang chủ
+│   │   ├── ingredient/      #   Nguyên liệu
+│   │   ├── meal-planner/    #   Thực đơn AI, nhật ký ăn uống
+│   │   ├── my-content/      #   Nội dung của tôi
+│   │   ├── payment/         #   Gói thành viên, thanh toán
+│   │   ├── profile/         #   Hồ sơ, chỉ số sức khỏe, dị ứng
+│   │   ├── recipe/          #   Công thức
+│   │   ├── restaurant-map/  #   Bản đồ quán chay
+│   │   ├── support/         #   Trợ giúp & hỗ trợ
+│   │   └── video/           #   Video, bóc tách công thức bằng AI
+│   ├── lib/                 # queryClient, schema Zod dùng chung, tiện ích (cn, jwt)
+│   ├── shared/              # apiClient (axios), bảng dịch mã lỗi, component / hook / store dùng chung
+│   ├── assets/              # Ảnh, SVG, video
+│   └── styles/              # globals.css (Tailwind + design token)
+├── .env.example             # Mẫu biến môi trường
+├── components.json          # Cấu hình shadcn/ui
+├── eslint.config.js         # Cấu hình ESLint
+├── jsconfig.json            # Alias import "@/" → src/
+├── vercel.json              # Cấu hình triển khai Vercel
+└── vite.config.js           # Cấu hình Vite (React, Tailwind, alias)
+```
+
+Alias import: `@/` trỏ tới `src/` (ví dụ `import { cn } from "@/lib/utils"`).
 
 ---
 
-## ⚙️ Hướng dẫn cài đặt & Khởi chạy (Getting Started)
+## 🚀 Hướng dẫn cài đặt (Getting Started)
 
-### 1. Clone dự án
+### Yêu cầu hệ thống (Prerequisites)
+
+- **Node.js:** `^20.19.0`, `^22.13.0` hoặc `>=24` (thỏa mãn yêu cầu `engines` của Vite 8 và ESLint 10).
+- **npm** (đi kèm Node.js).
+- **Backend (tùy chọn nhưng cần để dùng đầy đủ tính năng):** API Gateway chạy tại `http://localhost:8080` (xem [VeggiePal_BE](https://github.com/Phu0312/VeggiePal_BE)).
+
+### Cài đặt (Installation)
+
 ```bash
+# 1. Clone dự án
 git clone https://github.com/huypg-bi/VeggiePal_FE.git
 cd VeggiePal_FE
-```
 
-### 2. Cài đặt thư viện
-```bash
+# 2. Cài đặt thư viện
 npm install
+
+# 3. Tạo file biến môi trường từ file mẫu
+cp .env.example .env        # Windows (cmd): copy .env.example .env
 ```
 
-### 3. Cấu hình biến môi trường
-Tạo file `.env` ở thư mục gốc (file đã được `.gitignore`, không commit):
+### Biến môi trường (Environment Variables)
 
-```env
-VITE_VEGGIEPAL_API_BASE_URL=http://localhost:8080/api
-VITE_GOOGLE_CLIENT_ID=<oauth-client-id>.apps.googleusercontent.com
-```
+Điền giá trị vào file `.env` (file này đã nằm trong `.gitignore`, **không commit**). Biến phải có tiền tố `VITE_` và Vite nhúng giá trị vào bản build.
 
-| Biến | Mô tả |
-| :--- | :--- |
-| `VITE_VEGGIEPAL_API_BASE_URL` | Base URL của API Gateway (đã gồm `/api`) |
-| `VITE_GOOGLE_CLIENT_ID` | Google OAuth Client ID cho đăng nhập Google; phải trùng `GOOGLE_CLIENT_ID` của identity-service |
+| Biến | Mô tả | Ví dụ |
+| :--- | :--- | :--- |
+| `VITE_VEGGIEPAL_API_BASE_URL` | Base URL của API Gateway (đã gồm `/api`) | `http://localhost:8080/api` |
+| `VITE_MAPBOX_TOKEN` | Mapbox public access token cho trang bản đồ `/map` (thiếu thì trang hiện thông báo thay vì bản đồ) | `pk.<your-mapbox-public-token>` |
+| `VITE_MAPBOX_STYLE` | Style Mapbox dùng cho bản đồ | `mapbox://styles/<username>/<style-id>` |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth Client ID (Web) cho nút "Tiếp tục với Google"; phải trùng `GOOGLE_CLIENT_ID` của identity-service | `<your-client-id>.apps.googleusercontent.com` |
 
-### 4. Khởi chạy
+> Origin của frontend (ví dụ `http://localhost:5173`) cần nằm trong cấu hình CORS của Backend và trong "Authorized JavaScript origins" của Google OAuth Client ID.
+
+### Khởi chạy ứng dụng (Running the App)
+
 ```bash
 npm run dev
 ```
-Giao diện chạy tại: http://localhost:5173
+
+Ứng dụng chạy tại `http://localhost:5173` (cổng mặc định của Vite).
 
 | Lệnh | Mô tả |
 | :--- | :--- |
-| `npm run dev` | Chạy môi trường phát triển |
+| `npm run dev` | Chạy server phát triển (Vite) |
 | `npm run build` | Build production vào thư mục `dist/` |
 | `npm run preview` | Chạy thử bản build |
-| `npm run lint` | Kiểm tra code với ESLint |
-| `npm test` | Chạy test tạm (`*.test.js`). Repo không giữ file test lâu dài: viết để kiểm tra, test xong thì xóa |
+| `npm run lint` | Kiểm tra mã nguồn bằng ESLint |
+| `npm test` | Chạy `node --test "src/**/*.test.js"`; chỉ dùng khi đang có file test tạm (repo không giữ test lâu dài) |
 
-### 5. Deploy lên Vercel
-- Import repo vào Vercel (preset Vite), thêm các biến `VITE_*` ở Settings → Environment Variables (`VITE_VEGGIEPAL_API_BASE_URL` phải gồm `/api`), sửa biến xong phải Redeploy vì Vite nhúng biến lúc build.
-- `vercel.json` có rewrite mọi đường dẫn (trừ `/assets/`) về `index.html` để refresh hoặc mở thẳng route con (`/login`, `/recipes/...`) không bị 404 (app là SPA dùng React Router); file thiếu trong `/assets/` vẫn trả 404 để chunk JS cũ không nhận nhầm HTML. File trong `/assets/` có hash nên được cache 1 năm (`immutable`).
-- Origin của FE phải nằm trong CORS của BE và trong "Authorized JavaScript origins" của Google OAuth Client ID.
+**Triển khai lên Vercel:** import repo (preset Vite), thêm các biến `VITE_*` ở *Settings → Environment Variables*; đổi biến xong phải *Redeploy* vì Vite nhúng biến lúc build. File [`vercel.json`](vercel.json) đã rewrite mọi đường dẫn (trừ `/assets/`) về `index.html` để mở thẳng route con như `/recipes/1` không bị 404.
 
 ---
-
-## 📁 Cấu trúc thư mục
-
-```text
-src/
-├── app/            # App, provider (Query + Router), routes
-├── components/ui/  # Component shadcn/ui (button, dialog, dropdown-menu, select ...)
-├── features/       # admin, auth, home, meal-planner, payment, profile, video, restaurant-map, chatbot
-├── lib/            # queryClient, schema zod, cn
-├── shared/         # apiClient (axios), errorMessages (bảng dịch mã lỗi BE), Reveal, ThemeToggle, ScrollToTop (về đầu trang khi đổi route), SelectField (dropdown chọn giá trị), themeStore
-└── styles/         # globals.css (Tailwind + design token)
-docs/TECH_STACK.md  # Quy ước công nghệ & UI
-docs/CODE_NOTES.md  # Giải thích chi tiết chức năng / cách hoạt động của code (comment dài đã chuyển ra đây)
-```
-
-Alias import: `@/` trỏ tới `src/`.
-
----
-
-## 🔌 API chính
-
-Gọi qua API Gateway, response dạng `{ code, message, result }`, cần JWT (trừ `/auth/*`).
-
-| Method | Endpoint | Mô tả |
-| :--- | :--- | :--- |
-| `POST` | `/auth/login` | Đăng nhập |
-| `POST` | `/auth/register` | Đăng ký (tài khoản `PENDING`, BE gửi mã OTP qua email) |
-| `POST` | `/auth/verify-email`, `/auth/resend-verification` | Xác minh email bằng mã 6 số (đăng nhập luôn) / gửi lại mã (cách nhau tối thiểu 60 giây) |
-| `POST` | `/auth/refresh`, `/auth/logout` | Đổi refresh token (dùng một lần) lấy cặp token mới / hủy refresh token của thiết bị |
-| `POST` | `/auth/forgot-password`, `/auth/verify-otp`, `/auth/reset-password` | Quên mật khẩu: gửi mã qua email, đổi mã lấy `resetToken`, đặt mật khẩu mới |
-| `POST` | `/auth/google` | Đăng nhập / đăng ký bằng Google (gửi `idToken`) |
-| `GET` / `PATCH` | `/users/me` | Xem / sửa hồ sơ (họ tên, số điện thoại, ngày sinh, giới tính, mức vận động) |
-| `PUT` | `/users/me/password` | Đổi mật khẩu |
-| `PUT` / `DELETE` | `/users/:id/follow` | Theo dõi / bỏ theo dõi một người (gọi lặp không lỗi, trả số liệu mới) |
-| `GET` | `/users/:id/follow-stats`, `/users/me/following/ids` | Số người theo dõi / đang theo dõi / đã theo dõi chưa; id những người tôi theo dõi |
-| `GET` | `/blogs/feed/following` | Feed bài của những người tôi theo dõi (phân trang, cần đăng nhập) |
-| `GET` | `/videos`, `/videos/:id`, `/videos/me` | Danh sách video đã duyệt (phân trang dạng `items`, lọc danh mục) / Chi tiết video / Video của tôi |
-| `POST` / `PUT` / `DELETE` | `/videos`, `/videos/:id` | Đăng video (tệp .mp4 ≤ 30MB hoặc YouTube link) / Sửa / Xóa video |
-| `GET` | `/recipes`, `/recipes/:id` | Danh sách công thức đã đăng (`keyword`, `sort=popular`, phân trang dạng `items`) / Chi tiết (kèm `nutritionPerServing`, `favoriteCount`) |
-| `POST` | `/recipes/:id/image` | Tải / đổi ảnh công thức (multipart `file`, JPEG / PNG ≤ 5MB, chủ hoặc ADMIN); `PUT /recipes/:id` không đổi ảnh (link khác trả 4119) |
-| `GET` | `/recipes/favorites`, `/recipes/favorites/ids` | Công thức tôi đã lưu (phân trang) / id các công thức đã lưu |
-| `POST` / `DELETE` | `/recipes/:id/favorite` | Lưu / bỏ lưu công thức (gọi lặp không lỗi, trả `favoriteCount` mới) |
-| `GET` | `/restaurants/nearby`, `/restaurants/search` | Quán chay quanh một điểm (`lat`, `lng`, `radiusKm` ≤ 10) / Tìm quán theo tên (`q` 2 - 100 ký tự, tối đa 20 quán, không theo bán kính; công khai) |
-| `POST` | `/users/me/avatar` | Tải ảnh đại diện |
-| `GET` | `/nutrition/allergens` | Danh mục dị ứng |
-| `GET` / `PUT` | `/nutrition/me/allergies` | Xem / cập nhật dị ứng |
-| `GET` / `POST` | `/nutrition/me/health-records` | Lịch sử / ghi chỉ số sức khỏe |
-| `GET` | `/nutrition/me/health-records/latest` | Chỉ số sức khỏe mới nhất |
-| `PUT` | `/nutrition/me/health-records/:id` | Sửa một bản ghi chỉ số sức khỏe trong lịch sử |
-| `GET` / `POST` / `PUT` | `/ai/admin/prompts`, `/ai/admin/prompts/:key/versions`, `/activations`, `/drafts`, `/drafts/:v/preview`, `/drafts/:v/publish`, `/versions/:v/activate` | Quản lý prompt AI (chỉ ADMIN): xem, tạo / sửa nháp, chạy thử, publish, kích hoạt lại |
-| `GET` | `/ai/admin/monitoring/summary`, `/logs/search`, `/models`, `/limits` | Giám sát AI (chỉ ADMIN): tổng hợp, nhật ký, model, giới hạn (hỗ trợ `excludeFeature` loại trừ kiểm duyệt theo task B06) |
-| `GET` / `PUT` / `DELETE` | `/ai/admin/moderation`, `/ai/admin/moderation/:id`, `/ai/admin/moderation/history`, `/ai/admin/monitoring/logs/search?feature=MODERATION` | Kiểm duyệt nội dung (chỉ ADMIN): hàng đợi chờ duyệt, lịch sử các ca đã xử lý (`GET /ai/admin/moderation/history` theo task B05), nhật ký gọi AI kiểm duyệt |
-| `POST` | `/ai/videos/process` | Gửi tệp video bóc tách công thức AI (multipart ≤ 100MB, ≤ 30 phút, cần đăng nhập) |
-| `POST` | `/ai/videos/process-existing` | Bóc tách công thức từ video đã đăng (`{ videoId }`, trừ lượt theo gói) |
-| `GET` | `/ai/videos/by-video/:videoId` | Xem công thức AI của video (công khai permitAll, mã 6026 cho YouTube, 6022 đang xử lý) |
-| `GET` | `/ai/videos` | Lịch sử các lượt bóc tách video của tôi (phân trang dạng `items`) |
-| `GET` | `/admin/payments/summary`, `/statistics`, `/revenue`, `/orders`, `/orders/:id` | Thống kê thanh toán (chỉ ADMIN): tổng quan, phân bố, doanh thu theo ngày / tháng, danh sách và chi tiết đơn hàng |
-| `GET` | `/admin/users` | Danh sách người dùng (chỉ ADMIN): tìm kiếm email/họ tên, lọc status / role, phân trang |
-| `PUT` | `/admin/users/:id/lock` | Khóa tài khoản người dùng (chỉ ADMIN, bắt buộc nhập lý do tối đa 500 ký tự) |
-| `PUT` | `/admin/users/:id/unlock` | Mở khóa tài khoản đang bị BLOCKED (chỉ ADMIN) |
-| `PUT` | `/admin/users/:id/role` | Nâng quyền tài khoản người dùng lên ADMIN (chỉ ADMIN) |
-| `GET` | `/ai/meal-plans/nutrition-target` | Mục tiêu calo / macro BE tính theo hồ sơ cho `goalType` (`LOSE` / `MAINTAIN` / `GAIN`), hiện ở form tạo thực đơn |
-| `GET` | `/ai/meal-plans/:id` | Một thực đơn (lấy mới khi mở hộp thoại "Lịch sử") |
-| `GET` | `/nutrition/me/diary?date=` | Nhật ký một ngày: bữa đã ăn, tổng dinh dưỡng, nước, vận động |
-| `PUT` / `DELETE` | `/nutrition/me/diary/meal-plans/:planId/meals/:mealType` | Đánh dấu / bỏ đánh dấu một bữa của thực đơn là đã ăn (`{date, servings?}`) |
-| `POST` / `PUT` / `DELETE` | `/nutrition/me/diary/water`, `/nutrition/me/diary/water/:id` | Ghi / sửa / xóa một lần uống nước (`{date, milliliters}`) |
-| `POST` / `PUT` / `DELETE` | `/nutrition/me/diary/activities`, `/nutrition/me/diary/activities/:id` | Ghi / sửa / xóa một hoạt động (`{date, activityType, minutes}`) |
-| `GET` | `/ai/meal-plans/favorites`, `/ai/meal-plans/favorites/:id` | Danh sách thực đơn yêu thích (phân trang) / một thực đơn yêu thích |
-| `GET` | `/ai/meal-plans/:id/versions`, `/ai/meal-plans/:id/versions/:version` | Lịch sử phiên bản / nội dung một phiên bản cũ |
-| `POST` | `/ai/chat/guest-sessions` | Tạo phiên dùng thử cho khách (mỗi khách 1 phiên, lưu `sessionStorage`) |
-| `POST` | `/ai/chat/guest` | Khách hỏi AI Bông Cải (giới hạn 3 lượt/ngày) |
-| `POST` | `/ai/chat` | Thành viên hỏi AI (tạo mới hoặc tiếp tục cuộc trò chuyện) |
-| `GET` | `/ai/chat/conversations` | Danh sách các cuộc trò chuyện của thành viên |
-| `GET` | `/ai/chat/conversations/:id` | Chi tiết các tin nhắn trong một cuộc trò chuyện (truy cập của người khác trả 404) |
-| `DELETE` | `/ai/chat/conversations/:id` | Xóa một cuộc trò chuyện |
-| `GET` | `/payments/plans` | Danh sách gói thành viên (công khai) |
-| `POST` | `/payments/checkout` | Tạo đơn thanh toán payOS (gói PLUS / PRO); mua gói thấp hơn khi gói cao còn hạn trả 409 / 6010 |
-| `GET` | `/payments/checkout-preview?plan=` | Xem trước hạn dùng mới khi gia hạn hoặc nâng cấp (`remainingDays`, `bonusDays`, `newExpiresAt`) |
-| `GET` | `/payments/orders/:id` | Chi tiết đơn thanh toán theo ID |
-| `POST` | `/payments/orders/:id/cancel` | Huỷ đơn thanh toán PENDING (`cancelOrder`), trả đơn với status CANCELLED |
-| `GET` | `/payments/history` | Lịch sử giao dịch của người dùng |
-| `GET` | `/subscriptions/me` | Thông tin gói thành viên hiện tại và hạn dùng |

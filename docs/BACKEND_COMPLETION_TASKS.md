@@ -315,3 +315,13 @@ Các task dưới đây ghi ngày 29/10/2026, sau khi đọc source BE ở các 
 **Hoàn thành khi:** admin liệt kê được nội dung ở từng trạng thái, lọc theo tác giả; người không phải admin gọi bị 403; có test phân quyền và lọc.
 
 **Cập nhật 02/11/2026:** BE đã làm phần chính (đọc code nhánh `dev`, chưa chạy): `GET /admin/blogs`, `/admin/videos`, `/admin/recipes` lọc theo `status`, `authorId`, `keyword`; `PUT /admin/blogs/:id/status` và `/admin/videos/:id/status` đổi `PENDING` / `REJECTED` sang `PUBLISHED` / `REJECTED`, bắt buộc có lý do, lưu người quyết định vào `content_status_audits`. "Bỏ qua" ở hàng đợi AI giờ giữ ca mở, không còn làm bài kẹt `PENDING`. FE đã dùng các endpoint này ở `/admin/content`. Còn lại: công thức chưa có endpoint đổi trạng thái (`HIDDEN` / `DRAFT` / `ARCHIVED`), `BANNED` và `ARCHIVED` vẫn là trạng thái cuối, và `FE` chưa đọc `content_status_audits` vì BE chưa có API xem lịch sử này.
+
+### B18 — `GET /users/batch` không cho biết người dùng có huy hiệu `ACHIEVEMENT` hay không
+
+**Service:** identity-service · ghi 20/11/2026 · mức: thấp, ảnh hưởng hiển thị.
+
+**Hiện trạng:** `PublicUserResponse` (kết quả của `GET /users/batch`, dùng để hiện tên và ảnh tác giả cạnh nội dung công khai) chỉ có `id`, `fullName`, `avatarUrl`. Huy hiệu chỉ nằm trong `GET /users/me` (của chính người gọi) và `GET /admin/users/{id}/badges` (chỉ admin). Vì vậy FE không biết tác giả bài viết hay bình luận nào đã hoàn thành thử thách 7 ngày để hiện icon trái tim cạnh tên ở trang cộng đồng; hiện chỉ hiện được cho chính người đang đăng nhập.
+
+**BE cần làm:** thêm vào `PublicUserResponse` một trường `badgeTypes`: danh sách loại huy hiệu **đang còn hiệu lực** của người dùng (bỏ huy hiệu đã bị thu hồi), ví dụ `["ACHIEVEMENT"]`, rỗng nếu không có. Lấy huy hiệu của cả danh sách `ids` trong một truy vấn (tránh N+1 khi gọi tối đa 50 id). Các endpoint khác trả `PublicUserResponse` (nếu có, ví dụ danh sách theo dõi) nên có cùng trường.
+
+**Hoàn thành khi:** `GET /users/batch?ids=...` trả `badgeTypes` đúng với từng người (có `ACHIEVEMENT` sau khi hoàn thành thử thách, mất khi bị thu hồi); không thêm email hay thông tin riêng tư; có test cho trường hợp có và không có huy hiệu.

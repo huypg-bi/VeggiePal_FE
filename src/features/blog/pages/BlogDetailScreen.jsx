@@ -22,6 +22,7 @@ import {
 import { getBlogReviewNote, isAiReviewing } from "@/features/blog/utils/blogModeration";
 import StatusBadge from "@/features/my-content/components/StatusBadge";
 import { canEditBlog, getBlogStatusInfo } from "@/features/my-content/utils/statusInfo";
+import GreenHeartBadge from "@/features/profile/components/GreenHeartBadge";
 import AppHeader from "@/shared/components/AppHeader";
 import FallbackImage from "@/shared/components/FallbackImage";
 import { usePublicUsers } from "@/shared/hooks/usePublicUsers";
@@ -96,6 +97,7 @@ export default function BlogDetailScreen() {
                         <p className="truncate text-sm font-semibold text-ink">
                           {author?.fullName ?? FALLBACK_AUTHOR_NAME}
                         </p>
+                        <GreenHeartBadge userId={blog.authorId} user={author} />
                         {/* Tác giả không resolve được thì BE không cho theo dõi nên ẩn nút. */}
                         {author && <FollowButton userId={blog.authorId} className="shrink-0" />}
                       </div>
