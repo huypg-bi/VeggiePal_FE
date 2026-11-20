@@ -2,7 +2,7 @@
   <img src="src/assets/img/logo.png" alt="VeggiePal" width="140" />
 </p>
 
-<h1 align="center">VeggiePal – Frontend</h1>
+<h1 align="center">VeggiePal</h1>
 
 <p align="center">
   Ứng dụng web giúp người ăn chay theo dõi sức khỏe, lên thực đơn bằng AI, khám phá công thức – video nấu ăn, tìm quán chay và trò chuyện cùng trợ lý <b>Bông Cải</b>.

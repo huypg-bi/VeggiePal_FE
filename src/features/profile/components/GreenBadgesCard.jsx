@@ -37,8 +37,8 @@ export default function GreenBadgesCard() {
   const badges = profile?.badges ?? [];
 
   return (
-    <div className="bg-card rounded-3xl p-5 shadow-sm border border-border">
-      <div className="flex items-center justify-between mb-3.5">
+    <div className="bg-card rounded-3xl p-4 shadow-sm border border-border">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Award className="w-4 h-4 text-brand" />
           <h3 className="font-bold text-ink text-sm">Huy Hiệu Xanh</h3>
@@ -55,20 +55,20 @@ export default function GreenBadgesCard() {
           để nhận huy hiệu đầu tiên.
         </p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-0.5">
           {badges.map((badge) => {
             const style = BADGE_STYLES[badge.type] ?? FALLBACK_STYLE;
             const Icon = style.icon;
             const grantedOn = formatGrantedDate(badge.grantedAt);
             return (
-              <div key={badge.id} className="flex items-start gap-3 p-2.5 rounded-2xl hover:bg-surface transition-colors">
-                <div className={`w-9 h-9 rounded-xl ${style.color} flex items-center justify-center shrink-0`}>
+              <div key={badge.id} className="flex items-start gap-2.5 p-2 rounded-2xl hover:bg-surface transition-colors">
+                <div className={`w-8 h-8 rounded-xl ${style.color} flex items-center justify-center shrink-0`}>
                   <Icon className="w-4 h-4" />
                 </div>
                 <div>
                   <h4 className="text-xs font-bold text-ink">{style.title}</h4>
                   <p className="text-[11px] text-subtle leading-tight mt-0.5">{style.desc}</p>
-                  {grantedOn && <p className="text-[10px] text-subtle mt-1">Nhận ngày {grantedOn}</p>}
+                  {grantedOn && <p className="text-[10px] text-subtle mt-0.5">Nhận ngày {grantedOn}</p>}
                 </div>
               </div>
             );
