@@ -7,7 +7,6 @@ import {
   UserCheck,
   Bookmark,
   Activity,
-  Heart,
   Crown,
   History,
 } from "lucide-react";
@@ -17,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import FollowListDialog from "@/features/blog/components/FollowListDialog";
 import { useFollowStats } from "@/features/blog/hooks/useFollow";
-import { CHALLENGE_BADGE_NAME } from "@/features/blog/utils/challenge";
+import GreenHeartBadge from "@/features/profile/components/GreenHeartBadge";
 import { useFavoriteRecipes } from "@/features/recipe/hooks/useRecipeFavorites";
 import { useProfileStats } from "@/features/profile/hooks/useProfileStats";
 import { useMySubscription } from "@/features/payment/hooks/useMySubscription";
@@ -30,8 +29,6 @@ export default function ProfileBanner({ profile }) {
   const navigate = useNavigate();
   const stats = useProfileStats();
   const { subscription } = useMySubscription();
-  // Huy hiệu ACHIEVEMENT (hoàn thành thử thách 7 ngày) lấy từ `badges` của hồ sơ, vì useChallenge không có cờ `completed`.
-  const hasChallengeBadge = (profile?.badges ?? []).some((b) => b.type === "ACHIEVEMENT" && !b.revokedAt);
   const [followDialogKind, setFollowDialogKind] = useState(null);
 
   const authUser = useAuthStore((s) => s.user);
@@ -78,21 +75,8 @@ export default function ProfileBanner({ profile }) {
             <div>
               <div className="mb-1 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
                 <h1 className="text-2xl font-bold text-ink">{displayName}</h1>
-                {hasChallengeBadge && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-chart-4/30 bg-chart-4/15 px-3 py-0.5 text-xs font-semibold text-chart-4">
-                    <Heart className="size-3 fill-current" />
-                    {CHALLENGE_BADGE_NAME}
-                  </span>
-                )}
-                {/* Gói thành viên hiện tại */}
-                <Link
-                  to="/pricing"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-0.5 text-xs font-semibold text-amber-700 dark:text-amber-400 hover:opacity-85 transition"
-                >
-                  <Crown className="size-3.5 text-amber-500" />
-                  Gói {subscription?.planCode || "FREE"}
-                  {subscription?.expiresAt && ` (Hạn: ${formatDate(subscription.expiresAt)})`}
-                </Link>
+                {/* Trái tim thử thách 7 ngày: chỉ icon, tên huy hiệu nằm ở tooltip */}
+                <GreenHeartBadge userId={userId} className="size-5" />
               </div>
               {/* @username: chỉ hiển thị khi có trường username */}
               {profile?.username && (
@@ -109,30 +93,41 @@ export default function ProfileBanner({ profile }) {
             </div>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2 flex-wrap justify-center">
-            {/* Nút Sửa hồ sơ -> điều hướng sang /profile/edit */}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/profile/edit")}
-              className="rounded-full gap-2 cursor-pointer font-semibold"
-            >
-              <Edit3 className="h-4 w-4" />
-              Sửa hồ sơ
-            </Button>
+          <div className="flex shrink-0 flex-col items-center gap-2 md:items-end">
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              {/* Nút Sửa hồ sơ -> điều hướng sang /profile/edit */}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/profile/edit")}
+                className="rounded-full gap-2 cursor-pointer font-semibold"
+              >
+                <Edit3 className="h-4 w-4" />
+                Sửa hồ sơ
+              </Button>
 
-            {/* Nút Lịch sử thanh toán */}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/payment/history")}
-              className="rounded-full gap-1.5 cursor-pointer font-medium text-subtle hover:text-ink"
+              {/* Nút Lịch sử thanh toán */}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/payment/history")}
+                className="rounded-full gap-1.5 cursor-pointer font-medium text-subtle hover:text-ink"
+              >
+                <History className="h-4 w-4" />
+                Lịch sử gói
+              </Button>
+            </div>
+            {/* Gói thành viên hiện tại, nằm dưới hai nút */}
+            <Link
+              to="/pricing"
+              className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-0.5 text-xs font-semibold text-amber-700 transition hover:opacity-85 dark:text-amber-400"
             >
-              <History className="h-4 w-4" />
-              Lịch sử gói
-            </Button>
+              <Crown className="size-3.5 text-amber-500" />
+              Gói {subscription?.planCode || "FREE"}
+              {subscription?.expiresAt && ` (Hạn: ${formatDate(subscription.expiresAt)})`}
+            </Link>
           </div>
         </div>
 

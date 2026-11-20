@@ -12,6 +12,7 @@ import {
 import AuthorAvatar from "@/features/blog/components/AuthorAvatar";
 import FollowButton from "@/features/blog/components/FollowButton";
 import { useFollowList } from "@/features/blog/hooks/useFollow";
+import GreenHeartBadge from "@/features/profile/components/GreenHeartBadge";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -91,7 +92,10 @@ function FollowList({ userId, kind }) {
         {users.map((user) => (
           <li key={user.id} className="flex items-center gap-3 rounded-xl bg-surface px-3 py-2">
             <AuthorAvatar author={user} className="size-9 text-xs" />
-            <span className="min-w-0 flex-1 truncate text-sm font-semibold text-ink">{user.fullName}</span>
+            <span className="flex min-w-0 flex-1 items-center gap-1.5">
+              <span className="truncate text-sm font-semibold text-ink">{user.fullName}</span>
+              <GreenHeartBadge userId={user.id} user={user} />
+            </span>
             <FollowButton userId={user.id} className="shrink-0" />
           </li>
         ))}
