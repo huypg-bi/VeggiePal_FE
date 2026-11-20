@@ -1934,6 +1934,7 @@ Tổng cộng 335 mục từ 201 file.
 **Gắn với:** `export default function ProfileBanner({ profile }) {`
 
 > Thẻ đầu trang cá nhân (ảnh bìa `profile_bg.jpg`, ảnh đại diện, huy hiệu thử thách, gói tài khoản, nút sửa hồ sơ và 5 chỉ số).
+> - Huy hiệu "Trái Tim Xanh Veggie" cạnh tên hiện khi `profile.badges` có huy hiệu `ACHIEVEMENT` chưa bị thu hồi (không dùng `useChallenge`, hook đó chỉ có `status`, không có cờ `completed`).
 > - Không có danh hiệu cố định "Đầu Bếp Chay Sáng Tạo" (từng viết cứng, không có dữ liệu thật); bio dưới tên là chữ cố định vì BE chưa có trường bio.
 > - Số người theo dõi và đang theo dõi lấy từ API thật `GET /users/{id}/follow-stats` qua `useFollowStats`, bấm vào ô mở `FollowListDialog` để xem danh sách và theo dõi / bỏ theo dõi.
 > - Ô thứ tư là "Công thức đã lưu": tổng số từ `GET /recipes/favorites` (`useFavoriteRecipes({ size: 1 })`, chỉ cần `totalElements`). BE chưa có số lượt lưu mà công thức của tôi nhận được nên không hiện chỉ số đó.
@@ -2024,6 +2025,7 @@ Tổng cộng 335 mục từ 201 file.
 > Được chuyển từ trang thực đơn sang vì hồ sơ thiếu thông tin tính calo: thẻ chỉ số sức khỏe (nơi nhập ngày sinh,
 > giới tính, mức vận động) cuộn tới và làm nổi các ô còn thiếu, và lưu / hủy xong thì quay lại nơi đã chuyển đi
 > (xem readProfileFixState).
+> Cột trái (ảnh đại diện, thông tin cá nhân, đổi mật khẩu, câu trích dẫn) dính dưới header ở màn hình từ lg trở lên (`lg:sticky lg:top-28`) khi cuộn cột phải có thẻ chỉ số sức khỏe và dị ứng; cột cao hơn màn hình thì tự cuộn trong cột (`lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto`).
 
 ### features/profile/queryKeys.js
 
