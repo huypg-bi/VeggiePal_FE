@@ -122,7 +122,7 @@ export default function ProfileBanner({ profile }) {
             {/* Gói thành viên hiện tại, nằm dưới hai nút */}
             <Link
               to="/pricing"
-              className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-0.5 text-xs font-semibold text-amber-700 transition hover:opacity-85 dark:text-amber-400"
+              className="inline-flex items-center justify-center gap-1.5 self-stretch rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-0.5 text-xs font-semibold text-amber-700 transition hover:opacity-85 dark:text-amber-400"
             >
               <Crown className="size-3.5 text-amber-500" />
               Gói {subscription?.planCode || "FREE"}

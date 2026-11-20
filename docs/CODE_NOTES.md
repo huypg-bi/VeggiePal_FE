@@ -1943,7 +1943,7 @@ Tổng cộng 335 mục từ 201 file.
 
 > Thẻ đầu trang cá nhân (ảnh bìa `profile_bg.jpg`, ảnh đại diện, trái tim thử thách, nút sửa hồ sơ, gói tài khoản và 5 chỉ số).
 > - Cạnh tên chỉ có một icon trái tim (`GreenHeartBadge`, không ghi chữ, tên huy hiệu ở tooltip) khi hồ sơ có huy hiệu `ACHIEVEMENT` chưa bị thu hồi; không dùng `useChallenge` vì hook đó chỉ có `status`, không có cờ `completed`.
-> - Chip "Gói PRO (Hạn: …)" nằm dưới hai nút "Sửa hồ sơ" và "Lịch sử gói" (cột phải của thẻ), không còn cạnh tên.
+> - Chip "Gói PRO (Hạn: …)" nằm dưới hai nút "Sửa hồ sơ" và "Lịch sử gói" (cột phải của thẻ), kéo dài bằng đúng chiều rộng của hai nút (`self-stretch`), không còn cạnh tên.
 > - Không có danh hiệu cố định "Đầu Bếp Chay Sáng Tạo" (từng viết cứng, không có dữ liệu thật); bio dưới tên là chữ cố định vì BE chưa có trường bio.
 > - Số người theo dõi và đang theo dõi lấy từ API thật `GET /users/{id}/follow-stats` qua `useFollowStats`, bấm vào ô mở `FollowListDialog` để xem danh sách và theo dõi / bỏ theo dõi.
 > - Ô thứ tư là "Công thức đã lưu": tổng số từ `GET /recipes/favorites` (`useFavoriteRecipes({ size: 1 })`, chỉ cần `totalElements`). BE chưa có số lượt lưu mà công thức của tôi nhận được nên không hiện chỉ số đó.
