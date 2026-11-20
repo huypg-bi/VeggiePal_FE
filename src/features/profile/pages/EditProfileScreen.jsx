@@ -35,8 +35,8 @@ export default function EditProfileScreen() {
         </Reveal>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Cột trái (4/12) */}
-          <div className="lg:col-span-4 space-y-5">
+          {/* Cột trái (4/12): dính dưới header khi cuộn cột phải, quá cao thì tự cuộn trong cột */}
+          <div className="lg:col-span-4 space-y-5 lg:sticky lg:top-28 lg:max-h-[calc(100dvh-8rem)] lg:overflow-y-auto lg:px-1 lg:pb-1">
             <Reveal>
               <EditAvatarCard
                 profile={personal.profile}

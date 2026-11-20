@@ -16,7 +16,6 @@ import profileBg from "@/assets/img/profile_bg.jpg";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/features/auth/store/authStore";
 import FollowListDialog from "@/features/blog/components/FollowListDialog";
-import { useChallenge } from "@/features/blog/hooks/useChallenge";
 import { useFollowStats } from "@/features/blog/hooks/useFollow";
 import { CHALLENGE_BADGE_NAME } from "@/features/blog/utils/challenge";
 import { useFavoriteRecipes } from "@/features/recipe/hooks/useRecipeFavorites";
@@ -31,8 +30,8 @@ export default function ProfileBanner({ profile }) {
   const navigate = useNavigate();
   const stats = useProfileStats();
   const { subscription } = useMySubscription();
-  // Huy hiệu mở khóa khi hoàn thành thử thách 7 ngày ở trang Cộng đồng.
-  const { completed: hasChallengeBadge } = useChallenge();
+  // Huy hiệu ACHIEVEMENT (hoàn thành thử thách 7 ngày) lấy từ `badges` của hồ sơ, vì useChallenge không có cờ `completed`.
+  const hasChallengeBadge = (profile?.badges ?? []).some((b) => b.type === "ACHIEVEMENT" && !b.revokedAt);
   const [followDialogKind, setFollowDialogKind] = useState(null);
 
   const authUser = useAuthStore((s) => s.user);
